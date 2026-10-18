@@ -22,6 +22,9 @@ DEV_CELL_CORES = 8  # BUILD-PROMPT.md "Resources"
 LITE_CELL_CORES = 4  # [P]
 DISK_FREE_GIB = 50.0  # [P] images for the cell, Gradle, pnpm and Corepack caches, k3d volumes, build output
 WINDOWS_RESERVE_GIB = 4.0  # [P] memory left to Windows when sizing the WSL2 VM
+# WSL2 keeps each distribution's virtual disk on a Windows drive: C: unless it was moved [P]. Space inside the
+# virtual disk is only real while that drive has it, so on WSL2 the disk check also counts this drive.
+WSL_WINDOWS_DRIVE = Path("/mnt/c")
 
 FAST_TIER_ITEMS = ("jdk", "node", "pnpm", "venv", "gitleaks")
 
@@ -91,6 +94,13 @@ def is_windows(host: Host) -> bool:
     return host.system().lower().startswith(("windows", "msys", "mingw", "cygwin"))
 
 
+def is_wsl2(host: Host) -> bool:
+    proc_version = (host.read_text("/proc/version") or "").lower()
+    return host.system() == "Linux" and "microsoft" in proc_version and (
+        "wsl2" in proc_version or "microsoft-standard" in proc_version
+    )
+
+
 def exe(host: Host, name: str) -> str:
     return name + ".exe" if is_windows(host) else name
 
@@ -118,8 +128,7 @@ def check_os(host: Host) -> Item:
         if host.env("MSYSTEM"):
             label += f", {host.env('MSYSTEM')} shell (Git Bash)"
         return Item("os", "Operating system", False, label, need)
-    proc_version = host.read_text("/proc/version") or ""
-    wsl2 = "microsoft" in proc_version.lower() and ("wsl2" in proc_version.lower() or "microsoft-standard" in proc_version.lower())
+    wsl2 = is_wsl2(host)
     os_release = host.read_text("/etc/os-release") or ""
     pretty = re.search(r'^PRETTY_NAME="?([^"\n]+)"?', os_release, re.M)
     distro = pretty.group(1) if pretty else "Linux"
@@ -239,6 +248,15 @@ def check_rust(host: Host) -> Item:
     need = "Rust stable (rustc and cargo)"
     if not host.which("rustc") or not host.which("cargo"):
         missing = [name for name in ("rustc", "cargo") if not host.which(name)]
+        home = host.env("HOME")
+        cargo_bin = Path(home) / ".cargo" / "bin" if home else None
+        if cargo_bin and all(host.exists(cargo_bin / name) for name in ("rustc", "cargo")):
+            return Item(
+                "rust", "Rust stable and cargo", False,
+                f"{', '.join(missing)} not on PATH in this shell, but rustup installed them in ~/.cargo/bin", need,
+                fix_key="rust-path",
+                note="rustup adds '. \"$HOME/.cargo/env\"' to ~/.profile and ~/.bashrc; a non-login shell reads neither.",
+            )
         return Item("rust", "Rust stable and cargo", False, f"{', '.join(missing)} not on PATH", need)
     code_r, rustc = host.run(["rustc", "--version"], timeout=30)
     code_c, cargo = host.run(["cargo", "--version"], timeout=30)
@@ -361,6 +379,13 @@ def resource_items(host: Host) -> tuple[list[Item], str, dict]:
     ram = host.ram_gib()
     cores = host.cpu_count()
     disk = host.disk_free_gib(host.root)
+    disk_label = "unknown" if disk is None else f"{disk:.1f} GiB free on the repository volume"
+    windows_disk = None
+    if is_wsl2(host) and host.exists(WSL_WINDOWS_DRIVE):
+        windows_disk = host.disk_free_gib(WSL_WINDOWS_DRIVE)
+        if windows_disk is not None:
+            disk_label += f" (the WSL2 virtual disk); {windows_disk:.1f} GiB free on C:, which holds that disk"
+            disk = windows_disk if disk is None else min(disk, windows_disk)
     # On a Windows host the cells run in the WSL2 VM, which can be given the host RAM minus what Windows needs.
     linux_ram = None if ram is None else (max(ram - WINDOWS_RESERVE_GIB, 0.0) if windows else ram)
     if linux_ram is None:
@@ -386,9 +411,10 @@ def resource_items(host: Host) -> tuple[list[Item], str, dict]:
             f">= {DEV_CELL_CORES} for the dev cell, >= {LITE_CELL_CORES} for the lite cell [P]",
         ),
         Item(
-            "disk", "Free disk", disk is not None and disk >= DISK_FREE_GIB,
-            "unknown" if disk is None else f"{disk:.1f} GiB free on the repository volume",
+            "disk", "Free disk", disk is not None and disk >= DISK_FREE_GIB, disk_label,
             f">= {DISK_FREE_GIB:.0f} GiB free [P]",
+            note="" if windows_disk is None else
+            "On WSL2 the smaller figure counts: the virtual disk can only grow while its Windows drive has space [P].",
         ),
     ]
     numbers = {
@@ -396,6 +422,7 @@ def resource_items(host: Host) -> tuple[list[Item], str, dict]:
         "linux_ram_gib": None if linux_ram is None else round(linux_ram, 1),
         "cpu_count": cores,
         "disk_free_gib": None if disk is None else round(disk, 1),
+        "windows_drive_free_gib": None if windows_disk is None else round(windows_disk, 1),
     }
     return items, profile, numbers
 

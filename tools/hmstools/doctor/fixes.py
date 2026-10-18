@@ -62,6 +62,9 @@ UBUNTU: dict[str, list[str]] = {
         f"{PROVISION}   # rustup with the stable toolchain, for the build user",
         "# or by hand: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable",
     ],
+    "rust-path": [
+        '. "$HOME/.cargo/env"   # puts ~/.cargo/bin on PATH in this shell; or start a login shell (bash -l)',
+    ],
     "tauri": [
         f"{PROVISION}   # the Tauri 2 Linux packages",
         "# or by hand: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget"
@@ -81,7 +84,11 @@ UBUNTU: dict[str, list[str]] = {
         "(on Windows, set 'memory' in .wslconfig, below)."
     ],
     "cpu": ["Give the Linux environment more cores: 8 for the dev cell (on Windows, 'processors' in .wslconfig)."],
-    "disk": ["Free space on the volume that holds the repository, or move the repository to a larger volume."],
+    "disk": [
+        "Free space on the volume that holds the repository, or move the repository to a larger volume.",
+        "# WSL2: free space on the Windows drive that holds the virtual disk (C: by default), or move the"
+        " distribution to a larger drive with 'wsl --manage Ubuntu-24.04 --move <folder>' (in Windows).",
+    ],
 }
 
 

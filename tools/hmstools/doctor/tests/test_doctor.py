@@ -60,6 +60,7 @@ class FakeHost:
         self.ram = overrides.pop("ram", 47.0)
         self.cores = overrides.pop("cores", 16)
         self.disk = overrides.pop("disk", 400.0)
+        self.disk_by_path: dict[str, float] = overrides.pop("disk_by_path", {})
         self.python = overrides.pop("python", (3, 12, 3))
         self.envvars: dict[str, str] = overrides.pop("env", {})
         if overrides:
@@ -90,8 +91,10 @@ class FakeHost:
         return self.files.get(str(path))
 
     def exists(self, path: Path) -> bool:
-        text = str(path)
-        return text in self.paths or any(p.startswith(text + "/") or p.startswith(text + "\\") for p in self.paths)
+        # Compare in POSIX form, so Linux paths built with pathlib also match when the tests run on Windows.
+        text = Path(path).as_posix()
+        known = {Path(p).as_posix() for p in self.paths}
+        return text in known or any(p.startswith(text + "/") for p in known)
 
     def glob(self, directory: Path, pattern: str) -> list[Path]:
         found = set()
@@ -120,7 +123,7 @@ class FakeHost:
         return self.ram
 
     def disk_free_gib(self, path: Path) -> Optional[float]:
-        return self.disk
+        return self.disk_by_path.get(Path(path).as_posix(), self.disk)
 
 
 def item(report: checks.Report, item_id: str) -> checks.Item:
@@ -246,6 +249,33 @@ class Resources(unittest.TestCase):
     def test_disk_threshold(self) -> None:
         self.assertFalse(item(checks.run_checks(FakeHost(disk=20.0)), "disk").ok)
         self.assertTrue(item(checks.run_checks(FakeHost(disk=checks.DISK_FREE_GIB)), "disk").ok)
+
+    def test_wsl2_disk_counts_the_windows_drive_that_holds_the_virtual_disk(self) -> None:
+        host = FakeHost(disk=947.5, disk_by_path={"/mnt/c": 35.0})
+        host.paths.add("/mnt/c/Windows")
+        disk = item(checks.run_checks(host), "disk")
+        self.assertFalse(disk.ok)
+        self.assertIn("947.5 GiB free on the repository volume (the WSL2 virtual disk)", disk.found)
+        self.assertIn("35.0 GiB free on C:", disk.found)
+        report = checks.run_checks(host)
+        self.assertEqual(report.host["windows_drive_free_gib"], 35.0)
+        self.assertEqual(report.host["disk_free_gib"], 35.0)
+
+    def test_native_linux_disk_ignores_mnt_c(self) -> None:
+        host = FakeHost(disk=400.0, disk_by_path={"/mnt/c": 1.0})
+        host.files["/proc/version"] = "Linux version 6.8.0-45-generic (buildd@lcy02) #45-Ubuntu SMP"
+        host.paths.add("/mnt/c/Windows")
+        self.assertTrue(item(checks.run_checks(host), "disk").ok)
+
+    def test_rust_installed_by_rustup_but_not_on_path(self) -> None:
+        host = FakeHost(env={"HOME": "/home/surface"})
+        del host.on_path["rustc"], host.on_path["cargo"]
+        host.paths.update({"/home/surface/.cargo/bin/rustc", "/home/surface/.cargo/bin/cargo"})
+        rust = item(checks.run_checks(host), "rust")
+        self.assertFalse(rust.ok)
+        self.assertIn("rustup installed them in ~/.cargo/bin", rust.found)
+        self.assertEqual(rust.fix_key, "rust-path")
+        self.assertIn('. "$HOME/.cargo/env"', checks.UBUNTU["rust-path"][0])
 
 
 class WindowsHost(unittest.TestCase):
