@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hms:schema:safety:allowed-signers:1",
+  "title": "HMS Kurdistan allowed signers of sign-off records",
+  "description": "docs/safety/signoffs/allowed-signers.yaml: the keys whose holders may sign sign-off records, with the roles each person signs in (BUILD-PROMPT.md §3.5; docs/safety/signoffs/README.md). Only a human adds or changes an entry; the build agent never does. `sh tools/hms safety check` validates the working-tree file against this schema and each committed version against the schema committed with it, accepts a record only from commits with a good signature by a listed key, and trusts the committed list only as far as its git history allows (KA-011).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "signers"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "signers": {
+      "description": "One entry per key. A person with two keys has two entries with the same name and roles. An empty list means no record can authorise anything.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/signer"}
+    }
+  },
+  "$defs": {
+    "role": {
+      "description": "A role id as approval.required uses it (Appendix B.3), for example cso, pharmacist-panel, nurse-panel.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "signer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "roles", "key_type", "fingerprint", "added"],
+      "properties": {
+        "name": {
+          "description": "The person's full name, exactly as they write it in the name field of their records.",
+          "type": "string",
+          "minLength": 1
+        },
+        "roles": {
+          "description": "The roles the person may sign records in. A record's role must be one of them.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/role"}
+        },
+        "key_type": {
+          "description": "gpg (an OpenPGP key) or ssh (an SSH signing key).",
+          "enum": ["gpg", "ssh"]
+        },
+        "fingerprint": {
+          "description": "The full fingerprint of the key. gpg: 40 (v4) or 64 (v5) upper-case hex digits without spaces, as git's %GF and %GP and `gpg --with-colons --fingerprint` print them; a signature by a subkey matches its primary key's fingerprint. ssh: SHA256: and 43 base64 characters, as `ssh-keygen -lf` and git's %GF print them.",
+          "type": "string"
+        },
+        "added": {
+          "description": "The date the entry was added (YYYY-MM-DD).",
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "format": "date"
+        },
+        "notes": {"type": "string", "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"key_type": {"const": "gpg"}}, "required": ["key_type"]},
+          "then": {"properties": {"fingerprint": {"pattern": "^([0-9A-F]{40}|[0-9A-F]{64})$"}}}
+        },
+        {
+          "if": {"properties": {"key_type": {"const": "ssh"}}, "required": ["key_type"]},
+          "then": {"properties": {"fingerprint": {"pattern": "^SHA256:[A-Za-z0-9+/]{43}$"}}}
+        }
+      ]
+    }
+  }
+}

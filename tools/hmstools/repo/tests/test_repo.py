@@ -75,8 +75,11 @@ def build_good_repo(root: Path, commit: bool = True, init: bool = True) -> None:
     write_adr_index(root)
     write(root, "backend/modules/empi/src/main/kotlin/Empi.kt", "package hms.empi\n\nclass Empi\n")
     write(root, "frontend/apps/web/src/main.ts", "export const ok = true;\n")
+    for name in rules.EXECUTABLES:
+        write(root, name, "#!/bin/sh\nexit 0\n")
     if init and commit:
         git(root, "add", "-A")
+        git(root, "update-index", "--chmod=+x", "--", *rules.EXECUTABLES)
         git(root, "commit", "-q", "-m", "fixture")
 
 
@@ -175,7 +178,7 @@ class Required(RepoFixture):
     def test_adr_without_required_heading_fails(self) -> None:
         path = next((self.root / "docs/adr").glob("ADR-012-*.md"))
         path.write_text(path.read_text(encoding="utf-8").replace("## Fitness test that guards it\n", ""), encoding="utf-8")
-        self.assert_error(self.run_rules("required"), "no '## Fitness test' heading")
+        self.assert_error(self.run_rules("required"), "no '## Fitness test that guards it' heading")
 
     def test_adr_without_status_or_date_fails(self) -> None:
         path = next((self.root / "docs/adr").glob("ADR-020-*.md"))
@@ -189,6 +192,36 @@ class Required(RepoFixture):
         path = next((self.root / "docs/adr").glob("ADR-021-*.md"))
         path.write_text(path.read_text(encoding="utf-8").replace("Status: accepted", "Status: maybe"), encoding="utf-8")
         self.assert_error(self.run_rules("required"), "status 'maybe'")
+
+    def test_a_status_with_an_approval_appended_fails(self) -> None:
+        # The plant of review finding R-17: the status regex matched by prefix, so this passed.
+        path = next((self.root / "docs/adr").glob("ADR-021-*.md"))
+        text = path.read_text(encoding="utf-8").replace("Status: accepted\n", "Status: accepted, approved by the CSO\n")
+        path.write_text(text, encoding="utf-8")
+        result = self.run_rules("required")
+        self.assert_error(result, "ADR-021-fixture-21.md: status 'accepted, approved by the CSO' is not exactly one of")
+        self.assertEqual(result.counts["adrs_valid"], 27)
+
+    def test_title_source_and_heading_order_are_checked_through_the_rule(self) -> None:
+        cases = {
+            "ADR-004": ("# ADR-004: Fixture decision 4\n", "# Fixture decision 4\n",
+                        "the first line '# Fixture decision 4' is not the title '# ADR-nnn: <title>'"),
+            "ADR-005": ("   Source: BUILD-PROMPT.md §4.2", "", "no 'Source:' field on the Date line"),
+            "ADR-006": ("## Decision\nFixture.\n## Consequences", "## Consequences", "no '## Decision' heading"),
+        }
+        for number, (old, new, _) in cases.items():
+            path = next((self.root / "docs/adr").glob(f"{number}-*.md"))
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(old, text)
+            path.write_text(text.replace(old, new), encoding="utf-8")
+        path = next((self.root / "docs/adr").glob("ADR-007-*.md"))
+        text = path.read_text(encoding="utf-8").replace("## Context\n", "## TMP\n").replace("## Decision\n", "## Context\n")
+        path.write_text(text.replace("## TMP\n", "## Decision\n"), encoding="utf-8")
+        result = self.run_rules("required")
+        for number, (_, _, fragment) in cases.items():
+            self.assert_error(result, f"{number}-fixture-{int(number[4:])}.md: {fragment}")
+        self.assert_error(result, "ADR-007-fixture-7.md: the B.1 headings are out of order")
+        self.assertEqual(result.counts["adrs_valid"], 24)
 
     def test_adr_beyond_the_baseline_is_checked_too(self) -> None:
         write(self.root, "docs/adr/ADR-029-later.md", ADR_TEMPLATE.format(n=29, status="accepted").replace("## Decision\n", ""))
@@ -226,6 +259,120 @@ class Required(RepoFixture):
         text = path.read_text(encoding="utf-8").replace("Status: accepted", "**Status:** accepted")
         path.write_text(text.replace("Date: 2026-10-18", "**Date:** 2026-10-18"), encoding="utf-8")
         self.assertEqual(self.run_rules("required").errors, [])
+
+
+class AdrTemplate(unittest.TestCase):
+    """rules.adr_problems against template B.1, one deviation at a time (no repository needed)."""
+
+    def problems(self, n: int = 3, status: str = "accepted", replace: tuple[str, str] | None = None,
+                 text: str | None = None) -> list[str]:
+        body = text if text is not None else ADR_TEMPLATE.format(n=n, status=status)
+        if replace:
+            self.assertIn(replace[0], body)
+            body = body.replace(replace[0], replace[1])
+        return rules.adr_problems(n, body)
+
+    def assert_problem(self, fragment: str, **kwargs) -> None:
+        found = self.problems(**kwargs)
+        self.assertTrue(any(fragment in p for p in found), f"no problem containing {fragment!r}: {found}")
+
+    def test_the_template_itself_passes(self) -> None:
+        self.assertEqual(self.problems(), [])
+        self.assertEqual(self.problems(n=1, status="accepted-provisional"), [])
+        self.assertEqual(self.problems(status="proposed"), [])
+        self.assertEqual(self.problems(status="superseded by ADR-031"), [])
+
+    def test_status_must_be_the_whole_value(self) -> None:
+        for status in ["accepted, approved by the CSO", "accepted (by the CSO)", "accepted-provisional pending C9",
+                       "proposed or accepted", "superseded by ADR-031 and ADR-032", "superseded by ADR-31",
+                       "accepted.", "superseded"]:
+            self.assert_problem(f"status {status!r} is not exactly one of", status=status)
+
+    def test_exactly_one_status_and_one_date_line(self) -> None:
+        # The review verifier's plant: a second Status line after an allowed one, anywhere in the header.
+        date = "Date: 2026-10-18   Source: BUILD-PROMPT.md §4.2\n"
+        for second in [f"{date}Status: approved by the CSO\n", f"Status: approved by the CSO\n{date}",
+                       f"{date}\n**Status:** accepted\n"]:
+            found = self.problems(replace=(date, second))
+            self.assertTrue(any("2 'Status:' lines between the title and the first '##' heading; template B.1 has "
+                                "exactly one" in p for p in found), (second, found))
+        self.assert_problem("'Status: approved by the CSO'", replace=(date, f"{date}Status: approved by the CSO\n"))
+        self.assert_problem("2 'Date:' lines", replace=(date, f"{date}Date: 2026-10-19   Source: K §7.2\n"))
+        # A Status line in the body is not part of the header and is not counted (the Context of an ADR may quote one).
+        self.assertEqual(self.problems(replace=("## Context\nFixture.\n", "## Context\nStatus: approved by the CSO\n")), [])
+
+    def test_provisional_rule_still_applies(self) -> None:
+        self.assert_problem("§4.2 keeps ADR-009 accepted-provisional", n=9, status="accepted")
+        self.assertEqual(self.problems(n=9, status="superseded by ADR-040"), [])
+
+    def test_title_line_must_be_first_and_in_b1_form(self) -> None:
+        self.assert_problem("is not the title '# ADR-nnn: <title>'", replace=("# ADR-003: Fixture decision 3", "# Fixture decision 3"))
+        self.assert_problem("is not the title", replace=("# ADR-003: Fixture decision 3", "# ADR-3: Fixture decision 3"))
+        self.assert_problem("is not the title", replace=("# ADR-003: Fixture decision 3", "## ADR-003: Fixture decision 3"))
+        self.assert_problem("is not the title", replace=("# ADR-003: Fixture decision 3", "# ADR-003 Fixture decision 3"))
+        self.assert_problem("is not the title", replace=("# ADR-003: Fixture decision 3", "# ADR-003:"))
+        self.assert_problem("is not the title", replace=("# ADR-003: Fixture decision 3\n", "Preamble.\n# ADR-003: Fixture decision 3\n"))
+
+    def test_title_number_must_match_the_file(self) -> None:
+        self.assert_problem("the title names ADR-004, the file name ADR-003",
+                            replace=("# ADR-003: Fixture", "# ADR-004: Fixture"))
+
+    def test_date_line_needs_a_source_field(self) -> None:
+        self.assert_problem("no 'Source:' field on the Date line", replace=("   Source: BUILD-PROMPT.md §4.2", ""))
+        self.assert_problem("no 'Source:' field", replace=("Source: BUILD-PROMPT.md §4.2", "Source:"))
+        self.assert_problem("no 'Source:' field", replace=("   Source: BUILD-PROMPT.md §4.2", " (from BUILD-PROMPT.md §4.2)"))
+        self.assertEqual(self.problems(replace=("   Source:", " **Source:**")), [])
+
+    def test_date_must_be_a_calendar_date(self) -> None:
+        self.assert_problem("'2026-02-30' is not a calendar date", replace=("2026-10-18", "2026-02-30"))
+        self.assert_problem("is not yyyy-mm-dd", replace=("2026-10-18", "18-10-2026"))
+        self.assert_problem("is not yyyy-mm-dd", replace=("2026-10-18", "2026-10-180"))
+
+    def test_status_and_date_must_sit_in_the_header(self) -> None:
+        text = ADR_TEMPLATE.format(n=3, status="accepted")
+        text = text.replace("Status: accepted\n", "").replace("## Context\nFixture.\n", "## Context\nStatus: accepted\n")
+        found = rules.adr_problems(3, text)
+        self.assertTrue(any("no 'Status:' line between the title" in p for p in found), found)
+        moved = ADR_TEMPLATE.format(n=3, status="accepted").replace("Date: 2026-10-18   Source: BUILD-PROMPT.md §4.2\n", "")
+        moved = moved.replace("## Reopen if\nFixture.\n", "## Reopen if\nDate: 2026-10-18   Source: x\n")
+        self.assertTrue(any("no 'Date:' line" in p for p in rules.adr_problems(3, moved)))
+
+    def test_headings_must_be_level_2_with_the_b1_text(self) -> None:
+        self.assert_problem("no '## Context' heading", replace=("## Context\n", "### Context\n"))
+        self.assert_problem("no '## Decision' heading", replace=("## Decision\n", "# Decision\n"))
+        self.assert_problem("no '## Consequences (including safety and licence impact)' heading",
+                            replace=("## Consequences (including safety and licence impact)\n", "## Consequences\n"))
+        self.assert_problem("no '## Fitness test that guards it' heading",
+                            replace=("## Fitness test that guards it\n", "## Fitness test\n"))
+        self.assert_problem("no '## Reopen if' heading", replace=("## Reopen if\n", "**Reopen if**\n"))
+
+    def test_headings_once_each_and_in_b1_order(self) -> None:
+        self.assert_problem("the '## Decision' heading appears 2 times", replace=("## Reopen if\n", "## Decision\n## Reopen if\n"))
+        swapped = ADR_TEMPLATE.format(n=3, status="accepted").replace("## Context\n", "## TMP\n")
+        swapped = swapped.replace("## Decision\n", "## Context\n").replace("## TMP\n", "## Decision\n")
+        found = rules.adr_problems(3, swapped)
+        self.assertTrue(any("the B.1 headings are out of order (Decision, Context," in p for p in found), found)
+
+    def test_other_level_2_sections_and_fenced_examples(self) -> None:
+        extra = ("## Consequences (including safety and licence impact)\n",
+                 "## Pinned set\nVersions.\n## Consequences (including safety and licence impact)\n")
+        self.assertEqual(self.problems(replace=extra), [])
+        fenced = ("## Context\nFixture.\n", "## Context\n```markdown\n## Reopen if\n# ADR-099: example\n```\n")
+        self.assertEqual(self.problems(replace=fenced), [])
+        only_in_fence = ("## Reopen if\nFixture.\n", "```\n## Reopen if\n```\n")
+        self.assert_problem("no '## Reopen if' heading", replace=only_in_fence)
+
+    def test_a_byte_order_mark_does_not_hide_the_title(self) -> None:
+        self.assertEqual(self.problems(text="﻿" + ADR_TEMPLATE.format(n=3, status="accepted")), [])
+
+    def test_real_adr_header_passes(self) -> None:
+        # The form every ADR in docs/adr uses: a blank line after the Date line and long Source lists.
+        text = ("# ADR-002: Runtime: Kotlin on the JVM, Spring Boot plus Spring Modulith\nStatus: accepted\n"
+                "Date: 2026-10-18   Source: K §7.2, §7.6, §15.4 (S18-K), K-13; BP §7.2, §7.7; BUILD-PROMPT §4.1, §4.2\n\n"
+                "## Context\n\nx\n\n## Decision\n\nx\n\n## Pinned set\n\nx\n\n"
+                "## Consequences (including safety and licence impact)\n\nx\n\n## Fitness test that guards it\n\nx\n\n"
+                "## Reopen if\n\nx\n")
+        self.assertEqual(rules.adr_problems(2, text), [])
 
 
 class Tenants(RepoFixture):
@@ -350,6 +497,44 @@ class Limits(RepoFixture):
         self.assertEqual(self.run_rules("limits").errors, [])
         write(self.root, "docs/program/STATUS.md", "".join(f"l{i}\n" for i in range(151)))
         self.assert_error(self.run_rules("limits"), "STATUS.md has 151 lines")
+
+
+class Modes(RepoFixture):
+    """(f) git stores the entry scripts as executable (review finding R-02)."""
+
+    commit = True  # build_good_repo commits the entry scripts as executable
+
+    def test_executable_entry_scripts_pass(self) -> None:
+        result = self.run_rules("modes")
+        self.assertEqual(result.errors, [])
+        self.assertEqual(result.counts["executables_checked"], len(rules.EXECUTABLES))
+
+    def test_a_script_stored_without_the_executable_bit_fails(self) -> None:
+        for path in ("backend/gradlew", "tools/ci/run"):
+            with self.subTest(path=path):
+                git(self.root, "update-index", "--chmod=-x", "--", path)
+                self.assert_error(self.run_rules("modes"), f"modes: {path} is stored with mode 100644, not 100755")
+                git(self.root, "update-index", "--chmod=+x", "--", path)
+        self.assertEqual(self.run_rules("modes").errors, [])
+
+    def test_the_index_counts_not_the_last_commit(self) -> None:
+        # The rule reads the index, which is what the next commit stores: a staged fix passes before it is committed.
+        git(self.root, "update-index", "--chmod=-x", "--", "tools/hms")
+        git(self.root, "commit", "-q", "-m", "mode lost")
+        self.assert_error(self.run_rules("modes"), "modes: tools/hms is stored with mode 100644")
+        git(self.root, "update-index", "--chmod=+x", "--", "tools/hms")
+        self.assertEqual(self.run_rules("modes").errors, [])
+
+    def test_a_script_git_does_not_track_fails(self) -> None:
+        # The review found that a script removed from the index passed: the next commit would not store it.
+        git(self.root, "rm", "-q", "--cached", "--", "tools/doctor")
+        result = self.run_rules("modes")
+        self.assert_error(result, "modes: tools/doctor is not in git's index")
+        self.assertEqual(len(result.errors), 1)
+        self.assertEqual(result.counts["executables_checked"], len(rules.EXECUTABLES) - 1)
+        git(self.root, "add", "--", "tools/doctor")
+        git(self.root, "update-index", "--chmod=+x", "--", "tools/doctor")
+        self.assertEqual(self.run_rules("modes").errors, [])
 
 
 class Helpers(unittest.TestCase):

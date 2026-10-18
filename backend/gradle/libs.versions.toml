@@ -13,7 +13,9 @@
 
 [versions]
 # --- Runtime platform -------------------------------------------------------------------------------
-# JDK: Eclipse Temurin 25.0.4.1 (GPL-2.0 with Classpath Exception), used through jvmToolchain(25).
+# JDK: Eclipse Temurin 25.0.4.1+1 (GPL-2.0 with Classpath Exception). The release and the SHA-256 of each
+# platform's archive are pinned in tools/hmstools/bootstrap/steps.py, which installs it in .tools/; this
+# entry holds the major only, used through jvmToolchain(25).
 java = "25"
 # Spring Boot 4.1 line (Apache-2.0). Its BOM manages the versions marked "BOM" below.
 spring-boot = "4.1.1"
@@ -56,8 +58,8 @@ openfga = "0.10.1"
 keycloak-admin-client = "26.0.12"
 # HAPI FHIR structures and validator (Apache-2.0). 8.12 line.
 hapi-fhir = "8.12.1"
-# HAPI HL7 v2 (dual MPL-1.1 or GPL-2.0; used unmodified under MPL-1.1, recorded in the licence register,
-# §4.3). 2.5 line; 2.6.0 has had no patch release yet.
+# HAPI HL7 v2 (dual MPL-1.1 or GPL-2.0; used unmodified under MPL-1.1, to be recorded in the licence
+# register when first depended on, §4.3). 2.5 line; 2.6.0 has had no patch release yet.
 hapi-hl7v2 = "2.5.1"
 
 # --- Test tooling ----------------------------------------------------------------------------------

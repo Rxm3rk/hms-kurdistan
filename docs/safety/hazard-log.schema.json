@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:hms:schema:safety:hazard-log:1",
   "title": "HMS Kurdistan hazard log",
-  "description": "Schema for docs/safety/hazard-log.yaml (BUILD-PROMPT.md §3.1, §10.1, Appendix B.2). Structural rules only; cross-field rules (control states, sign-off records, coverage of SI-01 to SI-21, feature IDs, fidelity to the plan of record) are enforced by `sh tools/hms safety check`. The risk vocabulary enumerations are a [P] proposal awaiting CSO confirmation (docs/safety/README.md).",
+  "description": "Schema for docs/safety/hazard-log.yaml (BUILD-PROMPT.md §3.1, §10.1, Appendix B.2). Structural rules only; cross-field rules (control states, sign-off records, coverage of SI-01 to SI-21, feature IDs, fidelity to the plan of record) are enforced by `sh tools/hms safety check`. The risk vocabulary enumerations are a [P] proposal awaiting CSO confirmation (docs/safety/README.md). An entry is stricter than the Appendix B.2 example in four required fields: a hazard's description, a risk's basis, and a control's risk_control_option and planned_verification; the B.2 example does not validate without them (docs/safety/README.md, \"The hazard log\").",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "document", "risk_vocabulary", "seeded_hazards", "hazards"],
@@ -64,7 +64,12 @@
     "hazards": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/hazard"}}
   },
   "$defs": {
-    "text": {"type": "string", "minLength": 1},
+    "text": {
+      "description": "Non-empty and more than whitespace, so a mandatory field cannot be filled with blanks (docs/safety/README.md, \"The hazard log\").",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
     "severity": {"enum": ["negligible", "minor", "serious", "major", "catastrophic"]},
     "likelihood": {"enum": ["improbable", "remote", "occasional", "probable", "frequent"]},
     "level": {"enum": ["low", "medium", "high", "very-high"]},
@@ -118,18 +123,24 @@
         "severity": {"$ref": "#/$defs/severity"},
         "likelihood": {"$ref": "#/$defs/likelihood"},
         "level": {"$ref": "#/$defs/level"},
-        "basis": {"$ref": "#/$defs/text"}
+        "basis": {
+          "description": "Required beyond Appendix B.2 [P]: why the agent proposes this risk; a proposal for CSO triage, never an acceptance (§3.5).",
+          "$ref": "#/$defs/text"
+        }
       }
     },
     "control": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "type", "description", "state", "implemented_in", "verified_by", "planned_verification"],
+      "required": ["id", "type", "risk_control_option", "description", "state", "implemented_in", "verified_by", "planned_verification"],
       "properties": {
         "id": {"$ref": "#/$defs/controlId"},
-        "type": {"enum": ["design", "test", "process", "labelling", "training"]},
+        "type": {
+          "description": "This build's control vocabulary [P]; the plan defines none (docs/safety/README.md, Control types). The §10.1 typing is risk_control_option.",
+          "enum": ["design", "test", "process", "labelling", "training"]
+        },
         "risk_control_option": {
-          "description": "The §10.1 typing (ISO 14971 risk-control options): design, protective or information.",
+          "description": "The §10.1 typing (ISO 14971 risk-control options): design, protective or information. Required, because §10.1 types every control and type holds this build's vocabulary.",
           "enum": ["design", "protective", "information"]
         },
         "covers": {
@@ -144,8 +155,16 @@
         "state": {"enum": ["planned", "implemented", "verified"]},
         "implemented_in": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
         "verified_by": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/testName"}},
-        "planned_verification": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
-        "notes": {"$ref": "#/$defs/text"}
+        "planned_verification": {
+          "description": "Required beyond Appendix B.2 [P]: the tests that will verify the control (§10.1 wants their IDs); verified_by stays empty until they pass.",
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/text"}
+        },
+        "notes": {
+          "description": "Free text; a tightening [P] that the control proposes is recorded here (§3.4 item 1).",
+          "$ref": "#/$defs/text"
+        }
       }
     },
     "hazard": {
@@ -158,7 +177,10 @@
       "properties": {
         "id": {"$ref": "#/$defs/hazardId"},
         "title": {"$ref": "#/$defs/text"},
-        "description": {"$ref": "#/$defs/text"},
+        "description": {
+          "description": "Required beyond the Appendix B.2 example: §10.1 lists a description in the hazard record.",
+          "$ref": "#/$defs/text"
+        },
         "seeded_hazard": {
           "oneOf": [
             {"type": "null"},

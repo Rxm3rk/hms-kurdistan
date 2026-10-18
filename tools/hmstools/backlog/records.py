@@ -13,21 +13,25 @@ HEADER = """\
 # Backlog of record for HMS Kurdistan (BUILD-PROMPT.md §3.1; WP-0.1).
 #
 # GENERATED from BUILD-PROMPT.md Appendix A (feature tables A.1 to A.17) by 'tools/hms backlog generate';
-# work_packages are derived from the BUILD-PROMPT.md §21 work packages.
-# Only these fields are edited, by hand or by tools: status, work_packages, tests, hazards, notes.
-# Every other field is refreshed from BUILD-PROMPT.md on each generate, and 'tools/hms backlog check' fails
-# if it differs from the plan.
+# work_packages are derived from the BUILD-PROMPT.md §21 work packages; hazards from docs/safety/hazard-log.yaml,
+# the record: the IDs of the entries whose 'features' list names the feature (a part row shares its feature's).
+# Only these fields are edited, by hand or by tools: status, work_packages, tests, notes. hazards is never
+# edited here: change the hazard log and run 'tools/hms backlog render'. Every other field is refreshed from
+# BUILD-PROMPT.md on each generate, and 'tools/hms backlog check' fails if a field differs from the plan or
+# hazards differs from the hazard log.
 #
-# On regeneration status, tests, hazards and notes are kept; the §21 entries of work_packages are refreshed
-# and entries added by hand or by tools are kept after them. If a feature disappears from Appendix A, or a
-# row carries an unknown field, generate stops without writing.
+# On regeneration status, tests and notes are kept; hazards is derived again; the §21 entries of work_packages
+# are refreshed and entries added by hand or by tools are kept after them. If a feature disappears from
+# Appendix A, the hazard log names a feature ID that Appendix A does not hold, or a row carries an unknown
+# field, generate stops without writing.
 #
 # status: todo | spec | in-progress | built | verified (BUILD-PROMPT.md §3.1). built and verified need tests.
 # stance: B build, I integrate, P partner or licence; domain_level: true is the dagger (†) in Appendix A.
 # placement_marked: the Appendix A note carries [P] (keep the placement open until a human confirms, §1).
 # A row with 'part' is a sub-scope of a feature ID: A.18 counts its engineer-weeks, not a feature ID.
 #
-# After any edit run 'tools/hms backlog render' to refresh docs/program/BACKLOG.md.
+# After any edit here or in the hazard log run 'tools/hms backlog render': it derives hazards here again and
+# refreshes docs/program/BACKLOG.md.
 """
 
 
@@ -108,10 +112,12 @@ class MergeResult:
     added: list[str] = field(default_factory=list)  # rows new in this generation
     extra_work_packages: dict[str, list[str]] = field(default_factory=dict)  # kept non-§21 entries
     refreshed: dict[str, list[str]] = field(default_factory=dict)  # parsed fields whose old value was replaced
+    hazards_refreshed: dict[str, tuple[Any, list[str]]] = field(default_factory=dict)  # old and derived hazards
 
 
 def merge_records(fresh: list[dict[str, Any]], existing: list[dict[str, Any]]) -> MergeResult:
-    """Refresh parsed fields from ``fresh`` and keep the hand-edited fields of ``existing``.
+    """Refresh parsed fields from ``fresh`` and keep the hand-edited fields of ``existing``; hazards always
+    comes from ``fresh`` (derived from the hazard log), and a changed value is reported.
 
     Raises FeatureDisappeared (and changes nothing) when an existing row is absent from ``fresh``, and
     BacklogFileError when ``existing`` holds the same row twice or a row carries a field that is neither
@@ -156,6 +162,8 @@ def merge_records(fresh: list[dict[str, Any]], existing: list[dict[str, Any]]) -
             for name in HAND_FIELDS:
                 if name in previous:
                     merged[name] = previous[name]
+            if previous.get("hazards") != record["hazards"]:
+                result.hazards_refreshed[key] = (previous.get("hazards"), list(record["hazards"]))
             derived = list(record["work_packages"])
             prior = previous.get("work_packages") or []
             if not isinstance(prior, list):

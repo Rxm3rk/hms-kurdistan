@@ -243,6 +243,12 @@ hazards:
           - "GoldenImage:wristband-* (three scripts, long-name and newborn truncation cases, §9.1)"
           - "GoldenImage:specimen-label-*"
           - "AcceptanceTest:SAC-04"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the template linter is this build's proposal. §2.1 SI-01,
+          §7 item 11, §9.1 and §12.8 require the identifiers on every label, wristband and print and
+          golden-image tests for them, but name no linter for clinical templates (the plan's only
+          template linter checks message bodies, §9.30). It adds a build-time check and replaces no
+          clause; the CSO confirms or removes it [HUMAN] (docs/safety/README.md, "Tightenings").
       - id: CTRL-0001-6
         type: design
         risk_control_option: design
@@ -260,6 +266,13 @@ hazards:
         planned_verification:
           - "PropertyTest:SI-01-print-has-script-and-latin-name"
           - "UnitTest:print-fails-closed-without-transliteration"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the registrar's confirmation of the proposed Latin form, and a
+          print that fails closed with "identity incomplete" and an owned task, are this build's
+          proposals. §9.1, §11.2 and §7 item 10 (the transliteration service) store the Kurdish,
+          Arabic and Latin forms with transliteration variants, but say neither who confirms the
+          Latin form nor what a print does when a form is missing. They add to clause c and replace
+          nothing; the CSO confirms or changes them [HUMAN] (docs/safety/README.md, "Tightenings").
       - id: CTRL-0001-7
         type: design
         risk_control_option: design
@@ -903,15 +916,38 @@ hazards:
         description: >-
           A 10× or 100× deviation is a hard stop. Inside the Dose Engine (P2) the maximum-dose and
           10×/100× checks are calculator hard stops with boundary-value tests. Until the Dose Engine
-          is active the hard stop is the KB ≥10× Tier A rule (CTRL-0005-10), which also stops any
-          100× deviation, together with the pharmacist double check (CTRL-0005-9).
-        sources: ["§2.1 SI-05", "§10.4 (reg-dose scope)", "§10.3 A.2"]
+          is active at a site, the only automated stop for such a deviation is the KB ≥10× Tier A
+          rule (CTRL-0005-10), and it does not stop every 10× or 100× deviation. It compares a
+          KB-returned ratio, flag or maximum in exactly the ordered unit with a governed threshold
+          (§2.1 (c)), so it stops an order only when the KB returns one of these and the dose is at
+          least 10× the KB maximum dose. It does not stop a 10× or 100× error that leaves the dose
+          below that (a tenfold error on a dose of a fifth of the maximum comes to twice the
+          maximum), or any tenfold or hundredfold underdose. Where the KB returns no ratio, flag or
+          maximum, the screen shows "dose check unavailable" and the order goes to pharmacist
+          review. KB dose-range screening still shows its result verbatim (§9.10), but it is not a
+          hard stop. Such errors, and orders with "dose check unavailable", are left to the
+          manual controls that replace the automated protection (§10.3): the pharmacist double check
+          with an independently calculated dose (CTRL-0005-9) on every weight- or BSA-based dose,
+          every high-alert infusion and every neonatal order; otherwise only pharmacist verification
+          where the order passes through it (§9.10), which asks for no independent calculation; and,
+          for a dose given under an emergency or first-dose override, only the review within 4 h
+          after it (CTRL-0005-12).
+        sources: ["§2.1 SI-05", "§2.1 (dose arithmetic (c))", "§10.3 (fallback principle)", "§10.3 A.1, A.2, A.4", "§9.10 (screening; pharmacist verification)", "§10.4 (reg-dose scope)"]
         state: planned
         implemented_in: []
         verified_by: []
         planned_verification:
           - "BoundaryTest:reg-dose-10x-and-100x-hard-stop (P2)"
-          - "PropertyTest:SI-05-10x-or-100x-deviation-is-a-hard-stop"
+          - "PropertyTest:SI-05-10x-or-100x-deviation-is-a-hard-stop (Dose Engine active, P2)"
+          - "PropertyTest:SI-05-before-dose-engine-kb-10x-hard-stop-or-pharmacist-review"
+        notes: >-
+          Remaining gap of control set A, open for the CSO [HUMAN] (docs/safety/README.md, open
+          question 9; docs/program/OPEN-QUESTIONS.md, OQ-120): before the Dose Engine, a 10× or
+          100× error below 10× the KB maximum, a tenfold or hundredfold underdose, and an order for
+          which the KB returns no ratio, flag or maximum get no automated hard stop. This control
+          does not count clause d as covered for them before the Dose Engine; it records the manual
+          controls above, which SI-05 and §10.3 A put in its place, and the CSO decides whether they
+          are enough until P2.
       - id: CTRL-0005-8
         type: design
         risk_control_option: design
@@ -1046,7 +1082,11 @@ hazards:
         covers: [d, h, g]
         description: >-
           Seeded adult and paediatric 10× and unit errors ship as test assets and run in every
-          integrated test cycle; every one must be stopped.
+          integrated test cycle; every one must be stopped. Before the Dose Engine, what stops a
+          seeded error that neither the KB ≥10× rule (CTRL-0005-10) nor the double check
+          (CTRL-0005-9) reaches, and whether the seeded set must hold such errors, is open for the
+          CSO [HUMAN] (CTRL-0005-7; docs/safety/README.md, open question 9;
+          docs/program/OPEN-QUESTIONS.md, OQ-120).
         sources: ["§10.3 A.3", "§18.5 #2", "§9.10 acceptance 2"]
         state: planned
         implemented_in: []
@@ -1571,7 +1611,8 @@ hazards:
           Property-based tests on the medication-reconciliation lifecycle (short runs in the fast
           tier; nightly 10⁶ sequences plus at least 10⁴ per real channel adapter, zero violations);
           the nightly seam suite (medication list as reconciliation input only) and a
-          medication-reconciliation scenario suite (proposed; §18.5 names none for SI-09).
+          medication-reconciliation scenario suite (proposed; §18.5 names no suite dedicated to SI-09,
+          and its #10 exercises only the medication list as reconciliation input).
         sources: ["§2.1 (preamble)", "§8.4 (medication reconciliation)", "§18.3", "§18.5 #10"]
         state: planned
         implemented_in: []
@@ -1936,13 +1977,20 @@ hazards:
         covers: [g]
         description: >-
           The bedside witness step requires the witness to confirm the unit number read from the
-          original label, compared with the relabel record; a difference is a mismatch.
-        sources: ["§2.1 SI-11", "§9.11 (bedside verification)", "§10.3 D (T2 fallback)"]
+          original label, in both modes. With T2 active, T2 (reg-transfusion) compares it with the
+          relabel record, and a difference is a mismatch: a hard stop, and the unit is quarantined
+          (CTRL-0011-10). Until T2 is activated, the scripted two-person check of §10.3 D
+          (CTRL-0011-11) compares nothing and gives no automated pass/fail: the identifiers are
+          scanned and shown side by side, the witness confirms the unit number on the original label
+          against them, both people sign, and a mismatch that either of them finds is recorded and
+          quarantines the unit (CTRL-0011-10).
+        sources: ["§2.1 SI-11", "§9.11 (bedside verification; fallback until T2)", "§10.3 D (T2 fallback)"]
         state: planned
         implemented_in: []
         verified_by: []
         planned_verification:
-          - "PropertyTest:SI-11-witness-confirms-original-unit-number"
+          - "PropertyTest:SI-11-witness-confirms-original-unit-number (T2)"
+          - "AcceptanceTest:transfusion-scripted-fallback-witness-step-makes-no-automated-comparison"
       - id: CTRL-0011-10
         type: design
         risk_control_option: protective
@@ -2355,44 +2403,73 @@ hazards:
         risk_control_option: design
         covers: [b]
         description: >-
-          The CDS registry holds for every interruptive rule its owner, evidence, measured PPV and
-          review-by date, with firing, acceptance and override rates and override reasons recorded
-          per rule; a rule without owner, evidence or review-by date cannot be interruptive, and an
-          overdue review-by date raises an owned task. How the day-0 baseline meets "a measured PPV"
-          before local telemetry exists is open for the CSO (docs/safety/README.md).
-        sources: ["§2.1 SI-14", "§9.6 (the CDS registry)", "SAC-16"]
+          The CDS registry gate enforces all four requirements of SI-14, "Every interruptive rule has
+          an owner, evidence, a measured PPV and a review-by date.": a rule that lacks any one of the
+          four cannot be interruptive. The registry holds them for every rule, with firing,
+          acceptance and override rates and override reasons recorded per rule, and an overdue
+          review-by date raises an owned task. Until the CSO answers DN-014, the gate takes the
+          stricter interim reading: a rule without a measured PPV is not interruptive, and the
+          vendor's validation of the go-live baseline does not count as one. A baseline rule (Tier
+          A/B) with no measured PPV yet becomes interruptive only under an explicit exception for
+          that rule that a human has approved, recorded only from a human sign-off record (§3.5)
+          [HUMAN]; the agent never records one, and the gate grants none by itself.
+        sources: ["§2.1 SI-14", "§9.6 (the CDS registry)", "§14.3", "§3.5", "SAC-16"]
         state: planned
         implemented_in: []
         verified_by: []
         planned_verification:
           - "UnitTest:cds-registry-requires-owner-evidence-ppv-review-date"
+          - "PropertyTest:SI-14-rule-without-measured-ppv-never-interruptive"
+          - "PropertyTest:SI-14-baseline-exception-only-from-sign-off-record"
           - "AcceptanceTest:SAC-16"
+        notes: >-
+          Interim reading until the CSO rules on DN-014 (docs/program/DECISIONS-NEEDED.md). Only
+          its strict reading of "a measured PPV" is recorded as a tightening [P] (§3.4 item 1): the
+          vendor's validation of the baseline does not count as one, and a rule without one is not
+          interruptive. The exception path is not part of the tightening: a baseline rule that
+          interrupts from day 0 under a human-approved exception is DN-014's option 1, a reading of
+          clause b against clause c that only the CSO can choose; until the CSO decides, no
+          exception exists, and CTRL-0014-5 blocks the go-live bundle. Neither part of clause b is
+          dropped to make room for clause c.
       - id: CTRL-0014-5
         type: design
         risk_control_option: design
         covers: [c]
         description: >-
           The vendor-validated go-live baseline (Tier A/B) ships interruptive from day 0 in the
-          go-live bundle, with no silent period.
-        sources: ["§2.1 SI-14", "§9.6 (rollout)", "§14.3"]
+          go-live bundle, with no silent period. Each baseline rule passes the registry gate of
+          CTRL-0014-4 like every interruptive rule: until local telemetry measures its PPV, it needs
+          the human-approved exception (DN-014). Promotion of a go-live bundle is blocked while any
+          baseline rule has neither a measured PPV nor that exception, so neither clause b nor
+          clause c is given up to let the other pass; the conflict goes to the CSO [HUMAN].
+        sources: ["§2.1 SI-14", "§9.6 (rollout)", "§14.3", "§19.4 (validated before promotion)"]
         state: planned
         implemented_in: []
         verified_by: []
         planned_verification:
           - "AcceptanceTest:vendor-baseline-interruptive-from-day-0"
+          - "PromotionGate:go-live-bundle-blocked-while-a-baseline-rule-has-neither-ppv-nor-exception"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the promotion block is this build's proposal; §19.4 validates
+          content bundles before promotion but names no such rule. It keeps clauses b and c both in
+          force until the CSO rules on DN-014; the CSO confirms or changes it [HUMAN].
       - id: CTRL-0014-6
         type: design
         risk_control_option: design
         covers: [d]
         description: >-
-          New or locally modified rules start in silent mode for 2 to 4 weeks with replay before they
-          can become interruptive; promotion is a governed change.
-        sources: ["§2.1 SI-14", "§9.6 (rollout)", "§19.4 (CDS rules)"]
+          New or locally modified rules start in silent mode for 2 to 4 weeks, followed by replay
+          against up to 90 days of orders where electronic orders exist; the silent run and the
+          replay measure firing rate, PPV and overlap (§18.11). Only then can the rule become
+          interruptive: promotion is a governed change and passes the registry gate of CTRL-0014-4
+          with the PPV measured there.
+        sources: ["§2.1 SI-14", "§9.6 (rollout)", "§18.11 (CDS rule)", "§19.4 (CDS rules)"]
         state: planned
         implemented_in: []
         verified_by: []
         planned_verification:
           - "PropertyTest:SI-14-new-or-modified-rule-starts-silent"
+          - "PropertyTest:SI-14-promotion-to-interruptive-needs-ppv-from-silent-run-or-replay"
       - id: CTRL-0014-7
         type: design
         risk_control_option: design
@@ -2763,6 +2840,14 @@ hazards:
           - "ArchTest:banner-present-on-every-clinical-route"
           - "E2E:banner-on-every-mobile-clinical-view"
           - "TemplateLint:banner-on-every-clinical-print"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the fitness function's reach beyond clinical routes, and the
+          template linter for print templates, are this build's proposals. §6.8 item 6 makes the
+          banner a fitness function on clinical routes only. §2.1 SI-16 and §9.4 require the banner on
+          every mobile view and print, and the §9.4 acceptance asks for a banner test that passes on
+          every clinical route and print, but they name no linter for print templates (the plan's
+          only template linter checks message bodies, §9.30). It adds build-time checks and replaces
+          no clause; the CSO confirms or removes it [HUMAN] (docs/safety/README.md, "Tightenings").
       - id: CTRL-0016-6
         type: design
         risk_control_option: design
@@ -2776,6 +2861,12 @@ hazards:
         verified_by: []
         planned_verification:
           - "E2E:one-patient-context-per-window"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the confirmation before another patient replaces the context
+          is this build's proposal. §2.1 SI-16, §6.5, §7 item 20 and §21 WP-0.7 require one patient
+          context per window and patient-context management, but name no confirmation step. It adds
+          a step and replaces no clause; the CSO confirms or removes it [HUMAN]
+          (docs/safety/README.md, "Tightenings").
       - id: CTRL-0016-7
         type: design
         risk_control_option: protective
@@ -2983,9 +3074,11 @@ hazards:
         covers: [preamble]
         description: >-
           Property-based tests on the Register entry lifecycle and on activation through every
-          configuration layer (short runs in the fast tier; nightly 10⁶ sequences, zero violations);
-          the nightly deterioration suite (PEWS and MEOWS only where the Register allows) and a
-          boundary-register scenario suite (proposed; §18.5 names none for SI-18).
+          configuration layer (short runs in the fast tier; nightly 10⁶ sequences plus at least 10⁴
+          sequences through each real channel adapter, zero violations); the nightly deterioration
+          suite (PEWS and MEOWS only where the Register allows) and a boundary-register scenario
+          suite (proposed; §18.5 names no suite dedicated to SI-18, and its #8 exercises only PEWS
+          and MEOWS running where the Register allows).
         sources: ["§2.1 (preamble)", "§18.3", "§18.5 #8"]
         state: planned
         implemented_in: []
@@ -3142,8 +3235,9 @@ hazards:
         covers: [preamble]
         description: >-
           Property-based tests on the flag and rule lifecycle (short runs in the fast tier; nightly
-          10⁶ sequences, zero violations) and a nightly kill-switch scenario suite (proposed; §18.5
-          names none for SI-19).
+          10⁶ sequences plus at least 10⁴ sequences through each real channel adapter, zero
+          violations) and a nightly kill-switch scenario suite (proposed; §18.5 names none for
+          SI-19).
         sources: ["§2.1 (preamble)", "§18.1", "§18.3"]
         state: planned
         implemented_in: []
@@ -3268,8 +3362,9 @@ hazards:
         covers: [preamble]
         description: >-
           Property-based tests on egress decisions (short runs in the fast tier; nightly 10⁶
-          sequences, zero violations); egress tests on every release and a nightly egress scenario
-          suite (proposed; §18.5 names none for SI-20).
+          sequences plus at least 10⁴ sequences through each real channel adapter, zero
+          violations); egress tests on every release and a nightly egress scenario suite (proposed;
+          §18.5 names none for SI-20).
         sources: ["§2.1 (preamble)", "§6.8 item 11", "§18.2 (topology and egress)", "§18.3"]
         state: planned
         implemented_in: []
@@ -3605,8 +3700,8 @@ hazards:
         type: test
         risk_control_option: protective
         description: >-
-          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences, zero
-          violations).
+          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences plus
+          at least 10⁴ sequences through each real channel adapter, zero violations).
         sources: ["§2.1 SI-21", "§18.3"]
         state: planned
         implemented_in: []
@@ -3685,8 +3780,8 @@ hazards:
         type: test
         risk_control_option: protective
         description: >-
-          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences, zero
-          violations).
+          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences plus
+          at least 10⁴ sequences through each real channel adapter, zero violations).
         sources: ["§2.1 SI-21", "§18.3"]
         state: planned
         implemented_in: []
@@ -3765,8 +3860,8 @@ hazards:
         type: test
         risk_control_option: protective
         description: >-
-          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences, zero
-          violations).
+          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences plus
+          at least 10⁴ sequences through each real channel adapter, zero violations).
         sources: ["§2.1 SI-21", "§18.3"]
         state: planned
         implemented_in: []
@@ -3848,8 +3943,8 @@ hazards:
         type: test
         risk_control_option: protective
         description: >-
-          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences, zero
-          violations).
+          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences plus
+          at least 10⁴ sequences through each real channel adapter, zero violations).
         sources: ["§2.1 SI-21", "§18.3"]
         state: planned
         implemented_in: []
@@ -3929,8 +4024,8 @@ hazards:
         type: test
         risk_control_option: protective
         description: >-
-          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences, zero
-          violations).
+          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences plus
+          at least 10⁴ sequences through each real channel adapter, zero violations).
         sources: ["§2.1 SI-21", "§18.3"]
         state: planned
         implemented_in: []
@@ -4011,8 +4106,8 @@ hazards:
         type: test
         risk_control_option: protective
         description: >-
-          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences, zero
-          violations).
+          Label-specific property tests run in the fast tier (short) and nightly (10⁶ sequences plus
+          at least 10⁴ sequences through each real channel adapter, zero violations).
         sources: ["§2.1 SI-21", "§18.3"]
         state: planned
         implemented_in: []

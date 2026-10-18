@@ -16,6 +16,7 @@ class BacklogPaths:
     source: Path  # BUILD-PROMPT.md
     backlog: Path  # docs/program/backlog.yaml
     markdown: Path  # docs/program/BACKLOG.md
+    hazard_log: Path  # docs/safety/hazard-log.yaml, read for the hazards field
 
     @classmethod
     def for_root(cls, root: Path) -> "BacklogPaths":
@@ -24,6 +25,7 @@ class BacklogPaths:
             source=root / "BUILD-PROMPT.md",
             backlog=root / "docs" / "program" / "backlog.yaml",
             markdown=root / "docs" / "program" / "BACKLOG.md",
+            hazard_log=root / "docs" / "safety" / "hazard-log.yaml",
         )
 
     def show(self, path: Path) -> str:

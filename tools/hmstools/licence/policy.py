@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
-from .spdx import Leaf, Node, Op, SpdxError, looks_like_expression, parse
+from .spdx import Leaf, Node, Op, SpdxError, canonical, looks_like_expression, parse
 
 # Verdicts, best first. OR takes the best operand, AND the worst.
 ALLOWED, CONDITIONAL, UNMAPPED, DENIED = 0, 1, 2, 3
@@ -36,6 +36,10 @@ class Verdict:
     reason: str
     condition: Optional[str] = None
     hard: bool = False  # denylisted or excluded by name: no conditional rule can lift it
+    # Conditional verdicts only: the policy rule applied (a conditional licence id or a component rule id) and
+    # the SPDX expression it applies to, which are what a licence-register entry for the component must record.
+    rule: Optional[str] = None
+    licence: Optional[str] = None
 
     @property
     def name(self) -> str:
@@ -83,6 +87,145 @@ class Policy:
 
     def aliases(self) -> dict[str, str]:
         return {k.lower(): v for k, v in (self.data.get("aliases") or {}).items()}
+
+
+# --------------------------------------------------------------------------- the licence register
+
+# The entry fields that tools/licence/register.yaml documents in its header. Every field but 'notes' is required.
+REGISTER_FIELDS = ("component", "licence", "rule", "unmodified", "source_offer", "added_in", "notes")
+REGISTER_REQUIRED = REGISTER_FIELDS[:-1]
+WORK_PACKAGE_ID = re.compile(r"^WP-\d+\.\d+[a-z]?$")
+# §4.3: "GPL and AGPL only as unmodified, separate containers with a source offer", so an entry under this rule
+# names where the offer is published.
+SOURCE_OFFER_RULES = frozenset({"gpl-separate-container"})
+# Package URLs and a name that no component has: a register pattern that matches one of them does not name
+# the component it records (it would match any package of that type, or any package at all).
+UNRELATED_PACKAGES = (
+    "pkg:npm/zz-hms-unrelated-probe@0.0.0",
+    "pkg:maven/zz.hms.unrelated/zz-hms-unrelated-probe@0.0.0",
+    "pkg:deb/zz-hms-unrelated/zz-hms-unrelated-probe@0.0.0",
+    "pkg:oci/zz-hms-unrelated-probe@sha256%3A0",
+    "zz-hms-unrelated-probe",
+)
+
+
+def _register_rules(policy: Policy) -> set[str]:
+    return set(policy.conditional_licences()) | {str(r.get("id")) for r in policy.conditional_components()}
+
+
+def same_expression(first: str, second: str) -> bool:
+    """True if two licence expressions are the same SPDX expression, whatever the order of their AND and OR
+    operands. Text that does not parse is compared as written."""
+
+    def key(text: str) -> str:
+        try:
+            return canonical(parse(text))
+        except SpdxError:
+            return text.strip()
+
+    return bool(first.strip()) and key(first) == key(second)
+
+
+def register_entry_problems(entry: Any, rules: set[str]) -> list[str]:
+    """The problems of one register entry against the schema in the register's header (none if well formed)."""
+    if not isinstance(entry, dict):
+        return ["not a mapping"]
+    problems = []
+    unknown = sorted(str(k) for k in set(entry) - set(REGISTER_FIELDS))
+    if unknown:
+        problems.append(f"unknown fields {unknown} (the fields are {', '.join(REGISTER_FIELDS)})")
+    missing = [name for name in REGISTER_REQUIRED if name not in entry]
+    if missing:
+        problems.append(f"missing fields {missing}")
+    for name in ("component", "licence", "rule", "added_in"):
+        if name in entry and (not isinstance(entry[name], str) or not entry[name].strip()):
+            problems.append(f"'{name}' must be a non-empty string")
+    if isinstance(entry.get("component"), str) and entry["component"].strip():
+        try:
+            pattern = re.compile(entry["component"])
+        except re.error as exc:
+            problems.append(f"'component' is not a regular expression ({exc})")
+        else:
+            # A pattern such as '.*', '.' or '^pkg:' matches every package, so it would stand as the record of
+            # components nobody looked at; an entry names the component it records.
+            if pattern.search(""):
+                problems.append(
+                    f"'component' {entry['component']!r} matches the empty string, so it can match any component; "
+                    "name the component (for example ^pkg:maven/ca\\.uhn\\.hapi/)"
+                )
+            else:
+                unrelated = next((probe for probe in UNRELATED_PACKAGES if pattern.search(probe)), None)
+                if unrelated is not None:
+                    problems.append(
+                        f"'component' {entry['component']!r} also matches {unrelated!r}, a package it does not name, so "
+                        "it can match components nobody looked at; name the component (for example ^pkg:maven/ca\\.uhn\\.hapi/)"
+                    )
+    if isinstance(entry.get("licence"), str) and entry["licence"].strip():
+        try:
+            parse(entry["licence"])
+        except SpdxError as exc:
+            problems.append(f"'licence' {entry['licence']!r} is not an SPDX expression ({exc})")
+    if isinstance(entry.get("rule"), str) and entry["rule"].strip() and entry["rule"] not in rules:
+        known = ", ".join(sorted(rules))
+        problems.append(f"'rule' {entry['rule']!r} is not a conditional rule of the policy ({known})")
+    if "unmodified" in entry and not isinstance(entry["unmodified"], bool):
+        problems.append("'unmodified' must be true or false")
+    offer = entry.get("source_offer")
+    if offer is not None and (not isinstance(offer, str) or not offer.strip()):
+        problems.append("'source_offer' must be a non-empty string or null")
+    if isinstance(entry.get("rule"), str) and entry["rule"] in SOURCE_OFFER_RULES and not (isinstance(offer, str) and offer.strip()):
+        problems.append(f"rule {entry['rule']!r} needs 'source_offer', where the source offer is published (§4.3)")
+    added_in = entry.get("added_in")
+    if isinstance(added_in, str) and added_in.strip() and not WORK_PACKAGE_ID.match(added_in):
+        problems.append(f"'added_in' {added_in!r} is not a work package ID such as WP-1.1b")
+    if entry.get("notes") is not None and not isinstance(entry.get("notes"), str):
+        problems.append("'notes' must be text or null")
+    return problems
+
+
+def register_problems(data: Any, policy: Policy) -> list[str]:
+    """Check the licence register against the schema its header documents; one message per problem, none if
+    it is well formed. An entry records facts; it is not an approval, so it has no field that names a person."""
+    if data is None:
+        return []
+    if not isinstance(data, dict):
+        return ["the register is not a mapping with 'schema_version' and 'entries'"]
+    problems = []
+    if data.get("schema_version") != 1:
+        problems.append(f"schema_version is {data.get('schema_version')!r}, expected 1")
+    unknown_top = sorted(str(k) for k in set(data) - {"schema_version", "entries"})
+    if unknown_top:
+        problems.append(f"unknown top-level keys {unknown_top}")
+    entries = data.get("entries")
+    if entries is None:
+        return problems
+    if not isinstance(entries, list):
+        return problems + ["'entries' is not a list"]
+    rules = _register_rules(policy)
+    for index, entry in enumerate(entries, 1):
+        label = f"entry {index} ({entry.get('component')!r})" if isinstance(entry, dict) else f"entry {index}"
+        problems += [f"{label}: {problem}" for problem in register_entry_problems(entry, rules)]
+    return problems
+
+
+def load_register(path: Path, policy: Policy) -> tuple[list[dict[str, Any]], list[str]]:
+    """The well-formed entries of the licence register, and the problems found in it. A missing file is an
+    empty register; a malformed entry is reported and not used. Raises ValueError if the file is not YAML."""
+    import yaml  # PyYAML, pinned in tools/requirements.txt
+
+    if not path.is_file():
+        return [], []
+    try:
+        with open(path, encoding="utf-8") as handle:
+            data = yaml.safe_load(handle)
+    except yaml.YAMLError as exc:
+        raise ValueError(f"{path.name} does not parse as YAML: {exc}") from None
+    problems = register_problems(data, policy)
+    entries = data.get("entries") if isinstance(data, dict) else None
+    if not isinstance(entries, list):
+        return [], problems
+    rules = _register_rules(policy)
+    return [entry for entry in entries if not register_entry_problems(entry, rules)], problems
 
 
 def version_tuple(text: str) -> tuple[int, ...]:
@@ -154,7 +297,7 @@ class Evaluator:
         if leaf.exception is None and text in self._allowed:
             return Verdict(ALLOWED, f"{text} is on the allowlist")
         if text in self._conditional:
-            return Verdict(CONDITIONAL, f"{text} is conditional", self._conditional[text])
+            return Verdict(CONDITIONAL, f"{text} is conditional", self._conditional[text], rule=text, licence=text)
         if self._copyleft.search(leaf.licence):
             if leaf.exception == "Classpath-exception-2.0":
                 return Verdict(
@@ -179,12 +322,38 @@ class Evaluator:
         return max(verdicts, key=lambda v: (v.level, v.hard))
 
     # --- components
-    def registered(self, component: Component) -> bool:
+    def register_entries(self, component: Component) -> list[dict[str, Any]]:
+        """The licence-register entries whose 'component' pattern matches the package URL or the name."""
+        found = []
         for entry in self.register:
-            pattern = str(entry.get("component", ""))
+            pattern = str(entry.get("component", "") or "")
             if pattern and (re.search(pattern, component.purl or "") or re.search(pattern, component.name)):
-                return True
-        return False
+                found.append(entry)
+        return found
+
+    @staticmethod
+    def records(entry: dict[str, Any], verdict: Verdict) -> bool:
+        """True if the entry records the rule the policy applied in this verdict and the licence that rule
+        applies to (as SPDX expressions, so operand order does not matter). An entry under another rule or
+        licence is not the record of this component, however broad its pattern."""
+        return (
+            verdict.rule is not None
+            and entry.get("rule") == verdict.rule
+            and same_expression(str(entry.get("licence") or ""), verdict.licence or "")
+        )
+
+    def recording_entries(self, component: Component, verdict: Optional[Verdict] = None) -> list[dict[str, Any]]:
+        """The register entries that record this conditional component: their pattern matches it and they
+        record the rule and the licence the policy applies to it."""
+        verdict = verdict or self.evaluate(component)
+        return [entry for entry in self.register_entries(component) if self.records(entry, verdict)]
+
+    def registered(self, component: Component, verdict: Optional[Verdict] = None) -> bool:
+        """True if the register records the component, under the rule and licence the policy applies to it, as
+        used unmodified (§4.3: "unmodified and recorded in the licence register"). An entry under another rule
+        or licence does not count, and one recording entry without 'unmodified: true' makes it False."""
+        recording = self.recording_entries(component, verdict)
+        return bool(recording) and all(entry.get("unmodified") is True for entry in recording)
 
     def evaluate(self, component: Component) -> Verdict:
         scope = component.scope or self.policy.default_scope
@@ -233,7 +402,10 @@ class Evaluator:
             if family and not any(re.search(str(family), name) for name in families):
                 continue
             detail = f"uses the {choose} option" if choose else str(tree)
-            return Verdict(CONDITIONAL, f"{rule['id']}: {detail}", rule["condition"])
+            # The licence the rule applies to: the chosen option, the rule's licence, or (for OS packages and
+            # GPL/AGPL containers) the component's declared expression.
+            used = str(choose or licence or canonical(tree))
+            return Verdict(CONDITIONAL, f"{rule['id']}: {detail}", rule["condition"], rule=str(rule["id"]), licence=used)
         return None
 
 

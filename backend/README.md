@@ -24,9 +24,11 @@ From the repository root, after `sh tools/bootstrap` (Git Bash on Windows or a L
 
 ```sh
 eval "$(sh tools/bootstrap env)"           # JAVA_HOME, GRADLE_USER_HOME and PATH for the project-local toolchain
-backend/gradlew -p backend fastTier        # the backend part of the fast tier
-backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000000   # the same with 10^6 sequences per property
+sh backend/gradlew -p backend fastTier     # the backend part of the fast tier
+sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000000   # the same with 10^6 sequences per property
 ```
+
+The wrapper is run through `sh`, as `tools/ci/run` does, so the commands work whatever file mode the checkout gives `gradlew` (review finding R-02).
 
 `fastTier` compiles every source set, runs detekt and ktlint, the unit tests, the property-based tests and the architecture tests, and checks that every project with production code ran its `ArchitectureTest`. It fails on the first error. JUnit XML lands in each project's `build/test-results/<task>/`. `tools/ci/run fast` runs it as one step and sums the counts. `docs/program/COMMANDS.md` lists every command.
 
@@ -49,7 +51,7 @@ The property and integration source sets see the main code, including `internal`
 - **Kotlin warnings are errors**, and Java compiles with `-Xlint:all -Werror`.
 - `verifyProjectConventions` fails if a project with sources does not apply all three convention plugins, so no project can drop out of the fast tier.
 
-On 2026-10-18 each gate was shown to fail on a planted violation (ktlint, detekt, a false property, domain code reading the system clock) and pass again once it was removed; see `docs/program/evidence/ci/2026-10-18-gates-bite.md`.
+On 2026-10-18 each gate was shown to fail on a planted violation (ktlint, detekt, a false property, domain code reading the system clock) and pass again once it was removed; see `docs/program/evidence/ci/2026-10-18-gates-bite.md` (Windows checkout, before the first commit; not evidence of record, review finding R-06). The record of record comes from `tools/ci/gates-bite/` in a scratch clone on the WSL build host, at a committed SHA (`tools/ci/gates-bite/README.md`).
 
 ## Fitness functions (§6.8)
 

@@ -7,6 +7,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any
 
+from hmstools.backlog.hazards import HazardLinks, HazardLogError, load_hazard_links
 from hmstools.backlog.paths import BacklogPaths, EnvironmentProblem
 from hmstools.backlog.plan import Plan, build_records, load_plan, map_references
 from hmstools.backlog.records import (
@@ -34,7 +35,14 @@ class GenerateReport:
     added: list[str] = field(default_factory=list)
     extra_work_packages: dict[str, list[str]] = field(default_factory=dict)
     refreshed: dict[str, list[str]] = field(default_factory=dict)  # parsed fields overwritten from the plan
+    hazards_refreshed: dict[str, tuple[Any, list[str]]] = field(default_factory=dict)  # old -> derived hazards
     wildcards: list[str] = field(default_factory=list)
+
+
+@dataclass
+class RenderReport:
+    rows: int = 0
+    hazards_refreshed: dict[str, tuple[Any, list[str]]] = field(default_factory=dict)  # rewritten in backlog.yaml
 
 
 def _plan(paths: BacklogPaths) -> Plan:
@@ -46,11 +54,43 @@ def _plan(paths: BacklogPaths) -> Plan:
         raise CommandFailed(f"{paths.show(paths.source)} does not parse: {exc}") from None
 
 
+def _hazard_links(paths: BacklogPaths, plan: Plan) -> HazardLinks:
+    """The hazard log's feature links; fails if the log is unreadable or names a feature Appendix A lacks."""
+    shown = paths.show(paths.hazard_log)
+    if not paths.hazard_log.is_file():
+        raise EnvironmentProblem(f"{shown} not found; the backlog's hazards are derived from it")
+    try:
+        links = load_hazard_links(paths.hazard_log)
+    except HazardLogError as exc:
+        raise CommandFailed(f"{shown}: {exc}") from None
+    unknown = links.unknown_features({f.id for f in plan.features if f.part is None})
+    if unknown:
+        raise CommandFailed(
+            f"{shown} names feature IDs that are not in BUILD-PROMPT.md Appendix A: "
+            + "; ".join(f"{feature} ({', '.join(ids)})" for feature, ids in unknown.items())
+            + ". Nothing was written."
+        )
+    return links
+
+
+def refresh_hazards(records: list[dict[str, Any]], links: HazardLinks) -> dict[str, tuple[Any, list[str]]]:
+    """Set each row's hazards from the hazard log; returns the rows whose value changed (old, new)."""
+    changed = {}
+    for record in records:
+        derived = links.hazards_of(str(record.get("id")))
+        if record.get("hazards") != derived:
+            changed[key_of(record)] = (record.get("hazards"), derived)
+            record["hazards"] = derived
+    return changed
+
+
 def generate(paths: BacklogPaths) -> GenerateReport:
-    """Write backlog.yaml from Appendix A and §21, keeping hand-edited fields of rows already in the file."""
+    """Write backlog.yaml from Appendix A and §21, with the hazards the hazard log links to each feature,
+    keeping hand-edited fields of rows already in the file."""
     plan = _plan(paths)
     mapping = map_references(plan)
-    fresh = build_records(plan, mapping)
+    links = _hazard_links(paths, plan)
+    fresh = build_records(plan, mapping, links)
     existing: list[dict[str, Any]] = []
     if paths.backlog.exists():
         try:
@@ -81,22 +121,29 @@ def generate(paths: BacklogPaths) -> GenerateReport:
         added=merged.added if existing else [],
         extra_work_packages=merged.extra_work_packages,
         refreshed=merged.refreshed,
+        hazards_refreshed=merged.hazards_refreshed if existing else {},
         wildcards=[f"{r.wp}: {r.target} {r.qualifier or ''}".strip() for r in mapping.wildcards],
     )
 
 
-def render(paths: BacklogPaths) -> int:
-    """Write BACKLOG.md from backlog.yaml; returns the number of rows rendered."""
+def render(paths: BacklogPaths) -> RenderReport:
+    """Derive every row's hazards from the hazard log again (rewriting backlog.yaml if one changed), then write
+    BACKLOG.md from backlog.yaml. Nothing is written if either step fails."""
     plan = _plan(paths)
+    links = _hazard_links(paths, plan)
     try:
         records = load_records(paths.backlog)
+        changed = refresh_hazards(records, links)
+        yaml_text = dump_records(records) if changed else None
         text = render_markdown(records, plan, map_references(plan))
     except BacklogFileError as exc:
         raise CommandFailed(f"{paths.show(paths.backlog)}: {exc}") from None
     except (ValueError, KeyError, TypeError, AttributeError) as exc:
         raise CommandFailed(f"{paths.show(paths.backlog)} cannot be rendered: {exc}") from None
+    if yaml_text is not None:
+        write_text_lf(paths.backlog, yaml_text)
     write_text_lf(paths.markdown, text)
-    return len(records)
+    return RenderReport(rows=len(records), hazards_refreshed=changed)
 
 
 def _value(value: Any) -> str:
@@ -151,7 +198,8 @@ def spot_check(paths: BacklogPaths, seed: int, count: int) -> str:
                 except ValueError as exc:
                     out.append(f"  {'':<{width}} |   (size unreadable: {exc})")
         out.append(f"  {'§21':<{width}} |   -> work_packages: {_value(record.get('work_packages'))}")
-        hand = "; ".join(f"{name}: {_value(record.get(name))}" for name in ("status", "tests", "hazards", "notes"))
+        out.append(f"  {'hazard log':<{width}} |   -> hazards: {_value(record.get('hazards'))}")
+        hand = "; ".join(f"{name}: {_value(record.get(name))}" for name in ("status", "tests", "notes"))
         out.append(f"  {'hand-edited':<{width}} |   -> {hand}")
         out.append("")
     out.append("Sampled rows: " + ", ".join(f.key for f in sample))

@@ -68,7 +68,7 @@ refer to them with `catalog:` and `pnpm-lock.yaml` pins the whole tree.
 | typescript-eslint | 8.71.2  | `strictTypeChecked` and `stylisticTypeChecked`, typed through the project service |
 | Vitest            | 5.0.5   | On Vite 8.3.4                                                                     |
 | Prettier          | 3.9.10  |                                                                                   |
-| `@types/node`     | 24.13.6 | The 24.13 line, matching the Node.js 24.13 runtime on the build host              |
+| `@types/node`     | 24.13.6 | Types for Node.js 24.13 (the Windows checkout); the WSL build host runs v24.22.0  |
 
 Install policy (`pnpm-workspace.yaml`): `saveExact`, `engineStrict` and `strictPeerDependencies`. pnpm 11 and
 later read only registry and auth keys from `.npmrc`, which repeats the policy for npm-compatible tools and

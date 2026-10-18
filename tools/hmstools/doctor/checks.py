@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from ..bootstrap.steps import normalise, parse_pins_text
+from ..bootstrap.steps import JDK_RELEASE, PINNED_JDK, is_pinned_jdk, normalise, parse_java_version, parse_pins_text
 from .fixes import UBUNTU, windows_steps
 from .host import Host
 
@@ -190,24 +190,39 @@ def java_candidates(host: Host) -> list[tuple[str, Path]]:
 
 
 def check_jdk(host: Host) -> Item:
-    need = "JDK 25 (system java, JAVA_HOME or the project-local .tools/jdk-*)"
+    """The pinned JDK (ADR-002, tools/hmstools/bootstrap/steps.py), not any JDK 25. tools/ci/run and
+    'tools/bootstrap env' put a .tools/jdk-* that reports the pinned release first; without one the build
+    runs on JAVA_HOME, or on java from PATH when JAVA_HOME is unset, so that JDK must report the pin."""
+    need = (
+        f"the pinned JDK, {PINNED_JDK.describe()} (ADR-002): .tools/{JDK_RELEASE} from 'sh tools/bootstrap jdk', "
+        "or a JAVA_HOME or PATH java that reports exactly that release"
+    )
     seen = []
-    good = None
+    project = None  # a .tools/jdk-* that reports the pin
+    system = None  # the first of JAVA_HOME and PATH: what the build uses without a pinned .tools/jdk-*
     for label, java in java_candidates(host):
+        local = label.startswith(".tools/")
         if not host.exists(java):
+            if label == "JAVA_HOME":  # set, but holds no java: the build would fail on it
+                seen.append("JAVA_HOME: no java")
+                system = system or seen[-1]
             continue
         code, out = host.run([str(java), "-XX:-UsePerfData", "-version"], timeout=60)
-        match = re.search(r'version "(\d+)(?:\.[^"]*)?"', out)
-        if code != 0 or not match:
+        identity = parse_java_version(out) if code == 0 else None
+        if identity is None:
             seen.append(f"{label}: unusable")
-            continue
-        version = re.search(r'version "([^"]+)"', out).group(1)  # type: ignore[union-attr]
-        seen.append(f"{label}: {version}")
-        if int(match.group(1)) == 25 and good is None:
-            good = f"{label}: {version}"
-    if good:
-        return Item("jdk", "JDK 25", True, good, need)
-    return Item("jdk", "JDK 25", False, "; ".join(seen) or "no java found", need)
+        elif is_pinned_jdk(identity):
+            seen.append(f"{label}: {identity.describe()}, the pinned release")
+            project = project or (seen[-1] if local else None)
+        else:
+            seen.append(f"{label}: {identity.describe()}, not the pinned release")
+        if not local:
+            system = system or seen[-1]
+    if project:
+        return Item("jdk", "JDK 25 (pinned)", True, project, need)
+    if system and system.endswith(", the pinned release"):
+        return Item("jdk", "JDK 25 (pinned)", True, system, need)
+    return Item("jdk", "JDK 25 (pinned)", False, "; ".join(seen) or "no java found", need)
 
 
 def check_node(host: Host) -> Item:

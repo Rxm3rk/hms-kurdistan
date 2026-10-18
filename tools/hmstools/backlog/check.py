@@ -1,10 +1,12 @@
-"""``tools/hms backlog check``: backlog.yaml and BACKLOG.md against BUILD-PROMPT.md (CheckResult contract)."""
+"""``tools/hms backlog check``: backlog.yaml and BACKLOG.md against BUILD-PROMPT.md, and backlog.yaml's hazards
+against docs/safety/hazard-log.yaml (CheckResult contract)."""
 
 from __future__ import annotations
 
 from collections import Counter
 from typing import Any
 
+from hmstools.backlog.hazards import HazardLogError, load_hazard_links
 from hmstools.backlog.paths import BacklogPaths, EnvironmentProblem
 from hmstools.backlog.plan import (
     FIELD_ORDER,
@@ -95,6 +97,7 @@ def run_check(paths: BacklogPaths, expected_ids: int = EXPECTED_FEATURE_IDS) -> 
         result.errors.extend(_shape_errors(record, key))
 
     _check_identity(plan, mapping, usable, keys, expected_ids, result)
+    _check_hazards(paths, plan, usable, keys, result)
     _check_markdown(paths, plan, mapping, usable, result)
     _check_a18(plan, usable, result)
     _counts(usable, mapping, result)
@@ -163,6 +166,34 @@ def _check_identity(
         for label in listed:
             if label not in expected["work_packages"]:
                 result.warnings.append(f"{key}: work package '{label}' is not derived from §21 (hand or tool entry)")
+
+
+def _check_hazards(
+    paths: BacklogPaths, plan: Plan, records: list[dict[str, Any]], keys: list[str], result: CheckResult
+) -> None:
+    """backlog.yaml's hazards must be exactly what the hazard log, the record, links to each feature (BUILD-PROMPT.md
+    §3.1: every feature "with status, work package, tests and hazards")."""
+    shown = paths.show(paths.hazard_log)
+    if not paths.hazard_log.is_file():
+        result.errors.append(f"{shown} not found; the backlog's hazards cannot be checked against it")
+        return
+    try:
+        links = load_hazard_links(paths.hazard_log)
+    except HazardLogError as exc:
+        result.errors.append(f"{shown}: {exc}")
+        return
+    for feature, ids in links.unknown_features({f.id for f in plan.features if f.part is None}).items():
+        result.errors.append(f"{shown}: {feature}, named by {', '.join(ids)}, is not in BUILD-PROMPT.md Appendix A")
+    for key, record in zip(keys, records):
+        expected = links.hazards_of(str(record.get("id")))
+        if record.get("hazards") != expected:
+            result.errors.append(
+                f"{key}: 'hazards' is {record.get('hazards')!r} in backlog.yaml but {expected!r} in {shown} (the "
+                f"entries whose 'features' list names {record.get('id')}); run 'tools/hms backlog render'"
+            )
+    result.counts["hazard_log_entries"] = links.entries
+    result.counts["features_with_hazards"] = len({r.get("id") for r in records if links.hazards_of(str(r.get("id")))})
+    result.counts["hazard_links"] = links.links
 
 
 def _check_markdown(

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import unittest
 
-from hmstools.backlog.commands import generate, render, spot_check
+from hmstools.backlog.commands import CommandFailed, generate, render, spot_check
 from hmstools.backlog.paths import EnvironmentProblem
 from hmstools.backlog.records import load_records
-from hmstools.backlog.tests.synthetic import PLAN, SyntheticRepo
+from hmstools.backlog.tests.synthetic import HAZARD_LOG, PLAN, SyntheticRepo
 
 
 class RenderTest(unittest.TestCase):
@@ -36,6 +36,49 @@ class RenderTest(unittest.TestCase):
         self.assertIn("Every feature-ID count and engineer-week sum matches A.18.", text)
         self.assertIn("- Not dropped (0): none", text)
         self.assertIn("`PLT-CORE-02`", text.split("### Placements marked [P]")[1].split("###")[0])
+
+    def test_hazards_column_and_summary(self) -> None:
+        text = self.render_plan()
+        self.assertIn("| `KRI-ID-01` | Iraqi identity | L (+12 net) | R1 | B+I† | todo | WP-1.9 | — | HAZ-0001, HAZ-0002 |", text)
+        self.assertIn("| `RCM-SCH-01 · part: scheme` | Scheme billing | ≈3 ew | P2 | B | todo | Phase 5 (the scheme part) | — | "
+                      "HAZ-0002 |", text)
+        self.assertIn("3 of 15 feature IDs are named by at least one entry of `docs/safety/hazard-log.yaml` (2 entries in "
+                      "all)", text)
+        self.assertIn("hazards from `docs/safety/hazard-log.yaml`", text)
+
+    def test_render_derives_hazards_again_from_the_hazard_log(self) -> None:
+        repo = SyntheticRepo()
+        try:
+            generate(repo.paths)
+            first = render(repo.paths)
+            self.assertEqual((first.rows, first.hazards_refreshed), (16, {}))
+            before = repo.paths.backlog.read_bytes()
+            render(repo.paths)
+            self.assertEqual(repo.paths.backlog.read_bytes(), before)  # nothing changed: backlog.yaml untouched
+            repo.write_hazard_log(HAZARD_LOG.replace("[KRI-ID-01, INT-ENG-01]", "[KRI-ID-01, INT-ENG-01, ERP-HTM-01]"))
+            report = render(repo.paths)
+            self.assertEqual(report.hazards_refreshed, {"ERP-HTM-01": ([], ["HAZ-0001"])})
+            records = {r["id"]: r for r in load_records(repo.paths.backlog) if "part" not in r}
+            self.assertEqual(records["ERP-HTM-01"]["hazards"], ["HAZ-0001"])
+            markdown = repo.paths.markdown.read_text(encoding="utf-8")
+            row = next(line for line in markdown.splitlines() if line.startswith("| `ERP-HTM-01` |"))
+            self.assertTrue(row.endswith("| — | HAZ-0001 |"), row)
+        finally:
+            repo.cleanup()
+
+    def test_render_refuses_a_hazard_log_naming_an_unknown_feature(self) -> None:
+        repo = SyntheticRepo()
+        try:
+            generate(repo.paths)
+            render(repo.paths)
+            before = (repo.paths.backlog.read_bytes(), repo.paths.markdown.read_bytes())
+            repo.write_hazard_log(HAZARD_LOG.replace("[KRI-ID-01, INT-ENG-01]", "[KRI-ID-77]"))
+            with self.assertRaises(CommandFailed) as caught:
+                render(repo.paths)
+            self.assertIn("KRI-ID-77 (HAZ-0001)", str(caught.exception))
+            self.assertEqual((repo.paths.backlog.read_bytes(), repo.paths.markdown.read_bytes()), before)
+        finally:
+            repo.cleanup()
 
     def test_a18_difference_shows_both_numbers(self) -> None:
         text = self.render_plan(PLAN.replace("| R1 | 7 | 143 |", "| R1 | 7 | 133 |"))
@@ -67,6 +110,8 @@ class SpotCheckTest(unittest.TestCase):
         self.assertIn("raw row: | `KRI-ID-01` | Iraqi identity | L (+12 net) | R1 | B+I† |", out)
         self.assertIn("-> domain_level: true", out)
         self.assertIn("(counts 12 engineer-weeks", out)
+        self.assertIn('-> hazards: ["HAZ-0001", "HAZ-0002"]', out)
+        self.assertIn('-> status: "todo"; tests: []; notes: []', out)
 
     def test_same_seed_same_rows(self) -> None:
         first = spot_check(self.repo.paths, seed=20261018, count=5)

@@ -172,8 +172,10 @@ class RealPlanLineEndingTest(unittest.TestCase):
 
     def test_generate_render_check_and_spot_check_do_not_depend_on_line_endings(self) -> None:
         outputs = []
+        hazard_log = (repo_root() / "docs" / "safety" / "hazard-log.yaml").read_bytes().decode("utf-8")
         for text in (self.lf, self.crlf):
-            repo = SyntheticRepo(text)  # a temporary copy of the plan of record, written byte for byte
+            # Temporary copies of the plan of record (byte for byte) and of the real hazard log.
+            repo = SyntheticRepo(text, hazard_log=hazard_log.replace("\r\n", "\n"))
             try:
                 self.assertEqual(repo.paths.source.read_bytes().count(b"\r\n"), text.count("\r\n"))
                 generate(repo.paths)
@@ -181,6 +183,7 @@ class RealPlanLineEndingTest(unittest.TestCase):
                 result = run_check(repo.paths)
                 self.assertEqual(result.errors, [])
                 self.assertEqual(result.counts["features"], 234)
+                self.assertGreater(result.counts["features_with_hazards"], 0)
                 outputs.append(
                     (
                         repo.paths.backlog.read_bytes(),

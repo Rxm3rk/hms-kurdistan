@@ -29,7 +29,7 @@ The current phase plan and the BUILD-PROMPT §21 work packages, with their depen
 - [HUMAN] state-machine approvals requested (WP-0.5).
 - ADR freeze confirmed by the human lead [HUMAN].
 
-On this host the dev-cell items can be met only by a lite cell (DN-005).
+On this host the dev-cell items can only be attempted on a lite cell; they stay open, and the criteria are not weakened (DN-005).
 
 ## Execution order on this host
 

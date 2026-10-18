@@ -1,4 +1,5 @@
-"""The plan as the backlog sees it: Appendix A features, A.18 totals and §21 references, joined into records."""
+"""The plan as the backlog sees it: Appendix A features, A.18 totals and §21 references, joined into records
+(with the hazards that docs/safety/hazard-log.yaml links to each feature)."""
 
 from __future__ import annotations
 
@@ -7,6 +8,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from hmstools.backlog.hazards import HazardLinks
 from hmstools.backlog.source import A18Totals, Feature, Section, parse_a18, parse_features
 from hmstools.backlog.workpackages import Reference, parse_section_21
 
@@ -27,7 +29,9 @@ PARSED_FIELDS = (
     "kurdistan_note",
     "placement_marked",
 )
-HAND_FIELDS = ("status", "tests", "hazards", "notes")  # kept on regeneration
+# Kept on regeneration. work_packages is derived from §21 (entries added by hand or by tools are kept after the
+# derived ones); hazards is derived from docs/safety/hazard-log.yaml and never edited in backlog.yaml.
+HAND_FIELDS = ("status", "tests", "notes")
 FIELD_ORDER = (*PARSED_FIELDS, "status", "work_packages", "tests", "hazards", "notes")
 
 
@@ -83,7 +87,7 @@ def map_references(plan: Plan) -> Mapping:
     return mapping
 
 
-def feature_record(feature: Feature, work_packages: list[str]) -> dict[str, Any]:
+def feature_record(feature: Feature, work_packages: list[str], hazards: list[str] | None = None) -> dict[str, Any]:
     record: dict[str, Any] = {"id": feature.id}
     if feature.part is not None:
         record["part"] = feature.part
@@ -102,14 +106,19 @@ def feature_record(feature: Feature, work_packages: list[str]) -> dict[str, Any]
             "status": DEFAULT_STATUS,
             "work_packages": list(work_packages),
             "tests": [],
-            "hazards": [],
+            "hazards": list(hazards or []),
             "notes": [],
         }
     )
     return record
 
 
-def build_records(plan: Plan, mapping: Mapping | None = None) -> list[dict[str, Any]]:
-    """Fresh records in source order, with default hand-edited fields."""
+def build_records(
+    plan: Plan, mapping: Mapping | None = None, links: HazardLinks | None = None
+) -> list[dict[str, Any]]:
+    """Fresh records in source order, with default hand-edited fields and, given the hazard log's links, the
+    derived hazards (a part row shares its feature's)."""
     mapping = mapping or map_references(plan)
-    return [feature_record(f, mapping.derived[f.key]) for f in plan.features]
+    return [
+        feature_record(f, mapping.derived[f.key], links.hazards_of(f.id) if links else []) for f in plan.features
+    ]

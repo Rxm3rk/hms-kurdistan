@@ -20,10 +20,12 @@ def main(argv: list[str] | None = None) -> int:
         "check",
         help="run the repository rules",
         description=(
-            "crlf: no CRLF in text files; required: programme control files and ADR-001..028 (template B.1); "
+            "crlf: no CRLF in text files; required: programme control files, ADR-001..028 and every later ADR "
+            "(template B.1: title, Status, Date and Source, the five headings in order) and the ADR index; "
             "tenants: no registered tenant identifier in backend/, frontend/, content/, deploy/; "
             "branches: branch naming and the branch-per-tenant detector; "
-            "limits: 'Blocking now' <= 10 items, STATUS.md <= 150 lines."
+            "limits: 'Blocking now' <= 10 items, STATUS.md <= 150 lines; "
+            "modes: the entry scripts and backend/gradlew are in git's index and stored as executable (100755)."
         ),
     )
     check.add_argument("--json", action="store_true", help="print one JSON object as the last line")

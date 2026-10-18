@@ -29,9 +29,17 @@ def _parser() -> argparse.ArgumentParser:
         description="Backlog of record from BUILD-PROMPT.md Appendix A and §21 (BUILD-PROMPT.md §3.1, WP-0.1).",
     )
     sub = parser.add_subparsers(dest="command", metavar="{generate,render,check,spot-check}")
-    sub.add_parser("generate", help="write docs/program/backlog.yaml from Appendix A, keeping hand-edited fields")
-    sub.add_parser("render", help="write docs/program/BACKLOG.md from backlog.yaml")
-    check = sub.add_parser("check", help="verify backlog.yaml and BACKLOG.md against the plan")
+    sub.add_parser(
+        "generate",
+        help="write docs/program/backlog.yaml from Appendix A and §21, with hazards from docs/safety/hazard-log.yaml, "
+        "keeping hand-edited fields",
+    )
+    sub.add_parser(
+        "render",
+        help="derive the hazards in backlog.yaml from docs/safety/hazard-log.yaml again, then write "
+        "docs/program/BACKLOG.md from backlog.yaml",
+    )
+    check = sub.add_parser("check", help="verify backlog.yaml and BACKLOG.md against the plan and the hazard log")
     check.add_argument("--json", action="store_true", help="print one JSON result object as the last line")
     spot = sub.add_parser("spot-check", help="print seeded random Appendix A rows beside their parsed records")
     spot.add_argument("--seed", type=int, required=True, help="random seed (record it with the result)")
@@ -71,14 +79,20 @@ def main(argv: list[str] | None = None, paths: BacklogPaths | None = None) -> in
                 print(f"added    {key}")
             for key, names in report.refreshed.items():
                 print(f"refreshed {key}: {', '.join(names)} now as in BUILD-PROMPT.md (parsed fields are not hand-edited)")
+            for key, (old, new) in report.hazards_refreshed.items():
+                print(f"hazards  {key}: {old} -> {new}, as in {paths.show(paths.hazard_log)}")
             for key, extras in report.extra_work_packages.items():
                 print(f"kept     {key}: work packages not derived from §21: {', '.join(extras)}")
             for wildcard in report.wildcards:
                 print(f"WARN     §21 {wildcard}: a wildcard, not attached to any feature")
             print("next: run 'tools/hms backlog render' to refresh docs/program/BACKLOG.md")
         elif args.command == "render":
-            rows = render(paths)
-            print(f"{paths.show(paths.markdown)}: rendered {rows} rows from {paths.show(paths.backlog)}")
+            rendered = render(paths)
+            for key, (old, new) in rendered.hazards_refreshed.items():
+                print(f"hazards  {key}: {old} -> {new}, as in {paths.show(paths.hazard_log)}")
+            if rendered.hazards_refreshed:
+                print(f"{paths.show(paths.backlog)}: hazards derived again for {len(rendered.hazards_refreshed)} rows")
+            print(f"{paths.show(paths.markdown)}: rendered {rendered.rows} rows from {paths.show(paths.backlog)}")
         elif args.command == "spot-check":
             sys.stdout.write(spot_check(paths, args.seed, args.count))
         return 0

@@ -1,15 +1,20 @@
 """The repository rules. Each rule takes the repository root and adds to a CheckResult.
 
 (a) no CRLF in text files (tracked and untracked; .gitattributes binary patterns and .gitignore honoured);
-(b) the programme control files exist; every ADR file follows template B.1, the numbers run without a gap from
-    ADR-001 (the §4.2 baseline is ADR-001 to ADR-028), and the index docs/adr/README.md links every ADR;
+(b) the programme control files exist; every ADR file follows template B.1 (the title '# ADR-nnn: <title>' with
+    the file's number; a Status line whose whole value is an allowed status; a Date line 'yyyy-mm-dd   Source: ...';
+    the five B.1 headings at level 2, each once, in B.1 order), the numbers run without a gap from ADR-001 (the
+    §4.2 baseline is ADR-001 to ADR-028), and the index docs/adr/README.md links every ADR;
 (c) no registered tenant identifier, name, hostname or pattern in source or configuration (§6.2, §6.8 #8);
 (d) branch names follow §3.6 and never name a tenant (branch-per-tenant detector, §6.8 #8);
-(e) DECISIONS-NEEDED.md "Blocking now" has at most ten items; STATUS.md has at most 150 lines (§3.1).
+(e) DECISIONS-NEEDED.md "Blocking now" has at most ten items; STATUS.md has at most 150 lines (§3.1);
+(f) git stores the entry scripts and backend/gradlew as executable (mode 100755), so that the direct commands
+    in COMMANDS.md run on Linux (review finding R-02).
 """
 
 from __future__ import annotations
 
+import datetime
 import fnmatch
 import os
 import re
@@ -36,8 +41,26 @@ ADR_NUMBERS = range(1, 29)  # the §4.2 baseline
 ADR_FILE = re.compile(r"^ADR-(\d{3})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 ADR_INDEX = "docs/adr/README.md"
 ADR_PROVISIONAL = {1, 9}  # §4.2: accepted-provisional until the reference-cell spike criteria pass
-ADR_HEADINGS = ["Context", "Decision", "Consequences", "Fitness test", "Reopen if"]
-ADR_STATUSES = re.compile(r"^(proposed|accepted-provisional|accepted|superseded by ADR-\d{3})\b", re.I)
+# Template B.1 (BUILD-PROMPT.md Appendix B):
+#   # ADR-0nn: <title>
+#   Status: proposed | accepted | accepted-provisional | superseded by ADR-0mm
+#   Date: <yyyy-mm-dd>   Source: <K §, BP §, R §>
+#   ## Context / ## Decision / ## Consequences (including safety and licence impact) /
+#   ## Fitness test that guards it / ## Reopen if
+ADR_TITLE = re.compile(r"^#\s+ADR-(\d{3}):\s+(\S.*)$")
+ADR_HEADINGS = [
+    "Context",
+    "Decision",
+    "Consequences (including safety and licence impact)",
+    "Fitness test that guards it",
+    "Reopen if",
+]
+# The whole Status value must be one of these (fullmatch): "accepted, approved by the CSO" is not a status.
+ADR_STATUSES = re.compile(r"proposed|accepted-provisional|accepted|superseded by ADR-\d{3}", re.I)
+ADR_DATE = re.compile(r"(?P<date>\d{4}-\d{2}-\d{2})(?![\d-])(?P<rest>.*)")
+ADR_SOURCE = re.compile(r"\s+(?:\*\*)?Source(?:\*\*)?\s*:\s*(?:\*\*)?\s*(?P<source>\S.*)", re.I)  # after the date
+_FENCE = re.compile(r"^\s*(?:```|~~~)")
+_H2 = re.compile(r"^##[ \t]+(?P<text>.*?)[ \t]*$")
 
 # The plan of record is read-only for the build (§2, §3.6, §6.1). CRLF found there is reported as a
 # warning: the build may not rewrite those files; a human decides whether to renormalise them.
@@ -148,25 +171,85 @@ def check_crlf(root: Path, result: CheckResult) -> None:
 _FIELD = r"^\s*(?:[-*]\s+)?(?:\*\*)?{name}(?:\*\*)?\s*:\s*(?:\*\*)?\s*(?P<value>.*?)\s*$"
 
 
+def _outside_fences(lines: list[str]) -> list[tuple[int, str]]:
+    """(index, line) for every line outside fenced code blocks (``` or ~~~), fence lines excluded."""
+    visible, fenced = [], False
+    for index, line in enumerate(lines):
+        if _FENCE.match(line):
+            fenced = not fenced
+        elif not fenced:
+            visible.append((index, line))
+    return visible
+
+
 def adr_problems(number: int, text: str) -> list[str]:
+    """Template B.1: the title line '# ADR-nnn: <title>' first, with the file's number; then, before the
+    first level-2 heading, exactly one 'Status:' line, whose whole value is an allowed status, and exactly
+    one 'Date:' line 'yyyy-mm-dd   Source: <sources>'; then the five B.1 headings at level 2, each once, in
+    B.1 order (other level-2 sections may sit between them)."""
     problems = []
-    status = re.search(_FIELD.format(name="Status"), text, re.M | re.I)
-    if not status:
-        problems.append("no 'Status:' line")
-    else:
+    lines = text.lstrip("﻿").splitlines()
+    visible = _outside_fences(lines)
+    first = next(((index, line) for index, line in visible if line.strip()), None)
+    title = ADR_TITLE.match(first[1].rstrip()) if first else None
+    if not title:
+        shown = first[1].strip()[:80] if first else ""
+        problems.append(f"the first line {shown!r} is not the title '# ADR-nnn: <title>'")
+    elif int(title.group(1)) != number:
+        problems.append(f"the title names ADR-{title.group(1)}, the file name ADR-{number:03d}")
+    headings = [(index, match.group("text")) for index, line in visible for match in [_H2.match(line)] if match]
+    header = "\n".join(lines[(first[0] + 1 if first else 0):(headings[0][0] if headings else len(lines))])
+
+    # Exactly one of each: a second 'Status:' or 'Date:' line (for example 'Status: approved by the CSO' under
+    # an allowed one) would let the header claim what the checked line does not.
+    fields = {name: list(re.finditer(_FIELD.format(name=name), header, re.M | re.I)) for name in ("Status", "Date")}
+    for name, found in fields.items():
+        if len(found) > 1:
+            problems.append(
+                f"{len(found)} '{name}:' lines between the title and the first '##' heading; template B.1 has "
+                f"exactly one ({', '.join(repr(match.group(0).strip()) for match in found)})"
+            )
+    status = fields["Status"][0] if len(fields["Status"]) == 1 else None
+    if not fields["Status"]:
+        problems.append("no 'Status:' line between the title and the first '##' heading")
+    elif status:
         value = status.group("value").strip("* ")
-        if not ADR_STATUSES.match(value):
-            problems.append(f"status {value!r} is not proposed, accepted, accepted-provisional or superseded by ADR-nnn")
+        if not ADR_STATUSES.fullmatch(value):
+            problems.append(
+                f"status {value!r} is not exactly one of proposed, accepted, accepted-provisional or "
+                "superseded by ADR-nnn"
+            )
         elif number in ADR_PROVISIONAL and not re.match(r"^(accepted-provisional|superseded)", value, re.I):
             problems.append(f"status {value!r}: §4.2 keeps ADR-{number:03d} accepted-provisional until the reference-cell run")
-    date = re.search(_FIELD.format(name="Date"), text, re.M | re.I)
-    if not date:
-        problems.append("no 'Date:' line")
-    elif not re.match(r"\d{4}-\d{2}-\d{2}\b", date.group("value").strip("* ")):
-        problems.append(f"date {date.group('value')!r} is not yyyy-mm-dd")
+    date = fields["Date"][0] if len(fields["Date"]) == 1 else None
+    if not fields["Date"]:
+        problems.append("no 'Date:' line between the title and the first '##' heading")
+    elif date:
+        value = date.group("value").strip("* ")
+        parsed = ADR_DATE.match(value)
+        if not parsed:
+            problems.append(f"date {date.group('value')!r} is not yyyy-mm-dd")
+        else:
+            try:
+                datetime.date.fromisoformat(parsed.group("date"))
+            except ValueError:
+                problems.append(f"date {parsed.group('date')!r} is not a calendar date")
+            if not ADR_SOURCE.fullmatch(parsed.group("rest")):
+                problems.append("no 'Source:' field on the Date line ('Date: <yyyy-mm-dd>   Source: <K §, BP §, R §>')")
+
+    texts = [heading.casefold() for _, heading in headings]
+    positions = []
     for heading in ADR_HEADINGS:
-        if not re.search(rf"^#{{2,6}}\s+{re.escape(heading)}\b", text, re.M | re.I):
+        count = texts.count(heading.casefold())
+        if count == 0:
             problems.append(f"no '## {heading}' heading")
+        elif count > 1:
+            problems.append(f"the '## {heading}' heading appears {count} times")
+        else:
+            positions.append(texts.index(heading.casefold()))
+    if len(positions) == len(ADR_HEADINGS) and positions != sorted(positions):
+        found = ", ".join(headings[position][1] for position in sorted(positions))
+        problems.append(f"the B.1 headings are out of order ({found}); B.1 order is {', '.join(ADR_HEADINGS)}")
     return problems
 
 
@@ -390,9 +473,53 @@ def check_limits(root: Path, result: CheckResult) -> None:
             result.errors.append(f"limits: docs/program/STATUS.md has {lines} lines (at most {STATUS_MAX_LINES}, §3.1)")
 
 
+# --------------------------------------------------------------------------- (f) executable entry scripts
+
+# The scripts COMMANDS.md says git stores as executable. Stored as 100644, a direct run ('tools/ci/run fast',
+# 'backend/gradlew -p backend ...') fails with 'Permission denied' on Linux (review finding R-02).
+EXECUTABLES = [
+    "backend/gradlew",
+    "tools/bootstrap",
+    "tools/ci/run",
+    "tools/doctor",
+    "tools/hms",
+    "tools/host/provision-ubuntu.sh",
+]
+EXECUTABLE_MODE = "100755"
+
+
+def index_modes(root: Path, paths: list[str]) -> dict[str, str]:
+    """The mode git's index records for each of ``paths`` that it tracks (what the next commit stores)."""
+    out = git(root, "ls-files", "--stage", "-z", "--", *paths)
+    modes: dict[str, str] = {}
+    for entry in out.decode("utf-8", "surrogateescape").split("\0"):
+        meta, tab, path = entry.partition("\t")
+        if tab and meta.split():
+            modes[path] = meta.split()[0]
+    return modes
+
+
+def check_modes(root: Path, result: CheckResult) -> None:
+    modes = index_modes(root, EXECUTABLES)
+    for path in EXECUTABLES:
+        mode = modes.get(path)
+        if mode is None:
+            # Removed from the index (for example 'git rm --cached'), the next commit would drop the script.
+            result.errors.append(
+                f"modes: {path} is not in git's index, so the next commit would not store it; run "
+                f"'git add {path}' and 'git update-index --chmod=+x {path}' (COMMANDS.md runs it; review finding R-02)"
+            )
+        elif mode != EXECUTABLE_MODE:
+            result.errors.append(
+                f"modes: {path} is stored with mode {mode}, not {EXECUTABLE_MODE}; run "
+                f"'git update-index --chmod=+x {path}' (COMMANDS.md runs it directly; review finding R-02)"
+            )
+    result.counts["executables_checked"] = sum(1 for path in EXECUTABLES if path in modes)
+
+
 # --------------------------------------------------------------------------- all
 
-RULES = ("crlf", "required", "tenants", "branches", "limits")
+RULES = ("crlf", "required", "tenants", "branches", "limits", "modes")
 
 
 def run(root: Path, only: Optional[set[str]] = None) -> CheckResult:
@@ -410,6 +537,8 @@ def run(root: Path, only: Optional[set[str]] = None) -> CheckResult:
             check_branches(root, result, config)
         if "limits" in selected:
             check_limits(root, result)
+        if "modes" in selected:
+            check_modes(root, result)
     except (RepoError, KeyError, re.error) as exc:
         result.errors.append(f"environment: {exc}")
         result.counts["environment_error"] = 1

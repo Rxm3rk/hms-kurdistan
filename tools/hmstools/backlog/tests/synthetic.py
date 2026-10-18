@@ -146,18 +146,49 @@ Nothing here is read.
 """
 
 
-class SyntheticRepo:
-    """A temporary repository layout holding a plan text; remove with cleanup()."""
+# Only 'hazards[].id' and 'hazards[].features' are read by the backlog. Expected links: KRI-ID-01 -> HAZ-0001,
+# HAZ-0002 (entries out of order, a feature named twice by one entry); RCM-SCH-01 and its scheme part row ->
+# HAZ-0002; INT-ENG-01 -> HAZ-0001; HAZ-0003 names no feature.
+HAZARD_LOG = """\
+schema_version: 1
+hazards:
+  - id: HAZ-0002
+    title: Second fixture hazard
+    features: [RCM-SCH-01, KRI-ID-01, KRI-ID-01]
+  - id: HAZ-0001
+    title: First fixture hazard
+    features: [KRI-ID-01, INT-ENG-01]
+  - id: HAZ-0003
+    title: Fixture hazard with no feature
+    features: []
+"""
+EXPECTED_HAZARDS = {
+    "KRI-ID-01": ["HAZ-0001", "HAZ-0002"],
+    "RCM-SCH-01": ["HAZ-0002"],
+    "RCM-SCH-01 · part: scheme": ["HAZ-0002"],
+    "INT-ENG-01": ["HAZ-0001"],
+}
 
-    def __init__(self, plan: str = PLAN) -> None:
+
+class SyntheticRepo:
+    """A temporary repository layout holding a plan text and a hazard log; remove with cleanup()."""
+
+    def __init__(self, plan: str = PLAN, hazard_log: str | None = HAZARD_LOG) -> None:
         self._tmp = tempfile.TemporaryDirectory(prefix="hms-backlog-test-")
         root = Path(self._tmp.name)
         self.paths = BacklogPaths.for_root(root)
         self.write_plan(plan)
+        if hazard_log is not None:
+            self.write_hazard_log(hazard_log)
 
     def write_plan(self, plan: str) -> None:
         with open(self.paths.source, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(plan)
+
+    def write_hazard_log(self, text: str) -> None:
+        self.paths.hazard_log.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.paths.hazard_log, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(text)
 
     def cleanup(self) -> None:
         self._tmp.cleanup()
