@@ -54,9 +54,9 @@ UBUNTU: dict[str, list[str]] = {
         f"{PROVISION}   # the pinned Node.js 24 LTS from nodejs.org, checked against SHASUMS256.txt; includes Corepack",
     ],
     "pnpm": [
-        "cd frontend && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack pnpm --version",
-        "# fetches the pnpm version pinned in frontend/package.json into the Corepack cache;"
-        " run pnpm as 'corepack pnpm ...' and never 'corepack enable'",
+        "sh tools/bootstrap frontend   # the pnpm pinned in frontend/package.json into .tools/corepack,"
+        " and the locked packages into frontend/node_modules",
+        "# run pnpm as 'corepack pnpm ...' from frontend/, after eval \"$(sh tools/bootstrap env)\"; never 'corepack enable'",
     ],
     "rust": [
         f"{PROVISION}   # rustup with the stable toolchain, for the build user",

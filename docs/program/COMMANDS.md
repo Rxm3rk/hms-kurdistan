@@ -17,10 +17,10 @@ The project venv's Python is `.tools/venv/Scripts/python.exe` on Windows and `.t
 |---|---|---|
 | `sudo bash tools/host/provision-ubuntu.sh` | Ubuntu 24.04 (WSL2) only, as root: Docker Engine, kubectl, Helm, k3d, OpenJDK 25, Node.js 24, Python 3.12 tooling, Rust and the Tauri 2 Linux prerequisites, pinned and checksum-verified. Idempotent | WSL, twice (the second run changed nothing) |
 | `mkdir -p ~/src && git clone /mnt/c/Users/Surface/.t3/projects/hospitalmanagementsystem ~/src/hospitalmanagementsystem && git -C ~/src/hospitalmanagementsystem config core.autocrlf false` | Creates the WSL clone in the Linux file system (never under `/mnt/c`) | WSL |
-| `sh tools/bootstrap` | Fetches the project-local toolchain into `.tools/` (git-ignored): JDK 25, the Gradle distribution, gitleaks and the venv. Every download is checked against its vendor's SHA-256; anything already present and verified is reused | Windows (reused everything, 1.5 s); WSL (fetched everything, 7.5 min) |
+| `sh tools/bootstrap` | Fetches the project-local toolchain into `.tools/` (git-ignored): JDK 25, the Gradle distribution, gitleaks, the venv, and the frontend packages (`frontend/node_modules`, installed from the lockfile, with Corepack's cache in `.tools/corepack` and the pnpm store in `.tools/pnpm-store`). Every download is checked against its vendor's SHA-256 or the lockfile's sha512; anything already present and verified is reused | Windows (reused everything, 1.5 s, before the frontend step existed); WSL (fetched everything, 7.5 min) |
 | `sh tools/bootstrap --gradle-mirror https://mirrors.aliyun.com/gradle/distributions/v9.8.1/` | The same, fetching the Gradle zip from a mirror because services.gradle.org is slow from this network; the zip is still verified against the official checksum | WSL |
-| `sh tools/bootstrap jdk` (or `gradle`, `gitleaks`, `venv`) | One step only | Windows (`all`, the default, covers each) |
-| `eval "$(sh tools/bootstrap env)"` | Sets `JAVA_HOME`, `GRADLE_USER_HOME` and `PATH` for the project-local toolchain in the current shell. Needed before any Gradle command | Windows, WSL |
+| `sh tools/bootstrap jdk` (or `gradle`, `gitleaks`, `venv`, `frontend`) | One step only. `frontend` runs `corepack pnpm install --frozen-lockfile` in `frontend/` | Windows (each step on its own; `frontend` reinstalled `node_modules` in 20 s) |
+| `eval "$(sh tools/bootstrap env)"` | Sets `JAVA_HOME`, `GRADLE_USER_HOME`, `COREPACK_HOME` and `PATH` for the project-local toolchain in the current shell. Needed before any Gradle or pnpm command | Windows |
 | `sh tools/bootstrap requirements-lock` | Regenerates `tools/requirements.txt` with hashes from `tools/requirements.in` through the PyPI JSON API | Windows (reproduced the committed file byte for byte) |
 | `sh tools/doctor` | Checks the host against "Before the first session" and prints what is missing with the commands to fix it; never installs anything; exit 1 if a required item is missing | Windows (fails, as it should: Windows is not the build host) |
 | `sh tools/doctor --json` | The same, with one JSON object as the last line (evidence) | Windows |
@@ -71,7 +71,7 @@ Only `@hms/i18n` ships today; the ESLint plugin and every development dependency
 
 | Command | Checked |
 |---|---|
-| `$PY -I -m unittest discover -s tools -t tools -p "test_*.py"` (every tools test: 384) | Windows |
+| `$PY -I -m unittest discover -s tools -t tools -p "test_*.py"` (every tools test: 389) | Windows |
 | `$PY -I -m unittest discover -s tools/hmstools/<area>/tests -t tools` (one package: `backlog`, `bootstrap`, `ci`, `doctor`, `licence`, `repo`, `safety`) | Windows (`backlog`, `doctor`, `licence`, `repo`) |
 
 **Backend** (Gradle; first `eval "$(sh tools/bootstrap env)"`):
@@ -86,11 +86,11 @@ Only `@hms/i18n` ships today; the ESLint plugin and every development dependency
 
 JUnit XML lands in each project's `build/test-results/<task>/`. `tools/ci/run` runs the backend with `-Phms.pbt.sequences=1000 --no-build-cache` after deleting old results, so every count comes from that run.
 
-**Frontend** (pnpm through Corepack; **run from `frontend/`**: Corepack picks the pnpm version from the `package.json` in the current directory, and from the repository root `corepack pnpm --dir frontend ...` starts the wrong pnpm and stops with `ERR_PNPM_BAD_PM_VERSION`):
+**Frontend** (pnpm through Corepack, after `eval "$(sh tools/bootstrap env)"` so that Corepack uses the project-local cache; **run from `frontend/`**: Corepack picks the pnpm version from the `package.json` in the current directory, and from the repository root `corepack pnpm --dir frontend ...` starts the wrong pnpm and stops with `ERR_PNPM_BAD_PM_VERSION`):
 
 | Command (in `frontend/`) | What it does | Checked |
 |---|---|---|
-| `COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack pnpm install --frozen-lockfile` | Installs exactly the lockfile | Windows |
+| `COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack pnpm install --frozen-lockfile` | Installs exactly the lockfile (what `sh tools/bootstrap frontend` runs) | Windows |
 | `corepack pnpm run fast` | ESLint, the CSS check, type-checking, the Vitest suites (JUnit XML in `frontend/reports/junit/`) and the localisation lint; stops at the first failure | Windows (514 tests) |
 | `corepack pnpm run lint`, `lint:es`, `lint:css`, `typecheck`, `test`, `i18n:lint` | One part of `fast` | Windows (`lint:es`, `lint:css`; the rest through `fast`) |
 | `corepack pnpm run format:check` | Prettier check (not part of `fast`) | Windows |

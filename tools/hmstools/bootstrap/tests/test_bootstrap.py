@@ -311,3 +311,66 @@ class EnvScript(TempRoot):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Frontend(TempRoot):
+    def test_toolchain_env_and_env_script_set_a_project_local_corepack_home(self) -> None:
+        expected = self.root / ".tools" / "corepack"
+        self.assertEqual(steps.toolchain_env(self.root)["COREPACK_HOME"], str(expected))
+        script = steps.env_script(self.root, msys=False)
+        self.assertIn(f"export COREPACK_HOME='{expected}'", script)
+
+    def test_nothing_to_install_without_frontend_package_json(self) -> None:
+        self.assertEqual(steps.ensure_frontend(self.root), self.root / "frontend")
+
+    def _with_package_json(self) -> None:
+        (self.root / "frontend").mkdir()
+        (self.root / "frontend" / "package.json").write_text("{}\n", encoding="utf-8")
+
+    def test_missing_corepack_fails_with_a_clear_message(self) -> None:
+        self._with_package_json()
+        original = steps.shutil.which
+        steps.shutil.which = lambda name, *a, **k: None
+        try:
+            with self.assertRaisesRegex(core.BootstrapError, "corepack is not on PATH"):
+                steps.ensure_frontend(self.root)
+        finally:
+            steps.shutil.which = original
+
+    def _fake_run(self, returncode: int, output: bytes):
+        calls = []
+
+        def run(argv, **kwargs):
+            calls.append((argv, kwargs))
+            return steps.subprocess.CompletedProcess(argv, returncode, stdout=output)
+
+        return calls, run
+
+    def test_frozen_install_in_frontend_with_project_local_caches(self) -> None:
+        self._with_package_json()
+        calls, fake = self._fake_run(0, b"Lockfile is up to date\nDone in 1s\n")
+        original_which, original_run = steps.shutil.which, steps.subprocess.run
+        steps.shutil.which = lambda name, *a, **k: "/usr/bin/corepack"
+        steps.subprocess.run = fake
+        try:
+            result = steps.ensure_frontend(self.root)
+        finally:
+            steps.shutil.which, steps.subprocess.run = original_which, original_run
+        self.assertEqual(result, self.root / "frontend" / "node_modules")
+        argv, kwargs = calls[0]
+        self.assertEqual(argv, ["/usr/bin/corepack", "pnpm", "install", "--frozen-lockfile"])
+        self.assertEqual(kwargs["cwd"], self.root / "frontend")
+        self.assertEqual(kwargs["env"]["COREPACK_HOME"], str(self.root / ".tools" / "corepack"))
+        self.assertEqual(kwargs["env"]["COREPACK_ENABLE_DOWNLOAD_PROMPT"], "0")
+
+    def test_failed_install_raises_with_the_output_tail(self) -> None:
+        self._with_package_json()
+        calls, fake = self._fake_run(1, b"ERR_PNPM_OUTDATED_LOCKFILE Cannot install with frozen-lockfile\n")
+        original_which, original_run = steps.shutil.which, steps.subprocess.run
+        steps.shutil.which = lambda name, *a, **k: "/usr/bin/corepack"
+        steps.subprocess.run = fake
+        try:
+            with self.assertRaisesRegex(core.BootstrapError, "exit 1.*ERR_PNPM_OUTDATED_LOCKFILE"):
+                steps.ensure_frontend(self.root)
+        finally:
+            steps.shutil.which, steps.subprocess.run = original_which, original_run

@@ -1,4 +1,4 @@
-"""tools/bootstrap [all|jdk|gradle|gitleaks|venv|env|requirements-lock] [options]."""
+"""tools/bootstrap [all|jdk|gradle|gitleaks|venv|frontend|env|requirements-lock] [options]."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from pathlib import Path
 from .core import BootstrapError, log
 from .steps import (
     GITLEAKS_DEFAULT_VERSION,
+    ensure_frontend,
     ensure_gitleaks,
     ensure_gradle,
     ensure_jdk,
@@ -36,9 +37,13 @@ steps:
              that release's checksums file, into .tools/bin/.
   venv       .tools/venv from tools/requirements.txt with pip --require-hashes; a venv that already
              matches the pins is reused.
-  all        jdk, gradle, gitleaks and venv (the default).
-  env        print shell exports (JAVA_HOME, GRADLE_USER_HOME, PATH with .tools/bin) for
-             eval "$(sh tools/bootstrap env)".
+  frontend   frontend/node_modules from frontend/pnpm-lock.yaml: 'corepack pnpm install
+             --frozen-lockfile' with the pnpm that frontend/package.json pins (Corepack checks its
+             hash; pnpm checks every package's sha512). Corepack's cache is .tools/corepack and the
+             pnpm store .tools/pnpm-store. Needs Node.js 24 with Corepack.
+  all        jdk, gradle, gitleaks, venv and frontend (the default).
+  env        print shell exports (JAVA_HOME, GRADLE_USER_HOME, COREPACK_HOME, PATH with .tools/bin)
+             for eval "$(sh tools/bootstrap env)".
   requirements-lock
              regenerate tools/requirements.txt (with hashes) from tools/requirements.in using the
              PyPI JSON API.
@@ -65,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         "step",
         nargs="?",
         default="all",
-        choices=["all", "jdk", "gradle", "gitleaks", "venv", "env", "requirements-lock"],
+        choices=["all", "jdk", "gradle", "gitleaks", "venv", "frontend", "env", "requirements-lock"],
     )
     parser.add_argument("--gradle-mirror", metavar="URL", help=MIRROR_HELP)
     parser.add_argument(
@@ -89,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
             lock_requirements(root)
             return 0
         failures = []
-        steps = ["jdk", "gradle", "gitleaks", "venv"] if args.step == "all" else [args.step]
+        steps = ["jdk", "gradle", "gitleaks", "venv", "frontend"] if args.step == "all" else [args.step]
         for step in steps:
             try:
                 if step == "jdk":
@@ -100,6 +105,8 @@ def main(argv: list[str] | None = None) -> int:
                     ensure_gitleaks(root, args.gitleaks_version)
                 elif step == "venv":
                     ensure_venv(root)
+                elif step == "frontend":
+                    ensure_frontend(root)
             except BootstrapError as exc:
                 log(f"{step}: FAILED: {exc}")
                 failures.append(step)

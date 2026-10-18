@@ -1,4 +1,5 @@
-"""The bootstrap steps: JDK 25, the Gradle distribution, gitleaks, the project venv and the shell environment."""
+"""The bootstrap steps: JDK 25, the Gradle distribution, gitleaks, the project venv, the frontend packages
+and the shell environment."""
 
 from __future__ import annotations
 
@@ -49,6 +50,9 @@ GITLEAKS_API = "https://api.github.com/repos/gitleaks/gitleaks/releases?per_page
 REQUIREMENTS_IN = Path("tools/requirements.in")
 REQUIREMENTS_TXT = Path("tools/requirements.txt")
 VENV = Path(".tools/venv")
+
+# Corepack keeps the pnpm it downloads here (COREPACK_HOME), inside .tools/ like the Gradle home.
+COREPACK_HOME = "corepack"
 
 
 # =========================================================================== JDK
@@ -517,6 +521,49 @@ def lock_requirements(root: Path) -> Path:
     return target
 
 
+# =========================================================================== frontend
+
+
+def ensure_frontend(root: Path) -> Path:
+    """frontend/node_modules exactly as frontend/pnpm-lock.yaml pins it.
+
+    Runs 'corepack pnpm install --frozen-lockfile' in frontend/. Corepack fetches the pnpm version that
+    frontend/package.json pins and checks it against the packageManager hash; pnpm checks every package
+    against the sha512 integrity in the lockfile and fails if the lockfile does not match package.json.
+    Corepack's cache (COREPACK_HOME) and the pnpm store (storeDir in frontend/pnpm-workspace.yaml) are
+    under .tools/, so nothing is written outside the repository. 'corepack enable' is never run.
+    """
+    frontend = root / "frontend"
+    if not (frontend / "package.json").is_file():
+        log("frontend: no frontend/package.json; nothing to install")
+        return frontend
+    corepack = shutil.which("corepack")
+    if not corepack:
+        raise BootstrapError("corepack is not on PATH; it ships with Node.js 24 LTS (see tools/doctor)")
+    env = apply_toolchain_env(root, private_env(root))
+    env["COREPACK_ENABLE_DOWNLOAD_PROMPT"] = "0"
+    log("frontend: corepack pnpm install --frozen-lockfile (in frontend/)")
+    try:
+        proc = subprocess.run(
+            [corepack, "pnpm", "install", "--frozen-lockfile"],
+            cwd=frontend,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=1800,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise BootstrapError(f"corepack pnpm install could not run: {exc}") from exc
+    output = proc.stdout.decode("utf-8", errors="replace").strip().splitlines()
+    if proc.returncode != 0:
+        tail = " | ".join(output[-8:])
+        raise BootstrapError(f"corepack pnpm install --frozen-lockfile failed (exit {proc.returncode}): {tail}")
+    if output:
+        log(f"frontend: {output[-1]}")
+    return frontend / "node_modules"
+
+
 # =========================================================================== env
 
 
@@ -530,8 +577,11 @@ def to_posix(path: Path) -> str:
 
 
 def toolchain_env(root: Path) -> dict[str, str]:
-    """JAVA_HOME, GRADLE_USER_HOME and the PATH entries to prepend, as native absolute paths."""
-    env = {"GRADLE_USER_HOME": str(tools_dir(root) / "gradle-home")}
+    """JAVA_HOME, GRADLE_USER_HOME, COREPACK_HOME and the PATH entries to prepend, as native absolute paths."""
+    env = {
+        "GRADLE_USER_HOME": str(tools_dir(root) / "gradle-home"),
+        "COREPACK_HOME": str(tools_dir(root) / COREPACK_HOME),
+    }
     jdk = find_project_jdk(root)
     if jdk:
         env["JAVA_HOME"] = str(jdk[0])
@@ -570,5 +620,6 @@ def env_script(root: Path, msys: Optional[bool] = None) -> str:
     else:
         lines.append(f"echo 'tools/bootstrap env: no JDK {JDK_MAJOR} in .tools/; run sh tools/bootstrap jdk' >&2")
     lines.append(f"export GRADLE_USER_HOME={shell_quote(convert(tools_dir(root) / 'gradle-home'))}")
+    lines.append(f"export COREPACK_HOME={shell_quote(convert(tools_dir(root) / COREPACK_HOME))}")
     lines.append(f"export PATH={shell_quote(':'.join(path_parts))}:\"$PATH\"")
     return "\n".join(lines) + "\n"

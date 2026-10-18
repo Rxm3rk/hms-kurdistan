@@ -11,6 +11,9 @@ engineStrict: true
 strictPeerDependencies: true
 # pnpm is pinned by "packageManager"; upgrades go through the version rule and ADR-002, not the notifier.
 updateNotifier: false
+# The package store is project-local, like the Gradle home: .tools/ is git-ignored, and installing never
+# writes outside the repository. 'sh tools/bootstrap frontend' fills it.
+storeDir: ../.tools/pnpm-store
 # `pnpm run` fails with a clear message when node_modules does not match the lockfile, instead of running
 # stale tools or installing on its own. Install first: corepack pnpm install --frozen-lockfile.
 verifyDepsBeforeRun: error

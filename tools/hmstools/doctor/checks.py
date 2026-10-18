@@ -221,6 +221,7 @@ def check_pnpm(host: Host) -> Item:
     env = host.environ()
     env["COREPACK_ENABLE_DOWNLOAD_PROMPT"] = "0"
     env["COREPACK_ENABLE_NETWORK"] = "0"  # the doctor never downloads; a missing pnpm is reported instead
+    env["COREPACK_HOME"] = str(host.root / ".tools" / "corepack")  # the project-local cache the build uses
     frontend = host.root / "frontend"
     cwd = frontend if host.exists(frontend / "package.json") else host.root
     code, out = host.run(["corepack", "pnpm", "--version"], timeout=60, cwd=cwd, env=env)
