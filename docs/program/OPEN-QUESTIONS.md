@@ -399,3 +399,13 @@ Choices the build made where the plan of record sets no value. They bind until a
 ### OQ-100: Evidence labels for the two checkouts
 - **Choice:** runs on the Windows checkout are labelled "Windows host" and are never evidence of record; fast-tier and doctor evidence of record comes from the WSL clone at a committed SHA, labelled "WSL build host, no cell" (`docs/program/evidence/README.md`, KA-001).
 - **Status:** open
+
+## (g) Engineering choices [P] made in WP-0.2, awaiting confirmation
+
+### OQ-106: The object store is SeaweedFS, with RustFS as the qualified alternative
+- **Choice:** SeaweedFS 4.48 (Apache-2.0) runs as the S3-compatible object store of the compose stack and the dev cell; product code reaches it only through the S3 API behind `platform-files`. RustFS 1.0.3 passed the same WORM test and is the recorded alternative; versitygw v1.4.1 failed it (a COMPLIANCE retention could be shortened). Basis: the WORM test and the dependency scorecard (ADR-029, `docs/program/dependency-scorecard.md`). SeaweedFS's main risk is its single principal maintainer.
+- **Status:** open
+
+### OQ-107: Reading the §4.1 version rule for projects without patch releases
+- **Choice:** §4.1 pins "the newest generally available release that has had at least one patch release". Some projects publish no patch releases (SeaweedFS numbers releases 4.nn). For those, the rule is read as "the newest release that is at least 14 days old", which gives SeaweedFS 4.48 (published 2026-09-28).
+- **Status:** open
