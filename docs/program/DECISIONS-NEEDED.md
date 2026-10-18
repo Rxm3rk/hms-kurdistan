@@ -11,7 +11,7 @@ At most ten items. Answer these first.
 1. **DN-005** The lite cell cannot show WP-0.2's single-node-loss criterion: choose how it will be met. WP-0.2 starts now on the default.
 2. **DN-011** No work package can merge into `main` until the merge tier exists and passes: confirm that the Phase 0 branches stack meanwhile, or choose another rule.
 
-Next to block (not "now"): DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing.
+Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing.
 
 Closed on 18 October 2026: DN-001 to DN-004 (the Linux build host was provisioned at the human's instruction) and DN-006 (confirmed).
 
@@ -266,3 +266,15 @@ Closed on 18 October 2026: DN-001 to DN-004 (the Linux build host was provisione
 - **Options:**
   1. Leave them (default).
   2. Renormalise them in one commit (`git add --renormalize` on those four files). Only the line endings change; the text is identical.
+
+## DN-013: Free disk on C: is below the guide
+
+- **Status:** open
+- **Blocks:** WP-0.2 (container images, the k3d cell's volumes, build caches)
+- **Default in use:** continue. WP-0.2 records how much space the lite cell takes, and stops pulling images or creating volumes if C: falls below 15 GiB free [P], so the Windows system drive never fills.
+- **Who decides:** the host owner.
+- **Context:** the WSL2 virtual disk (`ext4.vhdx`, 8.9 GB on 18 October 2026) lives on C:, which has about 35 GiB free (86% used); inside WSL the virtual disk reports about 950 GiB, which is only its maximum size. `tools/doctor` therefore counts the Windows drive too and reports 36.4 GiB free on C: against its [P] guide of 50 GiB (OQ-094; `docs/program/evidence/doctor/2026-10-18-d3e14de.txt`). The only other drive, G:, has about 33 GB free, so moving the distribution there gains nothing.
+- **Options:**
+  1. Free space on C: (for example old downloads, temporary files, and, if Docker Desktop is no longer used, the leftover `docker-desktop` WSL distribution that `wsl -l -v` still lists).
+  2. Add a larger drive and move the distribution to it (`wsl --manage Ubuntu-24.04 --move <folder>` in Windows).
+  3. Continue with the default and watch the figure; the doctor reports it on every run.

@@ -22,15 +22,15 @@ The project venv's Python is `.tools/venv/Scripts/python.exe` on Windows and `.t
 | `sh tools/bootstrap jdk` (or `gradle`, `gitleaks`, `venv`, `frontend`) | One step only. `frontend` runs `corepack pnpm install --frozen-lockfile` in `frontend/` | Windows (each step on its own; `frontend` reinstalled `node_modules` in 20 s) |
 | `eval "$(sh tools/bootstrap env)"` | Sets `JAVA_HOME`, `GRADLE_USER_HOME`, `COREPACK_HOME` and `PATH` for the project-local toolchain in the current shell. Needed before any Gradle or pnpm command | Windows |
 | `sh tools/bootstrap requirements-lock` | Regenerates `tools/requirements.txt` with hashes from `tools/requirements.in` through the PyPI JSON API | Windows (reproduced the committed file byte for byte) |
-| `sh tools/doctor` | Checks the host against "Before the first session" and prints what is missing with the commands to fix it; never installs anything; exit 1 if a required item is missing | Windows (fails, as it should: Windows is not the build host) |
-| `sh tools/doctor --json` | The same, with one JSON object as the last line (evidence) | Windows |
+| `sh tools/doctor` | Checks the host against "Before the first session" and prints what is missing with the commands to fix it; never installs anything; exit 1 if a required item is missing | Windows (fails, as it should: Windows is not the build host); WSL at `d3e14de` (fails on RAM and free disk only; recorded) |
+| `sh tools/doctor --json` | The same, with one JSON object as the last line (evidence) | Windows; WSL at `d3e14de` (recorded) |
 | `sh tools/doctor --tier fast` | Only what the fast tier needs: JDK 25, Node.js 24, pnpm through Corepack, the venv, gitleaks | Windows (through `tools/ci/run fast`) |
 
 ## 2. CI tiers (`tools/ci/run`, BUILD-PROMPT §19.1)
 
 | Command | What it does | Checked |
 |---|---|---|
-| `sh tools/ci/run fast` | The fast tier: doctor (fast), repo check, Python unit tests, safety check, backlog check, backend `fastTier`, frontend `fast`, secret scan. Runs every step even after a failure, exits 1 if any failed, and writes `docs/program/evidence/ci/<date>-fast-<shortsha>[-dirty].json` and full logs under `build/ci-logs/<run_id>/` | Windows (with `--no-evidence`) |
+| `sh tools/ci/run fast` | The fast tier: doctor (fast), repo check, Python unit tests, safety check, backlog check, backend `fastTier`, frontend `fast`, secret scan. Runs every step even after a failure, exits 1 if any failed, and writes `docs/program/evidence/ci/<date>-fast-<shortsha>[-dirty].json` and full logs under `build/ci-logs/<run_id>/` | Windows (with `--no-evidence`); WSL at `d3e14de`, the record (`evidence/ci/2026-10-18-fast-d3e14de.json`) |
 | `sh tools/ci/run fast --no-evidence` | The same without the evidence record | Windows |
 | `sh tools/ci/run <tier> --list` | Lists a tier's steps, and for each step not built yet the work package that builds it | Windows (all four tiers) |
 | `sh tools/ci/run fast --only safety-check,backlog-check --no-evidence` | Runs only the named steps. The result is PARTIAL (exit 3), never a gate result | Windows |
@@ -42,6 +42,8 @@ The project venv's Python is `.tools/venv/Scripts/python.exe` on Windows and `.t
 ```sh
 MSYS_NO_PATHCONV=1 wsl.exe -d Ubuntu-24.04 -- bash -lc 'cd ~/src/hospitalmanagementsystem && git fetch origin && git checkout --detach origin/wp/0.1-programme-bootstrap && sh tools/bootstrap && sh tools/ci/run fast'
 ```
+
+Checked from Git Bash at `d3e14de`. Use `bash -lc` (a login shell): it puts rustup's `~/.cargo/bin` on PATH. A clone whose tracked files differ from the commit gives a `-dirty` record, which is never the gate; `git reset --hard` cleans a scratch clone.
 
 ## 3. Programme checks, one at a time
 
@@ -71,7 +73,7 @@ Only `@hms/i18n` ships today; the ESLint plugin and every development dependency
 
 | Command | Checked |
 |---|---|
-| `$PY -I -m unittest discover -s tools -t tools -p "test_*.py"` (every tools test: 389) | Windows |
+| `$PY -I -m unittest discover -s tools -t tools -p "test_*.py"` (every tools test: 392) | Windows; WSL (through `tools/ci/run fast`) |
 | `$PY -I -m unittest discover -s tools/hmstools/<area>/tests -t tools` (one package: `backlog`, `bootstrap`, `ci`, `doctor`, `licence`, `repo`, `safety`) | Windows (`backlog`, `doctor`, `licence`, `repo`) |
 
 **Backend** (Gradle; first `eval "$(sh tools/bootstrap env)"`):
