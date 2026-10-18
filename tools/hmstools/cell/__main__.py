@@ -36,8 +36,7 @@ def cmd_worm(args: argparse.Namespace) -> int:
         report = run_worm(client)
         test = "worm"
         if args.state and report.version:
-            with open(args.state, "w", encoding="utf-8", newline="
-") as handle:
+            with open(args.state, "w", encoding="utf-8", newline="\n") as handle:
                 json.dump({"bucket": report.bucket, "key": report.key, "version": report.version,
                            "sha256": report.sha256}, handle)
     for c in report.cases:
