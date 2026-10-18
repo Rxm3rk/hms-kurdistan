@@ -1,0 +1,3 @@
+# FHIR CapabilityStatement and profiles
+
+The FHIR R4 (4.0.1) CapabilityStatement, profiles and pinned implementation-guide versions for the projection-based FHIR façade, validated in CI with the HL7 validator (BUILD-PROMPT §12.3, §20; ADR-005). The domain model is the truth and FHIR is a generated projection (constitution rule 4); bounded writes become domain commands. Profiles include IPA 1.1, IPS 2.0.1 (`$summary`), and in R1.1 SMART App Launch 2.2, Bulk Data and topic-based Subscriptions through the R5 backport. FHIR implementation-guide packages are downloaded only from their official registries (§3.7). WP-1.12 (`INT-FHIR-01` read, `INT-IPS-01`) fills this directory; R1.1 adds SMART, Bulk and Subscriptions.

@@ -1,0 +1,25 @@
+# ORT package curations (BUILD-PROMPT.md §4.3, ADR-022). Pass with:
+#   ort evaluate --package-curations-file tools/licence/ort/curations.yml ...
+# A curation records a fact about a package (which option of a multi-licensed package we use,
+# that it is unmodified). It never makes a licence decision on anyone's behalf: a dependency
+# outside the allowlist is a stop-and-ask item (§3.4 item 2).
+#
+# The two entries below anticipate the conditional components named in §4.1 and §4.3. Neither
+# is a dependency yet (HAPI HL7 v2 arrives with the Hub, WP-1.1b; dcm4che only if the imaging
+# tier needs it). Confirm the coordinates against the ORT analyser output when they are added,
+# and add the matching tools/licence/register.yaml entry in the same change.
+# An empty version in the id applies the curation to every version.
+- id: "Maven:ca.uhn.hapi:hapi-base:"
+  curations:
+    comment: >-
+      HAPI HL7 v2 is dual licensed (MPL-1.1 or GPL-2.0). The product uses it unmodified under the
+      MPL-1.1 option (BUILD-PROMPT.md §4.1, §4.3); conditional, needs a licence-register entry.
+    concluded_license: "MPL-1.1"
+    is_modified: false
+- id: "Maven:org.dcm4che:dcm4che-core:"
+  curations:
+    comment: >-
+      dcm4che is tri-licensed (MPL-1.1, GPL-2.0, LGPL-2.1). The product uses the LGPL-2.1 option,
+      unmodified (BUILD-PROMPT.md §4.3); conditional, needs a licence-register entry.
+    concluded_license: "LGPL-2.1-only"
+    is_modified: false

@@ -1,0 +1,186 @@
+# CODEOWNERS (BUILD-PROMPT.md §5.2 module map, §6.1 directory map; WP-0.1).
+#
+# The @hms-kurdistan/<squad> handles are PLACEHOLDERS until a remote exists and a human creates the
+# organisation and its teams. They name no person. Replace them in one change when the remote is set up.
+#
+# The last matching pattern wins, so general rules come first and specific ones after. Paths owned by
+# @hms-kurdistan/clinical-safety (docs/safety, backend/regulated, the state-machine specs, the Safety Kernel
+# and the Tier 2 UI) also need its review; that review is a human gate [HUMAN] (§3.5).
+
+# Default owner
+*                                   @hms-kurdistan/architecture
+
+# Plan of record (read-only for the build) and programme control
+/BUILD-PROMPT.md                    @hms-kurdistan/programme-leads
+/BLUEPRINT.md                       @hms-kurdistan/programme-leads
+/BLUEPRINT-KURDISTAN.md             @hms-kurdistan/programme-leads
+/BLUEPRINT-KURDISTAN.pdf            @hms-kurdistan/programme-leads
+/README.md                          @hms-kurdistan/programme-leads
+/research/                          @hms-kurdistan/programme-leads
+/assets/                            @hms-kurdistan/programme-leads
+/docs/program/                      @hms-kurdistan/programme-leads
+/docs/adr/                          @hms-kurdistan/architecture
+/CHANGELOG.md                       @hms-kurdistan/programme-leads
+
+# Repository tooling, CI and hygiene
+/tools/                             @hms-kurdistan/devex-squad
+/.github/                           @hms-kurdistan/devex-squad
+/.gitattributes                     @hms-kurdistan/devex-squad
+/.gitignore                         @hms-kurdistan/devex-squad
+/.editorconfig                      @hms-kurdistan/devex-squad
+/.gitleaks.toml                     @hms-kurdistan/devex-squad
+/tools/licence/                     @hms-kurdistan/devex-squad @hms-kurdistan/architecture
+/.ort.yml                           @hms-kurdistan/devex-squad @hms-kurdistan/architecture
+/tools/simulators/                  @hms-kurdistan/integration-squad
+
+# Backend: build, shared kernel and the application
+/backend/                           @hms-kurdistan/platform-squad
+/backend/build-logic/               @hms-kurdistan/devex-squad @hms-kurdistan/platform-squad
+/backend/platform/                  @hms-kurdistan/platform-squad
+/backend/app-hms/                   @hms-kurdistan/architecture @hms-kurdistan/platform-squad
+
+# Backend application modules (backend/modules/<module>, §5.2)
+# Trust Plane
+/backend/modules/trust-identity/    @hms-kurdistan/trust-squad
+/backend/modules/trust-policy/      @hms-kurdistan/trust-squad
+/backend/modules/trust-audit/       @hms-kurdistan/trust-squad
+/backend/modules/trust-keys/        @hms-kurdistan/trust-squad
+# Platform
+/backend/modules/platform-tenancy/  @hms-kurdistan/platform-squad
+/backend/modules/platform-journal/  @hms-kurdistan/platform-squad
+/backend/modules/platform-config/   @hms-kurdistan/platform-squad
+/backend/modules/platform-i18n/     @hms-kurdistan/platform-squad
+/backend/modules/platform-docs/     @hms-kurdistan/platform-squad
+/backend/modules/platform-forms/    @hms-kurdistan/platform-squad
+/backend/modules/platform-notify/   @hms-kurdistan/platform-squad
+/backend/modules/platform-files/    @hms-kurdistan/platform-squad
+/backend/modules/platform-workflow/ @hms-kurdistan/platform-squad
+/backend/modules/platform-site/     @hms-kurdistan/platform-squad
+# Safety Kernel task engine
+/backend/modules/platform-tasks/    @hms-kurdistan/platform-squad @hms-kurdistan/clinical-safety
+# Patient access and flow
+/backend/modules/empi/              @hms-kurdistan/patient-access-squad
+/backend/modules/scheduling/        @hms-kurdistan/patient-access-squad
+/backend/modules/adt/               @hms-kurdistan/patient-access-squad
+# Safety Kernel: orders
+/backend/modules/orders/            @hms-kurdistan/orders-squad @hms-kurdistan/clinical-safety
+# Safety Kernel: medications
+/backend/modules/medications/       @hms-kurdistan/medications-squad @hms-kurdistan/clinical-safety
+# Safety Kernel: results
+/backend/modules/results/           @hms-kurdistan/results-squad @hms-kurdistan/clinical-safety
+# Clinical record
+/backend/modules/record/            @hms-kurdistan/clinical-record-squad
+# Nursing
+/backend/modules/nursing/           @hms-kurdistan/nursing-squad
+# Specialty workflows
+/backend/modules/ed/                @hms-kurdistan/specialty-squad
+/backend/modules/periop/            @hms-kurdistan/specialty-squad
+/backend/modules/icu/               @hms-kurdistan/specialty-squad
+/backend/modules/maternity/         @hms-kurdistan/specialty-squad
+# Diagnostics
+/backend/modules/lis/               @hms-kurdistan/diagnostics-squad
+/backend/modules/ris/               @hms-kurdistan/diagnostics-squad
+/backend/modules/transfusion/       @hms-kurdistan/diagnostics-squad
+# Knowledge
+/backend/modules/cds/               @hms-kurdistan/knowledge-squad
+/backend/modules/terminology/       @hms-kurdistan/knowledge-squad
+/backend/modules/content/           @hms-kurdistan/knowledge-squad
+/backend/modules/safety-registry/   @hms-kurdistan/knowledge-squad
+# Revenue and ERP
+/backend/modules/supply/            @hms-kurdistan/erp-squad
+/backend/modules/workforce/         @hms-kurdistan/erp-squad
+# Governance
+/backend/modules/him/               @hms-kurdistan/governance-squad
+/backend/modules/statutory/         @hms-kurdistan/governance-squad
+/backend/modules/quality/           @hms-kurdistan/governance-squad
+/backend/modules/migration/         @hms-kurdistan/governance-squad
+
+# Satellites (backend/satellites, ADR-003) and the Integration Hub
+/backend/satellites/rcm/            @hms-kurdistan/revenue-squad
+/backend/satellites/finance-export/ @hms-kurdistan/revenue-squad
+/backend/satellites/document-renderer/@hms-kurdistan/platform-squad
+/backend/satellites/analytics/      @hms-kurdistan/data-squad
+/backend/satellites/ai-gateway/     @hms-kurdistan/ai-squad
+/backend/hub/                       @hms-kurdistan/integration-squad
+
+# Frontend (§6.1)
+/frontend/                          @hms-kurdistan/frontend-squad
+/frontend/apps/web/                 @hms-kurdistan/frontend-squad
+/frontend/apps/shell/               @hms-kurdistan/frontend-squad @hms-kurdistan/platform-squad
+/frontend/apps/mobile/              @hms-kurdistan/mobile-squad
+/frontend/apps/signage/             @hms-kurdistan/front-door-squad
+/frontend/packages/design-system/   @hms-kurdistan/design-system-squad
+/frontend/packages/i18n/            @hms-kurdistan/frontend-squad @hms-kurdistan/platform-squad
+/frontend/packages/api-client/      @hms-kurdistan/frontend-squad
+
+# Content, deployment and cross-module tests
+/content/                           @hms-kurdistan/knowledge-squad @hms-kurdistan/clinical-safety
+/deploy/                            @hms-kurdistan/sre-squad
+/tests/                             @hms-kurdistan/qa-squad
+/docs/runbooks/                     @hms-kurdistan/sre-squad
+/docs/user/                         @hms-kurdistan/frontend-squad
+/docs/specs/                        @hms-kurdistan/architecture
+
+# Module specifications follow their module (docs/specs/modules/<module>.md)
+/docs/specs/modules/trust-identity.md@hms-kurdistan/trust-squad
+/docs/specs/modules/trust-policy.md @hms-kurdistan/trust-squad
+/docs/specs/modules/trust-audit.md  @hms-kurdistan/trust-squad
+/docs/specs/modules/trust-keys.md   @hms-kurdistan/trust-squad
+/docs/specs/modules/platform-tenancy.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-journal.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-config.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-i18n.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-docs.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-forms.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-notify.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-files.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-workflow.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-site.md@hms-kurdistan/platform-squad
+/docs/specs/modules/platform-tasks.md@hms-kurdistan/platform-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/empi.md         @hms-kurdistan/patient-access-squad
+/docs/specs/modules/scheduling.md   @hms-kurdistan/patient-access-squad
+/docs/specs/modules/adt.md          @hms-kurdistan/patient-access-squad
+/docs/specs/modules/orders.md       @hms-kurdistan/orders-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/medications.md  @hms-kurdistan/medications-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/results.md      @hms-kurdistan/results-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/record.md       @hms-kurdistan/clinical-record-squad
+/docs/specs/modules/nursing.md      @hms-kurdistan/nursing-squad
+/docs/specs/modules/ed.md           @hms-kurdistan/specialty-squad
+/docs/specs/modules/periop.md       @hms-kurdistan/specialty-squad
+/docs/specs/modules/icu.md          @hms-kurdistan/specialty-squad
+/docs/specs/modules/maternity.md    @hms-kurdistan/specialty-squad
+/docs/specs/modules/lis.md          @hms-kurdistan/diagnostics-squad
+/docs/specs/modules/ris.md          @hms-kurdistan/diagnostics-squad
+/docs/specs/modules/transfusion.md  @hms-kurdistan/diagnostics-squad
+/docs/specs/modules/cds.md          @hms-kurdistan/knowledge-squad
+/docs/specs/modules/terminology.md  @hms-kurdistan/knowledge-squad
+/docs/specs/modules/content.md      @hms-kurdistan/knowledge-squad
+/docs/specs/modules/safety-registry.md@hms-kurdistan/knowledge-squad
+/docs/specs/modules/supply.md       @hms-kurdistan/erp-squad
+/docs/specs/modules/workforce.md    @hms-kurdistan/erp-squad
+/docs/specs/modules/him.md          @hms-kurdistan/governance-squad
+/docs/specs/modules/statutory.md    @hms-kurdistan/governance-squad
+/docs/specs/modules/quality.md      @hms-kurdistan/governance-squad
+/docs/specs/modules/migration.md    @hms-kurdistan/governance-squad
+/docs/specs/modules/hub.md          @hms-kurdistan/integration-squad
+/docs/specs/modules/front-door.md   @hms-kurdistan/front-door-squad
+/docs/specs/modules/analytics.md    @hms-kurdistan/data-squad
+/docs/specs/modules/ai-gateway.md   @hms-kurdistan/ai-squad
+/docs/specs/modules/rcm.md          @hms-kurdistan/revenue-squad
+/docs/specs/modules/finance-export.md@hms-kurdistan/revenue-squad
+/docs/specs/modules/reg-ews.md      @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/reg-transfusion.md@hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/reg-screening.md@hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/reg-lis-rules.md@hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/docs/specs/modules/reg-dose.md     @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+
+# Clinical safety: always also owned by @hms-kurdistan/clinical-safety (these rules come last on purpose)
+/docs/safety/                       @hms-kurdistan/knowledge-squad @hms-kurdistan/clinical-safety
+/docs/specs/state-machines/         @hms-kurdistan/clinical-safety @hms-kurdistan/architecture
+/backend/regulated/                 @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/backend/regulated/reg-ews/         @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/backend/regulated/reg-transfusion/ @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/backend/regulated/reg-screening/   @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/backend/regulated/reg-lis-rules/   @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/backend/regulated/reg-dose/        @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety
+/frontend/packages/regulated-ui/    @hms-kurdistan/regulated-squad @hms-kurdistan/clinical-safety

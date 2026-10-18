@@ -1,0 +1,3 @@
+# Module specifications
+
+One `<module>.md` per application module of the module map (BUILD-PROMPT §5.2), derived from §9 and the research sections that the work package cites: the module's aggregates, state machines and invariants, API and event contracts, permissions, audit events, the configuration it needs, and the hazards it touches with their controls (§3.2 step 2). A module specification is written or updated before the feature it covers (§3.1, §22.1 item 1). WP-0.3 writes the first ones (the platform modules), WP-0.4 the Trust Plane modules, and each later work package the modules it builds.

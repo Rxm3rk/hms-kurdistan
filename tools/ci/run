@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# tools/ci/run: the local CI runner (BUILD-PROMPT.md §19.1, WP-0.1).
+#   sh tools/ci/run <fast|merge|nightly|release> [--no-evidence] [--only STEP] [--cell NAME] [--list]
+# Runs tools/hmstools/ci with the project venv. Works in Linux shells and in Git Bash on Windows.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+if [ -x "$ROOT/.tools/venv/bin/python" ]; then
+  PY="$ROOT/.tools/venv/bin/python"
+elif [ -x "$ROOT/.tools/venv/Scripts/python.exe" ]; then
+  PY="$ROOT/.tools/venv/Scripts/python.exe"
+else
+  echo "tools/ci/run: the project venv (.tools/venv) is missing; run: sh tools/bootstrap" >&2
+  exit 2
+fi
+exec "$PY" -I "$ROOT/tools/hms.py" ci "$@"

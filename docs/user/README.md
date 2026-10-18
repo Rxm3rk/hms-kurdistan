@@ -1,0 +1,3 @@
+# User help
+
+User-facing help content and instructions for use, in English (`en`), Sorani (`ckb`) and Arabic (`ar`), one subdirectory per locale (BUILD-PROMPT §6.1, §20). Every feature ships trilingual help text (§22.1 item 8); clinical terms stay English and clinical numerals use Western digits in every language (§11.1). Translations need clinician review before release [HUMAN]; this directory never holds machine-translated clinical instructions for patients, which come only from approved templates (§2.3). WP-0.7 sets up the locale structure; the first help content arrives with the first user-facing features in Phase 1, and every later work package adds its own.

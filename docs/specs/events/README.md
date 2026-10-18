@@ -1,0 +1,3 @@
+# Event contracts (AsyncAPI)
+
+AsyncAPI documents for every published domain event and the domain-event catalogue (BUILD-PROMPT §5.3, §6.3, §8.5). Events travel as CloudEvents 1.0 envelopes with schemas in the Apicurio registry, keyed by patient so each patient's events stay ordered, with backward-compatible evolution only and a 12-month deprecation window; the catalogue is a published product surface. R11 event names are canonical and BP names are aliases (A.20; OQ-036). WP-0.3 (`PLT-CORE-04`) starts the catalogue and the outbox pipeline; each later work package adds the events its features publish.

@@ -1,0 +1,3 @@
+# Runbooks
+
+Operations runbooks (BUILD-PROMPT §6.1, §20): install, upgrade, rollback, restore, DR promotion, break-glass, downtime and Code-Dark, key rotation, certificate renewal and the removable off-site backup, plus the monitoring and alarm guide and the capacity guide. Each runbook states the commands to run, the expected result and the evidence it produces, and every work package updates the runbook entries for what it builds (§3.2 step 6, §22.1 item 7). WP-0.2 writes the first entries (dev-cell bootstrap and teardown); WP-1.13 writes the on-site cell, central site, DR and downtime runbooks; later work packages add theirs.

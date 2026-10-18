@@ -1,0 +1,10 @@
+{
+  // Type-checks the workspace-root files. Each package under apps/ and packages/ has its own tsconfig.json.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "types": ["node"]
+  },
+  "include": ["eslint.config.js", "vitest.shared.ts", "scripts/**/*.ts"]
+}

@@ -1,0 +1,41 @@
+# Registered tenant identifiers, names and hostnames (BUILD-PROMPT.md §2.2 rule 8, §6.2, §6.8 #8).
+#
+# 'tools/hms repo check' fails if any of these, or any pattern below, appears in source or
+# configuration under backend/, frontend/, content/ or deploy/, or in a branch name. Behaviour
+# differences between tenants are configuration in signed bundles, never code or branches.
+#
+# Only reserved synthetic examples are registered until a real tenant is onboarded. Real tenant
+# entries are added by the onboarding process [HUMAN]; never invent one.
+schema_version: 1
+provenance: synthetic
+
+tenants:
+  - id: SYN-TENANT-0001
+    names: ["Synthetic Example Hospital One"]
+    hostnames: ["syn-tenant-0001.hms.invalid"]
+    provenance: synthetic
+  - id: SYN-TENANT-0002
+    names: ["Synthetic Example Polyclinic Two"]
+    hostnames: ["syn-tenant-0002.hms.invalid"]
+    provenance: synthetic
+
+# Regular expressions (Python syntax). They catch identifier forms, not only registered values.
+patterns:
+  - id: synthetic-tenant-id
+    regex: "SYN-TENANT-[0-9]{4}"
+    description: The reserved synthetic tenant identifier form.
+
+scan:
+  roots: [backend, frontend, content, deploy]
+  # Directory names skipped anywhere below the roots (dependencies and build output).
+  exclude_dirs: [node_modules, build, dist, coverage, reports, .gradle, .kotlin, .turbo, .vite, .cache, out]
+  # Source and configuration files.
+  extensions: [
+    .kt, .kts, .java, .gradle, .ts, .tsx, .js, .jsx, .mjs, .cjs, .json, .jsonc, .json5, .yaml, .yml,
+    .toml, .properties, .xml, .sql, .html, .htm, .css, .scss, .md, .mdx, .txt, .csv, .conf, .cfg,
+    .ini, .env, .tpl, .gotmpl, .ftl, .mustache, .hbs, .sh, .py, .rs, .tf, .tfvars, .hcl, .po, .ftlh,
+    .zpl, .svg, .graphql, .proto, .avsc, .rego, .cue, .dockerignore
+  ]
+  filenames: [Dockerfile, Containerfile, Makefile, Chart.yaml, values.yaml, .env]
+  # Repository-relative path globs where a match is allowed. Each entry needs a reason. Empty on purpose.
+  allow: []

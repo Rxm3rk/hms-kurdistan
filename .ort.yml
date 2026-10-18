@@ -1,0 +1,61 @@
+# ORT repository configuration (BUILD-PROMPT.md §4.3, ADR-022). The policy itself is
+# tools/licence/policy.yaml, mirrored for ORT in tools/licence/ort/ (classifications, evaluator
+# rules, curations). Not run yet: ORT runs in the merge tier from its official container image once
+# a container engine exists (WP-0.2 / WP-0.9); see tools/licence/README.md.
+#
+# Excluded paths and scopes are not shipped. ORT still analyses them, and the evaluator still checks
+# them for denied licences, because build- and CI-only tools are checked for use restrictions (§4.3).
+excludes:
+  paths:
+    - pattern: "research/**"
+      reason: "DOCUMENTATION_OF"
+      comment: "Plan of record: research reports. Documents, never shipped."
+    - pattern: "docs/**"
+      reason: "DOCUMENTATION_OF"
+      comment: "Programme, architecture, safety and user documentation sources."
+    - pattern: "assets/**"
+      reason: "DOCUMENTATION_OF"
+      comment: "Images used by the plan documents."
+    - pattern: "tools/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "Programme tooling (doctor, bootstrap, CI runner, checks, simulators); build- and CI-only."
+    - pattern: "tests/**"
+      reason: "TEST_OF"
+      comment: "Cross-module scenario, end-to-end, performance, chaos and conformance suites."
+    - pattern: "**/src/test/**"
+      reason: "TEST_OF"
+      comment: "Backend unit, property and integration tests."
+    - pattern: "**/src/testFixtures/**"
+      reason: "TEST_OF"
+      comment: "Backend test fixtures."
+    - pattern: "**/*.test.ts"
+      reason: "TEST_OF"
+      comment: "Frontend unit tests."
+    - pattern: "**/*.test.tsx"
+      reason: "TEST_OF"
+      comment: "Frontend unit tests."
+    - pattern: "backend/build-logic/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "Gradle convention plugins."
+    - pattern: "spikes/**"
+      reason: "OTHER"
+      comment: "ADR-001 spike code (WP-0.6): not production code, never shipped."
+  scopes:
+    # Scope patterns are regular expressions over the package-manager scope names.
+    - pattern: "^test.*"
+      reason: "TEST_DEPENDENCY_OF"
+      comment: "Gradle test configurations (testCompileClasspath, testRuntimeClasspath and similar)."
+    - pattern: "^(detekt|ktlint|kover|cyclonedx).*"
+      reason: "BUILD_DEPENDENCY_OF"
+      comment: "Static analysis, coverage and SBOM tooling configurations."
+    - pattern: "^(annotationProcessor|kapt|ksp).*"
+      reason: "BUILD_DEPENDENCY_OF"
+      comment: "Compile-time code generation."
+    - pattern: "^devDependencies$"
+      reason: "DEV_DEPENDENCY_OF"
+      comment: "pnpm devDependencies: build tooling, never in the web bundle."
+
+curations:
+  # Licence-finding curations for this repository's own files. Package curations live in
+  # tools/licence/ort/curations.yml.
+  license_findings: []

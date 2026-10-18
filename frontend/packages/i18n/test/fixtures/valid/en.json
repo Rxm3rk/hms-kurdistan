@@ -1,0 +1,5 @@
+{
+  "fixture.greeting": "SYN-en {name}",
+  "fixture.items": "{count, plural, one {SYN-en # item} other {SYN-en # items}}",
+  "fixture.rich": "SYN-en <b>SYN</b> {when, date, short}"
+}

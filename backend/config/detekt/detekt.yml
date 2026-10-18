@@ -1,0 +1,17 @@
+# detekt configuration for the HMS Kurdistan backend (BUILD-PROMPT §6.8, §19.1 fast tier).
+# Built on detekt's default configuration (buildUponDefaultConfig = true in hms.quality-conventions):
+# only deliberate overrides live here, each with its reason.
+
+config:
+  # Unknown keys in this file fail the build.
+  validation: true
+  # Every finding fails the build, whatever its severity.
+  warningsAsErrors: true
+
+build:
+  maxIssues: 0
+
+style:
+  MaxLineLength:
+    # Same limit as ktlint_official (backend/.editorconfig).
+    maxLineLength: 140

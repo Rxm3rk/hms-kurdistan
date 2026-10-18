@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hms:schema:safety:hazard-log:1",
+  "title": "HMS Kurdistan hazard log",
+  "description": "Schema for docs/safety/hazard-log.yaml (BUILD-PROMPT.md §3.1, §10.1, Appendix B.2). Structural rules only; cross-field rules (control states, sign-off records, coverage of SI-01 to SI-21, feature IDs, fidelity to the plan of record) are enforced by `sh tools/hms safety check`. The risk vocabulary enumerations are a [P] proposal awaiting CSO confirmation (docs/safety/README.md).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "document", "risk_vocabulary", "seeded_hazards", "hazards"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "seeded_in", "sources"],
+      "properties": {
+        "title": {"$ref": "#/$defs/text"},
+        "seeded_in": {"type": "string", "pattern": "^WP-[0-9]+\\.[0-9]+$"},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+        "note": {"$ref": "#/$defs/text"}
+      }
+    },
+    "risk_vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "marker", "status", "severity", "likelihood", "level", "matrix", "approval"],
+      "properties": {
+        "id": {"const": "risk-vocabulary"},
+        "marker": {"const": "[P]"},
+        "status": {"enum": ["proposed", "confirmed"]},
+        "note": {"$ref": "#/$defs/text"},
+        "severity": {"type": "array", "items": {"$ref": "#/$defs/severity"}, "minItems": 5, "maxItems": 5, "uniqueItems": true},
+        "likelihood": {"type": "array", "items": {"$ref": "#/$defs/likelihood"}, "minItems": 5, "maxItems": 5, "uniqueItems": true},
+        "level": {"type": "array", "items": {"$ref": "#/$defs/level"}, "minItems": 4, "maxItems": 4, "uniqueItems": true},
+        "matrix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["negligible", "minor", "serious", "major", "catastrophic"],
+          "properties": {
+            "negligible": {"$ref": "#/$defs/matrixRow"},
+            "minor": {"$ref": "#/$defs/matrixRow"},
+            "serious": {"$ref": "#/$defs/matrixRow"},
+            "major": {"$ref": "#/$defs/matrixRow"},
+            "catastrophic": {"$ref": "#/$defs/matrixRow"}
+          }
+        },
+        "approval": {"$ref": "#/$defs/approvalBlock"}
+      }
+    },
+    "seeded_hazards": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "description", "source"],
+        "properties": {
+          "id": {"$ref": "#/$defs/seededHazardId"},
+          "title": {"$ref": "#/$defs/text"},
+          "description": {"$ref": "#/$defs/text"},
+          "source": {"$ref": "#/$defs/text"}
+        }
+      }
+    },
+    "hazards": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/hazard"}}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1},
+    "severity": {"enum": ["negligible", "minor", "serious", "major", "catastrophic"]},
+    "likelihood": {"enum": ["improbable", "remote", "occasional", "probable", "frequent"]},
+    "level": {"enum": ["low", "medium", "high", "very-high"]},
+    "matrixRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["improbable", "remote", "occasional", "probable", "frequent"],
+      "properties": {
+        "improbable": {"$ref": "#/$defs/level"},
+        "remote": {"$ref": "#/$defs/level"},
+        "occasional": {"$ref": "#/$defs/level"},
+        "probable": {"$ref": "#/$defs/level"},
+        "frequent": {"$ref": "#/$defs/level"}
+      }
+    },
+    "approvalBlock": {
+      "description": "Appendix B.3 shape. approved_by and record are written only from a human sign-off record (§3.5).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "approved_by", "record"],
+      "properties": {
+        "status": {"enum": ["requested", "approved"]},
+        "required": {"type": "array", "items": {"$ref": "#/$defs/text"}, "uniqueItems": true},
+        "approved_by": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string"},
+            {"type": "array", "items": {"type": "string"}}
+          ]
+        },
+        "record": {"type": ["null", "string"]}
+      }
+    },
+    "seededHazardId": {"type": "string", "pattern": "^H[1-9][0-9]*$"},
+    "hazardId": {"type": "string", "pattern": "^HAZ-[0-9]{4}$"},
+    "controlId": {"type": "string", "pattern": "^CTRL-[0-9]{4}-[1-9][0-9]*$"},
+    "invariantId": {"type": "string", "pattern": "^SI-(0[1-9]|1[0-9]|2[01])$"},
+    "sacId": {"type": "string", "pattern": "^SAC-(0[1-9]|[1-4][0-9]|5[0-3])$"},
+    "featureId": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*(-[A-Za-z0-9]+)+$"},
+    "moduleName": {"type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"},
+    "testName": {
+      "description": "<Kind>:<name>, for example PropertyTest:SI-02-override-reason-never-defaulted (README, Test names).",
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]*:[^\\s].*$"
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "likelihood", "level", "basis"],
+      "properties": {
+        "severity": {"$ref": "#/$defs/severity"},
+        "likelihood": {"$ref": "#/$defs/likelihood"},
+        "level": {"$ref": "#/$defs/level"},
+        "basis": {"$ref": "#/$defs/text"}
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "description", "state", "implemented_in", "verified_by", "planned_verification"],
+      "properties": {
+        "id": {"$ref": "#/$defs/controlId"},
+        "type": {"enum": ["design", "test", "process", "labelling", "training"]},
+        "risk_control_option": {
+          "description": "The §10.1 typing (ISO 14971 risk-control options): design, protective or information.",
+          "enum": ["design", "protective", "information"]
+        },
+        "covers": {
+          "description": "Clause ids of this entry's invariant_clauses that the control covers, or 'preamble' for the §2.1 rules that apply to every SI.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^([a-z][a-z0-9]*|preamble)$"}
+        },
+        "description": {"$ref": "#/$defs/text"},
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/text"}},
+        "state": {"enum": ["planned", "implemented", "verified"]},
+        "implemented_in": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "verified_by": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/testName"}},
+        "planned_verification": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+        "notes": {"$ref": "#/$defs/text"}
+      }
+    },
+    "hazard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "title", "description", "seeded_hazard", "invariants", "features", "causes", "effects",
+        "initial_risk", "controls", "residual_risk", "status", "owner", "cso_triage"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/hazardId"},
+        "title": {"$ref": "#/$defs/text"},
+        "description": {"$ref": "#/$defs/text"},
+        "seeded_hazard": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/seededHazardId"},
+            {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/seededHazardId"}}
+          ]
+        },
+        "seeded_hazard_note": {"$ref": "#/$defs/text"},
+        "related_seeded_hazards": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/seededHazardId"}},
+        "invariants": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/invariantId"}},
+        "invariant_text": {"$ref": "#/$defs/text"},
+        "invariant_clauses": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "text"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*$"},
+              "text": {"$ref": "#/$defs/text"}
+            }
+          }
+        },
+        "enforced_in": {"$ref": "#/$defs/text"},
+        "modules": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/moduleName"}},
+        "features": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/featureId"}},
+        "sac": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/sacId"}},
+        "sensitivity_label": {
+          "description": "The SI-21 label this entry covers (one entry per label).",
+          "enum": ["hiv", "mental-health", "reproductive-sexual-health", "gender-based-violence", "forensic-mlc", "vip"]
+        },
+        "causes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}},
+        "effects": {
+          "oneOf": [
+            {"$ref": "#/$defs/text"},
+            {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+          ]
+        },
+        "initial_risk": {"$ref": "#/$defs/risk"},
+        "controls": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/control"}},
+        "residual_risk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proposed", "accepted_by"],
+          "properties": {
+            "proposed": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/risk"}]},
+            "accepted_by": {"type": ["null", "string"], "description": "[HUMAN] CSO only, from a sign-off record."}
+          }
+        },
+        "status": {"enum": ["open", "controls-implemented", "controls-verified", "accepted"]},
+        "owner": {"type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*-squad$"},
+        "cso_triage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["by", "date"],
+          "properties": {
+            "by": {"type": ["null", "string"], "description": "[HUMAN] from a sign-off record."},
+            "date": {
+              "oneOf": [{"type": "null"}, {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}],
+              "description": "[HUMAN] from a sign-off record."
+            }
+          }
+        },
+        "incidents": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "releases": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "notes": {"$ref": "#/$defs/text"}
+      },
+      "allOf": [
+        {"if": {"properties": {"seeded_hazard": {"type": "null"}}}, "then": {"required": ["seeded_hazard_note"]}},
+        {"if": {"required": ["invariant_text"]}, "then": {"required": ["invariant_clauses"]}},
+        {"if": {"required": ["invariant_clauses"]}, "then": {"required": ["invariant_text"]}}
+      ]
+    }
+  }
+}

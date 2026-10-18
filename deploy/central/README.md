@@ -1,0 +1,3 @@
+# Central and DR site
+
+Deployment for the Kurdistan central site and its DR site in the other city (BUILD-PROMPT §5.1): the PHI-free control plane (signed releases, configuration bundles, licences, PHI-free telemetry), the pooled tier for outpatient facilities (database per tenant, `FORCE ROW LEVEL SECURITY`), the encrypted warm standby of every hospital cell, continuity instances, central terminology and analytics, and the CI reference cell. Deployment is parameterised by site with no operator-specific code until the colocation operators are chosen (Q-K11, L-37). WP-1.13 fills this directory.

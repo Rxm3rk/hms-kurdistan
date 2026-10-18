@@ -1,0 +1,17 @@
+# Licence register (BUILD-PROMPT.md §4.3): every component used under a conditional rule of
+# tools/licence/policy.yaml (MPL-1.1 libraries, the LGPL-2.1 option of dcm4che and dcm4chee, the
+# OpenJDK runtime, OS packages in base images, GPL or AGPL separate containers with a source offer).
+#
+# 'tools/hms licence check' warns about a conditional component until an entry here matches it.
+# An entry records facts about the component; it is not an approval and names no approver.
+#
+# Entry fields:
+#   component:   regular expression matched against the package URL or the name
+#   licence:     the SPDX expression the product uses (the chosen option for multi-licensed components)
+#   rule:        the policy rule id (for example dcm4che-lgpl-option) or the conditional licence id
+#   unmodified:  true (a modified conditional component is not allowed)
+#   source_offer: where the source offer is published (GPL/AGPL containers only), or null
+#   added_in:    the work package that added the component
+#   notes:       free text
+schema_version: 1
+entries: []

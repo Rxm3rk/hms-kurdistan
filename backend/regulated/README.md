@@ -1,0 +1,3 @@
+# Regulated modules (Tier 2)
+
+Tier 2 sidecars: `reg-ews`, `reg-transfusion`, `reg-screening`, `reg-lis-rules` and, in P2, `reg-dose` (BUILD-PROMPT §5.2, ADR-016). Each is its own deployable with its own release train, runs as a separately versioned, process-isolated sidecar on the same node, and exposes a pure-function, schema-versioned API that fails to "unavailable, manual check required" on timeout or error, never to "pass". The Regulatory Boundary Register (WP-0.9) is the only activation switch. They need 100% boundary-value coverage and a mutation score threshold (§6.8 #13) and IEC 62304 records; changes here are owned by clinical safety (`.github/CODEOWNERS`). Each arrives with the work package of the feature that needs it (§21).

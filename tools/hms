@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# Dispatcher for the HMS programme tools.
+#   tools/hms <area> [args...]   runs python -m hmstools.<area> with the project venv.
+# Works in Linux shells and in Git Bash on Windows.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+if [ -x "$ROOT/.tools/venv/bin/python" ]; then
+  PY="$ROOT/.tools/venv/bin/python"
+elif [ -x "$ROOT/.tools/venv/Scripts/python.exe" ]; then
+  PY="$ROOT/.tools/venv/Scripts/python.exe"
+else
+  echo "tools/hms: the project venv (.tools/venv) is missing; run tools/bootstrap first" >&2
+  exit 2
+fi
+exec "$PY" -I "$ROOT/tools/hms.py" "$@"

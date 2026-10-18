@@ -1,0 +1,15 @@
+# Secret scanning (BUILD-PROMPT.md §4.1, §6.8 #7; WP-0.1). Run by the fast tier of tools/ci/run over
+# the git history and over the working tree including untracked files, with redacted output.
+title = "HMS Kurdistan gitleaks configuration"
+
+# Use every default gitleaks rule.
+[extend]
+useDefault = true
+
+# Allowlist: explicit synthetic-fixture paths only. Never allowlist a real secret, a whole source
+# tree, a file type or a regex that hides real findings. Each entry names the test that owns it.
+[allowlist]
+description = "Synthetic secrets generated at test time by the secret-scan self-test (tools/hmstools/ci/tests/test_secret_scan.py)"
+paths = [
+  '''(^|/)tools/hmstools/ci/tests/fixtures/synthetic-secrets/''',
+]

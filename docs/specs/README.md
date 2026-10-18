@@ -1,0 +1,3 @@
+# Specifications
+
+Specifications written before the code they govern (BUILD-PROMPT §3.2 "Specify first", §6.1, §20): executable state machines in `state-machines/`, module specifications in `modules/`, OpenAPI 3.1 contracts in `api/`, AsyncAPI contracts and the domain-event catalogue in `events/`, HL7 v2 conformance profiles in `hl7/`, and the FHIR CapabilityStatement and profiles in `fhir/`. They are derived from §8–§17 and the research sections each work package cites, and they serve as test oracles. Nothing here is written yet: WP-0.3 starts the platform module specifications and the event catalogue, WP-0.5 the state machines, and every later work package adds the specifications for its features before building them.

@@ -1,0 +1,222 @@
+# Licence and dependency policy as data (BUILD-PROMPT.md §4.3; ADR-022; BP §7.7; K §7.6).
+#
+# Read by 'tools/hms licence check' (CycloneDX SBOMs and 'pnpm licenses list --json' output) and
+# mirrored in tools/licence/ort/license-classifications.yml for ORT. Change the two together.
+# Adding a licence or a dependency outside the allowlist is a stop-and-ask item (§3.4 item 2):
+# record it in docs/program/DECISIONS-NEEDED.md instead of editing this file to make a check pass.
+schema_version: 1
+source: "BUILD-PROMPT.md §4.3"
+
+# ---------------------------------------------------------------------------------------------
+# Scope. The policy governs everything shipped to a site. Build- and CI-only tools are checked
+# for use restrictions (for example Semgrep registry rule terms or Docker Desktop's subscription
+# terms), not for distribution terms.
+scopes:
+  shipped:
+    description: >-
+      Anything in a container image, Helm chart, Tier 2 sidecar, desktop shell, mobile build,
+      web bundle or offline media delivered to a site. Every Kurdistan hospital is an on-site
+      install, and on-site installs count as distribution (K §7.6).
+    applies: [allowed, conditional, denied, excluded_components]
+  build-only:
+    description: >-
+      Compilers, linters, test frameworks, code generators and CI tools that never ship.
+      Checked for use restrictions only: the denylist and the named exclusions apply; any
+      licence without a use restriction is acceptable.
+    applies: [denied, excluded_components, build_only_acceptable]
+  default: shipped   # a component of unknown scope is treated as shipped (the stricter reading)
+
+# ---------------------------------------------------------------------------------------------
+# Allowlist (§4.3): Apache-2.0, MIT, BSD, ISC, MPL-2.0, LGPL, EPL, OFL (fonts). SPDX identifiers.
+allowed:
+  - Apache-2.0
+  - MIT
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - MPL-2.0
+  - LGPL-2.0-only
+  - LGPL-2.0-or-later
+  - LGPL-2.1-only
+  - LGPL-2.1-or-later
+  - LGPL-3.0-only
+  - LGPL-3.0-or-later
+  - EPL-1.0
+  - EPL-2.0
+  - OFL-1.1            # fonts
+  - OFL-1.1-RFN        # fonts
+  - OFL-1.1-no-RFN     # fonts
+
+# ---------------------------------------------------------------------------------------------
+# Conditional (§4.3): allowed only unmodified and recorded in the licence register. The checker
+# reports these as warnings that name the register entry needed; ORT reports them as WARNING.
+conditional:
+  licences:
+    - id: MPL-1.1
+      condition: Unmodified library (for example HAPI HL7 v2 under its MPL-1.1 option), recorded in the licence register.
+  components:
+    - id: dcm4che-lgpl-option
+      match: {purl: "^pkg:maven/org\\.dcm4che(\\.[^/]+)?/"}
+      choose: LGPL-2.1-only
+      condition: The LGPL-2.1 option of tri-licensed dcm4che and dcm4chee, unmodified, recorded in the licence register.
+    - id: openjdk-runtime
+      match: {name: "(?i)^(openjdk|temurin|eclipse-temurin|corretto|amazon-corretto|jdk|jre)([-_ ].*)?$"}
+      licence: "GPL-2.0-only WITH Classpath-exception-2.0"
+      condition: GPL-2.0 with the Classpath exception, for the OpenJDK runtime only, unmodified, recorded in the licence register.
+    - id: os-packages
+      match: {purl: "^pkg:(deb|rpm|apk|alpm)/", type: "^operating-system$"}
+      condition: Operating-system packages inside base images, unmodified system components listed in the SBOM.
+    - id: gpl-separate-container
+      match: {purl: "^pkg:(docker|oci)/", type: "^container$"}
+      licence_family: "^(A?GPL-\\d)"
+      condition: GPL or AGPL only as an unmodified, separate container with a source offer, checked on every release.
+
+# GPL and AGPL in any other shipped form (linked into our code, bundled into our images as a
+# library) are denied for the shipped scope. GPL-2.0 WITH Classpath-exception-2.0 outside the
+# OpenJDK runtime needs a recorded decision (stop-and-ask §3.4 item 2).
+copyleft_restricted:
+  pattern: "^(A?GPL-\\d)"
+
+# ---------------------------------------------------------------------------------------------
+# Denylist (§4.3): BSL, SSPL, competing-use clauses, AI-ingestion clauses, "functional source"
+# licences. Denied in every scope. Note: SPDX "BSL-1.0" is the Boost licence (permissive, not
+# allowlisted); the Business Source License is "BUSL-1.1".
+denied:
+  licences:
+    - BUSL-1.1                       # Business Source License
+    - SSPL-1.0                       # Server Side Public License
+    - Elastic-2.0                    # competing-use clause
+    - FSL-1.0-Apache-2.0             # Functional Source License
+    - FSL-1.0-MIT
+    - FSL-1.1-ALv2
+    - FSL-1.1-MIT
+    - Commons-Clause                 # competing-use clause (as npm writes it: Apache-2.0 WITH Commons-Clause)
+    - LicenseRef-Commons-Clause
+    - LicenseRef-scancode-commons-clause
+    - PolyForm-Noncommercial-1.0.0   # use restriction
+    - PolyForm-Small-Business-1.0.0  # use restriction
+    - CC-BY-NC-4.0                   # use restriction
+    - CC-BY-NC-SA-4.0                # use restriction
+  # Licence names (not SPDX identifiers) as found in POMs and package.json files.
+  name_patterns:
+    - "(?i)business source licen[cs]e"
+    - "(?i)server side public licen[cs]e"
+    - "(?i)functional source licen[cs]e"
+    - "(?i)commons[ -]clause"
+    - "(?i)elastic licen[cs]e"
+    - "(?i)polyform"
+    - "(?i)confluent community licen[cs]e"
+    - "(?i)redis source available"
+    - "(?i)(competing|competitive) use"
+    - "(?i)(no|not for|prohibit\\w*) (ai|artificial intelligence|machine learning) (training|ingestion|use)"
+    - "(?i)(ai|machine learning)[ -](training|ingestion) (is )?(prohibited|not permitted|restricted)"
+
+# ---------------------------------------------------------------------------------------------
+# Named exclusions (§4.1, §4.3; BP §7.7). Never used, whatever their licence says.
+excluded_components:
+  - id: camunda-8.6-plus
+    match: {purl: "^pkg:(maven/io\\.camunda|npm/%40camunda|npm/@camunda|docker/camunda)/", name: "(?i)^camunda"}
+    min_version: "8.6"
+    reason: Camunda 8.6 and later (licence change; §4.3).
+  - id: redpanda
+    match: {purl: "(?i)redpanda", name: "(?i)redpanda"}
+    reason: Redpanda (§4.3).
+  - id: mirth-connect-4.6-plus
+    match: {purl: "(?i)(mirth|nextgen)", name: "(?i)mirth"}
+    min_version: "4.6"
+    reason: Mirth Connect 4.6 and later (§4.3).
+  - id: liquibase-fsl
+    match: {purl: "^pkg:maven/org\\.liquibase/", name: "(?i)^liquibase"}
+    when_licence: "(?i)^FSL-|functional source"
+    reason: Liquibase under the Functional Source License (§4.3). Flyway community edition is the choice (§4.1).
+  - id: cloud-only-fhir
+    match:
+      purl: "(?i)(google-cloud-healthcare|healthcare_v1|azure[-_.]health|healthdataservices|healthlake|healthapis)"
+      name: "(?i)(google-cloud-healthcare|azure[-_.]health|health[-_ ]?data[-_ ]?services|healthlake)"
+    reason: Any cloud-only FHIR service (§4.3; constitution rule 5).
+  - id: medplum
+    match: {purl: "(?i)(npm/(%40|@)medplum|docker/medplum|maven/com\\.medplum)", name: "(?i)^(@medplum/|medplum)"}
+    reason: Medplum components inside the product (§4.3; BP §7.7).
+  - id: hashicorp-vault
+    match: {purl: "(?i)(docker/hashicorp/vault|golang/github\\.com/hashicorp/vault(@|$|/))", name: "(?i)^(hashicorp/)?vault$"}
+    reason: HashiCorp Vault (BSL, denylisted). OpenBao is the choice (§4.1).
+  - id: minio
+    match: {purl: "(?i)(^pkg:docker/minio/|golang/github\\.com/minio/minio(@|$)|maven/io\\.minio/|npm/minio@)", name: "(?i)^minio$"}
+    reason: MinIO (AGPL; community edition no longer ships maintained builds; §4.1). Use a vendor-neutral S3 client.
+  - id: bitnami
+    match: {purl: "(?i)(^pkg:(docker|oci|helm)/bitnami|bitnamicharts|docker\\.io/bitnami|registry-1\\.docker\\.io/bitnami)", name: "(?i)^bitnami/"}
+    reason: Bitnami images and charts (free versioned images withdrawn in 2025; §4.1).
+
+# ---------------------------------------------------------------------------------------------
+# Build-only scope [P]: licences without use restrictions that are acceptable for tools that
+# never ship (in addition to the allowlist and the conditional list). This list is not an
+# extension of the shipped allowlist.
+build_only_acceptable:
+  - 0BSD
+  - BlueOak-1.0.0
+  - BSL-1.0            # Boost Software License
+  - CC0-1.0
+  - CC-BY-3.0
+  - CC-BY-4.0
+  - MIT-0
+  - Python-2.0
+  - Unlicense
+  - Zlib
+  - GPL-2.0-only
+  - GPL-2.0-or-later
+  - GPL-3.0-only
+  - GPL-3.0-or-later
+  - AGPL-3.0-only
+  - AGPL-3.0-or-later
+  - "GPL-2.0-only WITH Classpath-exception-2.0"
+  - CDDL-1.0
+  - CDDL-1.1
+
+# ---------------------------------------------------------------------------------------------
+# Aliases: licence names and deprecated identifiers as found in package metadata, mapped to
+# SPDX. Only exact, unambiguous names belong here; anything else stays unmapped and fails.
+aliases:
+  "Apache 2.0": Apache-2.0
+  "Apache-2": Apache-2.0
+  "Apache License 2.0": Apache-2.0
+  "Apache License, Version 2.0": Apache-2.0
+  "Apache Software License - Version 2.0": Apache-2.0
+  "The Apache License, Version 2.0": Apache-2.0
+  "The Apache Software License, Version 2.0": Apache-2.0
+  "Apache-2.0 License": Apache-2.0
+  "MIT License": MIT
+  "The MIT License": MIT
+  "The MIT License (MIT)": MIT
+  "BSD 2-Clause": BSD-2-Clause
+  "BSD-2-Clause License": BSD-2-Clause
+  "BSD 3-Clause": BSD-3-Clause
+  "BSD-3-Clause License": BSD-3-Clause
+  "The BSD 3-Clause License": BSD-3-Clause
+  "New BSD License": BSD-3-Clause
+  "Eclipse Distribution License - v 1.0": BSD-3-Clause
+  "EDL 1.0": BSD-3-Clause
+  "Eclipse Public License - v 1.0": EPL-1.0
+  "Eclipse Public License v1.0": EPL-1.0
+  "Eclipse Public License - v 2.0": EPL-2.0
+  "Eclipse Public License v2.0": EPL-2.0
+  "Eclipse Public License 2.0": EPL-2.0
+  "Mozilla Public License 2.0": MPL-2.0
+  "Mozilla Public License, Version 2.0": MPL-2.0
+  "MPL 2.0": MPL-2.0
+  "Mozilla Public License 1.1": MPL-1.1
+  "MPL 1.1": MPL-1.1
+  "ISC License": ISC
+  "SIL Open Font License 1.1": OFL-1.1
+  "GPL-2.0": GPL-2.0-only
+  "GPL-2.0+": GPL-2.0-or-later
+  "GPL-3.0": GPL-3.0-only
+  "GPL-3.0+": GPL-3.0-or-later
+  "AGPL-3.0": AGPL-3.0-only
+  "LGPL-2.0": LGPL-2.0-only
+  "LGPL-2.0+": LGPL-2.0-or-later
+  "LGPL-2.1": LGPL-2.1-only
+  "LGPL-2.1+": LGPL-2.1-or-later
+  "LGPL-3.0": LGPL-3.0-only
+  "LGPL-3.0+": LGPL-3.0-or-later
+  "GNU Lesser General Public License v2.1": LGPL-2.1-only
+  "GNU Lesser General Public License v3.0": LGPL-3.0-only

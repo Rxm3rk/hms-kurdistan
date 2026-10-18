@@ -1,0 +1,27 @@
+{
+  "name": "@hms/eslint-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HMS Kurdistan lint rules: no hard-coded user-facing strings in JSX and no physical CSS directions (BUILD-PROMPT.md §6.5, §6.8 item 6).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css": "./src/css/check.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "catalog:",
+    "postcss": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

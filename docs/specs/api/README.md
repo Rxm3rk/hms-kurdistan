@@ -1,0 +1,3 @@
+# API contracts (OpenAPI 3.1)
+
+Contract-first OpenAPI 3.1 documents for module BFFs and public APIs, from which the TypeScript clients in `frontend/packages/api-client` are generated (BUILD-PROMPT §6.3). Conventions: an `Idempotency-Key` on every state-changing request, cursor-based pagination, versioned paths for public APIs (`/api/v1/...`) with backward-compatible evolution and a 12-month deprecation window, and RFC 9457 problem details at the HTTP boundary (§6.2). Contract tests run in the merge tier (§19.1). The first contracts arrive with the first modules that expose endpoints (WP-0.3 and WP-0.4); every later work package adds its own and regenerates the docs (§22.1 item 8).

@@ -1,0 +1,3 @@
+# Deploy
+
+Deployment artefacts for every topology (BUILD-PROMPT §5.1, §6.1, §16): `helm/` (Helm charts), `site-cell/` (the on-site hospital cell), `central/` (the Kurdistan central and DR site), `edge-agent/` (the site edge agent) and `tofu/` (OpenTofu infrastructure as code). The same signed artefacts run in every topology, and no cloud-only service sits on the clinical path (constitution rule 5). Only upstream operators and charts are used (no Bitnami images or charts), images are signed locally with cosign and never pushed to a public registry from development or CI (§4.1, §4.3). WP-0.2 writes the first content (dev-cell charts and profile); WP-1.13 builds the on-site cell installer, the central site and the edge agent.

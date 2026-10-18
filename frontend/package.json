@@ -1,0 +1,33 @@
+{
+  "name": "hms-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HMS Kurdistan frontend workspace root (BUILD-PROMPT.md §6.1, §6.5, §19.1).",
+  "type": "module",
+  "packageManager": "pnpm@12.12.1+sha512.b7f98934c0b1f29a65f5da52f2d7f994e7faad573ffdddea1497fb4dcb5aec051590ee7c7d95a38172b4bfae103a5b83edf2ee866e11731c2cafa96063610ac5",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "fast": "corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run i18n:lint",
+    "lint": "eslint --max-warnings 0 . && node packages/eslint-plugin-hms/src/css/cli.ts",
+    "lint:es": "eslint --max-warnings 0 .",
+    "lint:css": "node packages/eslint-plugin-hms/src/css/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json && corepack pnpm -r run typecheck",
+    "test": "node scripts/clean-junit-reports.ts && corepack pnpm -r run test",
+    "i18n:lint": "node packages/i18n/src/lint/cli.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@hms/eslint-plugin": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

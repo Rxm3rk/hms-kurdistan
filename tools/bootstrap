@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+# tools/bootstrap: fetch the project-local toolchain into .tools/ (BUILD-PROMPT.md WP-0.1).
+#   sh tools/bootstrap [all|jdk|gradle|gitleaks|venv|env|requirements-lock] [--help]
+# Runs the stdlib-only package tools/hmstools/bootstrap with the system Python, so it works before
+# the project venv exists. Works in Linux shells and in Git Bash on Windows.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 \
+    && "$candidate" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' >/dev/null 2>&1; then
+    exec "$candidate" -I "$ROOT/tools/hms.py" bootstrap "$@"
+  fi
+done
+echo "tools/bootstrap: no Python 3.9 or newer found as python3 or python." >&2
+echo "  Ubuntu 24.04: sudo apt-get install -y python3 python3-venv" >&2
+exit 2

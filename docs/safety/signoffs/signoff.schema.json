@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hms:schema:safety:signoff:1",
+  "title": "HMS Kurdistan human sign-off record",
+  "description": "One YAML file per record under docs/safety/signoffs/, named <id>.yaml, added by a named human in a signed git commit (BUILD-PROMPT.md §3.5; docs/safety/signoffs/README.md). The build agent never writes these files. `sh tools/hms safety check` validates every record against this schema, checks that the commit that added it is signed, and matches each filled approval field to a record with the same subject and field.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "subject", "field", "role", "name", "date", "statement", "authentication"],
+  "properties": {
+    "id": {
+      "description": "SO-<year>-<4-digit sequence>; the file name is <id>.yaml.",
+      "type": "string",
+      "pattern": "^SO-[0-9]{4}-[0-9]{4}$"
+    },
+    "subject": {
+      "description": "The artefact the sign-off is about: a hazard id (HAZ-0005), a control id (CTRL-0005-9), a state-machine name (medication-administration), risk-vocabulary, or another artefact id.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "subject_version": {
+      "description": "Optional version of the subject the sign-off applies to (for example a state-machine spec version or a commit SHA of the hazard log).",
+      "type": ["string", "integer"]
+    },
+    "field": {
+      "description": "The approval field this record authorises, as a dotted path inside the subject, for example residual_risk.accepted_by, cso_triage, approval.approved_by. A record for a parent path (cso_triage) authorises its children (cso_triage.by, cso_triage.date).",
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*(\\.[a-z_][a-z0-9_]*)*$"
+    },
+    "role": {
+      "description": "The role in which the person signs, for example Clinical Safety Officer, Chief CSO, pharmacist panel member, laboratory CSO.",
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "description": "The full name of the person who signs. The value written into the approval field must equal this name (or the record id).",
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "description": "Date of the decision (YYYY-MM-DD). A filled cso_triage.date must equal it.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "format": "date"
+    },
+    "statement": {
+      "description": "What exactly is approved, accepted or triaged, in the signer's words, including any conditions.",
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "description": "Optional outcome. A record without a decision, or with 'approved', 'accepted' or 'triaged', authorises its field; 'rejected' and 'returned' are kept as history and authorise nothing.",
+      "enum": ["approved", "accepted", "triaged", "rejected", "returned"]
+    },
+    "evidence": {
+      "description": "Optional references to the evidence reviewed (paths, test-run records, review reports).",
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "supersedes": {
+      "description": "Optional id of an earlier record this one replaces.",
+      "type": "string",
+      "pattern": "^SO-[0-9]{4}-[0-9]{4}$"
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method"],
+      "properties": {
+        "method": {
+          "description": "MVP: the record is added in a git commit signed by the named person (GPG or SSH signature that git verifies). Other methods need an ADR.",
+          "const": "signed-git-commit"
+        },
+        "signer_key": {
+          "description": "Optional fingerprint or key id the signer uses, for the reviewer's cross-check.",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "notes": {"type": "string", "minLength": 1}
+  }
+}

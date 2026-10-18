@@ -1,0 +1,56 @@
+/* Fixture: physical directions the stylesheet check must report. Each "expect:" comment holds text the
+   finding's message must contain; lines without one must produce no finding. */
+.physical {
+  left: 0; /* expect: use the logical property "inset-inline-start" */
+  right: 0; /* expect: use the logical property "inset-inline-end" */
+  margin-left: 4px; /* expect: use the logical property "margin-inline-start" */
+  margin-right: 4px; /* expect: use the logical property "margin-inline-end" */
+  padding-left: 4px; /* expect: use the logical property "padding-inline-start" */
+  padding-right: 4px; /* expect: use the logical property "padding-inline-end" */
+  border-left: 1px solid; /* expect: use the logical property "border-inline-start" */
+  border-left-color: red; /* expect: use the logical property "border-inline-start-color" */
+  border-left-style: solid; /* expect: use the logical property "border-inline-start-style" */
+  border-left-width: 1px; /* expect: use the logical property "border-inline-start-width" */
+  border-right: 1px solid; /* expect: use the logical property "border-inline-end" */
+  border-right-color: red; /* expect: use the logical property "border-inline-end-color" */
+  border-right-style: solid; /* expect: use the logical property "border-inline-end-style" */
+  border-right-width: 1px; /* expect: use the logical property "border-inline-end-width" */
+  border-top-left-radius: 4px; /* expect: use the logical property "border-start-start-radius" */
+  border-top-right-radius: 4px; /* expect: use the logical property "border-start-end-radius" */
+  border-bottom-left-radius: 4px; /* expect: use the logical property "border-end-start-radius" */
+  border-bottom-right-radius: 4px; /* expect: use the logical property "border-end-end-radius" */
+  scroll-margin-left: 4px; /* expect: use the logical property "scroll-margin-inline-start" */
+  scroll-margin-right: 4px; /* expect: use the logical property "scroll-margin-inline-end" */
+  scroll-padding-left: 4px; /* expect: use the logical property "scroll-padding-inline-start" */
+  scroll-padding-right: 4px; /* expect: use the logical property "scroll-padding-inline-end" */
+  inset-left: 0; /* expect: use the logical property "inset-inline-start" */
+  inset-right: 0; /* expect: use the logical property "inset-inline-end" */
+  -webkit-border-top-left-radius: 4px; /* expect: "-webkit-border-top-left-radius": use the logical property "border-start-start-radius" */
+  MARGIN-LEFT: 4px; /* expect: use the logical property "margin-inline-start" */
+  text-align: left; /* expect: "text-align: left" is a physical direction: use "start" */
+  text-align: right !important; /* expect: "text-align: right" is a physical direction: use "end" */
+  text-align: LEFT; /* expect: "text-align: left" is a physical direction: use "start" */
+  text-align-last: left; /* expect: "text-align-last: left" is a physical direction: use "start" */
+  float: left; /* expect: "float: left" is a physical direction: use "inline-start" */
+  float: right; /* expect: "float: right" is a physical direction: use "inline-end" */
+  clear: left; /* expect: "clear: left" is a physical direction: use "inline-start" */
+  clear: right; /* expect: "clear: right" is a physical direction: use "inline-end" */
+  justify-content: left; /* expect: "justify-content: left" is a physical direction: use "start" */
+  justify-items: legacy right; /* expect: "justify-items: right" is a physical direction: use "end" */
+  justify-self: left; /* expect: "justify-self: left" is a physical direction: use "start" */
+  margin: 0 8px 0 0; /* expect: "margin" shorthand sets left and right differently: use "margin-block" and "margin-inline" */
+  padding: 1px 2px 3px 4px; /* expect: use "padding-block" and "padding-inline" */
+  inset: 0 auto 0 0; /* expect: use "inset-block" and "inset-inline" */
+  scroll-margin: 0 1rem 0 0; /* expect: use "scroll-margin-block" and "scroll-margin-inline" */
+  scroll-padding: 0 0 0 1rem; /* expect: use "scroll-padding-block" and "scroll-padding-inline" */
+  border-width: 1px 2px 1px 0; /* expect: use "border-block-width" and "border-inline-width" */
+  border-style: solid none solid dashed; /* expect: use "border-block-style" and "border-inline-style" */
+  border-color: red blue red green; /* expect: use "border-block-color" and "border-inline-color" */
+  border-radius: 4px 0 0 4px; /* expect: use "border-start-start-radius", "border-start-end-radius", "border-end-end-radius" and "border-end-start-radius" */
+}
+
+@media print {
+  .nested {
+    margin-left: 1cm; /* expect: use the logical property "margin-inline-start" */
+  }
+}

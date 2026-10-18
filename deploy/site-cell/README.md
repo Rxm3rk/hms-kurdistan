@@ -1,0 +1,3 @@
+# On-site cell
+
+The on-site hospital cell profile and installer (BUILD-PROMPT §5.1, §16.1): three nodes on separate UPS feeds running the full tenant, PostgreSQL as three instances with quorum synchronous replication, the event backbone, Temporal, Keycloak, OpenFGA, the Integration Hub, print, queue and device bridges, the reporting replica, Tier 2 sidecars and local terminology and drug-KB snapshots, installed with one command from signed artefacts after the installer verifies signatures, hardware, UPS signalling, time source and network. WP-0.2 adds the dev-cell profile that mirrors it on a three-node `k3d` cluster (or the lite cell on small hosts); WP-1.13 (`PLT-SITE-01`, `PLT-OPS-02`, `PLT-PWR-01`) builds the installer, burn-in suite, offline media and N-1 rollback.

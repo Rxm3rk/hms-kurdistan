@@ -1,0 +1,368 @@
+"""Unit tests for tools/ci/run with fake steps (the real backend and frontend builds are never run here)."""
+
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+import sys
+import tempfile
+import textwrap
+import time
+import unittest
+from pathlib import Path
+
+from hmstools.ci import counts, tiers
+from hmstools.ci.runner import (
+    FAIL,
+    NOT_BUILT,
+    PASS,
+    CommandStep,
+    Context,
+    FunctionStep,
+    NotBuiltStep,
+    Outcome,
+    RunConfig,
+    evaluate_check,
+    run_tier,
+)
+
+GIT = ["git", "-c", "core.autocrlf=false", "-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid",
+       "-c", "commit.gpgsign=false"]
+ISO = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$")
+HOST = {"os": "Linux", "os_version": "fixture", "arch": "x86_64", "cpu_count": 8, "ram_gb": 32.0,
+        "python": "3.12.3", "java": None, "node": None}
+
+
+def py(code: str) -> list[str]:
+    return [sys.executable, "-I", "-c", textwrap.dedent(code)]
+
+
+def check_json(ok: bool, code: int, **counts_) -> list[str]:
+    payload = json.dumps({"check": "fake", "ok": ok, "counts": counts_, "errors": [] if ok else ["broken"], "warnings": []})
+    return py(f"import sys; print('human text'); print({payload!r}); sys.exit({code})")
+
+
+class Fixture(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        base = Path(self._tmp.name)
+        self.root = base / "repo"
+        self.root.mkdir()
+        self.evidence = base / "evidence"
+        tmpl = base / "git-template"
+        tmpl.mkdir()
+        self.git("init", "-q", "-b", "wp/0.1-fixture", f"--template={tmpl}")
+        (self.root / ".gitignore").write_text("build/\n", encoding="utf-8")
+        (self.root / "README.md").write_text("fixture\n", encoding="utf-8")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "fixture")
+        self.lines: list[str] = []
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def git(self, *args: str) -> str:
+        return subprocess.run([*GIT, "-C", str(self.root), *args], capture_output=True, check=True).stdout.decode()
+
+    def run_steps(self, steps, tier="fast", **kwargs):
+        config = RunConfig(root=self.root, tier=tier, steps=steps, env=dict(__import__("os").environ),
+                           evidence_dir=self.evidence, echo=self.lines.append, host=HOST, **kwargs)
+        return run_tier(config)
+
+
+class RunnerBehaviour(Fixture):
+    def test_all_pass_gives_pass_and_exit_0(self) -> None:
+        report = self.run_steps([CommandStep("a", check_json(True, 0, items=2), check_json=True),
+                                 CommandStep("b", py("print('ok')"))])
+        self.assertEqual(report.exit_code, 0)
+        self.assertEqual(report.record["result"], PASS)
+        self.assertEqual(report.record["totals"]["passed"], 2)
+
+    def test_keeps_going_after_a_failure_and_exits_1(self) -> None:
+        marker = self.root / "build" / "third-ran"
+        steps = [
+            CommandStep("first", py("import sys; print('boom'); sys.exit(3)")),
+            NotBuiltStep("second", "Something later", "WP-9.9"),
+            CommandStep("third", py(f"import pathlib; p = pathlib.Path({str(marker)!r}); p.parent.mkdir(parents=True, exist_ok=True); p.write_text('x')")),
+        ]
+        report = self.run_steps(steps)
+        self.assertEqual(report.exit_code, 1)
+        self.assertEqual([s["result"] for s in report.record["steps"]], [FAIL, NOT_BUILT, PASS])
+        self.assertTrue(marker.exists())
+        self.assertEqual(report.record["steps"][0]["exit_code"], 3)
+        self.assertIn("boom", report.record["steps"][0]["log_tail"])
+        self.assertEqual(report.record["steps"][1]["work_package"], "WP-9.9")
+        self.assertIn("WP-9.9 builds it", report.record["steps"][1]["message"])
+        self.assertNotIn("log_tail", report.record["steps"][2])
+        self.assertEqual(report.record["totals"]["not_built"], 1)
+
+    def test_not_built_alone_fails_the_tier(self) -> None:
+        report = self.run_steps([NotBuiltStep("later", "A later thing", "WP-0.5")], tier="merge")
+        self.assertEqual(report.exit_code, 1)
+        self.assertEqual(report.record["result"], FAIL)
+
+    def test_only_gives_partial_never_pass(self) -> None:
+        steps = [CommandStep("a", py("print(1)")), CommandStep("b", py("import sys; sys.exit(1)"))]
+        report = self.run_steps(steps, only=["a"])
+        self.assertEqual(report.record["result"], "PARTIAL")
+        self.assertEqual(report.exit_code, 3)
+        self.assertEqual([s["name"] for s in report.record["steps"]], ["a"])
+        self.assertTrue(report.evidence_path.name.endswith("-partial.json"))
+        report = self.run_steps(steps, only=["b"])
+        self.assertEqual(report.record["result"], "PARTIAL")
+        self.assertEqual(report.exit_code, 1)
+
+    def test_no_evidence(self) -> None:
+        report = self.run_steps([CommandStep("a", py("print(1)"))], write_evidence=False)
+        self.assertIsNone(report.evidence_path)
+        self.assertFalse(self.evidence.exists())
+
+    def test_timeout_kills_the_step(self) -> None:
+        started = time.monotonic()
+        report = self.run_steps([CommandStep("slow", py("import time; time.sleep(30)"), timeout=1)])
+        self.assertLess(time.monotonic() - started, 20)
+        self.assertEqual(report.record["steps"][0]["result"], FAIL)
+        self.assertIn("timed out", report.record["steps"][0]["message"])
+
+    def test_missing_program_fails_cleanly(self) -> None:
+        report = self.run_steps([CommandStep("ghost", ["definitely-not-a-program-hms"])])
+        self.assertEqual(report.record["steps"][0]["result"], FAIL)
+        self.assertIsNone(report.record["steps"][0]["exit_code"])
+
+    def test_crashing_function_step_fails_not_crashes(self) -> None:
+        def broken(ctx: Context) -> Outcome:
+            raise RuntimeError("bug")
+
+        report = self.run_steps([FunctionStep("broken", broken, "broken")])
+        self.assertEqual(report.record["steps"][0]["result"], FAIL)
+        self.assertIn("RuntimeError", report.record["steps"][0]["message"])
+
+    def test_logs_are_written_per_step(self) -> None:
+        report = self.run_steps([CommandStep("talk", py("import sys; print('to stdout'); print('to stderr', file=sys.stderr)"))])
+        log = self.root / report.record["steps"][0]["log"]
+        text = log.read_text(encoding="utf-8")
+        self.assertIn("to stdout", text)
+        self.assertIn("to stderr", text)
+        self.assertTrue(report.record["logs"].startswith("build/ci-logs/"))
+        self.assertTrue((self.root / report.record["logs"] / "run.json").is_file())
+
+
+class Evidence(Fixture):
+    def test_record_has_every_contract_field(self) -> None:
+        report = self.run_steps([CommandStep("a", check_json(True, 0, items=1), check_json=True)])
+        record = json.loads(report.evidence_path.read_text(encoding="utf-8"))
+        for key in ["schema_version", "run_id", "tier", "started_at", "finished_at", "duration_s", "git", "host", "cell",
+                    "steps", "totals", "result"]:
+            self.assertIn(key, record)
+        self.assertRegex(record["started_at"], ISO)
+        self.assertRegex(record["finished_at"], ISO)
+        for key in ["sha", "short_sha", "branch", "dirty", "dirty_files"]:
+            self.assertIn(key, record["git"])
+        for key in ["os", "os_version", "arch", "cpu_count", "ram_gb", "python", "java", "node"]:
+            self.assertIn(key, record["host"])
+        step = record["steps"][0]
+        for key in ["name", "command", "cwd", "started_at", "duration_s", "exit_code", "result", "counts"]:
+            self.assertIn(key, step)
+        self.assertRegex(step["started_at"], ISO)
+        self.assertEqual(record["cell"], "none")
+        self.assertEqual(record["git"]["branch"], "wp/0.1-fixture")
+        self.assertEqual(len(record["git"]["sha"]), 40)
+
+    def test_file_name_clean_and_dirty(self) -> None:
+        report = self.run_steps([CommandStep("a", py("print(1)"))])
+        short = self.git("rev-parse", "--short", "HEAD").strip()
+        today = report.record["started_at"][:10]
+        self.assertEqual(report.evidence_path.name, f"{today}-fast-{short}.json")
+        self.assertFalse(report.record["git"]["dirty"])
+        (self.root / "new.txt").write_text("x\n", encoding="utf-8")
+        report = self.run_steps([CommandStep("a", py("print(1)"))], tier="merge")
+        self.assertEqual(report.evidence_path.name, f"{today}-merge-{short}-dirty.json")
+        self.assertIn("new.txt", report.record["git"]["dirty_files"])
+
+    def test_evidence_is_lf_utf8_json(self) -> None:
+        report = self.run_steps([CommandStep("a", py("print('§ Sorani کوردی')"))])
+        data = report.evidence_path.read_bytes()
+        self.assertNotIn(b"\r\n", data)
+        json.loads(data.decode("utf-8"))
+
+    def test_totals_sum_test_counts(self) -> None:
+        def fake(ctx: Context) -> Outcome:
+            return Outcome(PASS, 0, {"tests": 5, "failures": 0, "errors": 0, "skipped": 1})
+
+        report = self.run_steps([FunctionStep("x", fake, "x"), FunctionStep("y", fake, "y")])
+        totals = report.record["totals"]
+        self.assertEqual((totals["tests"], totals["skipped"]), (10, 2))
+
+
+class CheckContract(unittest.TestCase):
+    def test_pass(self) -> None:
+        out = 'text\n{"check": "x", "ok": true, "counts": {"n": 3}, "errors": [], "warnings": ["w"]}\n'
+        outcome = evaluate_check(0, out, out)
+        self.assertEqual(outcome.result, PASS)
+        self.assertEqual(outcome.counts, {"n": 3, "errors_reported": 0, "warnings_reported": 1})
+
+    def test_missing_json_fails(self) -> None:
+        self.assertEqual(evaluate_check(0, "all good\n", "").result, FAIL)
+
+    def test_exit_0_with_ok_false_fails(self) -> None:
+        out = '{"check": "x", "ok": false, "counts": {}, "errors": ["e"], "warnings": []}'
+        self.assertEqual(evaluate_check(0, out, out).result, FAIL)
+
+    def test_exit_2_is_reported_as_environment_error(self) -> None:
+        out = '{"check": "x", "ok": false, "counts": {}, "errors": ["no venv"], "warnings": []}'
+        outcome = evaluate_check(2, out, out)
+        self.assertEqual(outcome.result, FAIL)
+        self.assertIn("environment error", outcome.message)
+
+
+class Counts(unittest.TestCase):
+    def test_unittest_summaries(self) -> None:
+        ok = "....\n----------------------------------------------------------------------\nRan 4 tests in 0.010s\n\nOK (skipped=1)\n"
+        self.assertEqual(counts.unittest_counts(ok), {"tests": 4, "failures": 0, "errors": 0, "skipped": 1, "ok": 1})
+        bad = "Ran 7 tests in 1.5s\n\nFAILED (failures=2, errors=1, skipped=3)\n"
+        self.assertEqual(counts.unittest_counts(bad), {"tests": 7, "failures": 2, "errors": 1, "skipped": 3, "ok": 0})
+        self.assertIsNone(counts.unittest_counts("ImportError: nothing ran"))
+        self.assertEqual(counts.unittest_counts("Ran 3 tests in 0.1s\r\n\r\nOK\r\n")["tests"], 3)
+
+    def test_junit_counts_testcases(self) -> None:
+        gradle = """<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="hms.kernel.ids.UuidV7Test" tests="4" skipped="1" failures="1" errors="1">
+  <testcase name="a" classname="X"/>
+  <testcase name="b" classname="X"><failure message="boom"/></testcase>
+  <testcase name="c" classname="X"><error message="bad"/></testcase>
+  <testcase name="d" classname="X"><skipped/></testcase>
+</testsuite>"""
+        vitest = """<testsuites name="vitest" tests="2"><testsuite name="banner.test.ts" tests="2">
+  <testcase name="renders" classname="banner"/><testcase name="rtl" classname="banner"/></testsuite></testsuites>"""
+        with tempfile.TemporaryDirectory() as tmp:
+            a, b, c = Path(tmp) / "a.xml", Path(tmp) / "b.xml", Path(tmp) / "c.xml"
+            a.write_text(gradle, encoding="utf-8")
+            b.write_text(vitest, encoding="utf-8")
+            c.write_text("<testsuite><broken", encoding="utf-8")
+            totals = counts.junit_counts([a, b, c])
+        self.assertEqual(
+            totals, {"tests": 6, "failures": 1, "errors": 1, "skipped": 1, "files": 3, "unparseable_files": 1}
+        )
+
+    def test_last_json_line(self) -> None:
+        self.assertIsNone(counts.last_json_line("no json"))
+        self.assertIsNone(counts.last_json_line('{"not": "a check"}'))
+        self.assertEqual(counts.last_json_line('x\n{"check": "c", "ok": true}\n\n')["check"], "c")
+
+
+class JunitSteps(Fixture):
+    def junit_step(self, write_xml: bool, code: int = 0, failures: int = 0) -> CommandStep:
+        patterns = [("backend", "**/build/test-results/**/*.xml")]
+        target = self.root / "backend" / "app" / "build" / "test-results" / "test" / "TEST-new.xml"
+        cases = "<testcase name='t'/>" + "<testcase name='f'><failure/></testcase>" * failures
+        writer = (
+            f"import pathlib; p = pathlib.Path({str(target)!r}); p.parent.mkdir(parents=True, exist_ok=True); "
+            f"p.write_text(\"<testsuite>{cases}</testsuite>\")"
+        ) if write_xml else "pass"
+        return CommandStep(
+            "backend-fast", py(writer + f"\nimport sys; sys.exit({code})"),
+            prepare=tiers.clear_junit(patterns), evaluate=tiers.evaluate_junit(patterns, "fake gradle"),
+        )
+
+    def stale(self) -> Path:
+        stale = self.root / "backend" / "old" / "build" / "test-results" / "test" / "TEST-old.xml"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("<testsuite>" + "<testcase name='x'/>" * 50 + "</testsuite>", encoding="utf-8")
+        return stale
+
+    def test_stale_xml_is_removed_and_counts_come_from_this_run(self) -> None:
+        stale = self.stale()
+        report = self.run_steps([self.junit_step(write_xml=True)])
+        step = report.record["steps"][0]
+        self.assertEqual(step["result"], PASS)
+        self.assertEqual(step["counts"]["tests"], 1)
+        self.assertFalse(stale.exists())
+
+    def test_no_xml_from_this_run_fails(self) -> None:
+        self.stale()
+        report = self.run_steps([self.junit_step(write_xml=False)])
+        step = report.record["steps"][0]
+        self.assertEqual(step["result"], FAIL)
+        self.assertIn("no JUnit XML written by this run", step["message"])
+
+    def test_failures_in_xml_fail_even_with_exit_0(self) -> None:
+        report = self.run_steps([self.junit_step(write_xml=True, failures=2)])
+        self.assertEqual(report.record["steps"][0]["result"], FAIL)
+        self.assertEqual(report.record["steps"][0]["counts"]["failures"], 2)
+
+    def test_nonzero_exit_fails_with_counts(self) -> None:
+        report = self.run_steps([self.junit_step(write_xml=True, code=1)])
+        self.assertEqual(report.record["steps"][0]["result"], FAIL)
+        self.assertEqual(report.record["steps"][0]["counts"]["tests"], 1)
+
+
+class UnittestStep(Fixture):
+    def test_zero_tests_fail(self) -> None:
+        step = CommandStep("py", py("import sys; print('Ran 0 tests in 0.000s\\n\\nOK', file=sys.stderr)"),
+                           evaluate=tiers.evaluate_unittest)
+        outcome = self.run_steps([step]).record["steps"][0]
+        self.assertEqual(outcome["result"], FAIL)
+        self.assertEqual(outcome["message"], "no tests ran")
+
+    def test_counts_are_parsed(self) -> None:
+        step = CommandStep("py", py("import sys; print('Ran 12 tests in 0.5s\\n\\nOK (skipped=2)', file=sys.stderr)"),
+                           evaluate=tiers.evaluate_unittest)
+        outcome = self.run_steps([step]).record["steps"][0]
+        self.assertEqual(outcome["result"], PASS)
+        self.assertEqual(outcome["counts"], {"tests": 12, "failures": 0, "errors": 0, "skipped": 2})
+
+
+class Tiers(unittest.TestCase):
+    ROOT = Path(__file__).resolve().parents[4]
+
+    def test_fast_tier_steps_in_order(self) -> None:
+        names = [s.name for s in tiers.tier_steps("fast", self.ROOT)]
+        self.assertEqual(names, ["doctor-fast", "repo-check", "python-unit-tests", "safety-check", "backlog-check",
+                                 "backend-fast", "frontend-fast", "secret-scan"])
+        self.assertFalse(any(isinstance(s, NotBuiltStep) for s in tiers.tier_steps("fast", self.ROOT)))
+
+    def test_fast_commands_match_the_contract(self) -> None:
+        steps = {s.name: s for s in tiers.tier_steps("fast", self.ROOT)}
+        self.assertEqual(steps["backend-fast"].argv[:5], ["sh", "backend/gradlew", "-p", "backend", "fastTier"])
+        self.assertIn("-Phms.pbt.sequences=1000", steps["backend-fast"].argv)
+        self.assertEqual(steps["frontend-fast"].argv[1:], ["pnpm", "run", "fast"])
+        self.assertEqual(steps["frontend-fast"].cwd, "frontend")
+        self.assertEqual(steps["python-unit-tests"].argv[1:],
+                         ["-I", "-m", "unittest", "discover", "-s", "tools", "-t", "tools", "-p", "test_*.py"])
+        for name in ["doctor-fast", "repo-check", "safety-check", "backlog-check"]:
+            self.assertIn("--json", steps[name].argv)
+            self.assertTrue(steps[name].check_json)
+
+    def test_other_tiers_start_with_fast_and_fail_closed(self) -> None:
+        fast = [s.name for s in tiers.tier_steps("fast", self.ROOT)]
+        for tier in ["merge", "nightly", "release"]:
+            steps = tiers.tier_steps(tier, self.ROOT)
+            self.assertEqual([s.name for s in steps[: len(fast)]], fast)
+            later = steps[len(fast):]
+            self.assertTrue(later)
+            for step in later:
+                self.assertIsInstance(step, NotBuiltStep)
+                self.assertRegex(step.work_package, r"^WP-\d+\.\d+[a-z]?\b")
+            names = [s.name for s in steps]
+            self.assertEqual(len(names), len(set(names)), tier)
+
+    def test_section_19_1_contents_are_listed(self) -> None:
+        merge = {s.name for s in tiers.tier_steps("merge", self.ROOT)}
+        for name in ["integration-tests", "contract-openapi", "contract-asyncapi", "contract-hl7v2", "contract-fhir",
+                     "migration-n-1", "e2e-smoke", "axe", "rtl-visual-diffs", "licence-scan-ort", "vulnerability-scan",
+                     "container-scan", "sbom", "coverage-gates", "mutation-tests"]:
+            self.assertIn(name, merge)
+        nightly = {s.name for s in tiers.tier_steps("nightly", self.ROOT)}
+        for name in ["property-1e6", "property-channels", "scenario-suites", "e2e-full", "golden-image-print",
+                     "scaled-day-dev-cell", "day-300-bed", "day-1000-bed", "chaos", "restore-test", "parser-fuzzing"]:
+            self.assertIn(name, nightly)
+        release = {s.name for s in tiers.tier_steps("release", self.ROOT)}
+        for name in ["signed-images", "helm-charts", "tier2-sidecars", "desktop-shell", "mobile-builds", "sbom-vex",
+                     "slsa-provenance", "cosign-signatures", "release-evidence-pack", "release-notes", "offline-media"]:
+            self.assertIn(name, release)
+        self.assertTrue(merge < release)
+
+
+if __name__ == "__main__":
+    unittest.main()

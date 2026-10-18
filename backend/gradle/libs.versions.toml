@@ -1,0 +1,178 @@
+# HMS Kurdistan backend: the pinned stack (BUILD-PROMPT §4.1). ADR-002 and the SBOM point here.
+#
+# Version rule (§4.1): the newest generally available release line that has had at least one patch
+# release, supported by the components that depend on it and meeting the §4.1 minimum; pin the newest
+# patch of that line. Where the Spring Boot BOM manages a library, the BOM's version is used and repeated
+# here, so this file is the single record. Re-resolve only at phase boundaries through the dependency
+# scorecard (§4.3). Resolved from Maven Central and the Gradle Plugin Portal metadata on 2026-10-18.
+#
+# Licence comments quote the licence declared in the published POM (or its parent POM). Where a POM
+# declares none, the comment says so; the ORT scan (§4.3) is the authority.
+#
+# Denylist (§4.3): no Bitnami, Camunda, Liquibase, HashiCorp or MinIO artefacts may appear in this file.
+
+[versions]
+# --- Runtime platform -------------------------------------------------------------------------------
+# JDK: Eclipse Temurin 25.0.4.1 (GPL-2.0 with Classpath Exception), used through jvmToolchain(25).
+java = "25"
+# Spring Boot 4.1 line (Apache-2.0). Its BOM manages the versions marked "BOM" below.
+spring-boot = "4.1.1"
+# Spring Framework (Apache-2.0). BOM.
+spring-framework = "7.0.9"
+# Jakarta Dependency Injection API (Apache-2.0). BOM.
+jakarta-inject = "2.0.1"
+# Spring Modulith 2.1 line (Apache-2.0).
+spring-modulith = "2.1.1"
+# Kotlin (Apache-2.0). BOM.
+kotlin = "2.3.21"
+# kotlinx-coroutines (Apache-2.0). BOM.
+kotlinx-coroutines = "1.10.2"
+# Jackson 3, tools.jackson (Apache-2.0). BOM.
+jackson = "3.1.5"
+# Jackson annotations, still in com.fasterxml.jackson.annotation under Jackson 3 (Apache-2.0). Jackson BOM.
+jackson-annotations = "2.21"
+# jOOQ open-source edition (Apache-2.0). BOM.
+jooq = "3.21.7"
+# Flyway community edition (Apache-2.0). BOM.
+flyway = "12.4.0"
+# PostgreSQL JDBC driver (BSD-2-Clause). BOM.
+postgresql = "42.7.13"
+# Apache Kafka clients 4.x (Apache-2.0). BOM (newer 4.3 and 4.4 lines exist; the BOM's version wins).
+kafka = "4.2.1"
+# Debezium (Apache-2.0, parent POM). 3.6 line; 3.7.0.Final has had no patch release yet.
+debezium = "3.6.3.Final"
+# CloudEvents Java SDK (Apache-2.0, parent POM). 4.1 line. The 5.x line adds a Jackson 3 format module
+# but has had no patch release yet (5.0.0, 5.1.0); re-check at the next phase boundary.
+cloudevents = "4.1.1"
+# Apicurio Registry 3.x serdes (Apache-2.0, parent POM). 3.3 line.
+apicurio-registry = "3.3.3"
+# Temporal Java SDK (Apache-2.0 per its POM; the Temporal server is MIT). 1.36 line; 1.37 to 1.40 have
+# had no patch release yet. Used only behind WorkflowPort (ADR-010).
+temporal = "1.36.1"
+# OpenFGA Java SDK (Apache-2.0). 0.10 line; 0.11.0 has had no patch release yet. Pre-1.0: record in the
+# dependency scorecard.
+openfga = "0.10.1"
+# Keycloak admin client (Apache-2.0, parent POM). 26.0 line.
+keycloak-admin-client = "26.0.12"
+# HAPI FHIR structures and validator (Apache-2.0). 8.12 line.
+hapi-fhir = "8.12.1"
+# HAPI HL7 v2 (dual MPL-1.1 or GPL-2.0; used unmodified under MPL-1.1, recorded in the licence register,
+# §4.3). 2.5 line; 2.6.0 has had no patch release yet.
+hapi-hl7v2 = "2.5.1"
+
+# --- Test tooling ----------------------------------------------------------------------------------
+# JUnit 6 (EPL-2.0). BOM (a 6.1 line exists; the BOM's version wins).
+junit = "6.0.3"
+# Kotest framework, assertions and property testing (Apache-2.0).
+kotest = "6.2.6"
+# ArchUnit (Apache-2.0; bundles ASM under BSD-3-Clause).
+archunit = "1.5.1"
+# Testcontainers 2.x (MIT). BOM.
+testcontainers = "2.0.5"
+
+# --- Build and quality tooling ---------------------------------------------------------------------
+# detekt (Apache-2.0). The 1.23 line; the 2.x line is still alpha. Runs as detekt-cli in a forked JVM
+# (backend/build-logic: hms.quality-conventions and DetektLauncher).
+detekt = "1.23.8"
+# The Kotlin compiler embedded in detekt 1.23.8. Pinned inside the detekt tool configuration only.
+detekt-kotlin = "2.0.21"
+# ktlint Gradle plugin (no licence declared in the published POM; MIT per the upstream project).
+ktlint-gradle = "14.2.0"
+# ktlint engine (MIT).
+ktlint = "1.8.0"
+# Kover coverage plugin (Apache-2.0). Not applied yet: coverage gates belong to the merge tier (§19.1).
+kover = "0.9.11"
+# CycloneDX Gradle plugin (no licence declared in the published POM; Apache-2.0 per the upstream project).
+# Not applied yet: SBOM generation belongs to the merge and release tiers (§19.1).
+cyclonedx-gradle = "3.5.1"
+
+[libraries]
+# --- BOMs (import as platforms) --------------------------------------------------------------------
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-modulith-bom = { module = "org.springframework.modulith:spring-modulith-bom", version.ref = "spring-modulith" }
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
+jackson-bom = { module = "tools.jackson:jackson-bom", version.ref = "jackson" }
+testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "testcontainers" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+debezium-bom = { module = "io.debezium:debezium-bom", version.ref = "debezium" }
+cloudevents-bom = { module = "io.cloudevents:cloudevents-bom", version.ref = "cloudevents" }
+temporal-bom = { module = "io.temporal:temporal-bom", version.ref = "temporal" }
+hapi-fhir-bom = { module = "ca.uhn.hapi.fhir:hapi-fhir-bom", version.ref = "hapi-fhir" }
+
+# --- Spring and Jakarta ----------------------------------------------------------------------------
+spring-core = { module = "org.springframework:spring-core", version.ref = "spring-framework" }
+jakarta-inject-api = { module = "jakarta.inject:jakarta.inject-api", version.ref = "jakarta-inject" }
+spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core", version.ref = "spring-modulith" }
+spring-modulith-starter-test = { module = "org.springframework.modulith:spring-modulith-starter-test", version.ref = "spring-modulith" }
+
+# --- Kotlin ----------------------------------------------------------------------------------------
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+
+# --- Serialisation ---------------------------------------------------------------------------------
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson-annotations" }
+jackson-core = { module = "tools.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+
+# --- Persistence -----------------------------------------------------------------------------------
+jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
+jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
+jooq-codegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+
+# --- Events and messaging --------------------------------------------------------------------------
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
+debezium-connector-postgres = { module = "io.debezium:debezium-connector-postgres", version.ref = "debezium" }
+cloudevents-core = { module = "io.cloudevents:cloudevents-core", version.ref = "cloudevents" }
+cloudevents-kafka = { module = "io.cloudevents:cloudevents-kafka", version.ref = "cloudevents" }
+cloudevents-json-jackson = { module = "io.cloudevents:cloudevents-json-jackson", version.ref = "cloudevents" }
+apicurio-registry-jsonschema-serde-kafka = { module = "io.apicurio:apicurio-registry-jsonschema-serde-kafka", version.ref = "apicurio-registry" }
+apicurio-registry-avro-serde-kafka = { module = "io.apicurio:apicurio-registry-avro-serde-kafka", version.ref = "apicurio-registry" }
+
+# --- Workflow, identity and authorisation ----------------------------------------------------------
+temporal-sdk = { module = "io.temporal:temporal-sdk", version.ref = "temporal" }
+temporal-testing = { module = "io.temporal:temporal-testing", version.ref = "temporal" }
+openfga-sdk = { module = "dev.openfga:openfga-sdk", version.ref = "openfga" }
+keycloak-admin-client = { module = "org.keycloak:keycloak-admin-client", version.ref = "keycloak-admin-client" }
+
+# --- Health standards ------------------------------------------------------------------------------
+hapi-fhir-structures-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapi-fhir" }
+hapi-fhir-validation = { module = "ca.uhn.hapi.fhir:hapi-fhir-validation", version.ref = "hapi-fhir" }
+hapi-fhir-validation-resources-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4", version.ref = "hapi-fhir" }
+hapi-hl7v2-base = { module = "ca.uhn.hapi:hapi-base", version.ref = "hapi-hl7v2" }
+hapi-hl7v2-structures-v251 = { module = "ca.uhn.hapi:hapi-structures-v251", version.ref = "hapi-hl7v2" }
+
+# --- Test ------------------------------------------------------------------------------------------
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
+testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", version.ref = "testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
+
+# --- Build and quality tooling ---------------------------------------------------------------------
+detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
+
+# --- Build logic (Gradle plugins as libraries for backend/build-logic) ------------------------------
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+ktlint-gradle-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-gradle" }
+kover-gradle-plugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+cyclonedx-gradle-plugin = { module = "org.cyclonedx:cyclonedx-gradle-plugin", version.ref = "cyclonedx-gradle" }
+
+[bundles]
+kotest = ["kotest-runner-junit5", "kotest-assertions-core", "kotest-property"]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+jooq-codegen = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+cyclonedx = { id = "org.cyclonedx.bom", version.ref = "cyclonedx-gradle" }

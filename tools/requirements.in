@@ -1,0 +1,10 @@
+# Python packages for the programme tools (tools/hmstools). Exact pins, including the transitive
+# dependencies, so tools/requirements.txt can be generated with hashes without a resolver.
+# After changing a pin run: sh tools/bootstrap requirements-lock
+PyYAML==6.0.3  # direct: YAML parsing (backlog, hazard log, configuration)
+jsonschema==4.26.0  # direct: schema validation
+attrs==26.1.0  # transitive: jsonschema
+jsonschema-specifications==2025.9.1  # transitive: jsonschema
+referencing==0.37.0  # transitive: jsonschema
+rpds-py==2026.9.1  # transitive: jsonschema, referencing
+typing_extensions==4.16.0  # transitive: referencing

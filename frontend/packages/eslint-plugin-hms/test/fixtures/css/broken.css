@@ -1,0 +1,3 @@
+/* Fixture: a stylesheet that cannot be parsed. The check must fail on it rather than skip it. */
+.unclosed {
+  margin-inline-start: 4px;

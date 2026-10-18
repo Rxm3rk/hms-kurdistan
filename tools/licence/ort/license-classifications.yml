@@ -1,0 +1,123 @@
+# ORT licence classifications (BUILD-PROMPT.md §4.3, ADR-022). The categories match
+# tools/licence/policy.yaml; change the two together (a unit test compares them).
+# Used by tools/licence/ort/evaluator.rules.kts. Not run yet: see tools/licence/README.md.
+categories:
+  - name: "allowed"
+    description: "Allowlist (§4.3): allowed in shipped and build-only scopes."
+  - name: "conditional"
+    description: "Allowed only unmodified and recorded in the licence register (tools/licence/register.yaml)."
+  - name: "openjdk-runtime-only"
+    description: "GPL-2.0 with the Classpath exception: allowed for the OpenJDK runtime only."
+  - name: "copyleft-separate-container"
+    description: "GPL and AGPL: shipped only as unmodified, separate containers with a source offer."
+  - name: "denied"
+    description: "Denylist (§4.3): BSL, SSPL, competing-use and AI-ingestion clauses, functional source licences."
+  - name: "build-only-acceptable"
+    description: "No use restriction; acceptable for build- and CI-only tools, never shipped [P]."
+
+categorizations:
+  # allowed
+  - id: "Apache-2.0"
+    categories: ["allowed"]
+  - id: "MIT"
+    categories: ["allowed"]
+  - id: "BSD-2-Clause"
+    categories: ["allowed"]
+  - id: "BSD-3-Clause"
+    categories: ["allowed"]
+  - id: "ISC"
+    categories: ["allowed"]
+  - id: "MPL-2.0"
+    categories: ["allowed"]
+  - id: "LGPL-2.0-only"
+    categories: ["allowed"]
+  - id: "LGPL-2.0-or-later"
+    categories: ["allowed"]
+  - id: "LGPL-2.1-only"
+    categories: ["allowed"]
+  - id: "LGPL-2.1-or-later"
+    categories: ["allowed"]
+  - id: "LGPL-3.0-only"
+    categories: ["allowed"]
+  - id: "LGPL-3.0-or-later"
+    categories: ["allowed"]
+  - id: "EPL-1.0"
+    categories: ["allowed"]
+  - id: "EPL-2.0"
+    categories: ["allowed"]
+  - id: "OFL-1.1"
+    categories: ["allowed"]
+  - id: "OFL-1.1-RFN"
+    categories: ["allowed"]
+  - id: "OFL-1.1-no-RFN"
+    categories: ["allowed"]
+  # conditional
+  - id: "MPL-1.1"
+    categories: ["conditional"]
+  - id: "GPL-2.0-only WITH Classpath-exception-2.0"
+    categories: ["openjdk-runtime-only", "build-only-acceptable"]
+  # copyleft, shipped only as separate containers
+  - id: "GPL-2.0-only"
+    categories: ["copyleft-separate-container", "build-only-acceptable"]
+  - id: "GPL-2.0-or-later"
+    categories: ["copyleft-separate-container", "build-only-acceptable"]
+  - id: "GPL-3.0-only"
+    categories: ["copyleft-separate-container", "build-only-acceptable"]
+  - id: "GPL-3.0-or-later"
+    categories: ["copyleft-separate-container", "build-only-acceptable"]
+  - id: "AGPL-3.0-only"
+    categories: ["copyleft-separate-container", "build-only-acceptable"]
+  - id: "AGPL-3.0-or-later"
+    categories: ["copyleft-separate-container", "build-only-acceptable"]
+  # denied
+  - id: "BUSL-1.1"
+    categories: ["denied"]
+  - id: "SSPL-1.0"
+    categories: ["denied"]
+  - id: "Elastic-2.0"
+    categories: ["denied"]
+  - id: "FSL-1.0-Apache-2.0"
+    categories: ["denied"]
+  - id: "FSL-1.0-MIT"
+    categories: ["denied"]
+  - id: "FSL-1.1-ALv2"
+    categories: ["denied"]
+  - id: "FSL-1.1-MIT"
+    categories: ["denied"]
+  - id: "LicenseRef-Commons-Clause"
+    categories: ["denied"]
+  - id: "LicenseRef-scancode-commons-clause"
+    categories: ["denied"]
+  - id: "PolyForm-Noncommercial-1.0.0"
+    categories: ["denied"]
+  - id: "PolyForm-Small-Business-1.0.0"
+    categories: ["denied"]
+  - id: "CC-BY-NC-4.0"
+    categories: ["denied"]
+  - id: "CC-BY-NC-SA-4.0"
+    categories: ["denied"]
+  # build-only acceptable [P]
+  - id: "0BSD"
+    categories: ["build-only-acceptable"]
+  - id: "BlueOak-1.0.0"
+    categories: ["build-only-acceptable"]
+  - id: "BSL-1.0"
+    categories: ["build-only-acceptable"]
+  - id: "CC0-1.0"
+    categories: ["build-only-acceptable"]
+  - id: "CC-BY-3.0"
+    categories: ["build-only-acceptable"]
+  - id: "CC-BY-4.0"
+    categories: ["build-only-acceptable"]
+  - id: "MIT-0"
+    categories: ["build-only-acceptable"]
+  - id: "Python-2.0"
+    categories: ["build-only-acceptable"]
+  - id: "Unlicense"
+    categories: ["build-only-acceptable"]
+  - id: "Zlib"
+    categories: ["build-only-acceptable"]
+  - id: "CDDL-1.0"
+    categories: ["build-only-acceptable"]
+  - id: "CDDL-1.1"
+    categories: ["build-only-acceptable"]

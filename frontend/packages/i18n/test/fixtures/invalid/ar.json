@@ -1,0 +1,7 @@
+{
+  "fixture.ok": "SYN-ar",
+  "fixture.missingInCkb": "SYN-ar",
+  "fixture.empty": "   ",
+  "fixture.broken": "SYN-ar {name}",
+  "fixture.placeholders": "SYN-ar {nam} {count}"
+}

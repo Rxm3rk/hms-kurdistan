@@ -1,0 +1,11 @@
+# Synthetic test fixture for the tools/hmstools/safety tests (provenance: synthetic).
+# Not a sign-off record: the names are synthetic SYN-TEST-* placeholders and the file lives outside docs/safety/signoffs/.
+id: SO-2099-0006
+subject: HAZ-0001
+field: residual_risk.accepted_by
+role: SYN-TEST-ROLE
+name: SYN-TEST-SIGNER-A
+date: "2099-01-01"
+statement: Synthetic test statement in a file whose name differs from its id.
+authentication:
+  method: signed-git-commit

@@ -1,0 +1,31 @@
+# Line endings and binary files (BUILD-PROMPT.md §3.6, WP-0.1).
+# Every text file is stored and checked out with LF, on every platform.
+* text=auto eol=lf
+
+# Windows batch files need CRLF to run correctly.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# POSIX scripts must keep LF even if a tool on Windows rewrites them.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Binary files: never converted, never diffed as text.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.jar binary
+*.gz binary
+*.tgz binary
+*.der binary
+*.p12 binary
+*.jks binary

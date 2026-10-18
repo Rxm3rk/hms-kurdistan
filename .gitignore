@@ -1,0 +1,37 @@
+# Repository hygiene (BUILD-PROMPT.md §3.4, §4.3, WP-0.1).
+
+# Project-local toolchain fetched by tools/bootstrap (JDK, Gradle cache, venv, gitleaks).
+.tools/
+
+# Build output and tool caches.
+**/build/
+**/.gradle/
+**/.kotlin/
+**/node_modules/
+frontend/reports/
+coverage/
+dist/
+__pycache__/
+*.py[cod]
+
+# Licensed content is placed here by a human after accepting the licences (§3.4 item 5).
+# Only the README is tracked.
+content/licensed/*
+!content/licensed/README.md
+
+# Keys and secrets never enter the repository. cosign.pub (a public key) is allowed.
+*.key
+*.pem
+cosign.key
+!cosign.pub
+.env
+.env.*
+
+# Editor and IDE state. Shared VS Code settings, if the team adds any, are re-included below.
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Logs.
+*.log
