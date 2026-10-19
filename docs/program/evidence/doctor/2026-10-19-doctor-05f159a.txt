@@ -1,0 +1,39 @@
+HMS Kurdistan host doctor (tier: full)  2026-10-19T03:08:44+03:00
+repository: /home/surface/src/hospitalmanagementsystem
+
+ITEM                         STATUS   FOUND
+Operating system             OK       Ubuntu 24.04.5 LTS, kernel 6.6.87.2-microsoft-standard-WSL2 (WSL2)
+Container engine             OK       Docker version 29.9.1, build dfc520d
+Container engine reachable   OK       docker server 29.9.1
+k3d                          OK       k3d version v5.8.3
+kubectl                      OK       Client Version: v1.37.1
+Helm                         OK       v4.3.1+gc0d08d0
+JDK 25 (pinned)              OK       .tools/jdk-25.0.4.1+1: java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release
+Node.js 24                   OK       v24.22.0
+pnpm via Corepack            OK       pnpm 12.12.1 (corepack 0.36.0, frontend/package.json packageManager)
+Rust stable and cargo        OK       rustc 1.99.1 (58cf8f9c3 2026-10-13); cargo 1.99.1 (5f94df478 2026-08-27)
+Tauri 2 Linux prerequisites  OK       all present
+Python 3.12                  OK       3.12.3 (the interpreter running doctor)
+Git                          OK       git version 2.43.0
+core.autocrlf (effective)    OK       false
+.gitattributes               OK       present
+Project venv                 OK       Python 3.12.3, 7 pins match
+gitleaks in .tools/bin       OK       8.30.1
+RAM                          MISSING  9.7 GiB
+                                      need: >= 32 GB for the dev cell (measured >= 30 GiB), >= 16 GB for the lite cell (>= 15 GiB) [P]
+CPU cores                    OK       8 logical cores
+Free disk                    MISSING  936.5 GiB free on the repository volume (the WSL2 virtual disk); 26.2 GiB free on C:, which holds that disk
+                                      need: >= 50 GiB free [P]
+                                      note: On WSL2 the smaller figure counts: the virtual disk can only grow while its Windows drive has space [P].
+
+Cell profile this host supports: none
+  thresholds [P]: dev cell RAM >= 32 GB (measured >= 30 GiB) and >= 8 cores; lite cell RAM >= 16 GB (>= 15 GiB) and >= 4 cores; free disk >= 50 GiB
+
+To fix (tools/doctor never installs anything; run these yourself):
+- RAM [MISSING]  Ubuntu 24.04 (WSL2):
+    Give the Linux environment more memory: 32 GB for the dev cell, 16 GB for the lite cell (on Windows, set 'memory' in .wslconfig, below).
+- Free disk [MISSING]  Ubuntu 24.04 (WSL2):
+    Free space on the volume that holds the repository, or move the repository to a larger volume.
+    # WSL2: free space on the Windows drive that holds the virtual disk (C: by default), or move the distribution to a larger drive with 'wsl --manage Ubuntu-24.04 --move <folder>' (in Windows).
+
+doctor: FAIL (18 ok, 2 required missing, 0 warnings)

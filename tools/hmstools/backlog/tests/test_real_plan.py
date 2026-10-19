@@ -15,7 +15,8 @@ from hmstools.common import repo_root
 
 # The §21 work packages of features checked by hand against BUILD-PROMPT.md §21 (Phase 0 to Phase 6, with
 # qualifiers, shared tails and features in several WPs); recorded in
-# docs/program/evidence/backlog/2026-10-18-spot-check.md.
+# docs/program/evidence/backlog/2026-10-18-spot-check.md (an earlier Windows run, not evidence of record). The
+# spot check of record, docs/program/evidence/backlog/2026-10-19-spot-check-05f159a.md, does not repeat it.
 HAND_CHECKED = {
     "PLT-CORE-01": ["WP-0.3"],
     "PLT-CORE-03": ["WP-0.5"],

@@ -1,9 +1,9 @@
-# STATUS (updated 2026-10-19 02:35 Asia/Baghdad)
+# STATUS (updated 2026-10-19 03:35 Asia/Baghdad)
 Phase: 0   Work package: WP-0.1 Programme bootstrap
-Branch: wp/0.1-programme-bootstrap @ the review-fix commit on top of 6ca3e3a (its SHA goes into each Resolution field and into this file with the records of record that follow)
-Last green: fast @ d3e14de, WSL build host, no cell (`docs/program/evidence/ci/2026-10-18-fast-d3e14de.json`); the fast record at the review-fix commit follows in the WSL clone
-In-flight slice: WP-0.1 bootstrap: impl; review fixes committed, records of record pending
-Open review findings: `docs/program/reviews/WP-0.1.md` (automated review (AI) at `adb631c`): R-01…R-05 and R-08…R-21 resolved by the review-fix commit; R-06 and R-07 open until their records are stored from the WSL clone; 0 critical or major unresolved
+Branch: wp/0.1-programme-bootstrap @ the evidence commit on top of `05f159a` (the review-fix commit; the records of record at `05f159a` are stored by this commit)
+Last green: fast @ 05f159a, WSL build host, no cell (`docs/program/evidence/ci/2026-10-19-fast-05f159a.json`: PASS, 8 of 8 steps, 1253 tests, 0 failures); merge and nightly @ 05f159a fail closed on NOT-BUILT steps only (15 and 12; KA-003)
+In-flight slice: WP-0.1 bootstrap: impl; review fixes committed (`05f159a`) and their records of record stored; Resolution fields and the sign-off verification pending
+Open review findings: `docs/program/reviews/WP-0.1.md` (automated review (AI) at `adb631c`): R-01…R-05 and R-08…R-21 resolved in `05f159a`; R-06 and R-07 resolved by the records of record this commit stores; the Resolution fields are filled in the next commit, R-01's after an independent verification of the sign-off gate; 0 critical or major unresolved
 Blocking decisions: DN-005 (lite cell and WP-0.2's failover criterion), DN-011 (merging before the merge tier exists)
 ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and DN-015 only if it needs more; WP-0.2 takes DN-015…DN-019, OQ-122…OQ-139, KA-014…KA-024, HAZ-0028…HAZ-0029 and ADR-030; WP-0.7 takes DN-020…DN-039, OQ-140…OQ-159, KA-025…KA-044 and HAZ-0030…HAZ-0034, and no ADR
 
@@ -30,12 +30,15 @@ ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and
   - `4d08832` (every section): 78 plants as expected (73 FAIL, 5 PASS); the clean unit tests and the fast tier failed only on a gpg clock problem in `test_signed_commits.py`, since fixed;
   - `a43820e` (sign-off, clean and final sections): 41 plants as expected, 11 of 11 clean runs PASS and the fast tier PASS.
   - The record of record at the review-fix commit is pending.
-- Verified (records of record):
-  - WSL build host at `d3e14de`, clean tree: `sh tools/ci/run fast` → PASS, 8 of 8 steps, 972 tests (392 Python, 66 backend, 514 frontend), 0 failures, secret scan with no findings (`docs/program/evidence/ci/2026-10-18-fast-d3e14de.json`).
-  - WSL build host at `d3e14de`: `sh tools/doctor` → 18 items OK; RAM (9.7 GiB) and free disk (36.4 GiB on C:) below the [P] guides (DN-005, DN-013; `docs/program/evidence/doctor/2026-10-18-d3e14de.txt` and `.json`).
-- Not evidence of record yet (R-06):
-  - `docs/program/evidence/ci/2026-10-18-gates-bite.md` and `docs/program/evidence/backlog/2026-10-18-spot-check.md` are Windows-checkout runs from before the first commit.
-  - No stored record at all: the frontend licence checks, the 10⁶-sequence run, the second provisioning run, and the failing merge, nightly and release tiers.
+- Verified (records of record, WSL build host, no cell, at `05f159a`, clean tree; stored under `docs/program/evidence/`):
+  - `ci/2026-10-19-fast-05f159a.json`: `sh tools/ci/run fast` → PASS, 8 of 8 steps, 1253 tests (673 Python, 66 backend, 514 frontend), 0 failures, 0 skipped, secret scan with no findings.
+  - `ci/2026-10-19-merge-05f159a.json` and `ci/2026-10-19-nightly-05f159a.json` (R-07): FAIL, the 8 fast steps pass and 15 and 12 steps are NOT-BUILT; neither tier can pass before the work packages that build those steps (KA-003).
+  - `ci/2026-10-19-gates-bite-05f159a.md` (R-06; scratch clone `hms-plant`): 78 plants, 73 FAIL and the 5 expected to pass passing; 11 of 11 clean runs PASS; fast tier PASS.
+  - `backlog/2026-10-19-spot-check-05f159a.md` (R-06): ten of ten rows match, hazards included, checked by the build agent (AI) on the Windows host against the committed files; a 236-row cross-check found 0 mismatches.
+  - `doctor/2026-10-19-doctor-05f159a.{txt,json}`: 18 items OK; RAM (9.7 GiB) and free disk (29.8 GiB on C:) below the [P] guides (DN-005, DN-013).
+  - `licence/2026-10-19-licence-05f159a.txt` with its input lists (R-06): PASS, 2 shipped components and 124 build-only.
+  - Earlier records stay where the review cites them: the fast and doctor records at `d3e14de`; the 18 October gates-bite and spot-check files are Windows runs from before the first commit and not records of record.
+  - Still without a record: the 10⁶-sequence run, the second provisioning run and the release tier.
 - Deviations from BUILD-PROMPT (§3.5):
   - §3.6: commit `1b4415e` did not pass the fast tier on a fresh clone (no `frontend/node_modules`); fixed from `b24f94e`; never rebased (KA-012).
   - §19.1: the WP-0.1 session has no nightly run of record yet (R-07). The nightly tier cannot pass before its NOT-BUILT steps are built: WP-0.2 (cell check, chaos), WP-0.5 (10⁶ property sequences, ≥10⁴ per channel adapter, scenario suites), WP-0.6 (the scaled day; the 300-bed and 1,000-bed days also need hardware [HUMAN]), WP-0.7 (full end-to-end), WP-0.8 (golden-image print), WP-1.1b (parser fuzzing) and WP-1.13 (restore test) (`sh tools/ci/run nightly --list`). Until then its failing (NOT-BUILT) record is made in the WSL clone at the last commit of every session that changes code, and stored under `docs/program/evidence/ci/`.
@@ -43,11 +46,7 @@ ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and
 - Work started on other branches (not on this one): WP-0.7's specification slice (the design-system module spec, the patient-context state machine with approval requested, the HAL contract and fixtures) is drafted and reviewed in the worktree of `wp/0.7-design-system`, uncommitted; WP-0.2 has an implementation plan for the lite cell. Neither changes WP-0.1.
 
 ## Next exact step
-1. In the WSL clone at the review-fix commit:
-   - check the six 100755 modes and run the scripts directly;
-   - `sh tools/bootstrap && sh tools/ci/run fast` (the record) and the nightly (NOT-BUILT) record;
-   - `<date>-doctor-<shortsha>`, the spot check and the gates-bite plant matrix as records of record, and the licence-check output.
-   - Then point `COMMANDS.md` (§1, §3, §6), `backend/README.md` and the R-06 and R-07 Resolution fields at the new records.
+1. Fill the Resolution fields of `docs/program/reviews/WP-0.1.md` (`resolved in <sha>` with a one-line note): R-02…R-05 and R-08…R-21 in `05f159a`, R-06 and R-07 in this evidence commit.
 2. An independent verification pass of the sign-off gate's rule for merged lines (`_approve` and `_before` in `tools/hmstools/safety/signoffs.py`) before the R-01 Resolution is written; the gates-bite sign-off section at the fix commit is the record.
 3. Then WP-0.7 (design system; its branch takes the review-fix commit as its base) and WP-0.2 (environments, lite cell, DN-005, DN-013; `wp/0.2-environments` merges the review-fix commit rather than rebasing, so its three commits keep their SHAs). Both stay stacked on WP-0.1 (DN-011).
 

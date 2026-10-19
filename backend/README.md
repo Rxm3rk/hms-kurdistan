@@ -51,7 +51,7 @@ The property and integration source sets see the main code, including `internal`
 - **Kotlin warnings are errors**, and Java compiles with `-Xlint:all -Werror`.
 - `verifyProjectConventions` fails if a project with sources does not apply all three convention plugins, so no project can drop out of the fast tier.
 
-On 2026-10-18 each gate was shown to fail on a planted violation (ktlint, detekt, a false property, domain code reading the system clock) and pass again once it was removed; see `docs/program/evidence/ci/2026-10-18-gates-bite.md` (Windows checkout, before the first commit; not evidence of record, review finding R-06). The record of record comes from `tools/ci/gates-bite/` in a scratch clone on the WSL build host, at a committed SHA (`tools/ci/gates-bite/README.md`).
+At `05f159a` each gate failed on a planted violation (ktlint, detekt, a false property, domain code reading the system clock, a module boundary crossed outside the api package: 5 of 5 plants FAIL) and passed again once it was removed; the fast tier on the clean tree passed. That is the record of record, `docs/program/evidence/ci/2026-10-19-gates-bite-05f159a.md` (WSL build host, no cell; made by `tools/ci/gates-bite/` in a scratch clone, `tools/ci/gates-bite/README.md`). The earlier run of 2026-10-18, `docs/program/evidence/ci/2026-10-18-gates-bite.md` (the first four plants, by hand on the Windows checkout before the first commit), is not evidence of record (review finding R-06).
 
 ## Fitness functions (§6.8)
 

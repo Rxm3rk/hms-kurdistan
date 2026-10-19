@@ -36,6 +36,10 @@ A gate that never fails proves nothing (§3.5, §19.1). `tools/ci/gates-bite/` p
 time for each fast-tier gate in a scratch clone on the WSL build host, records that the gate fails and
 passes again once the violation is removed, and ends with the fast tier on the clean tree; its record
 of record is `docs/program/evidence/ci/<yyyy-mm-dd>-gates-bite-<shortsha>.md` (review finding R-06).
+At `05f159a` that is `docs/program/evidence/ci/2026-10-19-gates-bite-05f159a.md` (WSL build host, no
+cell: 78 plants, 73 FAIL and the 5 expected to pass passing; 11 of 11 clean runs PASS; the fast tier on
+the clean tree PASS). The earlier `2026-10-18-gates-bite.md`, planted by hand on the Windows checkout
+before the first commit, is not evidence of record.
 How to run it, and where it never runs, is in `tools/ci/gates-bite/README.md`.
 
 ## Exit codes
