@@ -19,7 +19,7 @@ import type { BedState, Diagnosis, Patient, Text3, Tone, WardId } from '../../da
 import { useFormat, useT } from '../../i18n/use-t.ts';
 import type { ScreenId } from '../../shell/index.ts';
 import { useOpenPatient } from '../../shell/index.ts';
-import { Badge, Dot, personName } from '../../ui/index.ts';
+import { Badge, Dot, Icon, cx, personName, type IconName } from '../../ui/index.ts';
 import { BED_REQUESTS, type EarlyWarning, type WarningBand } from './board-data.ts';
 import { messages } from './messages.ts';
 import type { BoardState } from './state.ts';
@@ -31,66 +31,105 @@ export function useBandLabel(): (band: WarningBand) => string {
   return (band) => (band === 'high' ? t('bandHigh') : band === 'medium' ? t('bandMedium') : t('bandLow'));
 }
 
-export function EarlyWarningBadge({ warning, size = 'sm' }: { readonly warning: EarlyWarning; readonly size?: 'sm' | 'md' }): ReactNode {
-  const t = useT(messages);
-  const bandLabel = useBandLabel();
-  return (
-    <span className="ward-ew" title={bandLabel(warning.band)}>
-      <Badge tone={BAND_TONE[warning.band]} strong={warning.band === 'high'} icon="activity" size={size}>
-        {t('scoreBadge', { scale: warning.scale, score: warning.score })}
-        <span className="hms-visually-hidden">, {bandLabel(warning.band)}</span>
+type MarkSize = 'sm' | 'md';
+
+/**
+ * A safety flag: a design-system-styled Badge in the panel and lists (`md`), a wrapping chip on the small bed
+ * tiles (`sm`), so a long Sorani or Arabic label never runs out of its tile.
+ */
+function Mark({
+  tone,
+  icon,
+  strong = false,
+  size,
+  title,
+  children,
+}: {
+  readonly tone: Tone;
+  readonly icon: IconName;
+  readonly strong?: boolean;
+  readonly size: MarkSize;
+  readonly title?: string;
+  readonly children: ReactNode;
+}): ReactNode {
+  if (size === 'md') {
+    return (
+      <Badge tone={tone} icon={icon} strong={strong} size="md">
+        {children}
       </Badge>
+    );
+  }
+  return (
+    <span className={cx('ward-chip', `ward-chip--${tone}`, strong && 'ward-chip--strong')} {...(title === undefined ? {} : { title })}>
+      <Icon name={icon} size="1em" />
+      <span>{children}</span>
     </span>
   );
 }
 
-export function IsolationBadge({ patient, size = 'sm' }: { readonly patient: Patient; readonly size?: 'sm' | 'md' }): ReactNode {
+export function EarlyWarningBadge({ warning, size = 'sm' }: { readonly warning: EarlyWarning; readonly size?: MarkSize }): ReactNode {
+  const t = useT(messages);
+  const bandLabel = useBandLabel();
+  return (
+    <Mark tone={BAND_TONE[warning.band]} strong={warning.band === 'high'} icon="activity" size={size} title={bandLabel(warning.band)}>
+      {t('scoreBadge', { scale: warning.scale, score: warning.score })}
+      <span className="hms-visually-hidden">, {bandLabel(warning.band)}</span>
+    </Mark>
+  );
+}
+
+export function IsolationBadge({ patient, size = 'sm' }: { readonly patient: Patient; readonly size?: MarkSize }): ReactNode {
+  const t = useT(messages);
   const f = useFormat();
   if (patient.isolation === null) {
     return null;
   }
+  const full = patient.isolation.types.map((type) => f.text(ISOLATION_LABEL[type])).join(' · ');
+  const short = patient.isolation.types
+    .map((type) => (type === 'airborne' ? t('isoAirborne') : type === 'contact' ? t('isoContact') : t('isoDroplet')))
+    .join(' · ');
   return (
-    <Badge tone="warning" icon="isolation" size={size}>
-      {patient.isolation.types.map((type) => f.text(ISOLATION_LABEL[type])).join(' · ')}
-    </Badge>
+    <Mark tone="warning" icon="isolation" size={size} title={full}>
+      {size === 'md' ? full : short}
+    </Mark>
   );
 }
 
-export function FallRiskBadge({ size = 'sm' }: { readonly size?: 'sm' | 'md' }): ReactNode {
+export function FallRiskBadge({ size = 'sm' }: { readonly size?: MarkSize }): ReactNode {
   const t = useT(messages);
   return (
-    <Badge tone="warning" icon="alert" size={size}>
+    <Mark tone="warning" icon="alert" size={size}>
       {t('fallRisk')}
-    </Badge>
+    </Mark>
   );
 }
 
-export function AllergyBadge({ patient, size = 'sm' }: { readonly patient: Patient; readonly size?: 'sm' | 'md' }): ReactNode {
+export function AllergyBadge({ patient, size = 'sm' }: { readonly patient: Patient; readonly size?: MarkSize }): ReactNode {
   const t = useT(messages);
   switch (patient.allergies.kind) {
     case 'list':
       return (
-        <Badge tone="danger" icon="alert" size={size}>
+        <Mark tone="danger" icon="alert" size={size}>
           {t('allergyBadge', { count: patient.allergies.items.length })}
-        </Badge>
+        </Mark>
       );
     case 'not-assessed':
       return (
-        <Badge tone="warning" icon="alert" size={size}>
+        <Mark tone="warning" icon="alert" size={size}>
           {t('allergyNotAssessed')}
-        </Badge>
+        </Mark>
       );
     case 'nka':
       return null;
   }
 }
 
-export function CriticalBadge({ size = 'sm' }: { readonly size?: 'sm' | 'md' }): ReactNode {
+export function CriticalBadge({ size = 'sm' }: { readonly size?: MarkSize }): ReactNode {
   const t = useT(messages);
   return (
-    <Badge tone="danger" strong icon="flask" size={size}>
+    <Mark tone="danger" strong icon="flask" size={size}>
       {t('criticalBadge')}
-    </Badge>
+    </Mark>
   );
 }
 

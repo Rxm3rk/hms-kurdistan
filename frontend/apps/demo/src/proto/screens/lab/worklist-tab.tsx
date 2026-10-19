@@ -358,7 +358,7 @@ export function WorklistTab({
       )}
 
       <div className="lab-filters">
-        <SearchField label={t('searchLabel')} value={query} onChange={setQuery} placeholder={t('searchPlaceholder')} />
+        <SearchField className="lab-filters__search" label={t('searchLabel')} value={query} onChange={setQuery} placeholder={t('searchPlaceholder')} />
         <Segmented
           label={t('priority')}
           options={[

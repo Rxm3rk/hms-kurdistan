@@ -140,7 +140,7 @@ export function SpecimenLabel({ specimen, patient, collectedIso, collector, labe
   const line5 = `COLL ${date} ${clockTime(collectedIso)}   BY ${latinInitials(collector)}`;
   const urgent = specimen.priority !== 'routine';
   return (
-    <svg className="lab-label" viewBox="0 0 500 250" role="img" aria-label={label} dir="ltr">
+    <svg className="lab-label" viewBox="0 0 500 250" role="img" aria-label={label} direction="ltr">
       <rect x="1" y="1" width="498" height="248" rx="14" className="lab-label__paper" />
       <text x="20" y="38" className="lab-label__text lab-label__text--bold" fontSize="28" {...fit(latin, 28, textMax)}>
         {latin}

@@ -52,7 +52,7 @@ export function AckDialog({ result, patient, user, isOpen, onCancel, onContinue 
   );
   const [informedAt, setInformedAt] = useState(LAB_CALL_TIME);
   const [readBack, setReadBack] = useState(false);
-  const [actions, setActions] = useState<ReadonlySet<AckActionId>>(new Set(['repeat']));
+  const [actions, setActions] = useState<ReadonlySet<AckActionId>>(new Set<AckActionId>(['repeat']));
   const caller = findStaff(LAB_CALLER_ID);
   const from = clockTime(result.resultedIso);
   const to = clockTime(DEMO_NOW_ISO);

@@ -4,3 +4,671 @@
   flex-direction: column;
   gap: var(--hms-space-5);
 }
+
+.outpatient-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
+  gap: var(--hms-space-4);
+}
+
+.outpatient-muted {
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-hint,
+.outpatient-card-text {
+  margin: 0;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-card-text {
+  margin-block-end: var(--hms-space-3);
+}
+
+.outpatient-demo-label {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Top row: the waiting-room screen, the token slip and the walk-in shortcut */
+.outpatient-top {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(16rem, 2fr);
+  gap: var(--hms-space-5);
+  align-items: start;
+}
+
+@media (width < 64rem) {
+  .outpatient-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.outpatient-screenblock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  min-inline-size: 0;
+}
+
+.outpatient-screenblock__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.outpatient-screenblock__title {
+  margin: 0;
+  font-size: var(--hms-font-size-lg);
+}
+
+.outpatient-screenblock__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.outpatient-top__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+  min-inline-size: 0;
+}
+
+/* The waiting-room screen (simulated television): dark, high contrast, trilingual */
+.outpatient-tri {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.outpatient-tri--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 var(--hms-space-3);
+}
+
+.outpatient-tri--inline > span + span::before {
+  content: '·';
+  margin-inline-end: var(--hms-space-3);
+  opacity: 0.6;
+}
+
+.outpatient-display {
+  display: flex;
+  flex-direction: column;
+  color: var(--hms-color-bg);
+  background-color: var(--hms-color-text);
+  border: 6px solid var(--hms-color-border-strong);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow-raised);
+  overflow: hidden;
+}
+
+.outpatient-display__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-3);
+  padding-inline: var(--hms-space-4);
+  color: var(--hms-color-accent-text);
+  background-color: var(--hms-color-accent-bg);
+}
+
+.outpatient-display__hospital {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  line-height: 1.35;
+}
+
+.outpatient-display__hospital .outpatient-tri {
+  align-items: flex-start;
+  text-align: start;
+}
+
+.outpatient-display__clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.outpatient-display__time {
+  font-size: var(--hms-font-size-xl);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.outpatient-display__area {
+  font-size: var(--hms-font-size-sm);
+  line-height: 1.3;
+}
+
+.outpatient-display__main {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(9rem, 2fr);
+  gap: var(--hms-space-4);
+  padding: var(--hms-space-4);
+}
+
+@media (width < 48rem) {
+  .outpatient-display__main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.outpatient-display__now-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-md);
+}
+
+.outpatient-display__label {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-bg-sunken);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.outpatient-display__now {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hms-space-2);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-4);
+  border-radius: var(--hms-radius-md);
+  animation: outpatient-flash 1.4s ease-out 2;
+}
+
+@keyframes outpatient-flash {
+  0%,
+  35% {
+    background-color: var(--hms-color-warning-border);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .outpatient-display__now {
+    animation: none;
+  }
+}
+
+.outpatient-display__token {
+  margin: 0;
+  font-size: calc(var(--hms-font-size-xl) * 3);
+  font-weight: var(--hms-font-weight-bold);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--hms-color-warning-bg);
+}
+
+.outpatient-display__token--none {
+  color: var(--hms-color-bg-sunken);
+}
+
+.outpatient-display__room {
+  font-size: var(--hms-font-size-md);
+  font-weight: var(--hms-font-weight-bold);
+  line-height: 1.35;
+}
+
+.outpatient-display__clinic {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-bg-sunken);
+}
+
+.outpatient-display__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.outpatient-display__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.outpatient-display__tokens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outpatient-display__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-1);
+  padding-inline: var(--hms-space-3);
+  background-color: var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+}
+
+.outpatient-display__tokens--recent .outpatient-display__row {
+  background-color: transparent;
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  opacity: 0.85;
+}
+
+.outpatient-display__small-token {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.outpatient-display__small-room {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-bg-sunken);
+}
+
+.outpatient-display__empty {
+  margin: 0;
+  color: var(--hms-color-bg-sunken);
+}
+
+.outpatient-display__footer {
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-4);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-warning-bg);
+}
+
+.outpatient-display--large .outpatient-display__token {
+  font-size: calc(var(--hms-font-size-xl) * 5);
+}
+
+.outpatient-display--large .outpatient-display__room {
+  font-size: var(--hms-font-size-xl);
+}
+
+.outpatient-display--large .outpatient-display__clinic,
+.outpatient-display--large .outpatient-display__label,
+.outpatient-display--large .outpatient-display__footer {
+  font-size: var(--hms-font-size-md);
+}
+
+.outpatient-display--large .outpatient-display__small-token {
+  font-size: var(--hms-font-size-xl);
+}
+
+/* Token slip (simulated thermal ticket) */
+.outpatient-slip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hms-space-1);
+  max-inline-size: 18rem;
+  margin-block: 0;
+  margin-inline: auto;
+  padding: var(--hms-space-4);
+  text-align: center;
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) dashed var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+  box-shadow: var(--ui-shadow);
+}
+
+.outpatient-slip__hospital {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  line-height: 1.3;
+}
+
+.outpatient-slip__label {
+  margin-block-start: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-slip__token {
+  font-size: calc(var(--hms-font-size-xl) * 2);
+  font-weight: var(--hms-font-weight-bold);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.outpatient-slip__clinic,
+.outpatient-slip__room {
+  font-size: var(--hms-font-size-sm);
+  line-height: 1.3;
+}
+
+.outpatient-slip__room {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.outpatient-slip__walkin {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-accent-bg);
+}
+
+.outpatient-slip__time {
+  font-size: var(--hms-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-slip__notice {
+  margin-block-start: var(--hms-space-2);
+  padding-block-start: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+  line-height: 1.3;
+  color: var(--hms-color-text-muted);
+  border-block-start: var(--hms-border-width) dashed var(--hms-color-border);
+}
+
+/* Clinics */
+.outpatient-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+  min-inline-size: 0;
+}
+
+.outpatient-clinic__sub {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 var(--hms-space-2);
+}
+
+.outpatient-clinic__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.outpatient-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+}
+
+.outpatient-time__clock {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.outpatient-patient {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+}
+
+.outpatient-patient__reason {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+}
+
+.outpatient-wait {
+  font-size: var(--hms-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-wait--long {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-warning-text);
+}
+
+.outpatient-token {
+  display: inline-block;
+  min-inline-size: 3.5rem;
+  padding-block: var(--hms-space-1);
+  padding-inline: var(--hms-space-2);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--hms-color-bg);
+  background-color: var(--hms-color-text);
+  border-radius: var(--hms-radius-sm);
+}
+
+.outpatient-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--hms-space-2);
+}
+
+/* Dialogs */
+.outpatient-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.outpatient-dialog__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-3);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+}
+
+.outpatient-dialog__identity-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+}
+
+.outpatient-dialog__label {
+  margin: 0;
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-apptsum {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
+  gap: var(--hms-space-2) var(--hms-space-4);
+  margin: 0;
+}
+
+.outpatient-apptsum dt {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-apptsum dd {
+  margin: 0;
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* Three-part identification */
+.outpatient-idcheck {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.outpatient-idsteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outpatient-idstep {
+  display: flex;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-inline-start-width: 4px;
+  border-radius: var(--hms-radius-md);
+}
+
+.outpatient-idstep--success {
+  border-color: var(--hms-color-success-border);
+  background-color: var(--hms-color-success-bg);
+}
+
+.outpatient-idstep--warning {
+  border-color: var(--hms-color-warning-border);
+  background-color: var(--hms-color-warning-bg);
+}
+
+.outpatient-idstep--danger {
+  border-color: var(--hms-color-danger-border);
+  background-color: var(--hms-color-danger-bg);
+}
+
+.outpatient-idstep__number {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-bg);
+  background-color: var(--hms-color-text-muted);
+  border-radius: 50%;
+}
+
+.outpatient-idstep--success .outpatient-idstep__number {
+  background-color: var(--hms-color-success-border);
+}
+
+.outpatient-idstep--danger .outpatient-idstep__number {
+  background-color: var(--hms-color-danger-border);
+}
+
+.outpatient-idstep--warning .outpatient-idstep__number {
+  background-color: var(--hms-color-warning-border);
+}
+
+.outpatient-idstep__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  min-inline-size: 0;
+}
+
+.outpatient-idstep__prompt {
+  margin: 0;
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.outpatient-idstep__verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hms-space-2);
+  margin: 0;
+  font-size: var(--hms-font-size-sm);
+}
+
+.outpatient-idstep__icon {
+  display: inline-flex;
+  flex: none;
+  padding-block-start: 0.15em;
+}
+
+.outpatient-idstep__verdict--neutral {
+  color: var(--hms-color-text-muted);
+}
+
+.outpatient-idstep__verdict--success {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-success-text);
+}
+
+.outpatient-idstep__verdict--warning {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-warning-text);
+}
+
+.outpatient-idstep__verdict--danger {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-danger-text);
+}
+
+.outpatient-idcheck__id {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--hms-space-3);
+}
+
+.outpatient-idcheck__input {
+  flex: 1 1 14rem;
+}
+
+.outpatient-idcheck__demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+/* Walk-in */
+.outpatient-walkin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.outpatient-walkin__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outpatient-walkin__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+}

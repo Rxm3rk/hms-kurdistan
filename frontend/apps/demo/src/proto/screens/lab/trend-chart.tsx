@@ -86,7 +86,7 @@ export function TrendChart({ points, refLow, refHigh, criticalHigh, criticalLow,
   const showAllTicks = points.length <= 5;
 
   return (
-    <svg className="lab-trend" viewBox={`0 0 ${String(W)} ${String(H)}`} role="img" aria-label={label} dir="ltr">
+    <svg className="lab-trend" viewBox={`0 0 ${String(W)} ${String(H)}`} role="img" aria-label={label} direction="ltr">
       {ticks.map((tick) => (
         <g key={tick}>
           <line x1={M.start} x2={W - M.end} y1={y(tick)} y2={y(tick)} className="lab-trend__grid" />

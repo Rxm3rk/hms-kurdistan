@@ -1,6 +1,1082 @@
-/* The ward screen. Prefix: ward-. Logical properties and design-system tokens only. */
+/*
+ * The ward screen (bed board). Prefix: ward-. Logical properties and design-system tokens only; the striped
+ * and hatched bed backgrounds are drawn from the same tokens. Colour never carries a state alone: every tile
+ * also says its state in text.
+ */
 .ward-screen {
   display: flex;
   flex-direction: column;
   gap: var(--hms-space-5);
+  min-inline-size: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Ward picker                                                                                            */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: var(--hms-space-3);
+}
+
+.ward-picker__option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-block-size: var(--hms-target-min-size);
+  padding: var(--hms-space-3) var(--hms-space-4);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow);
+  cursor: pointer;
+}
+
+.ward-picker__option[data-hovered] {
+  border-color: var(--hms-color-border);
+}
+
+.ward-picker__option[data-selected] {
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-accent-bg);
+  box-shadow: inset 0 0 0 1px var(--hms-color-accent-bg), var(--ui-shadow);
+}
+
+.ward-picker__option[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.ward-picker__name {
+  font-size: var(--hms-font-size-md);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-picker__floor {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-picker__bar {
+  display: block;
+  block-size: 0.5rem;
+  margin-block: var(--hms-space-1);
+  background-color: var(--hms-color-bg-sunken);
+  border-radius: 999px;
+}
+
+.ward-picker__fill {
+  display: block;
+  block-size: 100%;
+  background-color: var(--hms-color-accent-bg);
+  border-radius: 999px;
+}
+
+.ward-picker__fill--busy {
+  background-color: var(--hms-color-warning-border);
+}
+
+.ward-picker__fill--full {
+  background-color: var(--hms-color-danger-border);
+}
+
+.ward-picker__stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--hms-space-1) var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.ward-picker__pct {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-picker__free {
+  color: var(--hms-color-success-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-picker__free--none {
+  color: var(--hms-color-warning-text);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Ward details strip and census                                                                          */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2) var(--hms-space-5);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-4);
+  font-size: var(--hms-font-size-sm);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-md);
+}
+
+.ward-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.ward-meta__icon {
+  display: inline-flex;
+  color: var(--hms-color-text-muted);
+}
+
+.ward-meta__label {
+  color: var(--hms-color-text-muted);
+}
+
+.ward-census {
+  min-inline-size: 0;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Needs attention                                                                                        */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-attention {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: var(--hms-space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ward-attention__item {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(9rem, 14rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--hms-space-2) var(--hms-space-3);
+}
+
+.ward-attention__bed {
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.ward-attention__what {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+}
+
+.ward-attention__critical {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Board and panel layout                                                                                 */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-layout {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 23rem);
+  align-items: start;
+  gap: var(--hms-space-5);
+}
+
+.ward-side {
+  position: sticky;
+  inset-block-start: var(--hms-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+  min-inline-size: 0;
+}
+
+@container (max-width: 52rem) {
+  .ward-board-card,
+  .ward-side {
+    grid-column: 1 / -1;
+  }
+
+  .ward-side {
+    position: static;
+  }
+}
+
+.ward-board-card__count {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Filters and legend                                                                                     */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+}
+
+.ward-filters__search {
+  flex: 1 1 14rem;
+  max-inline-size: 22rem;
+}
+
+.ward-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--hms-space-5);
+  margin-block: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+}
+
+.ward-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2) var(--hms-space-4);
+  margin-block-end: var(--hms-space-4);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+  background-color: var(--hms-color-bg-raised);
+  border-radius: var(--hms-radius-md);
+}
+
+.ward-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+}
+
+.ward-legend__item--wide {
+  flex-basis: 100%;
+  color: var(--hms-color-text-muted);
+}
+
+.ward-legend__count {
+  min-inline-size: 1.5em;
+  padding-inline: var(--hms-space-1);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  background-color: var(--hms-color-bg);
+  border-radius: 999px;
+}
+
+.ward-legend__swatch {
+  display: inline-block;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+.ward-legend__sep {
+  inline-size: var(--hms-border-width);
+  block-size: 1.25rem;
+  background-color: var(--hms-color-border);
+}
+
+.ward-legend__swatch--available .ward-legend__swatch {
+  background-color: var(--hms-color-success-bg);
+  border-color: var(--hms-color-success-border);
+  border-inline-start-width: 4px;
+}
+
+.ward-legend__swatch--occupied .ward-legend__swatch {
+  background-color: var(--hms-color-bg);
+  border-color: var(--hms-color-info-border);
+  border-inline-start-width: 4px;
+}
+
+.ward-legend__swatch--cleaning .ward-legend__swatch {
+  background: repeating-linear-gradient(135deg, var(--hms-color-warning-bg) 0 3px, var(--hms-color-bg) 3px 6px);
+  border-color: var(--hms-color-warning-border);
+  border-inline-start-width: 4px;
+}
+
+.ward-legend__swatch--blocked .ward-legend__swatch {
+  background: repeating-linear-gradient(45deg, var(--hms-color-bg-sunken) 0 3px, var(--hms-color-bg-raised) 3px 6px);
+  border-color: var(--hms-color-border-strong);
+  border-inline-start-width: 4px;
+}
+
+.ward-legend__swatch--reserved .ward-legend__swatch {
+  background-color: var(--hms-color-bg);
+  border-style: dashed;
+  border-color: var(--hms-color-accent-bg);
+  border-inline-start-style: solid;
+  border-inline-start-width: 4px;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Bed tiles                                                                                              */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(13.5rem, 100%), 1fr));
+  gap: var(--hms-space-3);
+}
+
+.ward-bed {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--hms-space-2);
+  min-inline-size: 0;
+  min-block-size: 8.5rem;
+  padding: var(--hms-space-3);
+  font: inherit;
+  text-align: start;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-inline-start-width: 5px;
+  border-radius: var(--hms-radius-md);
+  box-shadow: var(--ui-shadow);
+  cursor: pointer;
+  transition: box-shadow 120ms ease-out, transform 120ms ease-out;
+}
+
+.ward-bed[data-hovered] {
+  box-shadow: var(--ui-shadow-raised);
+}
+
+.ward-bed[data-pressed] {
+  transform: translateY(1px);
+}
+
+.ward-bed[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.ward-bed[data-selected] {
+  box-shadow: 0 0 0 3px var(--hms-color-accent-bg), var(--ui-shadow-raised);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ward-bed {
+    transition: none;
+  }
+
+  .ward-bed[data-pressed] {
+    transform: none;
+  }
+}
+
+.ward-bed--occupied {
+  border-inline-start-color: var(--hms-color-info-border);
+}
+
+.ward-bed--available {
+  background-color: var(--hms-color-success-bg);
+  border-color: var(--hms-color-success-border);
+}
+
+.ward-bed--cleaning {
+  background: repeating-linear-gradient(135deg, var(--hms-color-warning-bg) 0 10px, var(--hms-color-bg) 10px 20px);
+  border-color: var(--hms-color-warning-border);
+}
+
+.ward-bed--blocked {
+  color: var(--hms-color-text-muted);
+  background: repeating-linear-gradient(45deg, var(--hms-color-bg-sunken) 0 8px, var(--hms-color-bg-raised) 8px 16px);
+  border-color: var(--hms-color-border-strong);
+}
+
+.ward-bed--reserved {
+  border-style: dashed;
+  border-color: var(--hms-color-accent-bg);
+  border-inline-start-style: solid;
+}
+
+.ward-bed__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+}
+
+.ward-bed__id {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.ward-bed__head-end {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+}
+
+.ward-bed__room {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border: var(--hms-border-width) solid var(--hms-color-warning-border);
+  border-radius: 999px;
+}
+
+.ward-bed__patient {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.ward-bed__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.ward-bed__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-1) var(--hms-space-2);
+  margin-block-start: auto;
+  padding-block-start: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+  border-block-start: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.ward-bed__discharge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+}
+
+.ward-bed__discharge--today {
+  padding-inline: var(--hms-space-2);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-success-text);
+  background-color: var(--hms-color-success-bg);
+  border: var(--hms-border-width) solid var(--hms-color-success-border);
+  border-radius: 999px;
+}
+
+.ward-bed__day {
+  font-variant-numeric: tabular-nums;
+}
+
+.ward-bed__empty-title {
+  font-weight: var(--hms-font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.ward-bed--available .ward-bed__empty-title {
+  color: var(--hms-color-success-text);
+}
+
+.ward-bed--cleaning .ward-bed__empty-title {
+  color: var(--hms-color-warning-text);
+}
+
+.ward-bed__empty-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+  margin-block-start: auto;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-state-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  white-space: nowrap;
+}
+
+/* Safety chips on the tiles: they wrap instead of overflowing a narrow tile. */
+.ward-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+  max-inline-size: 100%;
+  padding-block: 0.0625rem;
+  padding-inline: var(--hms-space-2);
+  font-size: calc(var(--hms-font-size-sm) * 0.92);
+  font-weight: var(--hms-font-weight-bold);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: 999px;
+}
+
+.ward-chip--info,
+.ward-chip--accent {
+  color: var(--hms-color-info-text);
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-info-border);
+}
+
+.ward-chip--success {
+  color: var(--hms-color-success-text);
+  background-color: var(--hms-color-success-bg);
+  border-color: var(--hms-color-success-border);
+}
+
+.ward-chip--warning {
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border-color: var(--hms-color-warning-border);
+}
+
+.ward-chip--danger {
+  color: var(--hms-color-danger-text);
+  background-color: var(--hms-color-danger-bg);
+  border-color: var(--hms-color-danger-border);
+}
+
+.ward-chip--strong.ward-chip--danger {
+  color: var(--hms-color-danger-bg);
+  background-color: var(--hms-color-danger-text);
+  border-color: var(--hms-color-danger-text);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Bed details panel                                                                                      */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-panel__identity {
+  padding: var(--hms-space-3);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-md);
+}
+
+.ward-panel__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.ward-panel__flags:empty {
+  display: none;
+}
+
+.ward-panel__allergies {
+  margin: 0;
+  padding-inline-start: var(--hms-space-4);
+}
+
+.ward-panel__ew {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+  padding-block: var(--hms-space-2);
+  border-block: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.ward-panel__ew-label {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-panel__ew-band {
+  font-size: var(--hms-font-size-sm);
+}
+
+.ward-panel__ew-time {
+  flex-basis: 100%;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.ward-panel__printer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1) var(--hms-space-2);
+}
+
+.ward-panel__printer-note {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-flagged__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ward-flagged__item {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: var(--hms-space-1) var(--hms-space-2);
+  padding-block-end: var(--hms-space-2);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.ward-flagged__item:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.ward-flagged__bed {
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.ward-flagged__badges {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 2;
+  gap: var(--hms-space-1);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Lists under the board: awaiting a bed, pending transfers                                               */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ward-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-3);
+  padding-inline: var(--hms-space-3);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-inline-start: 3px solid transparent;
+}
+
+.ward-list__item:last-child {
+  border-block-end: 0;
+}
+
+.ward-list__item--here {
+  border-inline-start-color: var(--hms-color-info-border);
+  background-color: var(--hms-color-bg-raised);
+}
+
+.ward-list__main {
+  display: flex;
+  flex: 1 1 18rem;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+}
+
+.ward-list__reason {
+  margin: 0;
+}
+
+.ward-list__route {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1);
+  margin: 0;
+}
+
+.ward-list__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.ward-list__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1) var(--hms-space-2);
+  margin: 0;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Activity and rules                                                                                     */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-activity {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ward-activity__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.5rem 4.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--hms-space-2);
+  padding-block: var(--hms-space-2);
+  padding-inline-start: var(--hms-space-4);
+  border-inline-start: 3px solid var(--hms-color-bg-sunken);
+}
+
+.ward-activity__item--available {
+  border-inline-start-color: var(--hms-color-success-border);
+}
+
+.ward-activity__item--occupied {
+  border-inline-start-color: var(--hms-color-info-border);
+}
+
+.ward-activity__item--cleaning {
+  border-inline-start-color: var(--hms-color-warning-border);
+}
+
+.ward-activity__item--blocked {
+  border-inline-start-color: var(--hms-color-border-strong);
+}
+
+.ward-activity__item--reserved {
+  border-inline-start-color: var(--hms-color-accent-bg);
+}
+
+.ward-activity__time {
+  font-variant-numeric: tabular-nums;
+  color: var(--hms-color-text-muted);
+}
+
+.ward-activity__bed {
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.ward-rules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ward-rules__item {
+  display: grid;
+  grid-template-columns: minmax(12rem, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--hms-space-3);
+}
+
+.ward-rules__flow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.ward-rules__arrow {
+  display: inline-flex;
+  color: var(--hms-color-text-muted);
+}
+
+.ward-rules__label {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* Dialogs: patient and bed choices, discharge checklist                                                  */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.ward-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.ward-dialog__patient {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-3);
+  background-color: var(--hms-color-bg-raised);
+  border-radius: var(--hms-radius-md);
+}
+
+.ward-dialog__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: var(--hms-space-3);
+}
+
+.ward-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.ward-choice__hint {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-choice__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr));
+  gap: var(--hms-space-2);
+}
+
+.ward-choice__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.ward-choice__option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-block-size: var(--hms-target-min-size);
+  padding: var(--hms-space-2) var(--hms-space-3);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+  cursor: pointer;
+}
+
+.ward-choice__option[data-hovered] {
+  background-color: var(--hms-color-bg-raised);
+}
+
+.ward-choice__option[data-selected] {
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-accent-bg);
+  box-shadow: inset 0 0 0 1px var(--hms-color-accent-bg);
+}
+
+.ward-choice__option[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.ward-choice__option--available:not([data-selected]) {
+  border-inline-start: 4px solid var(--hms-color-success-border);
+}
+
+.ward-choice__option--unavailable,
+.ward-choice__option[data-disabled] {
+  color: var(--hms-color-text-muted);
+  background: repeating-linear-gradient(45deg, var(--hms-color-bg-raised) 0 8px, var(--hms-color-bg) 8px 16px);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.ward-choice__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.ward-choice__mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  color: transparent;
+  background-color: var(--hms-color-bg);
+  border: 2px solid var(--hms-color-border);
+  border-radius: 999px;
+}
+
+.ward-choice__option[data-selected] .ward-choice__mark {
+  color: var(--hms-color-accent-text);
+  background-color: var(--hms-color-accent-bg);
+  border-color: var(--hms-color-accent-border);
+}
+
+.ward-choice__option[data-disabled] .ward-choice__mark {
+  border-style: dashed;
+}
+
+.ward-choice__id {
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.ward-choice__line {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+  font-size: var(--hms-font-size-sm);
+}
+
+.ward-choice__line-icon {
+  display: inline-flex;
+  flex: none;
+  margin-block-start: 0.2em;
+}
+
+.ward-choice__reason {
+  color: var(--hms-color-text);
+}
+
+.ward-choice__warning {
+  color: var(--hms-color-warning-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-choice__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.ward-choice__hidden {
+  margin: 0;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.ward-check__title {
+  margin: 0 0 var(--hms-space-2);
+  font-size: var(--hms-font-size-md);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-check__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ward-check__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-inline-start-width: 4px;
+  border-radius: var(--hms-radius-md);
+}
+
+.ward-check__item--done {
+  border-inline-start-color: var(--hms-color-success-border);
+}
+
+.ward-check__item--missing {
+  background-color: var(--hms-color-warning-bg);
+  border-color: var(--hms-color-warning-border);
+}
+
+.ward-check__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: 999px;
+}
+
+.ward-check__item--done .ward-check__icon {
+  color: var(--hms-color-success-text);
+  background-color: var(--hms-color-success-bg);
+}
+
+.ward-check__item--missing .ward-check__icon {
+  color: var(--hms-color-danger-text);
+  background-color: var(--hms-color-danger-bg);
+}
+
+.ward-check__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+}
+
+.ward-check__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ward-check__status {
+  font-size: var(--hms-font-size-sm);
+}
+
+.ward-check__item--done .ward-check__status {
+  color: var(--hms-color-success-text);
+}
+
+.ward-check__item--missing .ward-check__status {
+  color: var(--hms-color-danger-text);
+}
+
+.ward-check__detail {
+  font-size: var(--hms-font-size-sm);
+}
+
+.ward-check__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+  margin-block-start: var(--hms-space-1);
+}
+
+.ward-check__hint {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
 }

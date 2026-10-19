@@ -120,19 +120,25 @@ export function BedChoice({ wardId, choices, value, onChange }: BedChoiceProps):
             </span>
             {option.bed.isolationRoom ? (
               <span className="ward-choice__line">
-                <Icon name="isolation" size="1em" />
+                <span className="ward-choice__line-icon">
+                  <Icon name="isolation" size="1em" />
+                </span>
                 <span>{t('isolationRoom')}</span>
               </span>
             ) : null}
             {option.reason === null ? null : (
               <span className="ward-choice__line ward-choice__reason">
-                <Icon name={option.bed.state === 'available' ? 'isolation' : 'lock'} size="1em" />
+                <span className="ward-choice__line-icon">
+                  <Icon name={option.bed.state === 'available' ? 'isolation' : 'lock'} size="1em" />
+                </span>
                 <span>{option.reason}</span>
               </span>
             )}
             {option.warnings.map((warning) => (
               <span key={warning} className="ward-choice__line ward-choice__warning">
-                <Icon name="alert" size="1em" />
+                <span className="ward-choice__line-icon">
+                  <Icon name="alert" size="1em" />
+                </span>
                 <span>{warning}</span>
               </span>
             ))}

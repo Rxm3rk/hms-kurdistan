@@ -1,4 +1,170 @@
+/* The Insurance & corporate screen. Prefix: ins-. Logical properties and design-system tokens only. */
 .insurance-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.ins-header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.ins-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.ins-split {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .ins-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ins-list {
+  min-inline-size: 0;
+}
+
+.ins-detail {
+  position: sticky;
+  inset-block-start: var(--hms-space-3);
+}
+
+.ins-detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.ins-detail__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.ins-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.ins-search {
+  flex: 1 1 16rem;
+  min-inline-size: 12rem;
+}
+
+.ins-select {
+  min-inline-size: 12rem;
+}
+
+.ins-stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ins-end {
+  align-items: flex-end;
+}
+
+.ins-patient {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ins-money {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.ins-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.ins-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ins-warn {
+  color: var(--hms-color-warning-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ins-h3 {
+  margin: 0;
+  margin-block-start: var(--hms-space-2);
+  font-size: var(--hms-font-size-md);
+}
+
+.ins-split-table tfoot .ui-table__td,
+.ins-total-row th {
+  border-block-start: var(--hms-border-width) solid var(--hms-color-border-strong);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ins-docs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ins-deductions,
+.ins-statement {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ins-deduction,
+.ins-statement__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-2);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.ins-deduction__end {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.ins-meter-cell {
+  display: grid;
+  grid-template-columns: minmax(5rem, 1fr) auto;
+  align-items: center;
+  gap: var(--hms-space-2);
+  min-inline-size: 8rem;
+}
+
+.ins-ageing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.ins-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
 }

@@ -104,7 +104,11 @@ export function CollectDialog({ specimen, patient, user, isOpen, onClose }: Coll
         }
       }}
       title={t('collectTitle')}
-      subtitle={`${f.text(specimen.panel)} · ${specimen.id}`}
+      subtitle={
+        <>
+          {f.text(specimen.panel)} · <Code>{specimen.id}</Code>
+        </>
+      }
       size="lg"
       actions={
         <>

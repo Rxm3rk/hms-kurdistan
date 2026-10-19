@@ -1,4 +1,240 @@
-.labworklist-screen {
+/* The lab worklist screen. Prefix: lw-. Logical properties and design-system tokens only. */
+.lw-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.lw-stack,
+.lw-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.lw-single {
+  display: block;
+}
+
+.lw-split {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+.lw-split--even {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+@media (width < 72rem) {
+  .lw-split,
+  .lw-split--even {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.lw-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3) var(--hms-space-4);
+  border-block-end: var(--hms-border-width, 1px) solid var(--hms-color-border);
+}
+
+.lw-two {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.lw-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.lw-badges,
+.lw-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.lw-chip {
+  padding-block: 1px;
+  padding-inline: var(--hms-space-2);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg-sunken);
+  font-size: var(--hms-font-size-sm);
+}
+
+.lw-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.lw-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.lw-label {
+  margin-block: 0 var(--hms-space-2);
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.lw-hint {
+  margin-block: var(--hms-space-3) 0;
+}
+
+.lw-test-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lw-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.lw-scan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--hms-space-3);
+  margin-block-end: var(--hms-space-3);
+}
+
+.lw-scan > .ui-field {
+  flex: 1 1 16rem;
+}
+
+.lw-scan > .ui-button {
+  margin-block-start: 1.6rem;
+}
+
+.lw-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lw-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3) var(--hms-space-4);
+  border-block-end: var(--hms-border-width, 1px) solid var(--hms-color-border);
+}
+
+.lw-list__item:last-child {
+  border-block-end: 0;
+}
+
+.lw-qc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2) var(--hms-space-5);
+  margin-block-end: var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+}
+
+/* Levey–Jennings chart */
+.lw-lj {
+  inline-size: 100%;
+  overflow-x: auto;
+}
+
+.lw-lj__svg {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 32rem;
+  block-size: auto;
+}
+
+.lw-lj__band {
+  fill: var(--hms-color-success-bg);
+  opacity: 0.6;
+}
+
+.lw-lj__mean {
+  stroke: var(--hms-color-text);
+  stroke-width: 1.5;
+}
+
+.lw-lj__sd1 {
+  stroke: var(--hms-color-border);
+  stroke-dasharray: 2 4;
+}
+
+.lw-lj__sd2 {
+  stroke: var(--hms-color-warning-border);
+  stroke-dasharray: 6 4;
+}
+
+.lw-lj__sd3 {
+  stroke: var(--hms-color-danger-border);
+  stroke-dasharray: 6 4;
+}
+
+.lw-lj__tick {
+  fill: var(--hms-color-text-muted);
+  font-size: 11px;
+}
+
+.lw-lj__line {
+  fill: none;
+  stroke: var(--hms-color-accent-bg);
+  stroke-width: 1.5;
+}
+
+.lw-lj__point {
+  fill: var(--hms-color-accent-bg);
+  stroke: var(--hms-color-bg);
+  stroke-width: 1.5;
+}
+
+.lw-lj__point--warn {
+  fill: var(--hms-color-warning-border);
+}
+
+.lw-lj__point--reject {
+  fill: var(--hms-color-danger-border);
+}
+
+.lw-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-4);
+  margin-block-start: var(--hms-space-3);
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.lw-legend__dot {
+  display: inline-block;
+  inline-size: 0.7rem;
+  block-size: 0.7rem;
+  border-radius: 50%;
+  background: var(--hms-color-accent-bg);
+  vertical-align: middle;
+}
+
+.lw-legend__dot--warn {
+  background: var(--hms-color-warning-border);
+}
+
+.lw-legend__dot--reject {
+  background: var(--hms-color-danger-border);
 }

@@ -4,3 +4,370 @@
   flex-direction: column;
   gap: var(--hms-space-5);
 }
+
+.admin-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+/* Text helpers */
+.admin-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.admin-small {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.admin-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-two-line {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+}
+
+.admin-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.admin-h3 {
+  margin: 0;
+  font-size: var(--hms-font-size-md);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.admin-signed-in {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+/* The configuration chain */
+.admin-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-chain__step {
+  display: flex;
+  flex: 1 1 8rem;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-inline-size: 7rem;
+  padding: var(--hms-space-3);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-md);
+}
+
+.admin-chain__step--editable {
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-info-border);
+}
+
+.admin-chain__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75em;
+  block-size: 1.75em;
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-accent-text);
+  background-color: var(--hms-color-accent-bg);
+  border-radius: var(--hms-radius-md);
+}
+
+.admin-chain__entity {
+  font-size: var(--hms-font-size-sm);
+}
+
+.admin-chain__arrow {
+  display: flex;
+  flex: none;
+  align-items: center;
+  color: var(--hms-color-text-muted);
+}
+
+.admin-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2) var(--hms-space-4);
+  margin-block-start: var(--hms-space-4);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.admin-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.admin-swatch {
+  display: inline-block;
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+.admin-swatch--editable {
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-info-border);
+}
+
+.admin-swatch--set {
+  background-color: var(--hms-color-bg);
+  border-color: var(--hms-color-border-strong);
+}
+
+.admin-swatch--inherited {
+  background-color: var(--hms-color-bg-raised);
+}
+
+.admin-swatch--blocked {
+  background: repeating-linear-gradient(135deg, var(--hms-color-bg-raised) 0 3px, var(--hms-color-bg-sunken) 3px 6px);
+}
+
+.admin-swatch--changed {
+  background-color: var(--hms-color-success-bg);
+  border-color: var(--hms-color-success-border);
+}
+
+/* The settings matrix */
+.admin-setting-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+}
+
+.admin-level-head--editable {
+  color: var(--hms-color-info-text);
+}
+
+.admin-cell {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  font-size: var(--hms-font-size-sm);
+}
+
+.admin-cell--set {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text);
+}
+
+.admin-cell--lock .admin-cell__note {
+  color: var(--hms-color-text);
+}
+
+.admin-cell--changed {
+  padding: var(--hms-space-1) var(--hms-space-2);
+  background-color: var(--hms-color-success-bg);
+  border: var(--hms-border-width) solid var(--hms-color-success-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+.admin-cell__note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+  font-weight: var(--hms-font-weight-regular);
+  color: var(--hms-color-text-muted);
+}
+
+.admin-cell--inherited,
+.admin-cell--empty {
+  color: var(--hms-color-text-muted);
+}
+
+.admin-cell--blocked {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--hms-space-1);
+  padding: var(--hms-space-1) var(--hms-space-2);
+  color: var(--hms-color-text-muted);
+  background: repeating-linear-gradient(135deg, var(--hms-color-bg-raised) 0 4px, var(--hms-color-bg-sunken) 4px 8px);
+  border-radius: var(--hms-radius-sm);
+}
+
+/* Try a change: about the setting, and the form */
+.admin-config-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--hms-space-5);
+  margin-block-start: var(--hms-space-5);
+  padding-block-start: var(--hms-space-5);
+  border-block-start: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+@media (width < 60rem) {
+  .admin-config-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.admin-config-about,
+.admin-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  min-inline-size: 0;
+}
+
+.admin-config-about p,
+.admin-config-form p {
+  margin: 0;
+}
+
+.admin-result {
+  margin-block-start: var(--hms-space-5);
+}
+
+.admin-result p {
+  margin: 0;
+}
+
+.admin-result p + p {
+  margin-block-start: var(--hms-space-2);
+}
+
+/* Users */
+.admin-filters {
+  padding: var(--hms-space-3) var(--hms-space-4);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: var(--hms-space-3);
+}
+
+.admin-grant {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: var(--hms-font-size-sm);
+}
+
+.admin-grant--full {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-success-text);
+}
+
+.admin-grant--limited {
+  color: var(--hms-color-warning-text);
+}
+
+.admin-grant--none {
+  color: var(--hms-color-text-muted);
+}
+
+/* Safety switches (React Aria Switch) */
+.admin-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+  min-block-size: var(--hms-target-min-size);
+  font-weight: var(--hms-font-weight-bold);
+  cursor: pointer;
+}
+
+.admin-switch__track {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-start;
+  inline-size: 2.75rem;
+  block-size: 1.5rem;
+  padding-inline: 0.1875rem;
+  background-color: var(--hms-color-bg-sunken);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: calc(var(--hms-radius-md) * 3);
+}
+
+.admin-switch__thumb {
+  display: block;
+  inline-size: 1.0625rem;
+  block-size: 1.0625rem;
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: calc(var(--hms-radius-md) * 3);
+}
+
+.admin-switch[data-selected] .admin-switch__track {
+  justify-content: flex-end;
+  background-color: var(--hms-color-accent-bg);
+  border-color: var(--hms-color-accent-border);
+}
+
+.admin-switch[data-selected] .admin-switch__thumb {
+  border-color: var(--hms-color-accent-border);
+}
+
+.admin-switch[data-focus-visible] .admin-switch__track {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.admin-switch[data-disabled] {
+  cursor: not-allowed;
+  color: var(--hms-color-text-muted);
+}
+
+.admin-switch[data-disabled] .admin-switch__track {
+  background-color: var(--hms-color-bg-raised);
+  border-color: var(--hms-color-border);
+}
+
+.admin-switch[data-disabled][data-selected] .admin-switch__track {
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-info-border);
+}
+
+.admin-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+/* Audit */
+.admin-event {
+  display: flex;
+  align-items: baseline;
+  gap: var(--hms-space-2);
+}
+
+.admin-emergency {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.admin-emergency p {
+  margin: 0;
+}
+
+.admin-quote {
+  padding-inline-start: var(--hms-space-3);
+  border-inline-start: calc(3 * var(--hms-border-width)) solid var(--hms-color-warning-border);
+}

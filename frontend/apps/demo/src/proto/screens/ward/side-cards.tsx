@@ -338,7 +338,9 @@ export function RulesCard(): ReactNode {
           <li key={`${rule.from}-${rule.to}`} className="ward-rules__item">
             <span className="ward-rules__flow">
               <BedStateBadge state={rule.from} size="sm" />
-              <Icon name="arrow-forward" size="1em" />
+              <span className="ward-rules__arrow">
+                <Icon name="arrow-forward" size="1em" />
+              </span>
               <BedStateBadge state={rule.to} size="sm" />
             </span>
             <span className="ward-rules__label">{rule.label}</span>

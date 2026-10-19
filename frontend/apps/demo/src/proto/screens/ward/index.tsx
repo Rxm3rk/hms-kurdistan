@@ -26,7 +26,7 @@ import {
   Grid,
   Icon,
   PageHeader,
-  PatientName,
+  PatientInline,
   Qty,
   SearchField,
   Segmented,
@@ -47,6 +47,7 @@ import {
   earlyWarningOf,
   hasFallRisk,
   openCriticalsOf,
+  type TransferReason,
 } from './board-data.ts';
 import { AllergyBadge, EarlyWarningBadge, FallRiskBadge, dischargeWhen, stayOf, useBandLabel, useDeferredOpenPatient } from './bits.tsx';
 import { DischargeDialog } from './discharge-dialog.tsx';
@@ -59,6 +60,7 @@ import {
   loadSessionBoard,
   saveSessionBoard,
   wardCounts,
+  type BoardState,
   type LiveBed,
 } from './state.ts';
 import { TransferDialog } from './transfer-dialog.tsx';
@@ -199,10 +201,11 @@ export function WardScreen(): ReactNode {
     }
     setSelectedBedId(bedId);
     setDialog(null);
+    clearFilters();
     toast({ tone: 'success', title: t('admittedToast', { name: nameOf(patientId), bed: bedId }), body: t('admittedBody') });
   };
 
-  const transfer = (fromBedId: string, toBedId: string, requestId: string | null, reason: Parameters<typeof boardReducer>[1] extends infer A ? (A extends { type: 'transfer'; reason: infer R } ? R : never) : never): void => {
+  const transfer = (fromBedId: string, toBedId: string, requestId: string | null, reason: TransferReason): void => {
     const from = board.beds[fromBedId];
     const to = board.beds[toBedId];
     dispatch({ type: 'transfer', fromBedId, toBedId, requestId, reason });
@@ -211,6 +214,7 @@ export function WardScreen(): ReactNode {
     }
     setSelectedBedId(toBedId);
     setDialog(null);
+    clearFilters();
     toast({
       tone: 'success',
       title: t('transferredToast', { name: nameOf(from?.patientId ?? null), bed: toBedId }),
@@ -262,22 +266,30 @@ export function WardScreen(): ReactNode {
 
       <div className="ward-meta">
         <span className="ward-meta__item">
-          <Icon name="building" size="1em" />
+          <span className="ward-meta__icon">
+            <Icon name="building" size="1em" />
+          </span>
           <span className="ward-meta__label">{t('location')}</span>
           <span>{f.text(ward.floor)}</span>
         </span>
         <span className="ward-meta__item">
-          <Icon name="user" size="1em" />
+          <span className="ward-meta__icon">
+            <Icon name="user" size="1em" />
+          </span>
           <span className="ward-meta__label">{t('chargeNurse')}</span>
           <StaffName member={getStaff(ward.chargeNurseId)} />
         </span>
         <span className="ward-meta__item">
-          <Icon name="stethoscope" size="1em" />
+          <span className="ward-meta__icon">
+            <Icon name="stethoscope" size="1em" />
+          </span>
           <span className="ward-meta__label">{t('consultant')}</span>
           <StaffName member={getStaff(ward.consultantId)} />
         </span>
         <span className="ward-meta__item">
-          <Icon name="phone" size="1em" />
+          <span className="ward-meta__icon">
+            <Icon name="phone" size="1em" />
+          </span>
           <span className="ward-meta__label">{t('extension')}</span>
           <Code>{ward.phoneExt}</Code>
         </span>
@@ -329,7 +341,7 @@ export function WardScreen(): ReactNode {
                   <Bdi dir="ltr">{bed.id}</Bdi>
                 </span>
                 <span className="ward-attention__who">
-                  <PatientName patient={patient} />
+                  <PatientInline patient={patient} />
                 </span>
                 <span className="ward-attention__what">
                   {criticals.map((result) => (
@@ -565,7 +577,7 @@ export function WardScreen(): ReactNode {
 }
 
 /** Under the panel when no patient is selected: the ward's patients with safety flags, at a glance. */
-function WardFlagsSummary({ board, wardId }: { readonly board: ReturnType<typeof loadSessionBoard>; readonly wardId: WardId }): ReactNode {
+function WardFlagsSummary({ board, wardId }: { readonly board: BoardState; readonly wardId: WardId }): ReactNode {
   const t = useT(messages);
   const flagged = liveBedsOfWard(board, wardId).flatMap((bed) => {
     const patient = bed.state === 'occupied' ? findPatient(bed.patientId) : undefined;
@@ -589,7 +601,7 @@ function WardFlagsSummary({ board, wardId }: { readonly board: ReturnType<typeof
               <Bdi dir="ltr">{bed.id}</Bdi>
             </span>
             <span className="ward-flagged__who">
-              <PatientName patient={patient} />
+              <PatientInline patient={patient} />
             </span>
             <span className="ward-flagged__badges">
               {warning.band === 'low' ? null : <EarlyWarningBadge warning={warning} />}

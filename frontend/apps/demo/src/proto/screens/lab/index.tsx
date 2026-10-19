@@ -10,12 +10,12 @@
  *
  * SYNTHETIC DATA ONLY, NOT FOR CLINICAL USE. Changes live in the screen's own session store (lab-store.ts).
  */
-import { Message, useIsModalOpen } from '@hms/design-system';
+import { useIsModalOpen } from '@hms/design-system';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { DEMO_NOW_ISO, findPatient, findStaff, resultsOf, type LabResult } from '../../data/index.ts';
 import { useT } from '../../i18n/use-t.ts';
 import { useClinicalPatient, useOpenPatient, useRole, useSign } from '../../shell/index.ts';
-import { Badge, Button, Dialog, PageHeader, Tabs, useToast } from '../../ui/index.ts';
+import { Badge, Button, Code, Dialog, PageHeader, Tabs, useToast } from '../../ui/index.ts';
 import { AckDialog, AckReview, type AckDraft } from './ack-dialog.tsx';
 import { CollectDialog } from './collect-dialog.tsx';
 import { CriticalPanel } from './critical-panel.tsx';
@@ -200,7 +200,7 @@ export function LabScreen(): ReactNode {
 
   return (
     <div className="lab-screen" data-patient-id={patient.id}>
-      <PageHeader icon="flask" eyebrow={<Message id="proto.nav.lab" />} title={t('title')} subtitle={t('subtitle')}>
+      <PageHeader icon="flask" title={t('title')} subtitle={t('subtitle')}>
         <div className="lab-summary" aria-label={t('summaryLabel')} role="group">
           {unacknowledged.length > 0 ? (
             <Badge tone="danger" strong icon="alert">
@@ -287,7 +287,11 @@ export function LabScreen(): ReactNode {
             }
           }}
           title={t('labelDialogTitle')}
-          subtitle={`${labelSpecimen.id} · ${t('simulatedPrinter')}`}
+          subtitle={
+            <>
+              <Code>{labelSpecimen.id}</Code> · {t('simulatedPrinter')}
+            </>
+          }
           size="lg"
           actions={
             <>

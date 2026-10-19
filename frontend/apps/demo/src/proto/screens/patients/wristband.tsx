@@ -97,7 +97,7 @@ export function WristbandSvg({ patient }: WristbandSvgProps): ReactNode {
       viewBox={`0 0 ${String(BAND_W)} ${String(BAND_H)}`}
       role="img"
       aria-label={label}
-      dir="ltr"
+      data-print="wristband"
       xmlns="http://www.w3.org/2000/svg"
     >
       <title>{label}</title>
