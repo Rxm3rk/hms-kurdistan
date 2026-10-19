@@ -139,7 +139,7 @@ function Result({ hit, selected, onSelect, onOpen }: ResultProps): ReactNode {
   const { patient } = hit;
   const session = isSessionPatient(patient.id);
   return (
-    <li className="patients-result" data-selected={selected}>
+    <li className="patients-result" data-selected={selected} data-allergy={patient.allergies.kind === 'list'}>
       <div className="patients-result__identity">
         <PatientIdentity model={identityOf(patient)} />
       </div>

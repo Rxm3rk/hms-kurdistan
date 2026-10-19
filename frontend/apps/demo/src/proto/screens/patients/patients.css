@@ -164,6 +164,11 @@
   background-color: var(--hms-color-info-bg);
 }
 
+/* A recorded allergy keeps a danger edge (the badge says so in text too). */
+.patients-result[data-allergy='true'] {
+  border-inline-start-color: var(--hms-color-danger-border);
+}
+
 .patients-result__identity {
   display: flex;
   flex: 1 1 22rem;

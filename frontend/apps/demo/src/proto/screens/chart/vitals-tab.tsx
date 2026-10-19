@@ -53,9 +53,9 @@ function TrendsCard({ patient, vitals, news }: VitalsTabProps): ReactNode {
   const common = {
     startIso: span.startIso,
     endIso: span.endIso,
-    days: span.days,
+    // The last day ends at the demo clock: call it "Today" so the right edge reads as now.
+    days: span.days.map((day, i, all) => (i === all.length - 1 ? { ...day, label: t('today') } : day)),
     firstDayLabel: span.firstDayLabel,
-    nowLabel: t('now'),
   };
   const scored = vitals
     .map((set, i) => ({ set, score: news.scores[i] ?? null }))

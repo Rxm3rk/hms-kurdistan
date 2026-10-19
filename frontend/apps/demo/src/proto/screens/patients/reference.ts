@@ -83,3 +83,10 @@ export const REGISTRATION_ALLERGENS: readonly Allergy[] = [
 
 /** The allergy band on the wristband: printed in all three languages at once. */
 export const ALLERGY_BAND: Text3 = { en: 'ALLERGY', ckb: 'هەستیاری', ar: 'حساسية' };
+
+/** The alert a new record gets when a similar name is already on file (same text as the synthetic look-alikes). */
+export const LOOK_ALIKE_ALERT: Text3 = {
+  en: "Look-alike name on file: check the grandfather's name and the MRN",
+  ckb: 'ناوێکی لێکچوو لە تۆماردایە: ناوی باپیر و MRN بپشکنە',
+  ar: 'يوجد اسم مشابه في السجلات: تحقق من اسم الجد ورقم السجل',
+};

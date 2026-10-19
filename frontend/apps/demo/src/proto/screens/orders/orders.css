@@ -73,11 +73,6 @@
   gap: var(--hms-space-4);
 }
 
-.orders-basket {
-  position: sticky;
-  inset-block-start: var(--hms-space-4);
-}
-
 .orders-basket__title {
   display: inline-flex;
   align-items: center;

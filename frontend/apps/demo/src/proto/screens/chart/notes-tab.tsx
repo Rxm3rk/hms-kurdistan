@@ -215,7 +215,7 @@ function LateEntry({ note }: { readonly note: Pick<ChartNote, 'clinicalIso' | 'r
       <strong>{t('lateEntry')}</strong>
       <span>
         {t.rich('lateBody', {
-          recorded: <Bdi dir={f.locale === 'en' ? 'ltr' : 'rtl'}>{sameDay ? f.time(note.recordedIso) : f.dateTime(note.recordedIso)}</Bdi>,
+          recorded: <Bdi dir={sameDay || f.locale === 'en' ? 'ltr' : 'rtl'}>{sameDay ? f.time(note.recordedIso) : f.dateTime(note.recordedIso)}</Bdi>,
           clinical: <Bdi dir="ltr">{f.time(note.clinicalIso)}</Bdi>,
         })}
       </span>

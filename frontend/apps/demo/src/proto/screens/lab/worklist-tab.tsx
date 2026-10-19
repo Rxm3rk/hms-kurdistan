@@ -383,6 +383,12 @@ export function WorklistTab({
         </p>
       </div>
 
+      {collectBlockedReason === null ? null : (
+        <p className="lab-muted lab-worklist__intro">
+          <Icon name="lock" size="1em" /> {collectBlockedReason}
+        </p>
+      )}
+
       <DataTable
         columns={columns}
         rows={rows}

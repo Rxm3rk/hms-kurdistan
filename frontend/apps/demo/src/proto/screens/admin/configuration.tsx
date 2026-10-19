@@ -230,6 +230,8 @@ export function ConfigurationPanel({ overrides, onSave, canEdit, record }: Confi
           </Button>
         </Toolbar>
 
+        {result === null ? null : <ResultCallout result={result} />}
+
         <div className="admin-config-detail">
           <div className="admin-config-about">
             <h3 className="admin-h3">{f.text(selected.name)}</h3>
@@ -313,8 +315,6 @@ export function ConfigurationPanel({ overrides, onSave, canEdit, record }: Confi
             <p className="admin-small">{t('levelsNote')}</p>
           </form>
         </div>
-
-        {result === null ? null : <ResultCallout result={result} />}
       </Card>
     </div>
   );

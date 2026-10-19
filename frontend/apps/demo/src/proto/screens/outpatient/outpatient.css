@@ -425,6 +425,12 @@
   min-inline-size: 0;
 }
 
+.outpatient-patient__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1) var(--hms-space-2);
+}
+
 .outpatient-patient__reason {
   font-size: var(--hms-font-size-sm);
   color: var(--hms-color-text-muted);

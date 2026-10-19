@@ -641,15 +641,10 @@
 }
 
 .chart-trend__tick text,
-.chart-trend__day,
-.chart-trend__now {
+.chart-trend__day {
   font-size: 11px;
   fill: var(--hms-color-text-muted);
   font-variant-numeric: tabular-nums;
-}
-
-.chart-trend__now {
-  font-weight: var(--hms-font-weight-bold);
 }
 
 .chart-trend__axis {

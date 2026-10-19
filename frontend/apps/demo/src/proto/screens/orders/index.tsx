@@ -49,7 +49,7 @@ import {
   type Column,
 } from '../../ui/index.ts';
 import { IdentityCheckDialog, StatusDialog, type StatusTarget } from './dialogs.tsx';
-import { OrderEntry } from './entry.tsx';
+import { Basket, OrderEntry } from './entry.tsx';
 import { messages } from './messages.ts';
 import { allergyText, draftToOrder, type DraftOrder } from './model.ts';
 import { CATEGORY_ICON, DraftReview, OrderMedLine, OrderReview } from './parts.tsx';
@@ -416,7 +416,10 @@ function OrdersWorkspace(): ReactNode {
         />
       </Grid>
 
-      {entryOpen || basket.length > 0 ? (
+      {!entryOpen && basket.length > 0 ? (
+        <Basket drafts={basket} onRemove={(id) => setBasket((current) => current.filter((draft) => draft.id !== id))} signArea={signArea} />
+      ) : null}
+      {entryOpen ? (
         <OrderEntry
           patient={patient}
           existing={orders}

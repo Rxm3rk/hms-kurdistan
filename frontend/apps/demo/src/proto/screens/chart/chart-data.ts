@@ -177,7 +177,7 @@ function leadSets(lead: Lead, first: VitalSigns, admittedIso: string): readonly 
     spo2: Number.parseFloat(first.spo2),
     pain: first.painScore === null ? null : Number.parseFloat(first.painScore),
   };
-  return slots.map((iso, i) => {
+  return slots.map((iso, i): ChartVitals => {
     const frac = n <= 1 ? 0 : i / n;
     const w = WOBBLE[i % WOBBLE.length] ?? 0;
     const at = (from: number, to: number): number => from + (to - from) * frac;
@@ -231,7 +231,7 @@ function censusInpatientSets(patient: Patient, group: Exclude<CensusGroup, 'outp
     ? { temp: 37.0, hr: 108 + rand() * 14, sys: 96 + rand() * 8, dia: 58, rr: 24 + rand() * 4, spo2: 97 }
     : { temp: 36.8, hr: (icu ? 86 : 72) + rand() * 16, sys: 116 + rand() * 24, dia: 70 + rand() * 10, rr: (icu ? 18 : 15) + rand() * 3, spo2: icu ? 95 : 96 + rand() * 2 };
   const oxygen = icu && n % 2 === 0 ? nasal('2') : AIR;
-  return SLOTS.filter((iso) => iso >= encounter.startIso).map((iso) => {
+  return SLOTS.filter((iso) => iso >= encounter.startIso).map((iso): ChartVitals => {
     const j = (): number => rand() * 2 - 1;
     return {
       iso,
@@ -702,6 +702,11 @@ const EXTRA_NOTES: readonly ChartNote[] = [
   }),
 ];
 
+/** `Severe asthma` → `severe asthma`, but `COPD …` stays as it is. */
+function lowerFirst(text: string): string {
+  return /^[A-Z][a-z]/.test(text) ? `${text.charAt(0).toLowerCase()}${text.slice(1)}` : text;
+}
+
 function censusNotes(patientId: string): readonly ChartNote[] {
   const group = censusGroupOf(patientId);
   const encounter = currentEncounter(patientId);
@@ -720,7 +725,7 @@ function censusNotes(patientId: string): readonly ChartNote[] {
       authorId: encounter.attendingId,
       title: T(`Admission: ${dx.en}`, `خەواندن: ${dx.ckb}`, `الإدخال: ${dx.ar}`),
       body: T(
-        `Admitted from the Emergency Department with ${dx.en.toLowerCase()}. Observations on arrival recorded; treatment started by the ward protocol. Plan: review on the consultant round.`,
+        `Admitted from the Emergency Department with ${lowerFirst(dx.en)}. Observations on arrival recorded; treatment started by the ward protocol. Plan: review on the consultant round.`,
         `لە بەشی فریاکەوتنەوە بە ${dx.ckb} خەوێنرا. پشکنینە ژیانییەکانی کاتی گەیشتن تۆمار کران؛ چارەسەر بەپێی پرۆتۆکۆڵی قاوش دەستی پێکرد. پلان: پێداچوونەوە لە سەردانی پزیشکی پسپۆڕدا.`,
         `أُدخل من قسم الطوارئ بتشخيص ${dx.ar}. سُجلت العلامات الحيوية عند الوصول؛ بدأ العلاج حسب بروتوكول الردهة. الخطة: مراجعة في جولة الاستشاري.`,
       ),

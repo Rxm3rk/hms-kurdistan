@@ -318,7 +318,7 @@ function iconOf(item: SetItem): (typeof CATEGORY_ICON)[keyof typeof CATEGORY_ICO
 }
 
 function resolveItems(set: OrderSet, patient: Patient, existing: readonly Order[], basket: readonly DraftOrder[]): readonly ResolvedItem[] {
-  return set.items.map((item, index) => {
+  return set.items.map((item, index): ResolvedItem => {
     const key = `${set.id}-${String(index)}`;
     if (item.kind === 'medication') {
       const drug = findDrug(item.drugId);

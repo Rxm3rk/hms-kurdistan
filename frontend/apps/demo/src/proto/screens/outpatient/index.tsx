@@ -379,11 +379,18 @@ function ClinicCard({
           <span className="outpatient-patient__reason">
             {f.text(appointment.reason)} · {appointment.visitType === 'new' ? t('visitNew') : t('visitFollowUp')}
           </span>
-          {patient.allergies.kind === 'list' ? (
-            <span>
-              <Badge tone="danger" icon="alert" size="sm" strong>
-                {t('allergy')}: {patient.allergies.items.map((item) => f.text(item.substance)).join(', ')}
-              </Badge>
+          {patient.allergies.kind === 'list' || patient.alerts.some((alert) => alert.text.en.startsWith('Look-alike')) ? (
+            <span className="outpatient-patient__flags">
+              {patient.allergies.kind === 'list' ? (
+                <Badge tone="danger" icon="alert" size="sm" strong>
+                  {t('allergy')}: {patient.allergies.items.map((item) => f.text(item.substance)).join(', ')}
+                </Badge>
+              ) : null}
+              {patient.alerts.some((alert) => alert.text.en.startsWith('Look-alike')) ? (
+                <Badge tone="warning" icon="users" size="sm">
+                  {t('lookAlike')}
+                </Badge>
+              ) : null}
             </span>
           ) : null}
         </span>

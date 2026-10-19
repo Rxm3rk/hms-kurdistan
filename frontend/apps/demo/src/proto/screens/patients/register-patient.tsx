@@ -40,7 +40,7 @@ import {
 } from '../../ui/index.ts';
 import { draftIdentity, identityOf } from './identity.ts';
 import { messages } from './messages.ts';
-import { DISTRICTS, findDistrict, GOVERNORATES, REGISTRATION_ALLERGENS, RELATIONS } from './reference.ts';
+import { DISTRICTS, findDistrict, GOVERNORATES, LOOK_ALIKE_ALERT, REGISTRATION_ALLERGENS, RELATIONS } from './reference.ts';
 import { findDuplicates, formatIraqiMobile, parseDob, type ParsedDob } from './search.ts';
 import { addSessionPatient, nextIdentifiers, useAllPatients } from './session.ts';
 import { hasArabicScript, suggestArabic, suggestLatin } from './transliterate.ts';
@@ -153,7 +153,7 @@ function parsedDobOf(draft: RegistrationDraft): ParsedDob | null {
 }
 
 /** The draft as a Patient record (for the banner preview, the duplicate check and the save). */
-function draftPatient(draft: RegistrationDraft, ids: { readonly id: string; readonly mrn: string }, locale: 'en' | 'ckb' | 'ar'): Patient {
+function draftPatient(draft: RegistrationDraft, ids: { readonly id: string; readonly mrn: string }, locale: 'en' | 'ckb' | 'ar', lookAlike = false): Patient {
   const dob = parsedDobOf(draft);
   const district = draft.governorate === null ? undefined : findDistrict(draft.governorate, draft.district);
   const contactPhone = formatIraqiMobile(draft.contactPhone);
@@ -181,7 +181,7 @@ function draftPatient(draft: RegistrationDraft, ids: { readonly id: string; read
     codeStatus: { kind: 'not-documented' },
     weight: null,
     heightCm: null,
-    alerts: [],
+    alerts: lookAlike ? [{ tone: 'warning', text: LOOK_ALIKE_ALERT }] : [],
     hasPhoto: false,
     emergencyContact:
       draft.contactName.trim() === '' || contactPhone === null
@@ -324,7 +324,8 @@ export function RegisterPatient({ draft, onDraftChange, completed, onCompletedCh
     if (issues.length > 0) {
       return;
     }
-    const patient = draftPatient(draft, ids, f.locale);
+    // A similar name on file: the new record carries the look-alike alert, as the synthetic look-alikes do.
+    const patient = draftPatient(draft, ids, f.locale, report.duplicates.length + report.similarNames.length > 0);
     addSessionPatient(patient);
     onCompletedChange({ patient, printedIso: null });
     onDraftChange(EMPTY_DRAFT);
@@ -690,9 +691,13 @@ export function RegisterPatient({ draft, onDraftChange, completed, onCompletedCh
           </Card>
 
           <Card title={t('previewTitle')} icon="shield" subtitle={t('previewSubtitle')}>
-            <div className="patients-preview">
-              <PatientIdentity model={previewModel} />
-            </div>
+            {draft.ckb.trim() === '' && draft.ar.trim() === '' && draft.latin.trim() === '' ? (
+              <p className="patients-hint">{t('previewEmpty')}</p>
+            ) : (
+              <div className="patients-preview">
+                <PatientIdentity model={previewModel} />
+              </div>
+            )}
           </Card>
         </aside>
       </div>

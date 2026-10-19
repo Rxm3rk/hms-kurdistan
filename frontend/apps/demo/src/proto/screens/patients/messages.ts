@@ -169,6 +169,7 @@ export const messages = defineMessages({
     mrnOnSave: 'MRN on saving: {mrn} (synthetic, this session only).',
     previewTitle: 'Banner preview',
     previewSubtitle: 'How the patient banner will identify this patient',
+    previewEmpty: 'Start typing the name to see how the banner will show it.',
 
     savedToast: 'Patient registered, MRN {mrn}',
     savedToastBody: 'Kept in this browser session only (prototype).',
@@ -347,6 +348,7 @@ export const messages = defineMessages({
     mrnOnSave: 'MRN لە کاتی پاشەکەوتکردن: {mrn} (دەستکرد، تەنها ئەم دانیشتنە).',
     previewTitle: 'پێشبینینی بانەر',
     previewSubtitle: 'بانەری نەخۆش چۆن ئەم نەخۆشە دەناسێنێت',
+    previewEmpty: 'دەست بکە بە نووسینی ناو بۆ بینینی ئەوەی بانەرەکە چۆن پیشانی دەدات.',
 
     savedToast: 'نەخۆش تۆمار کرا، MRN {mrn}',
     savedToastBody: 'تەنها لەم دانیشتنەی وێبگەڕەکەدا دەمێنێتەوە (نموونە).',
@@ -526,6 +528,7 @@ export const messages = defineMessages({
     mrnOnSave: 'رقم السجل عند الحفظ: {mrn} (تجريبي، لهذه الجلسة فقط).',
     previewTitle: 'معاينة الشريط',
     previewSubtitle: 'كيف سيعرّف شريط المريض هذا المريض',
+    previewEmpty: 'ابدأ بكتابة الاسم لترى كيف سيعرضه الشريط.',
 
     savedToast: 'سُجّل المريض، رقم السجل {mrn}',
     savedToastBody: 'محفوظ في جلسة المتصفح هذه فقط (نموذج).',

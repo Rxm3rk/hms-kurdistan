@@ -43,7 +43,6 @@ export interface TrendChartProps {
   readonly days: readonly { readonly startIso: string; readonly label: string }[];
   /** Label of the first (partial) day. */
   readonly firstDayLabel: string;
-  readonly nowLabel: string;
   readonly className?: string;
 }
 
@@ -79,7 +78,6 @@ export function TrendChart({
   endIso,
   days,
   firstDayLabel,
-  nowLabel,
   className,
 }: TrendChartProps): ReactNode {
   const clipId = useId();
@@ -134,7 +132,7 @@ export function TrendChart({
         {thresholds.map((threshold) => (
           <g key={threshold.value} className="chart-trend__threshold">
             <line x1={PAD_L} x2={PAD_L + PLOT_W} y1={y(threshold.value)} y2={y(threshold.value)} />
-            <text x={PAD_L + PLOT_W - 2} y={y(threshold.value) - 3} textAnchor="end">
+            <text x={PAD_L + 4} y={y(threshold.value) - 3} textAnchor="start">
               {threshold.label}
             </text>
           </g>
@@ -153,9 +151,6 @@ export function TrendChart({
           );
         })}
         <line className="chart-trend__axis" x1={PAD_L} x2={PAD_L + PLOT_W} y1={baseline} y2={baseline} />
-        <text className="chart-trend__now" x={PAD_L + PLOT_W} y={H - 10} textAnchor="end">
-          {nowLabel}
-        </text>
         <g clipPath={`url(#${clipId})`}>
           {linePath === null ? null : <path className="chart-trend__line" d={linePath} />}
           {kind === 'range'

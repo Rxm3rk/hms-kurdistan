@@ -1,4 +1,120 @@
+/* The Management dashboard. Prefix: dash-. Logical properties and design-system tokens only. */
 .dashboard-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.dash-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+}
+
+.dash-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.dash-columns {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .dash-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.dash-wide {
+  min-inline-size: 0;
+}
+
+.dash-stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dash-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.dash-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.dash-figure {
+  font-size: var(--hms-font-size-xl);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.dash-currency {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.dash-currency__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding-block-end: var(--hms-space-3);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.dash-meters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.dash-filter {
+  padding: var(--hms-space-3);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.dash-trend {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.dash-trend__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-4);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.dash-trend__key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.dash-trend__svg {
+  inline-size: 100%;
+  block-size: auto;
+  overflow: visible;
+}
+
+.dash-trend__grid {
+  stroke: var(--hms-color-border);
+  stroke-width: 1;
+}
+
+.dash-trend__axis {
+  fill: var(--hms-color-text-muted);
+  font-size: 11px;
 }

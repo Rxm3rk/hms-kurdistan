@@ -160,11 +160,11 @@ function LatestVitals({ vitals, news, onShowVitals }: { readonly vitals: readonl
           {...trendOf(t('rr'), nums(vitals, (set) => set.respRate))}
         />
         <StatTile
-          label={t('pain')}
-          icon="info"
-          value={latest.painScore === null ? <span className="chart-muted">{t('newsNotApplicable')}</span> : t('painValue', { score: latest.painScore })}
-          hint={`${t('newsParam_acvpu')}: ${t(acvpuKey(latest.consciousness))}`}
-          {...(Number.parseFloat(latest.painScore ?? '0') >= 7 ? { tone: 'warning' as const } : {})}
+          label={t('newsParam_acvpu')}
+          icon="user"
+          value={t(acvpuKey(latest.consciousness))}
+          hint={`${t('pain')}: ${latest.painScore === null ? t('newsNotApplicable') : t('painValue', { score: latest.painScore })}`}
+          {...optional('tone', tone('acvpu') ?? (Number.parseFloat(latest.painScore ?? '0') >= 7 ? 'warning' : undefined))}
           {...trendOf(t('pain'), painValues)}
         />
       </Grid>
