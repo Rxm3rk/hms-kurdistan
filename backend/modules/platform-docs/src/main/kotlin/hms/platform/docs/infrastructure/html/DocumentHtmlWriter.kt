@@ -39,7 +39,7 @@ class DocumentHtmlWriter {
     /** Writes [input]. */
     fun write(input: DocumentHtmlInput): HtmlOutput {
         val geometry = checkGeometry(input)
-        val head = HtmlText.head(input.meta)
+        val head = HtmlText.head(input.meta.copy(barcodes = input.banner.barcodes.map { HtmlBarcode(it.symbology, it.payload) }))
         val banner = LayoutHtml.elements(input.banner)
         val watermark = HtmlText.escape(input.watermark)
         val reprintMark = HtmlText.escape(input.reprintText)
