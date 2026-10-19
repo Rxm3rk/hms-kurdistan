@@ -1,0 +1,15 @@
+# Violation fixture rule-09-approvers: a spec named bed (a §8.4 machine) whose approval.required is not the
+# §8.4 list (nurse-panel, bed-manager). A toy lifecycle, NOT FOR CLINICAL USE, not the real bed machine.
+machine: bed
+version: 1
+owner: adt
+approval: {status: requested, required: [nurse-panel, cso], approved_by: [], record: null}
+states: [available, occupied]
+terminal: []
+predicates:
+  bedClean: "synthetic toy predicate"
+transitions:
+  - {from: available, on: Occupy, guard: [bedClean], to: occupied}
+  - {from: occupied, on: Release, to: available}
+invariants: []
+events: []

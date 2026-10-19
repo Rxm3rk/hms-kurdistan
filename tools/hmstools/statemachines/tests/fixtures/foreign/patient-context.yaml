@@ -1,0 +1,137 @@
+# The patient context of one client window (SI-16 clauses e and f: "One patient context per window.
+# Identity is re-verified at signing if the context changed within the last 60 s"; BUILD-PROMPT §2.1,
+# §6.5, §9.4 acceptance, §21 WP-0.7). Template: BUILD-PROMPT Appendix B.3. Explanation:
+# docs/specs/state-machines/patient-context.md and docs/specs/modules/design-system.md §2.2 and §2.3.
+# Hazard: HAZ-0016 (H1), controls CTRL-0016-1, CTRL-0016-6 and CTRL-0016-7 in
+# docs/safety/hazard-log.yaml; the identity predicates also serve HAZ-0001 (SI-01).
+#
+# This is a client-side machine: one instance per window (web tab, Tauri window, mobile app). It is
+# implemented once in frontend/packages/ui-core (patient-context.ts, with the clock of clock.ts) and
+# rendered by the design-system shell. It is NOT the whole of SI-16: CTRL-0016-1 requires the patient
+# context, the banner data and the re-verification rule to be server-side, with the shell only
+# rendering them, and CTRL-0016-7 requires the server to refuse a signature without re-verification.
+# Neither server part is built in WP-0.7 (known anomaly KA-025); until it is, this client machine
+# stands alone. When the server-side context exists (WP-0.4 and WP-1.4 [P]), this machine mirrors it
+# and stays as a second line of defence; it never replaces it.
+#
+# Owner: SI-16's hazard entry is owned by record-squad (docs/safety/README.md, open question 5: the
+# banner is CLN-CHT-01 in the record module; the design system is a frontend package with no §5.2
+# module). The record module has no domain package yet, so the predicates live in ui-core for now;
+# the server-side predicates of CTRL-0016-1 belong to the record module's domain package when it
+# exists. The approvers are this build's proposal [P]: §8.4 lists no patient-context machine
+# (open question OQ-149). The readings of SI-16 and SI-01 that the predicates encode are decisions
+# for the CSO (DN-026, DN-027, DN-028 and DN-032); the defaults below are the stricter readings.
+machine: patient-context
+version: 1
+owner: record
+approval: {status: requested, required: [cso, physician-panel, nurse-panel], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [no-patient, patient-selected, switch-pending-confirmation, re-verification-required, signing, submitting, window-closed]
+terminal: [window-closed]
+predicates:   # each implemented once in frontend/packages/ui-core and unit-tested
+  noModalOpen: "no modal is open in this window (§6.5: no stacked modals), and no HAL capture (photo, document scan, ID read, signature capture) is waiting for a device, which counts as a modal; a request made while one is open is refused with a message, never queued. The command palette closes itself before it dispatches SelectPatient, so a patient chosen in the palette passes this guard (design-system §2.4)"
+  differentPatientRequested: "a patient was requested whose patient id differs from the window's current patient id"
+  samePatientRequested: "the requested patient id equals the window's current patient id"
+  switchConfirmedByUser: "the user activated the confirm control of the switch confirmation, which showed the current and the requested patient (photo, every name form, MRN, and the date of birth at its recorded precision with the approximate-DOB flag where it applies); the control is never the default action, never focused on open and never activated by Enter alone"
+  requestedPatientIdentityValid: "the requested patient's patient id, MRN and at least one name form parsed as valid (the requested patient would not show the banner error state); otherwise the confirm control is disabled and only 'Keep current patient' is offered (decision DN-032)"
+  bannerIdentityValid: "the window's banner data has a valid patient id, a valid MRN, at least one valid name form, and a valid date of birth (a value at its recorded precision; an approximate date counts as valid and shows its flag): the banner is not in its error state and the second identifier is complete (SI-01; design-system §2.1 rule 4; decision DN-032)"
+  bannerIdentityInvalid: "the exact complement of bannerIdentityValid"
+  contextChangedWithinWindow: "the window's last patient-context change happened at most 60 000 ms before now, inclusive (decision DN-026), measured on a monotonic clock; an unknown change time, an unreadable clock or a negative elapsed time counts as within the window (fails closed). The 60 000 ms window is vendor-locked: a tenant may lengthen it and never shorten it (CTRL-0016-1); in WP-0.7 it is a constant in ui-core until the WP-0.3 configuration chain exists"
+  contextStableBeyondWindow: "the exact complement of contextChangedWithinWindow: the last change happened more than the window before now, on a monotonic clock that reads normally"
+  reverifiedSinceLastChange: "a re-verification was confirmed in this window after the window's last patient-context change; false when the change time is unknown"
+  notReverifiedSinceLastChange: "the exact complement of reverifiedSinceLastChange"
+  identityDisputed: "since the window's last patient-context change, the most recent answer in this window's re-verification step was 'Not this patient' (decision DN-027)"
+  identityNotDisputed: "the exact complement of identityDisputed"
+  reverificationConfirmedBySigner: "in the re-verification step the person at the dialog was shown the patient's photo (or 'No photo'), every name form, the MRN and the date of birth at its recorded precision with the approximate-DOB flag where it applies, and activated the confirm control, which is never preselected, never focused on open and never the default action; the step records the session user who confirmed (decision DN-027)"
+  patientRejectedBySigner: "in the re-verification step the person at the dialog activated 'Not this patient'"
+  signerAuthenticated: "the signer authenticated for this signature (§9.4: signing with authentication, intent and manifestation); a co-signature needs badge tap plus PIN (§12.8). The Trust Plane provides both from WP-0.4; the WP-0.7 demo simulates them and says so on screen"
+  reverificationHeldBySigner: "every re-verification this signature relies on was confirmed by the user who authenticated for it: either none was due when the sign step opened, or the re-verification confirmed after the last change was confirmed by that same user (decision DN-027)"
+  reverificationNotHeldBySigner: "the exact complement of reverificationHeldBySigner: a re-verification was due and the user who authenticated is not the user who confirmed it"
+  contextUnchangedSinceSignOpened: "the window's patient id and its last context-change time are the ones recorded when the sign step opened"
+  contextChangedSinceSignOpened: "the exact complement of contextUnchangedSinceSignOpened"
+  serverRequiresReverification: "the server refused the sign command because identity re-verification is required (CTRL-0016-7)"
+# Every transition records what it does to the window's context in its comment. "Context change"
+# means the window's patient id changes, including from none to a patient and from a patient to none
+# (decision DN-028). A change sets lastChangeAt to now, clears the re-verification and the disputed
+# flag, and clears the patient-keyed query cache. The context, never a URL parameter, decides whose
+# data a clinical route shows (design-system §2.2 and §4).
+transitions:
+  # Opening the first patient in an empty window replaces nothing, so it needs no confirmation. It is
+  # a context change: the 60 s window starts.
+  - {from: no-patient, on: SelectPatient, guard: [noModalOpen], to: patient-selected}
+  # Selecting the patient already open changes nothing; lastChangeAt is not reset.
+  - {from: patient-selected, on: SelectPatient, guard: [samePatientRequested], to: patient-selected}
+  # Another patient never replaces the current one without confirmation (CTRL-0016-6, a tightening
+  # recorded in docs/safety/README.md). The current patient stays in context until then; a URL that
+  # names the requested patient shows nothing patient-specific meanwhile.
+  - {from: patient-selected, on: SelectPatient, guard: [differentPatientRequested, noModalOpen], to: switch-pending-confirmation}
+  # Confirmed: the context is replaced (a context change). Never two patients in one window.
+  - {from: switch-pending-confirmation, on: ConfirmSwitch, guard: [switchConfirmedByUser, requestedPatientIdentityValid], to: patient-selected}
+  # Cancelled: the current patient stays; lastChangeAt is not reset; a URL that named the requested
+  # patient is restored to the current one.
+  - {from: switch-pending-confirmation, on: CancelSwitch, to: patient-selected}
+  # Closing the patient is a context change to none.
+  - {from: patient-selected, on: ClosePatient, guard: [noModalOpen], to: no-patient}
+  # The sign or co-sign step cannot open on a banner in its error state or with an incomplete second
+  # identifier: it is refused with sign.blockedByBanner (the _clinical layout also disables the action).
+  - {from: patient-selected, on: OpenSign, guard: [bannerIdentityInvalid], to: patient-selected}
+  # Within the window and not yet re-verified, or after a "Not this patient" answer, re-verification
+  # comes first.
+  - {from: patient-selected, on: OpenSign, guard: [bannerIdentityValid, contextChangedWithinWindow, notReverifiedSinceLastChange], to: re-verification-required}
+  - {from: patient-selected, on: OpenSign, guard: [bannerIdentityValid, identityDisputed], to: re-verification-required}
+  - {from: patient-selected, on: OpenSign, guard: [bannerIdentityValid, contextStableBeyondWindow, identityNotDisputed], to: signing}
+  - {from: patient-selected, on: OpenSign, guard: [bannerIdentityValid, contextChangedWithinWindow, reverifiedSinceLastChange, identityNotDisputed], to: signing}
+  # Re-verification is a step of the same sign dialog, not a second modal.
+  - {from: re-verification-required, on: Reverify, guard: [reverificationConfirmedBySigner], to: signing}
+  # "Not this patient": nothing is signed, the dialog closes with sign.reverify.rejected, focus goes to
+  # the banner's close and change controls, never to a clinical action, and the identity stays
+  # disputed until a context change or a confirmed re-verification.
+  - {from: re-verification-required, on: RejectPatient, guard: [patientRejectedBySigner], to: patient-selected}
+  - {from: [re-verification-required, signing], on: CancelSign, to: patient-selected}
+  # Submitting the signature. The client checks the guards before it sends the sign command; the
+  # command carries lastChangeAt, the re-verification time and an idempotency key created when the
+  # sign step opened (§6.2), so the server can refuse it (CTRL-0016-7) and never records it twice.
+  - {from: signing, on: SubmitSign, guard: [contextChangedSinceSignOpened], to: patient-selected}
+  - {from: signing, on: SubmitSign, guard: [contextUnchangedSinceSignOpened, bannerIdentityInvalid], to: patient-selected}
+  - {from: signing, on: SubmitSign, guard: [contextUnchangedSinceSignOpened, bannerIdentityValid, signerAuthenticated, reverificationNotHeldBySigner], to: re-verification-required}
+  - {from: signing, on: SubmitSign, guard: [contextUnchangedSinceSignOpened, bannerIdentityValid, signerAuthenticated, reverificationHeldBySigner], to: submitting}
+  # The server accepted the signature (sign.done).
+  - {from: submitting, on: SignAccepted, to: patient-selected}
+  # A server refusal (for example after clock skew between client and server) returns to re-verification.
+  - {from: submitting, on: SignRefused, guard: [serverRequiresReverification], to: re-verification-required}
+  # The server rejected the command for another reason: nothing was saved (sign.failed); the dialog stays open.
+  - {from: submitting, on: SignRejected, to: signing}
+  # A timeout or lost response: the outcome is unknown (sign.outcomeUnknown). The dialog stays open, and
+  # a new SubmitSign reuses the same idempotency key, so at most one signature is recorded.
+  - {from: submitting, on: SignOutcomeUnknown, to: signing}
+  # A badge tap or sign-in that changes the user clears the patient context of every window of the
+  # workstation session [P]; the new user starts with no patient (decision DN-028). Any open dialog
+  # closes without signing.
+  - {from: [patient-selected, switch-pending-confirmation, re-verification-required, signing, submitting], on: UserChanged, to: no-patient}
+  - {from: "*", on: WindowClosed, to: window-closed}
+# R11 draws no patient-context machine: R11 §15 item 6 states only the rule ("one active patient
+# context per window/session"). Every transition above is therefore proposed, for the approvers named
+# in `approval.required`.
+proposed:
+  - "no-patient→patient-selected"
+  - "patient-selected→patient-selected"
+  - "patient-selected→switch-pending-confirmation"
+  - "switch-pending-confirmation→patient-selected"
+  - "patient-selected→no-patient"
+  - "patient-selected→re-verification-required"
+  - "patient-selected→signing"
+  - "re-verification-required→signing"
+  - "re-verification-required→patient-selected"
+  - "signing→patient-selected"
+  - "signing→re-verification-required"
+  - "signing→submitting"
+  - "submitting→patient-selected"
+  - "submitting→re-verification-required"
+  - "submitting→signing"
+  - "switch-pending-confirmation→no-patient"
+  - "re-verification-required→no-patient"
+  - "signing→no-patient"
+  - "submitting→no-patient"
+  - "*→window-closed"
+invariants: [SI-16, SI-01]
+events: []   # client-side: publishes no domain event; opening a chart is audited server-side by the Trust Plane (WP-0.4); the server-side context of CTRL-0016-1 is not built (KA-025)
