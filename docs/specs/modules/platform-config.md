@@ -10,6 +10,8 @@ References: "§n" is BUILD-PROMPT.md, "K §n" is BLUEPRINT-KURDISTAN.md, "BP §n
 
 ---
 
+**Programme numbers (19 October 2026).** DN-CFG-1 to DN-CFG-3 are DN-043; OQ-CFG-1 to OQ-CFG-14 are OQ-174; the proposed hazards of §13.2 are OQ-177; ADR-CFG-1 and ADR-CFG-2 are OQ-178; KA-CFG labels become KA numbers when the code that makes them true is committed. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Purpose and scope
 
 **Purpose.** Hospital-specific behaviour is configuration, not code (§2.2 rule 8; §6.2 "No tenant-specific code"). This module makes that configuration safe to change. It is "configuration as a product": a typed registry, change sets, signed bundles, a promotion pipeline, and a vendor foundation with tenant overlays rebased by three-way merge (R08 §14 #6; R08 §9; ADR-020).
