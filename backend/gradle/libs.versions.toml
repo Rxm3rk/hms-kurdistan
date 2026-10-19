@@ -62,6 +62,11 @@ hapi-fhir = "8.12.1"
 # register when first depended on, §4.3). 2.5 line; 2.6.0 has had no patch release yet.
 hapi-hl7v2 = "2.5.1"
 
+# --- Documents and printing (WP-0.8) ----------------------------------------------------------------
+# ZXing core (Apache-2.0): the DataMatrix ECC 200 encoder for PDF, HTML and ESC/POS outputs, and the
+# decoder of the round-trip test. 3.5 line (resolved 2026-10-19).
+zxing = "3.5.4"
+
 # --- Test tooling ----------------------------------------------------------------------------------
 # JUnit 6 (EPL-2.0). BOM (a 6.1 line exists; the BOM's version wins).
 junit = "6.0.3"
@@ -116,6 +121,8 @@ jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations
 jackson-core = { module = "tools.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+# YAML for print templates (Apache-2.0; brings snakeyaml-engine, Apache-2.0). Jackson BOM.
+jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 
 # --- Persistence -----------------------------------------------------------------------------------
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
@@ -146,6 +153,9 @@ hapi-fhir-validation = { module = "ca.uhn.hapi.fhir:hapi-fhir-validation", versi
 hapi-fhir-validation-resources-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4", version.ref = "hapi-fhir" }
 hapi-hl7v2-base = { module = "ca.uhn.hapi:hapi-base", version.ref = "hapi-hl7v2" }
 hapi-hl7v2-structures-v251 = { module = "ca.uhn.hapi:hapi-structures-v251", version.ref = "hapi-hl7v2" }
+
+# --- Documents and printing ------------------------------------------------------------------------
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 # --- Test ------------------------------------------------------------------------------------------
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }

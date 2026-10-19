@@ -22,3 +22,6 @@ rootProject.name = "hms-backend"
 // Shared kernel libraries (packages hms.kernel.<lib>).
 include(":platform:arch-rules")
 include(":platform:testing")
+
+// Application modules (packages hms.<module>, BUILD-PROMPT §5.2, §6.1).
+include(":modules:platform-docs")
