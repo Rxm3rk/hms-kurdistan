@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>SYN self-test: trilingual A4 document</title>
+<!-- Golden-harness self-test fixture (hms_docrender/golden). SYNTHETIC – NOT FOR CLINICAL USE: every name and identifier is invented.
+     The date of birth is approximate: "~1990" with the approximate caption in the row's language, the same in every row (spec §3.2 R5). -->
+<meta name="hms.template.id" content="SYN-SELFTEST-A4">
+<meta name="hms.template.version" content="1">
+<meta name="hms.template.hash" content="1e23aa889cb8167ef09d79a1952ee12e1673c135b97198fe55d64e5afb475350">
+<meta name="hms.template.provenance" content="synthetic">
+<meta name="hms.barcode.payloads" content="">
+<meta name="dcterms.created" content="2026-01-01T00:00:00Z">
+<style>
+@font-face { font-family: "HMS Arabic"; font-weight: 400; src: url(hms-font:noto-sans-arabic-regular); }
+@font-face { font-family: "HMS Arabic"; font-weight: 700; src: url(hms-font:noto-sans-arabic-bold); }
+@font-face { font-family: "HMS Latin"; font-weight: 400; src: url(hms-font:noto-sans-regular); }
+@font-face { font-family: "HMS Latin"; font-weight: 700; src: url(hms-font:noto-sans-bold); }
+@page {
+  size: A4;
+  margin: 18mm 15mm 20mm 15mm;
+  @bottom-center { content: element(watermark); }
+}
+body { font-family: "HMS Arabic", "HMS Latin"; font-size: 11pt; line-height: 1.6; margin: 0; }
+.latin { font-family: "HMS Latin"; direction: ltr; unicode-bidi: isolate; }
+.banner { border: 0.6pt solid #000; padding: 2mm 3mm; margin-bottom: 4mm; }
+.banner .name { font-weight: 700; font-size: 15pt; }
+.banner .name.latin { font-size: 13pt; }
+.row span { margin-inline-end: 6mm; }
+.caption { font-size: 9pt; }
+h1 { font-size: 16pt; font-weight: 700; margin: 2mm 0; }
+p { margin: 1.5mm 0; }
+.en { font-family: "HMS Latin"; direction: ltr; text-align: left; }
+.ar { direction: rtl; }
+table { border-collapse: collapse; margin-top: 3mm; }
+th, td { border: 0.5pt solid #444; padding: 0 3mm; text-align: center; font-size: 16pt; }
+th { font-size: 9pt; font-family: "HMS Latin"; font-weight: 400; }
+td.code { font-family: "HMS Latin"; font-size: 8pt; direction: ltr; }
+.notice { font-family: "HMS Latin"; font-weight: 700; font-size: 10pt; border: 1pt solid #000; padding: 1mm 2mm; margin-top: 4mm; direction: ltr; text-align: center; }
+.watermark { position: running(watermark); font-family: "HMS Latin"; font-size: 7.5pt; direction: ltr; }
+</style>
+</head>
+<body>
+<div class="watermark">Printed by SYN-USER-01 · 2026-01-01 08:00 · MRN SYN-000123-7 · job SYN-J-000001 · SYNTHETIC – NOT FOR CLINICAL USE</div>
+
+<div class="banner">
+  <div class="name">شیلان ئەحمەد کەریم</div>
+  <div class="name" lang="ar">شيلان أحمد كريم</div>
+  <div class="name latin">Shilan Ahmed Karim</div>
+  <div class="row"><span class="caption">ژمارەی پەڕگە:</span> <span class="latin">SYN-000123-7</span> <span class="caption">ڕێکەوتی لەدایکبوون:</span> <span class="latin">~1990</span> <span class="caption">(نزیکەیی)</span></div>
+  <div class="row" lang="ar"><span class="caption">رقم الملف:</span> <span class="latin">SYN-000123-7</span> <span class="caption">تاريخ الميلاد:</span> <span class="latin">~1990</span> <span class="caption">(تقريبي)</span></div>
+</div>
+
+<h1>تاقیکردنەوەی چاپی بەڵگەنامە</h1>
+<p>ئەم بەڵگەنامەیە نموونەیەکی دەستکردە بۆ تاقیکردنەوەی چاپ. هیچ زانیارییەکی ڕاستەقینەی نەخۆش تێدا نییە.</p>
+<p class="ar" lang="ar">هذه الوثيقة نموذج اصطناعي لاختبار الطباعة، ولا تحتوي على أي بيانات حقيقية لمريض.</p>
+<p class="en" lang="en">This document is a synthetic sample for print testing. It contains no real patient data.</p>
+
+<table>
+<tr><th>code point</th><th>isolated</th><th>initial</th><th>medial</th><th>final</th></tr>
+<tr><td class="code">U+067E</td><td>پ</td><td>پب</td><td>بپب</td><td>بپ</td></tr>
+<tr><td class="code">U+0686</td><td>چ</td><td>چب</td><td>بچب</td><td>بچ</td></tr>
+<tr><td class="code">U+0698</td><td>ژ</td><td>ژب</td><td>بژب</td><td>بژ</td></tr>
+<tr><td class="code">U+06AF</td><td>گ</td><td>گب</td><td>بگب</td><td>بگ</td></tr>
+<tr><td class="code">U+06A4</td><td>ڤ</td><td>ڤب</td><td>بڤب</td><td>بڤ</td></tr>
+<tr><td class="code">U+0695</td><td>ڕ</td><td>ڕب</td><td>بڕب</td><td>بڕ</td></tr>
+<tr><td class="code">U+06B5</td><td>ڵ</td><td>ڵب</td><td>بڵب</td><td>بڵ</td></tr>
+<tr><td class="code">U+06C6</td><td>ۆ</td><td>ۆب</td><td>بۆب</td><td>بۆ</td></tr>
+<tr><td class="code">U+06CE</td><td>ێ</td><td>ێب</td><td>بێب</td><td>بێ</td></tr>
+<tr><td class="code">U+06D5</td><td>ە</td><td>ەب</td><td>بەب</td><td>بە</td></tr>
+<tr><td class="code">U+06BE</td><td>ھ</td><td>ھب</td><td>بھب</td><td>بھ</td></tr>
+</table>
+
+<div class="notice">SYNTHETIC – NOT FOR CLINICAL USE</div>
+</body>
+</html>

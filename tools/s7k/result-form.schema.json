@@ -1,0 +1,396 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hms.invalid/schemas/s7k/result-form-1.schema.json",
+  "title": "S7-K printer test result form, one printer",
+  "description": "The record of one printer's S7-K run (tools/s7k/README.md; BUILD-PROMPT.md §11.1, §12.8, §18.9; docs/specs/modules/platform-docs.md §11). Rules the schema cannot state (every item present once, evidence for pass and fail, notes for fail, five exact barcode decodes with the scanner and its mode, the legibility minimums per DPI, the pinned font hashes, tester and printer filled once any item has a result, no SYN- printer in a test result) are checked by 's7k.py check-form'. The approval block is never filled by the build agent (§3.5).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "form",
+    "kit_version",
+    "provenance",
+    "date",
+    "tester",
+    "site",
+    "printer",
+    "fonts",
+    "kit_files",
+    "font_height_calibration",
+    "items",
+    "approval"
+  ],
+  "properties": {
+    "form": {
+      "const": "hms-s7k-result-form/1"
+    },
+    "kit_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "provenance": {
+      "description": "test-result: a real run on a physical printer. example: a synthetic sample, not a test result.",
+      "enum": [
+        "test-result",
+        "example"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^([0-9]{4}-[0-9]{2}-[0-9]{2})?$"
+    },
+    "tester": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "role"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Written by the person who ran the test; never by the build agent."
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "network"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "network": {
+          "type": "string"
+        }
+      }
+    },
+    "printer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "make",
+        "model",
+        "serial",
+        "firmware",
+        "dpi",
+        "kind",
+        "connection",
+        "host_identification",
+        "resident_font_listing",
+        "evidence"
+      ],
+      "properties": {
+        "make": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial": {
+          "type": "string"
+        },
+        "firmware": {
+          "type": "string"
+        },
+        "dpi": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 2400
+        },
+        "kind": {
+          "enum": [
+            "label",
+            "wristband",
+            "receipt",
+            "document"
+          ]
+        },
+        "connection": {
+          "enum": [
+            "network",
+            "usb"
+          ]
+        },
+        "host_identification": {
+          "type": "string"
+        },
+        "resident_font_listing": {
+          "type": "string",
+          "description": "The ^HW reply (s7k-cfg-05), verbatim."
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    },
+    "fonts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "source_file",
+          "sha256",
+          "download_sha256",
+          "font_version"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^[REBA]:[A-Z0-9_]{1,16}\\.TTF$"
+          },
+          "source_file": {
+            "type": "string"
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256OrEmpty"
+          },
+          "download_sha256": {
+            "$ref": "#/$defs/sha256OrEmpty"
+          },
+          "font_version": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kit_files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dpi_dir",
+        "manifest_sha256"
+      ],
+      "properties": {
+        "dpi_dir": {
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/sha256OrEmpty"
+        }
+      }
+    },
+    "font_height_calibration": {
+      "description": "ZT-11: how the printer maps the ^A@ height to each print font (platform-docs.md §7.1, §11).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "latin",
+        "arabic"
+      ],
+      "properties": {
+        "latin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "h_dots",
+            "cap_height_mm",
+            "interpretation"
+          ],
+          "properties": {
+            "h_dots": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "cap_height_mm": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0,
+              "description": "The measured height of H on the CAL row (E:NSLATN.TTF)."
+            },
+            "interpretation": {
+              "enum": [
+                "em",
+                "cell",
+                "other",
+                "not-measured"
+              ]
+            }
+          }
+        },
+        "arabic": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "h_dots",
+            "alef_height_mm",
+            "interpretation"
+          ],
+          "properties": {
+            "h_dots": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "alef_height_mm": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "exclusiveMinimum": 0,
+              "description": "The measured height of the lone alef on the CAL-A row (E:NSARAB.TTF)."
+            },
+            "interpretation": {
+              "enum": [
+                "em",
+                "cell",
+                "other",
+                "not-measured"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "result",
+          "notes",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "CFG-01",
+              "FNT-01",
+              "ZT-01",
+              "ZT-02",
+              "ZT-03",
+              "ZT-04",
+              "ZT-05",
+              "ZT-06",
+              "ZT-07",
+              "ZT-08",
+              "ZT-09",
+              "ZT-10",
+              "ZT-11",
+              "JA-01",
+              "BC-01",
+              "BC-02",
+              "BC-03",
+              "BC-04",
+              "ZE-01",
+              "ZR-01",
+              "FB-01",
+              "EP-01",
+              "EP-02",
+              "PD-01"
+            ]
+          },
+          "result": {
+            "enum": [
+              "pass",
+              "fail",
+              "not-run"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "evidence": {
+            "$ref": "#/$defs/evidence"
+          },
+          "expected_payload": {
+            "type": "string"
+          },
+          "decoded_payloads": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string"
+            },
+            "description": "Every scan, exactly as the scanner returned it; a pass needs five."
+          },
+          "scanner": {
+            "type": "string"
+          },
+          "scanner_mode": {
+            "enum": [
+              "",
+              "hid-pos",
+              "keyboard-us-english"
+            ],
+            "description": "HID-POS mode or a US-English keyboard layout, never an Arabic or Sorani layout (platform-docs.md §6.1, OQ-246)."
+          },
+          "grade": {
+            "type": "string",
+            "pattern": "^([A-DF]|[0-3]\\.[0-9]|4\\.0)?$",
+            "description": "Optional ISO/IEC 15415 overall grade from a verifier (BC-01, BC-02, BC-04)."
+          },
+          "smallest_legible_pt": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 6,
+            "maximum": 12
+          },
+          "smallest_legible_pt_latin": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 6,
+            "maximum": 12
+          },
+          "observed": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "approval": {
+      "description": "Human sign-off. The form keeps status 'requested' and an empty approved_by; a human's approval is a sign-off record that names this form and its SHA-256 (BUILD-PROMPT §3.5).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "approved_by"
+      ],
+      "properties": {
+        "status": {
+          "const": "requested"
+        },
+        "approved_by": {
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256OrEmpty": {
+      "type": "string",
+      "pattern": "^([0-9a-f]{64})?$"
+    },
+    "evidence": {
+      "description": "File names of photos or scans kept with the form; plain names, no folders.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+      }
+    }
+  }
+}
