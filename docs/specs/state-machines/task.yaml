@@ -1,0 +1,134 @@
+# The task: one owned unit of work with an SLA, an escalation chain and a state (BUILD-PROMPT §7 item 4,
+# §8.2 "Orders and tasks", §8.4 "Task: open → claimed → done / cancelled, with SLA timers, escalation and
+# TaskOrphaned"; R11 §7.3). Template: BUILD-PROMPT Appendix B.3. The rules in prose, the API, the
+# configuration and the tests are in docs/specs/modules/platform-tasks.md (sections 3 to 9).
+# Hazard: HAZ-0003 (SI-03, seeded H5), controls CTRL-0003-1, CTRL-0003-2, CTRL-0003-4, CTRL-0003-5 and
+# CTRL-0003-7 in docs/safety/hazard-log.yaml; SI-10 (HAZ-0010, CTRL-0010-3) for clinical times: every Task row
+# takes its valid time at recording, and workBeganAt and performedAt are payload fields, never valid times.
+# The timers here also carry the mechanism of controls owned by other modules: CTRL-0004-5 (HAZ-0004,
+# seeded H3), CTRL-0005-12 (HAZ-0005, seeded H2) and CTRL-0017-5 (HAZ-0017, seeded H3). Those modules own
+# their policies. The H4 "delayed escalation" hazard for escalation chains is a proposal (HAZ-TK8).
+#
+# Owner: platform-tasks (Safety Kernel, §5.2). Every predicate is implemented once in
+# hms.platform.tasks.domain and unit-tested. Time comes only from the injected java.time.Clock (§6.2);
+# "now" below means the instant that Clock gives. The approvers are this build's proposal [P]: §8.4
+# names none for the task machine (OQ-TK1).
+#
+# Orphaned is a condition, not a state. A task is orphaned while it is live (open or claimed) and its
+# holder is unroutable; the holder is the claimant when the task is claimed and the owner otherwise.
+# At most one orphan episode is open per task. DetectOrphan opens one; ClearOrphan closes one; a Claim,
+# Reassign, Escalate, CompleteByFocusOwner or CancelByFocusOwner that leaves a routable holder or a final
+# task also closes it. Each command appends exactly one journal entry for the task, so an episode closed
+# by another command is a field of that command's event (description fields below), not a second event.
+#
+# "(start)" in a from field is the creating command, not a state; the machine's initial state is
+# declared by "initial". Appendix B.3 defines neither, nor the description field used for effects; the
+# module specification asks for both in the README and the WP-0.5 generator contract (OQ-TK9).
+#
+# Completion and cancellation belong to the module that owns the task's focus (integrator decision D14):
+# there is no user Complete or Cancel. Alarm paths (DetectOrphan, ClearOrphan, BreachSla, Escalate) run
+# as this module's SYSTEM actor and never consult the user-authorisation port.
+machine: task
+version: 1
+owner: platform-tasks
+approval: {status: requested, required: [cso, nurse-panel, physician-panel], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [open, claimed, done, cancelled]
+initial: open
+terminal: [done, cancelled]
+predicates:   # each implemented once in the platform-tasks domain package and unit-tested
+  callerMayCreate: "the creator is a Safety Kernel module (orders, medications, results) inside its own transaction, this module's request intake applying a TaskRequested row from the journal, or this module's SYSTEM actor raising a platform task; and the kind is owned by the requesting module. Authorised by module identity, never by the user-authorisation port"
+  ownerPresent: "the command names an owner (one person, one pool or one queue, by id or by pool or queue code) that exists, belongs to the task's tenant, and, for a pool or queue, belongs to the task's facility or is tenant-level; anything else, including no owner, is refused (SI-03 clause b; CTRL-0003-4)"
+  slaPresent: "an SLA can be fixed: the command gives a positive span, or the task kind's definition gives a default; the SLA has a start, a due time and a clock kind (CTRL-0003-4)"
+  slaStartNotInFuture: "the SLA start (the creation instant, the request's recorded time, or the dead-letter first failure) is not later than now, and a workBeganAt the command gives (a payload field, which does not move the SLA start in WP-0.3) is not later than now"
+  kindRegistered: "the task kind is registered in the kind registry that app-hms assembles from code; an unknown kind is refused"
+  clockAllowedForKind: "the SLA clock is continuous; or the kind is classified not safety-relevant, allows business time, and the priority is ROUTINE [P]"
+  escalationChainEndsInTerminalOwner: "an escalation chain can be fixed (given, from the kind's policy, or for a kind that is not safety-relevant from the facility default policy): offsets non-negative and non-decreasing, every target in the task's scope, and the last step reassigns the task to a terminal owner that is a pool or a queue, never a single person [P]"
+  actorMayClaim: "the actor holds task.claim for the task's scope (user-authorisation port)"
+  claimantEligible: "the actor claims for themselves, is authenticated in a live session (which counts as a routable person even when the routing directory cannot answer), and is the owning person, a member of the owning pool, or a monitor of the owning queue directly or through a monitoring pool"
+  actorIsClaimantOrSupervisor: "the actor holds the claim, or holds task.supervise for the task's scope; the use of task.supervise is audited"
+  ownerRoutable: "the task's owner, to which a release returns it, is routable now, or the directory cannot answer and its last known status was routable (applied and flagged unverified)"
+  actorMayReassign: "the actor holds task.reassign for the task's scope (user-authorisation port)"
+  newOwnerPresent: "the command names a new owner that exists and is in the task's scope, as for ownerPresent"
+  newOwnerRoutable: "the new owner is routable now, or the directory cannot answer and its last known status was routable (applied and flagged unverified); otherwise the command is refused and the task keeps its current owner, so a reassignment never leaves a gap (CTRL-0003-4)"
+  reassignReasonEntered: "a reassignment reason code was chosen by the user from the governed list, never defaulted"
+  completedByFocusOwner: "the module that owns the task's focus aggregate completes it because that aggregate recorded the fulfilment: a Safety Kernel caller in its own transaction, or a TaskCompletionRequested row whose producing module is the focus module (D14)"
+  cancelledByFocusOwner: "the module that owns the task's focus aggregate cancels it because that aggregate ended (for example the order was revoked): a Safety Kernel caller in its own transaction, or a TaskCancellationRequested row whose producing module is the focus module (D14)"
+  slaDue: "now is at or after the SLA due time and no SLA breach is recorded for the task"
+  escalationStepDue: "the next unapplied step of the task's escalation chain has a fire time at or before now; a skipped step counts as applied; a terminal step already recorded FAILED stays unapplied but is due again only once its target is routable, so FAILED is recorded once"
+  stepReassigns: "the next unapplied step moves ownership to its target (mode REASSIGN)"
+  stepNotifies: "the next unapplied step adds its target as an escalation recipient and leaves ownership unchanged (mode NOTIFY)"
+  stepTargetRoutable: "the next unapplied step's target, resolved in the task's scope when the step fires, is routable now, or the directory cannot answer and its last known status was routable (flagged unverified)"
+  stepTargetUnroutable: "the exact complement of stepTargetRoutable: the target is unroutable, its code resolves to no live pool or queue in scope, or the directory cannot answer and its last known status was not routable"
+  stepIsTerminal: "the next unapplied step is the last step of the chain (the terminal REASSIGN)"
+  stepNotTerminal: "the exact complement of stepIsTerminal"
+  holderUnroutable: "the holder (the claimant when claimed, else the owner) is definitely unroutable now: a person who is inactive, unknown or out of scope; a pool that is retired, unknown, out of scope or has no routable member; a queue that is retired, unknown, out of scope or has no routable monitor. A directory that cannot answer is not this predicate: the scan raises one detection-blind alarm for the scope instead (DN-TK3)"
+  holderRoutable: "the holder is definitely routable now; a directory that cannot answer satisfies neither this predicate nor holderUnroutable, so an open episode stays open"
+  noOpenOrphanEpisode: "the task has no open orphan episode"
+  openOrphanEpisode: "the exact complement of noOpenOrphanEpisode"
+  orphanGraceElapsed: "given the episode start passed in by the orphan scan (a lower bound: the since the directory reports; else the last completed scan of the scope that saw the holder routable; never earlier than the task's creation or last holder change; kept until the holder is seen routable at two consecutive scans), now minus that start is at least the configured grace; or the task was created with an unroutable owner, for which the grace is waived"
+transitions:
+  # Creation (CTRL-0003-4). An owner that is unroutable at creation does not refuse the work, because
+  # refusing would lose it (H5): the task is created and the first scan opens its episode without grace.
+  - {from: "(start)", on: Create, guard: [callerMayCreate, ownerPresent, slaPresent, slaStartNotInFuture, kindRegistered, clockAllowedForKind, escalationChainEndsInTerminalOwner], to: open,
+     description: "Appends TaskCreated. A task created after its due time records slaBreachedAt in TaskCreated. ownerUnroutableAtCreation is recorded when the owner is unroutable."}
+  # Claiming. Only an eligible, authenticated person claims; the holder becomes that person.
+  - {from: open, on: Claim, guard: [actorMayClaim, claimantEligible], to: claimed,
+     description: "Appends TaskClaimed. Closes an open orphan episode (cause CLAIMED) and completes its orphan-alarm task in the same append."}
+  # Release returns the task to its owner; a supervisor may release another's claim. Refused when the
+  # owner cannot act, so the user reassigns instead (CTRL-0003-4).
+  - {from: claimed, on: Release, guard: [actorIsClaimantOrSupervisor, ownerRoutable], to: open,
+     description: "Appends TaskReleased with the by-supervisor and routabilityUnverified flags."}
+  # Reassignment is one atomic change from the old owner to a routable new owner; a claim is released.
+  - {from: open, on: Reassign, guard: [actorMayReassign, newOwnerPresent, newOwnerRoutable, reassignReasonEntered], to: open,
+     description: "Appends TaskReassigned. Closes an open orphan episode (cause REASSIGNED)."}
+  - {from: claimed, on: Reassign, guard: [actorMayReassign, newOwnerPresent, newOwnerRoutable, reassignReasonEntered], to: open,
+     description: "Appends TaskReassigned and releases the claim. Closes an open orphan episode (cause REASSIGNED)."}
+  # Completion and cancellation only by the module that owns the focus (D14).
+  - {from: [open, claimed], on: CompleteByFocusOwner, guard: [completedByFocusOwner], to: done,
+     description: "Appends TaskCompleted with the outcome code and performedAt as event data; the row's valid time is its recorded time (AtRecording). Closes an open orphan episode (cause FINAL)."}
+  - {from: [open, claimed], on: CancelByFocusOwner, guard: [cancelledByFocusOwner], to: cancelled,
+     description: "Appends TaskCancelled with the outcome code. Closes an open orphan episode (cause FINAL)."}
+  # SLA breach: recorded once, never pauses or changes ownership by itself (escalation does that).
+  - {from: open, on: BreachSla, guard: [slaDue], to: open, description: "Appends TaskSlaBreached."}
+  - {from: claimed, on: BreachSla, guard: [slaDue], to: claimed, description: "Appends TaskSlaBreached."}
+  # Escalation: one step per command, in order, on the injected Clock. Work never moves to a target that
+  # cannot act (invariant 3): an unroutable target is skipped and the next step fires at once; an
+  # unroutable terminal target fails the step, keeps the holder, and raises an escalation-failed alarm.
+  - {from: open, on: Escalate, guard: [escalationStepDue, stepReassigns, stepTargetRoutable], to: open,
+     description: "Appends TaskEscalated (FIRED); the target becomes the owner. Closes an open orphan episode (cause ESCALATED)."}
+  - {from: claimed, on: Escalate, guard: [escalationStepDue, stepReassigns, stepTargetRoutable], to: open,
+     description: "Appends TaskEscalated (FIRED); the target becomes the owner and the claim is released; the former claimant is told (OQ-TK6)."}
+  - {from: open, on: Escalate, guard: [escalationStepDue, stepNotifies, stepTargetRoutable], to: open,
+     description: "Appends TaskEscalated (FIRED); the target is added to the escalation recipients."}
+  - {from: claimed, on: Escalate, guard: [escalationStepDue, stepNotifies, stepTargetRoutable], to: claimed,
+     description: "Appends TaskEscalated (FIRED); the target is added to the escalation recipients; the claim is kept."}
+  - {from: open, on: Escalate, guard: [escalationStepDue, stepTargetUnroutable, stepNotTerminal], to: open,
+     description: "Appends TaskEscalated (SKIPPED, with the reason); the owner is unchanged; the next step is due at once."}
+  - {from: claimed, on: Escalate, guard: [escalationStepDue, stepTargetUnroutable, stepNotTerminal], to: claimed,
+     description: "Appends TaskEscalated (SKIPPED, with the reason); owner and claim are unchanged; the next step is due at once."}
+  - {from: open, on: Escalate, guard: [escalationStepDue, stepTargetUnroutable, stepIsTerminal], to: open,
+     description: "Appends TaskEscalated (FAILED); the owner is unchanged; in the same append a platform.escalation-failed task is created in the fallback supervisory queue (DN-TK5)."}
+  - {from: claimed, on: Escalate, guard: [escalationStepDue, stepTargetUnroutable, stepIsTerminal], to: claimed,
+     description: "Appends TaskEscalated (FAILED); owner and claim are unchanged; in the same append a platform.escalation-failed task is created in the fallback supervisory queue (DN-TK5)."}
+  # TaskOrphaned (SI-03 clause c; CTRL-0003-5): opened by the orphan scan, deduplicated per episode,
+  # with an orphan-alarm task owned by the scope's fallback supervisory queue.
+  - {from: open, on: DetectOrphan, guard: [holderUnroutable, noOpenOrphanEpisode, orphanGraceElapsed], to: open,
+     description: "Appends TaskOrphaned and, in the same append, TaskCreated for the orphan-alarm task (no alarm task when this task is itself an orphan-alarm task)."}
+  - {from: claimed, on: DetectOrphan, guard: [holderUnroutable, noOpenOrphanEpisode, orphanGraceElapsed], to: claimed,
+     description: "Appends TaskOrphaned and, in the same append, TaskCreated for the orphan-alarm task (no alarm task when this task is itself an orphan-alarm task)."}
+  - {from: open, on: ClearOrphan, guard: [openOrphanEpisode, holderRoutable], to: open,
+     description: "Appends TaskOrphanCleared (HOLDER_ROUTABLE) and completes the orphan-alarm task (CLEARED) in the same append."}
+  - {from: claimed, on: ClearOrphan, guard: [openOrphanEpisode, holderRoutable], to: claimed,
+     description: "Appends TaskOrphanCleared (HOLDER_ROUTABLE) and completes the orphan-alarm task (CLEARED) in the same append."}
+# §8.4 draws open → claimed → done / cancelled. Read narrowly, that draws creation, claiming, completion
+# of a claimed task and cancellation of a claimed task. Every other transition above is proposed and put
+# to the approvers in approval.required.
+proposed:
+  - "open→cancelled"
+  - "open→done"
+  - "claimed→open"
+  - "open→open"
+  - "claimed→claimed"
+invariants: [SI-03, SI-10]
+events: [TaskCreated, TaskClaimed, TaskReleased, TaskReassigned, TaskCompleted, TaskCancelled, TaskSlaBreached, TaskEscalated, TaskOrphaned, TaskOrphanCleared]
