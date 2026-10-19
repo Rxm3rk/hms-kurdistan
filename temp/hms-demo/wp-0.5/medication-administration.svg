@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" width="100%" role="img" aria-labelledby="wp05mar-title wp05mar-desc" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title id="wp05mar-title">Medication administration state machine (one record per scheduled dose)</title>
+  <desc id="wp05mar-desc">Drawn from docs/specs/state-machines/medication-administration.yaml: 6 states, 20 transitions, 14 of them proposed (dashed). Terminal states have a double border.</desc>
+  <defs>
+    <marker id="wp05mar-ah-drawn" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3b82c4"/>
+    </marker>
+    <marker id="wp05mar-ah-prop" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d9822b"/>
+    </marker>
+  </defs>
+
+  <!-- "any state" group: the source of the single "*" transition -->
+  <rect x="12" y="12" width="1076" height="486" rx="14" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.2" stroke-dasharray="2 4"/>
+  <text x="26" y="489" font-size="10" fill="currentColor" fill-opacity="0.65">any state (*)</text>
+  <text x="28" y="38" font-size="13" font-weight="600" fill="currentColor">Medication administration · one record per scheduled dose</text>
+
+  <!-- ===== Transitions (drawn under the boxes) ===== -->
+  <g fill="none" stroke-width="1.8">
+    <!-- creation: DoseFallsDue -->
+    <line x1="100" y1="218" x2="100" y2="262" stroke="#3b82c4" marker-end="url(#wp05mar-ah-drawn)"/>
+    <!-- scheduled -> completed (6, all proposed) -->
+    <path d="M 200 263 V 168 Q 200 150 218 150 H 899" stroke="#d9822b" stroke-dasharray="7 5" marker-end="url(#wp05mar-ah-prop)"/>
+    <!-- scheduled -> in-progress (3 drawn) -->
+    <line x1="220" y1="280" x2="469" y2="280" stroke="#3b82c4" marker-end="url(#wp05mar-ah-drawn)"/>
+    <!-- scheduled -> in-progress (2 proposed) -->
+    <line x1="220" y1="302" x2="469" y2="302" stroke="#d9822b" stroke-dasharray="7 5" marker-end="url(#wp05mar-ah-prop)"/>
+    <!-- scheduled -> scheduled (late flag, proposed) -->
+    <path d="M 92 317 C 66 378, 150 378, 126 319" stroke="#d9822b" stroke-dasharray="5 4" marker-end="url(#wp05mar-ah-prop)"/>
+    <!-- scheduled -> not-done (3, proposed) -->
+    <path d="M 200 317 V 430 Q 200 448 218 448 H 899" stroke="#d9822b" stroke-dasharray="7 5" marker-end="url(#wp05mar-ah-prop)"/>
+    <!-- in-progress -> in-progress (OrderEnded, proposed) -->
+    <path d="M 528 263 C 506 204, 594 204, 572 262" stroke="#d9822b" stroke-dasharray="5 4" marker-end="url(#wp05mar-ah-prop)"/>
+    <!-- in-progress -> completed -->
+    <line x1="630" y1="272" x2="899" y2="166" stroke="#3b82c4" marker-end="url(#wp05mar-ah-drawn)"/>
+    <!-- in-progress -> stopped -->
+    <line x1="630" y1="290" x2="899" y2="290" stroke="#3b82c4" marker-end="url(#wp05mar-ah-drawn)"/>
+    <!-- in-progress -> not-done -->
+    <line x1="630" y1="308" x2="899" y2="432" stroke="#3b82c4" marker-end="url(#wp05mar-ah-drawn)"/>
+    <!-- * -> entered-in-error (proposed) -->
+    <line x1="550" y1="498" x2="550" y2="527" stroke="#d9822b" stroke-dasharray="6 4" marker-end="url(#wp05mar-ah-prop)"/>
+  </g>
+  <circle cx="100" cy="212" r="6" fill="currentColor"/>
+
+  <!-- ===== Transition labels ===== -->
+  <g fill="currentColor" font-size="11">
+    <text x="110" y="234">DoseFallsDue</text>
+    <text x="110" y="247" font-size="10" fill-opacity="0.7">dose created</text>
+
+    <!-- scheduled -> completed -->
+    <g text-anchor="middle">
+      <text x="560" y="60">Give <tspan font-size="10" fill-opacity="0.7">(every check passes)</tspan></text>
+      <text x="560" y="74">GiveWithOverride <tspan font-size="10" fill-opacity="0.7">(product not scanned or not recognised; reason required)</tspan></text>
+      <text x="560" y="88">GiveWithOverride <tspan font-size="10" fill-opacity="0.7">(emergency first dose before pharmacist verification)</tspan></text>
+      <text x="560" y="102">GiveWithOverride <tspan font-size="10" fill-opacity="0.7">(wristband unusable; two identifiers typed and checked)</tspan></text>
+      <text x="560" y="116">RecordOfflineAdministration <tspan font-size="10" fill-opacity="0.7">(given offline; server re-check failed)</tspan></text>
+      <text x="560" y="130">BackEnterAdministration <tspan font-size="10" fill-opacity="0.7">(given on paper during downtime)</tspan></text>
+    </g>
+
+    <!-- scheduled -> in-progress -->
+    <g text-anchor="middle">
+      <text x="345" y="240">StartInfusion</text>
+      <text x="345" y="254">StartInfusionWithOverride ×2</text>
+      <text x="345" y="267" font-size="10" fill-opacity="0.7">(no product scan; emergency first dose)</text>
+      <text x="345" y="320">StartInfusionWithOverride</text>
+      <text x="345" y="333" font-size="10" fill-opacity="0.7">(wristband unusable, identifiers typed)</text>
+      <text x="345" y="349">RecordOfflineAdministration</text>
+      <text x="345" y="362" font-size="10" fill-opacity="0.7">(started offline, re-check failed)</text>
+    </g>
+
+    <!-- scheduled self-loop -->
+    <g text-anchor="middle">
+      <text x="106" y="392">LateDoseWindowElapsed</text>
+      <text x="106" y="405" font-size="10" fill-opacity="0.7">(flags the dose late)</text>
+    </g>
+
+    <!-- scheduled -> not-done -->
+    <g text-anchor="middle">
+      <text x="400" y="400">NotDone <tspan font-size="10" fill-opacity="0.7">(held, refused, missed, NPO, off unit)</tspan></text>
+      <text x="400" y="414">OrderEnded <tspan font-size="10" fill-opacity="0.7">(order ended: dose closed by the system)</tspan></text>
+      <text x="400" y="428">LateDoseWindowElapsed <tspan font-size="10" fill-opacity="0.7">(order on hold)</tspan></text>
+    </g>
+
+    <!-- in-progress self-loop -->
+    <g text-anchor="middle">
+      <text x="550" y="186">OrderEnded</text>
+      <text x="550" y="199" font-size="10" fill-opacity="0.7">(task: stop or confirm the infusion)</text>
+    </g>
+
+    <text x="800" y="242" text-anchor="middle">Complete</text>
+    <text x="765" y="283" text-anchor="middle">Stop</text>
+    <text x="776" y="360">NotDone</text>
+
+    <!-- * -> entered-in-error -->
+    <text x="666" y="550">MarkEnteredInError</text>
+    <text x="666" y="564" font-size="10" fill-opacity="0.7">(from any state, finished ones included; privileged and audited)</text>
+  </g>
+
+  <!-- ===== States ===== -->
+  <g stroke="currentColor" stroke-width="1.5">
+    <!-- scheduled -->
+    <rect x="60" y="263" width="160" height="54" rx="12" fill="#3b82c4" fill-opacity="0.12"/>
+    <!-- in-progress -->
+    <rect x="470" y="263" width="160" height="54" rx="12" fill="#3b82c4" fill-opacity="0.12"/>
+    <!-- terminal: completed -->
+    <rect x="900" y="123" width="160" height="54" rx="12" fill="#2a9d8f" fill-opacity="0.14"/>
+    <rect x="904" y="127" width="152" height="46" rx="9" fill="none" stroke-width="1"/>
+    <!-- terminal: stopped -->
+    <rect x="900" y="263" width="160" height="54" rx="12" fill="#2a9d8f" fill-opacity="0.14"/>
+    <rect x="904" y="267" width="152" height="46" rx="9" fill="none" stroke-width="1"/>
+    <!-- terminal: not-done -->
+    <rect x="900" y="421" width="160" height="54" rx="12" fill="#2a9d8f" fill-opacity="0.14"/>
+    <rect x="904" y="425" width="152" height="46" rx="9" fill="none" stroke-width="1"/>
+    <!-- terminal: entered-in-error -->
+    <rect x="450" y="528" width="200" height="54" rx="12" fill="#2a9d8f" fill-opacity="0.14"/>
+    <rect x="454" y="532" width="192" height="46" rx="9" fill="none" stroke-width="1"/>
+  </g>
+  <g fill="currentColor" text-anchor="middle">
+    <text x="140" y="288" font-size="14" font-weight="600">scheduled</text>
+    <text x="140" y="304" font-size="10" fill-opacity="0.7">dose is due</text>
+    <text x="550" y="288" font-size="14" font-weight="600">in-progress</text>
+    <text x="550" y="304" font-size="10" fill-opacity="0.7">infusion running</text>
+    <text x="980" y="148" font-size="14" font-weight="600">completed</text>
+    <text x="980" y="164" font-size="10" fill-opacity="0.7">given · end state</text>
+    <text x="980" y="288" font-size="14" font-weight="600">stopped</text>
+    <text x="980" y="304" font-size="10" fill-opacity="0.7">infusion stopped · end state</text>
+    <text x="980" y="446" font-size="14" font-weight="600">not-done</text>
+    <text x="980" y="462" font-size="10" fill-opacity="0.7">not given · end state</text>
+    <text x="550" y="553" font-size="14" font-weight="600">entered-in-error</text>
+    <text x="550" y="569" font-size="10" fill-opacity="0.7">recorded in error · end state</text>
+  </g>
+
+  <!-- ===== Legend ===== -->
+  <g font-size="10.5" fill="currentColor">
+    <line x1="26" y1="521" x2="60" y2="521" stroke="#3b82c4" stroke-width="1.8"/>
+    <text x="68" y="525">transition drawn in the source research model</text>
+    <line x1="26" y1="540" x2="60" y2="540" stroke="#d9822b" stroke-width="1.8" stroke-dasharray="7 5"/>
+    <text x="68" y="544">proposed: awaits pharmacist, nurse and safety-officer approval</text>
+    <rect x="30" y="553" width="26" height="15" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <rect x="33" y="556" width="20" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+    <text x="68" y="564">end (terminal) state</text>
+    <rect x="30" y="574" width="26" height="15" rx="4" fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-dasharray="2 3"/>
+    <text x="68" y="585">any state: source of the single entered-in-error transition</text>
+  </g>
+  <text x="1076" y="592" font-size="10.5" text-anchor="end" fill="currentColor" fill-opacity="0.75">20 transitions · 14 proposed · 33 named guard rules · 6 states</text>
+</svg>

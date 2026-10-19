@@ -1,0 +1,6 @@
+heavy.sh: waiting for a slot (wp07-status pid=190962 since=2026-10-19T13:27:48+03:00;wp08 pid=202889 since=2026-10-19T13:27:45+03:00;)
+heavy.sh: waiting for a slot (wp07-status pid=190962 since=2026-10-19T13:27:48+03:00;demo-tsc-mi pid=174050 since=2026-10-19T13:29:54+03:00;)
+heavy.sh: waiting for a slot (wp07-status pid=190962 since=2026-10-19T13:27:48+03:00;wp08 pid=192363 since=2026-10-19T13:31:04+03:00;)
+heavy.sh: waiting for a slot (wp07-status pid=190962 since=2026-10-19T13:27:48+03:00;wp08 pid=192363 since=2026-10-19T13:31:04+03:00;)
+heavy.sh: waiting for a slot (wp07-status pid=190962 since=2026-10-19T13:27:48+03:00;wp08 pid=192363 since=2026-10-19T13:31:04+03:00;)
+RUN EXIT 0

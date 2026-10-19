@@ -1,0 +1,3 @@
+bootstrap: Gradle: gradle-9.8.1-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wrapper/dists/gradle-9.8.1-bin/a2l6ltp3k1vth6lwipzm5p2jp/gradle-9.8.1-bin.zip
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"

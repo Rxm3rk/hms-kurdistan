@@ -1,0 +1,780 @@
+=== HEAD adb631c96f4c30fdd27cedda3c5d209cc3514fdb ===
+=== git status before ===
+?? docs/program/evidence/ci/2026-10-18-fast-adb631c.json
+?? docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json
+=== file modes in the clone ===
+-rw-r--r-- 1 surface surface 8656 Oct 18 19:03 backend/gradlew
+-rw-r--r-- 1 surface surface  852 Oct 18 19:03 tools/bootstrap
+-rw-r--r-- 1 surface surface  690 Oct 18 19:03 tools/ci/run
+-rw-r--r-- 1 surface surface  868 Oct 18 19:03 tools/doctor
+-rw-r--r-- 1 surface surface  594 Oct 18 19:03 tools/hms
+-rw-r--r-- 1 surface surface 5532 Oct 18 19:03 tools/host/provision-ubuntu.sh
+=== toolchain env ===
+JAVA_HOME=/home/surface/src/hospitalmanagementsystem/.tools/jdk-25.0.4.1+1
+=== backend/gradlew direct invocation, as COMMANDS.md section 4 writes it ===
+/mnt/c/Users/Surface/AppData/Local/Temp/hms-review-02-checks.sh: line 14: backend/gradlew: Permission denied
+exit=126
+=== tools/ci/run and tools/doctor direct invocation (without sh) ===
+/mnt/c/Users/Surface/AppData/Local/Temp/hms-review-02-checks.sh: line 16: tools/ci/run: Permission denied
+exit=126
+/mnt/c/Users/Surface/AppData/Local/Temp/hms-review-02-checks.sh: line 17: tools/doctor: Permission denied
+exit=126
+=== PBT 1e6 (COMMANDS.md: 1,000,000 iterations, 5 s on Windows) ===
+Calculating task graph as configuration cache cannot be reused because Gradle property 'hms.pbt.sequences' has changed.
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :build-logic:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processIntegrationTestResources NO-SOURCE
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :verifyProjectConventions
+> Task :detekt NO-SOURCE
+> Task :platform:arch-rules:processTestResources NO-SOURCE
+> Task :loadKtlintReporters UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processPropertyTestResources NO-SOURCE
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:arch-rules:detekt UP-TO-DATE
+> Task :platform:arch-rules:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :build-logic:ktlintKotlinScriptCheck UP-TO-DATE
+> Task :platform:arch-rules:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:arch-rules:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:arch-rules:runKtlintCheckOverPropertyTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:arch-rules:ktlintPropertyTestSourceSetCheck SKIPPED
+> Task :platform:testing:processIntegrationTestResources NO-SOURCE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverMainSourceSet UP-TO-DATE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:detekt UP-TO-DATE
+> Task :platform:testing:loadKtlintReporters UP-TO-DATE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :build-logic:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:testing:processTestResources NO-SOURCE
+> Task :platform:testing:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverTestSourceSet NO-SOURCE
+> Task :platform:testing:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :build-logic:ktlintTestSourceSetCheck SKIPPED
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :build-logic:ktlintCheck UP-TO-DATE
+> Task :platform:testing:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:testing:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:arch-rules:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compileIntegrationTestJava NO-SOURCE
+> Task :platform:arch-rules:integrationTestClasses UP-TO-DATE
+> Task :platform:arch-rules:compilePropertyTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compilePropertyTestJava NO-SOURCE
+> Task :platform:arch-rules:propertyTestClasses UP-TO-DATE
+> Task :platform:arch-rules:propertyTest NO-SOURCE
+> Task :platform:testing:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compileTestKotlin UP-TO-DATE
+> Task :platform:testing:compileIntegrationTestJava NO-SOURCE
+> Task :platform:testing:integrationTestClasses UP-TO-DATE
+> Task :platform:arch-rules:compileTestJava NO-SOURCE
+> Task :platform:arch-rules:testClasses UP-TO-DATE
+> Task :platform:testing:compileTestKotlin UP-TO-DATE
+> Task :platform:testing:compileTestJava NO-SOURCE
+> Task :platform:testing:testClasses UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/home/surface/src/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/home/surface/src/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/home/surface/src/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/home/surface/src/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/home/surface/src/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/home/surface/src/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :runKtlintCheckOverKotlinScripts
+> Task :ktlintKotlinScriptCheck UP-TO-DATE
+> Task :ktlintCheck UP-TO-DATE
+> Task :platform:testing:compilePropertyTestKotlin UP-TO-DATE
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverTestSourceSet
+> Task :platform:testing:runKtlintCheckOverMainSourceSet
+> Task :platform:testing:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:testing:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:testing:ktlintPropertyTestSourceSetCheck UP-TO-DATE
+> Task :platform:testing:ktlintCheck UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverMainSourceSet
+> Task :platform:arch-rules:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverTestSourceSet
+> Task :platform:arch-rules:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:arch-rules:ktlintCheck UP-TO-DATE
+> Task :platform:testing:test
+
+> Task :platform:testing:verifyArchitectureTest
+:platform:testing: ArchitectureTest ran 4 rule checks
+
+> Task :platform:testing:propertyTest
+> Task :platform:arch-rules:test
+
+> Task :platform:arch-rules:verifyArchitectureTest
+:platform:arch-rules: ArchitectureTest ran 4 rule checks
+
+> Task :fastTier
+
+BUILD SUCCESSFUL in 22s
+45 actionable tasks: 12 executed, 33 up-to-date
+Configuration cache entry stored.
+
+real	0m22.368s
+user	0m1.839s
+sys	0m0.310s
+exit=0
+=== JUnit XML written by the propertyTest task in this run ===
+--- backend/platform/testing/build/test-results/propertyTest/TEST-hms.kernel.testing.PropertyTestBudgetPropertyTest.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="hms.kernel.testing.PropertyTestBudgetPropertyTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-18T16:35:08.301Z" hostname="DESKTOP-HTGGSKM" time="2.259">
+  <properties/>
+  <testcase name="a trivial property runs exactly the configured 1000000 iterations" classname="hms.kernel.testing.PropertyTestBudgetPropertyTest" time="2.063"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+
+=== JUnit XML test task counts ===
+backend/platform/testing/build/test-results/propertyTest/TEST-hms.kernel.testing.PropertyTestBudgetPropertyTest.xml: 1
+backend/platform/testing/build/test-results/test/TEST-hms.kernel.testing.PropertyTestBudgetTest.xml: 10
+backend/platform/testing/build/test-results/test/TEST-hms.kernel.testing.ArchitectureTest.xml: 4
+backend/platform/arch-rules/build/test-results/test/TEST-hms.kernel.archrules.ModuleLayoutTest.xml: 5
+backend/platform/arch-rules/build/test-results/test/TEST-hms.kernel.archrules.DomainPurityRuleTest.xml: 10
+backend/platform/arch-rules/build/test-results/test/TEST-hms.kernel.archrules.ArchitectureTest.xml: 4
+backend/platform/arch-rules/build/test-results/test/TEST-hms.kernel.archrules.ModuleBoundaryRuleTest.xml: 5
+backend/platform/arch-rules/build/test-results/test/TEST-hms.kernel.archrules.SystemClockRuleTest.xml: 24
+backend/platform/arch-rules/build/test-results/test/TEST-hms.kernel.archrules.TemporalBoundaryRuleTest.xml: 3
+=== spot-check seed 20261018 count 10 (the recorded one) ===
+Spot check: seed 20261018, 10 of 236 Appendix A rows (Python random.Random(seed).sample over the rows in source order); records read from docs/program/backlog.yaml.
+
+[1/10] IMP-FND-01  BUILD-PROMPT.md line 2736, A.16 IMP
+  raw row: | `IMP-FND-01` | Foundation content | XL | R1 | B | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)* |
+  ID                     | `IMP-FND-01`
+                         |   -> id: "IMP-FND-01"
+  Feature                | Foundation content
+                         |   -> title: "Foundation content"
+  Size                   | XL
+                         |   -> size: "XL"
+                         |   (counts 50 engineer-weeks: XL = 50)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)*
+                         |   -> scope: "Order sets, flowsheets, templates, CDS, roles, reports, charge masters"
+                         |   -> kurdistan_note: "Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.14"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[2/10] AI-DCS-01  BUILD-PROMPT.md line 2707, A.14 AI
+  raw row: | `AI-DCS-01` | Discharge draft | M | P2 | B | Source-linked discharge summary draft; clinician sign-off · *MVP→P2; English drafts with omission checklist* |
+  ID                     | `AI-DCS-01`
+                         |   -> id: "AI-DCS-01"
+  Feature                | Discharge draft
+                         |   -> title: "Discharge draft"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Source-linked discharge summary draft; clinician sign-off · *MVP→P2; English drafts with omission checklist*
+                         |   -> scope: "Source-linked discharge summary draft; clinician sign-off"
+                         |   -> kurdistan_note: "MVP→P2; English drafts with omission checklist"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[3/10] ACC-OPD-01  BUILD-PROMPT.md line 2503, A.3 ACC
+  raw row: | `ACC-OPD-01` | OPD token journey | M | R1 | B | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1* |
+  ID                     | `ACC-OPD-01`
+                         |   -> id: "ACC-OPD-01"
+  Feature                | OPD token journey
+                         |   -> title: "OPD token journey"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1*
+                         |   -> scope: "Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards"
+                         |   -> kurdistan_note: "Display boards in R1.1"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.3", "Phase 1.1 (queue display boards)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[4/10] CLN-QI-01  BUILD-PROMPT.md line 2541, A.4 CLN
+  raw row: | `CLN-QI-01` | Accreditation KPIs | M | R1 | B | NABH/CBAHI/JAWDA/JCI indicator capture · *Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b* |
+  ID                     | `CLN-QI-01`
+                         |   -> id: "CLN-QI-01"
+  Feature                | Accreditation KPIs
+                         |   -> title: "Accreditation KPIs"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | NABH/CBAHI/JAWDA/JCI indicator capture · *Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b*
+                         |   -> scope: "NABH/CBAHI/JAWDA/JCI indicator capture"
+                         |   -> kurdistan_note: "Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.11 (engine)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[5/10] AI-AMB-01  BUILD-PROMPT.md line 2706, A.14 AI
+  raw row: | `AI-AMB-01` | Ambient OPD | M | P3 | P | Ambient OPD documentation (EN/AR/HI), ≥2 partners · *MVP→P3; Sorani/Badini only after S8-K* |
+  ID                     | `AI-AMB-01`
+                         |   -> id: "AI-AMB-01"
+  Feature                | Ambient OPD
+                         |   -> title: "Ambient OPD"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P3
+                         |   -> phase: "P3"
+  Stance                 | P
+                         |   -> stance: "P"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Ambient OPD documentation (EN/AR/HI), ≥2 partners · *MVP→P3; Sorani/Badini only after S8-K*
+                         |   -> scope: "Ambient OPD documentation (EN/AR/HI), ≥2 partners"
+                         |   -> kurdistan_note: "MVP→P3; Sorani/Badini only after S8-K"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 6 (Sorani and Badini only after S8-K)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[6/10] PLT-OPS-02  BUILD-PROMPT.md line 2458, A.1 PLT
+  raw row: | `PLT-OPS-02` | On-prem install | L | R1 | B | On-prem/state-DC install from same signed artefacts · *P2→MVP inside PLT-SITE-01; cell at hospital A by M18* |
+  ID                     | `PLT-OPS-02`
+                         |   -> id: "PLT-OPS-02"
+  Feature                | On-prem install
+                         |   -> title: "On-prem install"
+  Size                   | L
+                         |   -> size: "L"
+                         |   (counts 20 engineer-weeks: L = 20)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | On-prem/state-DC install from same signed artefacts · *P2→MVP inside PLT-SITE-01; cell at hospital A by M18*
+                         |   -> scope: "On-prem/state-DC install from same signed artefacts"
+                         |   -> kurdistan_note: "P2→MVP inside PLT-SITE-01; cell at hospital A by M18"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.13"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[7/10] IMP-RDY-01  BUILD-PROMPT.md line 2738, A.16 IMP
+  raw row: | `IMP-RDY-01` | Readiness tooling | L (BP M→L) | R1 | B | Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits · *RG3 adds WAN-, power-cut, dual-currency drills* |
+  ID                     | `IMP-RDY-01`
+                         |   -> id: "IMP-RDY-01"
+  Feature                | Readiness tooling
+                         |   -> title: "Readiness tooling"
+  Size                   | L (BP M→L)
+                         |   -> size: "L (BP M→L)"
+                         |   (counts 20 engineer-weeks: L = 20; (BP M→L) is BP's size history)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits · *RG3 adds WAN-, power-cut, dual-currency drills*
+                         |   -> scope: "Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits"
+                         |   -> kurdistan_note: "RG3 adds WAN-, power-cut, dual-currency drills"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.14"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[8/10] DX-POC-01  BUILD-PROMPT.md line 2589, A.7 DX
+  raw row: | `DX-POC-01` | POCT | M | P2 | I | POCT data-manager integration |
+  ID                     | `DX-POC-01`
+                         |   -> id: "DX-POC-01"
+  Feature                | POCT
+                         |   -> title: "POCT"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | I
+                         |   -> stance: "I"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | POCT data-manager integration
+                         |   -> scope: "POCT data-manager integration"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[9/10] DEV-GW-01  BUILD-PROMPT.md line 2605, A.8 DEV
+  raw row: | `DEV-GW-01` | Device gateway | L | R2.1 | B+I | Middleware PCD-01/DEC; device–patient association · *Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1* |
+  ID                     | `DEV-GW-01`
+                         |   -> id: "DEV-GW-01"
+  Feature                | Device gateway
+                         |   -> title: "Device gateway"
+  Size                   | L
+                         |   -> size: "L"
+                         |   (counts 20 engineer-weeks: L = 20)
+  Phase                  | R2.1
+                         |   -> phase: "R2.1"
+  Stance                 | B+I
+                         |   -> stance: "B+I"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Middleware PCD-01/DEC; device–patient association · *Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1*
+                         |   -> scope: "Middleware PCD-01/DEC; device–patient association"
+                         |   -> kurdistan_note: "Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 4 (the validated ICU monitor feed)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[10/10] SPC-ICU-02  BUILD-PROMPT.md line 2621, A.9 SPC
+  raw row: | `SPC-ICU-02` | ICU severity scores | S | P2 | B | APACHE II/SOFA (reg C) |
+  ID                     | `SPC-ICU-02`
+                         |   -> id: "SPC-ICU-02"
+  Feature                | ICU severity scores
+                         |   -> title: "ICU severity scores"
+  Size                   | S
+                         |   -> size: "S"
+                         |   (counts 3 engineer-weeks: S = 3)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | APACHE II/SOFA (reg C)
+                         |   -> scope: "APACHE II/SOFA (reg C)"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+Sampled rows: IMP-FND-01, AI-DCS-01, ACC-OPD-01, CLN-QI-01, AI-AMB-01, PLT-OPS-02, IMP-RDY-01, DX-POC-01, DEV-GW-01, SPC-ICU-02
+exit=0
+=== spot-check seed 424242 count 15 (reviewer sample) ===
+Spot check: seed 424242, 15 of 236 Appendix A rows (Python random.Random(seed).sample over the rows in source order); records read from docs/program/backlog.yaml.
+
+[1/15] DEV-VAL-01  BUILD-PROMPT.md line 2606, A.8 DEV
+  raw row: | `DEV-VAL-01` | Vitals validation UX | M | R2.1 | B | Nurse validation of auto-captured vitals; artifact marking · *Inferred with ICU monitor feed (R2.1)* |
+  ID                     | `DEV-VAL-01`
+                         |   -> id: "DEV-VAL-01"
+  Feature                | Vitals validation UX
+                         |   -> title: "Vitals validation UX"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R2.1
+                         |   -> phase: "R2.1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Nurse validation of auto-captured vitals; artifact marking · *Inferred with ICU monitor feed (R2.1)*
+                         |   -> scope: "Nurse validation of auto-captured vitals; artifact marking"
+                         |   -> kurdistan_note: "Inferred with ICU monitor feed (R2.1)"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 4 (the validated ICU monitor feed)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[2/15] CLN-ORD-01  BUILD-PROMPT.md line 2515, A.4 CLN
+  raw row: | `CLN-ORD-01` | Orderables + order sets | L | R1 | B | Orderables catalogue; versioned order sets |
+  ID                     | `CLN-ORD-01`
+                         |   -> id: "CLN-ORD-01"
+  Feature                | Orderables + order sets
+                         |   -> title: "Orderables + order sets"
+  Size                   | L
+                         |   -> size: "L"
+                         |   (counts 20 engineer-weeks: L = 20)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Orderables catalogue; versioned order sets
+                         |   -> scope: "Orderables catalogue; versioned order sets"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.4"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[3/15] CLN-AMS-01  BUILD-PROMPT.md line 2538, A.4 CLN
+  raw row: | `CLN-AMS-01` | Stewardship | M | P2 | B | Restricted-antimicrobial approval; time-outs; DOT · *BP P2→MVP; K →P2; stewardship control set at go-live* |
+  ID                     | `CLN-AMS-01`
+                         |   -> id: "CLN-AMS-01"
+  Feature                | Stewardship
+                         |   -> title: "Stewardship"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Restricted-antimicrobial approval; time-outs; DOT · *BP P2→MVP; K →P2; stewardship control set at go-live*
+                         |   -> scope: "Restricted-antimicrobial approval; time-outs; DOT"
+                         |   -> kurdistan_note: "BP P2→MVP; K →P2; stewardship control set at go-live"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5 (the stewardship module)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[4/15] OPS-CMD-01  BUILD-PROMPT.md line 2676, A.12 OPS
+  raw row: | `OPS-CMD-01` | Command-centre data | L | P2 | B | Command-centre data layer + tiles |
+  ID                     | `OPS-CMD-01`
+                         |   -> id: "OPS-CMD-01"
+  Feature                | Command-centre data
+                         |   -> title: "Command-centre data"
+  Size                   | L
+                         |   -> size: "L"
+                         |   (counts 20 engineer-weeks: L = 20)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Command-centre data layer + tiles
+                         |   -> scope: "Command-centre data layer + tiles"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[5/15] SPC-OT-03  BUILD-PROMPT.md line 2616, A.9 SPC
+  raw row: | `SPC-OT-03` | Intra-op record + charging | M | R2a | B | Intra-op record; counts; implants/consumables to charge+stock; op note · *OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b* |
+  ID                     | `SPC-OT-03`
+                         |   -> id: "SPC-OT-03"
+  Feature                | Intra-op record + charging
+                         |   -> title: "Intra-op record + charging"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R2a
+                         |   -> phase: "R2a"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Intra-op record; counts; implants/consumables to charge+stock; op note · *OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b*
+                         |   -> scope: "Intra-op record; counts; implants/consumables to charge+stock; op note"
+                         |   -> kurdistan_note: "OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-2.3 (charging and stock)", "WP-3.7 (clinical record)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[6/15] CLN-DOC-02  BUILD-PROMPT.md line 2526, A.4 CLN
+  raw row: | `CLN-DOC-02` | Copy-forward provenance | M | R1 | B | Copy-forward provenance; bloat indicators; change-since-last-note · *BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b* |
+  ID                     | `CLN-DOC-02`
+                         |   -> id: "CLN-DOC-02"
+  Feature                | Copy-forward provenance
+                         |   -> title: "Copy-forward provenance"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Copy-forward provenance; bloat indicators; change-since-last-note · *BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b*
+                         |   -> scope: "Copy-forward provenance; bloat indicators; change-since-last-note"
+                         |   -> kurdistan_note: "BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.4"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[7/15] PLT-UX-01  BUILD-PROMPT.md line 2453, A.1 PLT
+  raw row: | `PLT-UX-01` | Design system | M | R1 | B | Keyboard-first design system; WCAG 2.2 AA · *Western digits for clinical numerals (K §6.2)* |
+  ID                     | `PLT-UX-01`
+                         |   -> id: "PLT-UX-01"
+  Feature                | Design system
+                         |   -> title: "Design system"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Keyboard-first design system; WCAG 2.2 AA · *Western digits for clinical numerals (K §6.2)*
+                         |   -> scope: "Keyboard-first design system; WCAG 2.2 AA"
+                         |   -> kurdistan_note: "Western digits for clinical numerals (K §6.2)"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-0.7"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[8/15] NUR-FLW-02  BUILD-PROMPT.md line 2549, A.5 NUR
+  raw row: | `NUR-FLW-02` | Risk scores | M | R2b | B | Braden/Morse/delirium with care-plan triggers |
+  ID                     | `NUR-FLW-02`
+                         |   -> id: "NUR-FLW-02"
+  Feature                | Risk scores
+                         |   -> title: "Risk scores"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R2b
+                         |   -> phase: "R2b"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Braden/Morse/delirium with care-plan triggers
+                         |   -> scope: "Braden/Morse/delirium with care-plan triggers"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-3.4"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[9/15] ACC-OPD-01  BUILD-PROMPT.md line 2503, A.3 ACC
+  raw row: | `ACC-OPD-01` | OPD token journey | M | R1 | B | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1* |
+  ID                     | `ACC-OPD-01`
+                         |   -> id: "ACC-OPD-01"
+  Feature                | OPD token journey
+                         |   -> title: "OPD token journey"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1*
+                         |   -> scope: "Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards"
+                         |   -> kurdistan_note: "Display boards in R1.1"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.3", "Phase 1.1 (queue display boards)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[10/15] IMP-FND-01  BUILD-PROMPT.md line 2736, A.16 IMP
+  raw row: | `IMP-FND-01` | Foundation content | XL | R1 | B | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)* |
+  ID                     | `IMP-FND-01`
+                         |   -> id: "IMP-FND-01"
+  Feature                | Foundation content
+                         |   -> title: "Foundation content"
+  Size                   | XL
+                         |   -> size: "XL"
+                         |   (counts 50 engineer-weeks: XL = 50)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)*
+                         |   -> scope: "Order sets, flowsheets, templates, CDS, roles, reports, charge masters"
+                         |   -> kurdistan_note: "Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.14"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[11/15] TRU-SEC-03  BUILD-PROMPT.md line 2482, A.2 TRU
+  raw row: | `TRU-SEC-03` | Market attestations | M | R1 | B | CERT-In Safe-to-Host; NCA ECC/CCC; ADHICS; MeitY/CST · *Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]* |
+  ID                     | `TRU-SEC-03`
+                         |   -> id: "TRU-SEC-03"
+  Feature                | Market attestations
+                         |   -> title: "Market attestations"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | CERT-In Safe-to-Host; NCA ECC/CCC; ADHICS; MeitY/CST · *Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]*
+                         |   -> scope: "CERT-In Safe-to-Host; NCA ECC/CCC; ADHICS; MeitY/CST"
+                         |   -> kurdistan_note: "Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.13"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[12/15] IMP-GOV-01  BUILD-PROMPT.md line 2742, A.16 IMP
+  raw row: | `IMP-GOV-01` | Governance intake | S | R2.1 | B | Requests; scoring; 30-day loop closure · *BP P2→MVP; manual path until R2.1* |
+  ID                     | `IMP-GOV-01`
+                         |   -> id: "IMP-GOV-01"
+  Feature                | Governance intake
+                         |   -> title: "Governance intake"
+  Size                   | S
+                         |   -> size: "S"
+                         |   (counts 3 engineer-weeks: S = 3)
+  Phase                  | R2.1
+                         |   -> phase: "R2.1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Requests; scoring; 30-day loop closure · *BP P2→MVP; manual path until R2.1*
+                         |   -> scope: "Requests; scoring; 30-day loop closure"
+                         |   -> kurdistan_note: "BP P2→MVP; manual path until R2.1"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 4 (governance intake)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[13/15] SPC-MAT-01  BUILD-PROMPT.md line 2623, A.9 SPC
+  raw row: | `SPC-MAT-01` | L&D + newborn | M | R2a | B | L&D record; newborn registration; mother–baby link; birth notification · *Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b* |
+  ID                     | `SPC-MAT-01`
+                         |   -> id: "SPC-MAT-01"
+  Feature                | L&D + newborn
+                         |   -> title: "L&D + newborn"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R2a
+                         |   -> phase: "R2a"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | L&D record; newborn registration; mother–baby link; birth notification · *Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b*
+                         |   -> scope: "L&D record; newborn registration; mother–baby link; birth notification"
+                         |   -> kurdistan_note: "Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-2.5 (newborn registration, mother–baby link, birth notification)", "WP-3.9 (L&D record)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[14/15] MED-INF-01  BUILD-PROMPT.md line 2564, A.6 MED
+  raw row: | `MED-INF-01` | Infusion model | M | R2b | B | Infusion data model; pump-channel association; manual rate/volume checks · *Inferred R2b (with eMAR)* |
+  ID                     | `MED-INF-01`
+                         |   -> id: "MED-INF-01"
+  Feature                | Infusion model
+                         |   -> title: "Infusion model"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R2b
+                         |   -> phase: "R2b"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Infusion data model; pump-channel association; manual rate/volume checks · *Inferred R2b (with eMAR)*
+                         |   -> scope: "Infusion data model; pump-channel association; manual rate/volume checks"
+                         |   -> kurdistan_note: "Inferred R2b (with eMAR)"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-3.3"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[15/15] NUR-CP-01  BUILD-PROMPT.md line 2550, A.5 NUR
+  raw row: | `NUR-CP-01` | Care plans | M | R2b | B | Care plans; shift worklists; nurse handoff |
+  ID                     | `NUR-CP-01`
+                         |   -> id: "NUR-CP-01"
+  Feature                | Care plans
+                         |   -> title: "Care plans"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R2b
+                         |   -> phase: "R2b"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Care plans; shift worklists; nurse handoff
+                         |   -> scope: "Care plans; shift worklists; nurse handoff"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-3.4"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+Sampled rows: DEV-VAL-01, CLN-ORD-01, CLN-AMS-01, OPS-CMD-01, SPC-OT-03, CLN-DOC-02, PLT-UX-01, NUR-FLW-02, ACC-OPD-01, IMP-FND-01, TRU-SEC-03, IMP-GOV-01, SPC-MAT-01, MED-INF-01, NUR-CP-01
+exit=0
+=== generate/render idempotence ===
+docs/program/backlog.yaml: 236 rows (234 feature IDs, 2 part rows); hand-edited fields kept for 236 rows
+WARN     §21 WP-2.2: RCM-* inpatient scope (§9.20–§9.21): a wildcard, not attached to any feature
+next: run 'tools/hms backlog render' to refresh docs/program/BACKLOG.md
+exit=0
+?? docs/program/evidence/ci/2026-10-18-fast-adb631c.json
+?? docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json
+docs/program/BACKLOG.md: rendered 236 rows from docs/program/backlog.yaml
+exit=0
+?? docs/program/evidence/ci/2026-10-18-fast-adb631c.json
+?? docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json
+=== licence checks (COMMANDS.md section 3) ===
+shipped list exit=0
+all list exit=0
+licence: PASS (components=2, allowed=2, conditional=0, conditional_registered=0, denied=0, unmapped=0)
+exit=0
+licence: PASS (components=124, allowed=124, conditional=0, conditional_registered=0, denied=0, unmapped=0)
+exit=0
+=== licence check: every dependency judged as shipped (what the gate would say if the scope rule were dropped) ===
+ERROR  unmapped: minimatch@10.2.6 [shipped, licences-all.json]: 'BlueOak-1.0.0' is not classified in tools/licence/policy.yaml
+licence: FAIL (components=124, allowed=123, conditional=0, conditional_registered=0, denied=0, unmapped=1)
+exit=1
+=== licence check --help ===
+usage: tools/hms licence check [-h] [--sbom SBOM] [--pnpm PNPM]
+                               [--scope {shipped,build-only}]
+                               [--policy POLICY] [--register REGISTER]
+                               [--json]
+
+Apply tools/licence/policy.yaml to a CycloneDX JSON SBOM (--sbom) or to the
+output of 'pnpm licenses list --json' (--pnpm). Denied, excluded and unmapped
+licences fail; conditional ones warn until tools/licence/register.yaml records
+them.
+
+options:
+  -h, --help            show this help message and exit
+  --sbom SBOM           CycloneDX JSON file (repeatable)
+  --pnpm PNPM           pnpm licenses list --json output
+  --scope {shipped,build-only}
+                        treat every component as this scope (default:
+                        CycloneDX scope 'excluded' is build-only, everything
+                        else shipped)
+  --policy POLICY       policy file (default tools/licence/policy.yaml)
+  --register REGISTER   licence register (default tools/licence/register.yaml)
+  --json                print one JSON object as the last line
+exit=0
+=== check JSON lines ===
+{"check": "repo", "counts": {"adrs_total": 28, "adrs_valid": 28, "binary_files_skipped": 3, "blocking_now_items": 2, "branches": 3, "crlf_files": 0, "crlf_plan_of_record": 4, "required_files_present": 11, "status_lines": 29, "tenant_files_scanned": 132, "tenant_matches": 0, "text_files_checked": 343}, "errors": [], "ok": true, "warnings": ["crlf: BUILD-PROMPT.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it", "crlf: research/09-ai-analytics-digital-front-door.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it", "crlf: research/blueprint-drafts/proposal-A-market-business-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it", "crlf: research/blueprint-drafts/proposal-C-platform-architecture-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it"]}
+{"check": "safety", "counts": {"approval_fields_filled": 0, "controls": 193, "controls_implemented": 0, "controls_planned": 193, "controls_verified": 0, "feature_ids_known": 234, "feature_source_backlog_yaml": 1, "hazards": 27, "sacs_referenced": 31, "seeded_hazards": 15, "sensitivity_label_entries": 6, "signoff_records": 0, "sis_covered": 21, "state_machine_specs": 0}, "errors": [], "ok": true, "warnings": ["seeded hazards with no hazard entry yet: H7, H9, H11, H15", "22 SACs have no hazard entry yet (§18.1): SAC-07, SAC-09, SAC-10, SAC-18, SAC-23, SAC-25, SAC-27, SAC-28, SAC-32, SAC-36, SAC-37, SAC-38, SAC-39, SAC-40, SAC-42, SAC-43, SAC-44, SAC-46, SAC-48, SAC-49, SAC-52, SAC-53"]}
+{"check": "backlog", "counts": {"features": 234, "features_without_work_package": 14, "features_without_work_package_not_dropped": 0, "part_rows": 2, "phase_DROPPED-K": 14, "phase_P2": 48, "phase_P3": 19, "phase_R1": 110, "phase_R1.1": 3, "phase_R2.1": 6, "phase_R2a": 9, "phase_R2b": 25, "rows": 236, "status_built": 0, "status_in-progress": 0, "status_spec": 0, "status_todo": 234, "status_verified": 0, "wp_references_not_mapped": 1}, "errors": [], "ok": true, "warnings": ["§21 WP-2.2 (line 2336) names the wildcard RCM-* (inpatient scope (§9.20–§9.21)); it is not attached to any feature"]}
+=== repo check human output (warnings) ===
+WARN   crlf: BUILD-PROMPT.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+WARN   crlf: research/09-ai-analytics-digital-front-door.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+WARN   crlf: research/blueprint-drafts/proposal-A-market-business-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+WARN   crlf: research/blueprint-drafts/proposal-C-platform-architecture-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+repo: PASS (text_files_checked=343, binary_files_skipped=3, crlf_files=0, crlf_plan_of_record=4, required_files_present=11, adrs_total=28, adrs_valid=28, tenant_files_scanned=132, tenant_matches=0, branches=3, blocking_now_items=2, status_lines=29)
+exit=0
+WARN   seeded hazards with no hazard entry yet: H7, H9, H11, H15
+WARN   22 SACs have no hazard entry yet (§18.1): SAC-07, SAC-09, SAC-10, SAC-18, SAC-23, SAC-25, SAC-27, SAC-28, SAC-32, SAC-36, SAC-37, SAC-38, SAC-39, SAC-40, SAC-42, SAC-43, SAC-44, SAC-46, SAC-48, SAC-49, SAC-52, SAC-53
+safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_ids_known=234, feature_source_backlog_yaml=1, signoff_records=0, state_machine_specs=0, approval_fields_filled=0)
+exit=0
+WARN   §21 WP-2.2 (line 2336) names the wildcard RCM-* (inpatient scope (§9.20–§9.21)); it is not attached to any feature
+backlog: PASS (rows=236, features=234, part_rows=2, phase_R1=110, phase_R1.1=3, phase_R2a=9, phase_R2b=25, phase_R2.1=6, phase_P2=48, phase_P3=19, phase_DROPPED-K=14, status_todo=234, status_spec=0, status_in-progress=0, status_built=0, status_verified=0, features_without_work_package=14, features_without_work_package_not_dropped=0, wp_references_not_mapped=1)
+exit=0
+=== git status after ===
+?? docs/program/evidence/ci/2026-10-18-fast-adb631c.json
+?? docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json
+=== date 2026-10-18T19:35:17+03:00 ===
+SCRIPT-DONE

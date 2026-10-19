@@ -1,0 +1,314 @@
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+heavy.sh: wp03 got slot1.lock after 0s
+Calculating task graph as no cached configuration is available for tasks: :platform:time:ktlintFormat :platform:time:test :platform:time:propertyTest :platform:time:detekt :platform:time:ktlintCheck :platform:time:verifyArchitectureTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:time:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:time:processResources NO-SOURCE
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:time:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:time:compileJava NO-SOURCE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:time:classes UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:time:jar UP-TO-DATE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :platform:time:processPropertyTestResources NO-SOURCE
+> Task :platform:time:processTestResources NO-SOURCE
+> Task :platform:time:loadKtlintReporters FROM-CACHE
+> Task :platform:time:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:time:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:time:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:time:runKtlintFormatOverKotlinScripts NO-SOURCE
+> Task :platform:time:ktlintKotlinScriptFormat SKIPPED
+> Task :platform:time:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:time:ktlintIntegrationTestSourceSetFormat SKIPPED
+
+> Task :platform:time:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:time:detekt
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:16:8: Object 'EntryTimeClassifier' with '11' functions detected. Defined threshold inside objects is set to '11' [TooManyFunctions]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:254:13: The function cases appears to be too complex based on Cyclomatic Complexity (complexity: 21). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:53:9: The destructuring declaration contains 6 but only 3 are allowed. [DestructuringDeclarationWithTooManyEntries]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:74:100: This expression contains a magic number. Consider defining it to a well named constant. [MagicNumber]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:93:61: This expression contains a magic number. Consider defining it to a well named constant. [MagicNumber]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\TimeFixtures.kt:33:107: This expression contains a magic number. Consider defining it to a well named constant. [MagicNumber]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\TimeFixtures.kt:57:49: This expression contains a magic number. Consider defining it to a well named constant. [MagicNumber]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:1: Line detected, which is longer than the defined maximum line length in the code style. [MaxLineLength]
+
+Analysis failed with 8 weighted issues.
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:time:detekt FAILED
+> Task :platform:time:runKtlintCheckOverMainSourceSet
+> Task :platform:time:ktlintIntegrationTestSourceSetCheck SKIPPED
+
+> Task :platform:time:ktlintMainSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\BusinessCalendar.kt:143:50 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\BusinessCalendar.kt:144:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\BusinessCalendar.kt:144:41 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\BusinessCalendar.kt:145:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\BusinessCalendar.kt:146:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTime.kt:33:55 First line of body expression fits on same line as function signature
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTime.kt:71:40 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTime.kt:71:67 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTime.kt:71:107 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:41:39 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:42:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:42:40 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:43:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:57:28 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:58:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\ClinicalTimeParser.kt:59:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:40:43 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:41:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:42:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:67:48 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:68:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:68:56 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:69:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:70:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:71:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:71:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:84:33 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:85:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:85:37 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:86:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:86:36 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:87:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:88:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:106:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:111:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:112:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:113:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:132:64 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:133:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:133:32 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:134:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:135:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:136:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:136:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\main\kotlin\hms\kernel\time\EntryTimeClassifier.kt:160:17 First line of body expression fits on same line as function signature
+
+> Task :platform:time:compilePropertyTestKotlin
+> Task :platform:time:compileTestKotlin
+> Task :platform:time:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:time:runKtlintCheckOverTestSourceSet
+> Task :platform:time:runKtlintFormatOverMainSourceSet
+> Task :platform:time:runKtlintFormatOverPropertyTestSourceSet
+> Task :platform:time:ktlintMainSourceSetFormat
+> Task :platform:time:ktlintPropertyTestSourceSetFormat
+
+> Task :platform:time:ktlintTestSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:24 Argument should be on a separate line (unless all arguments can fit a single line)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:57 Argument should be on a separate line (unless all arguments can fit a single line)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:81 Argument should be on a separate line (unless all arguments can fit a single line)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:116 Argument should be on a separate line (unless all arguments can fit a single line)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:141 Exceeded max line length (140) (cannot be auto-corrected)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\test\kotlin\hms\kernel\time\EntryTimePolicyTest.kt:33:146 Missing newline before ")"
+
+> Task :platform:time:ktlintPropertyTestSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:32:40 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:32:76 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:32:84 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:135:18 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:136:51 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:139:71 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:139:90 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:139:99 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\BusinessCalendarPropertyTest.kt:139:125 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:126:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:126:89 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:126:90 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:128:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:139:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:139:101 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:139:102 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:141:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:153:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:153:107 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:153:108 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:155:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:156:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:156:106 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:156:107 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:158:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:159:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:159:117 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:159:118 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:161:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:171:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:171:85 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:171:86 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:173:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:175:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:175:122 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:175:123 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:177:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:178:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:178:121 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:178:122 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:180:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:181:13 Missing newline after "("
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:181:96 Missing newline after ","
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:181:97 A multiline expression should start on a new line
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:183:9 Missing newline before ")"
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:198:34 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:199:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:292:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:293:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:294:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:296:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:298:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:350:54 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:351:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:351:45 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:352:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:361:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:361:29 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:432:25 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:433:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:434:25 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:435:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:443:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:444:25 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\src\propertyTest\kotlin\hms\kernel\time\EntryTimeClassifierPropertyTest.kt:445:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+
+> Task :platform:time:compilePropertyTestJava NO-SOURCE
+> Task :platform:time:propertyTestClasses UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:time:compileTestJava NO-SOURCE
+> Task :platform:time:testClasses UP-TO-DATE
+> Task :platform:time:runKtlintFormatOverTestSourceSet
+> Task :platform:time:ktlintTestSourceSetFormat
+> Task :platform:time:ktlintFormat
+> Task :platform:time:propertyTest
+> Task :platform:time:test
+
+> Task :platform:time:verifyArchitectureTest
+:platform:time: ArchitectureTest ran 4 rule checks
+
+FAILURE: Build completed with 4 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':platform:time:detekt' (registered by plugin 'hms.quality-conventions').
+> Process 'command 'C:\Users\Surface\.t3\projects\hospitalmanagementsystem\.tools\jdk-25.0.4.1+1\bin\java.exe'' finished with non-zero exit value 2
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':platform:time:ktlintMainSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\build\reports\ktlint\ktlintMainSourceSetCheck\ktlintMainSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\build\reports\ktlint\ktlintMainSourceSetCheck\ktlintMainSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':platform:time:ktlintTestSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\build\reports\ktlint\ktlintTestSourceSetCheck\ktlintTestSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\build\reports\ktlint\ktlintTestSourceSetCheck\ktlintTestSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+4: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':platform:time:ktlintPropertyTestSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\build\reports\ktlint\ktlintPropertyTestSourceSetCheck\ktlintPropertyTestSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-4f6f2a03\backend\platform\time\build\reports\ktlint\ktlintPropertyTestSourceSetCheck\ktlintPropertyTestSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 1m 28s
+35 actionable tasks: 18 executed, 1 from cache, 16 up-to-date
+Configuration cache entry stored.
+exit 1

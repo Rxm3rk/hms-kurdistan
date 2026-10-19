@@ -1,0 +1,143 @@
+SI-01 "At least two identifiers on every patient-affecting action, label, wristband, MAR entry and print; never room or bed. The name prints in the patient's script plus a Latin transliteration. The second identifier is the MRN (with check digit) plus date of birth, or the approximate-DOB flag"
+   enforced: "Identity service; print templates"  hazard: H1
+SI-02 "No administration without an active verified order or a documented override. Override reasons are never defaulted, and every override is reportable"
+   enforced: "MAR aggregate"  hazard: H2
+SI-03 "Every order reaches a terminal state. Every task, result, message, letter and referral has an owner and an SLA. Unowned work raises `TaskOrphaned` within 5 minutes. Seam messages to a hospital still on paper or legacy systems are owned tasks"
+   enforced: "Task engine"  hazard: H5
+SI-04 "Critical results go to a **named** recipient (chosen from a picker, never free text), with read-back and a timed escalation chain. This includes **external referring doctors** for outpatient-tier results"
+   enforced: "Critical-result service"  hazard: H3
+SI-05 "One dated, sourced dosing weight. UCUM units; no unit-less doses. **Dose arithmetic only in the Dose Engine** (static analysis fails the build otherwise). Hard stop at 10×/100× deviation. **The Dose Engine is P2.** Until it is active at a site, the **extended fallback control set** applies (§10.3): a system-enforced independent pharmacist double check on every weight- or BSA-based dose at any age, every high-alert infusion and every neonatal order; a drug-KB result ≥10× the maximum dose is a Tier A hard stop with the KB output shown verbatim; a pharmacist-cover alarm; review within 4 h of any dose given before verification. Core sites apply the double check at transcription. NICU and PICU go live with the rest of the site, never later"
+   enforced: "Dose Engine or fallback control set; CI static analysis"  hazard: H2
+SI-06 "Signed notes are immutable. Amendments are versions, addenda are links, entered-in-error replaces delete, and the signed rendering is hashed"
+   enforced: "Clinical journal"  hazard: H6
+SI-07 "AI output stays `draft-ai` until a human signs it. AI never signs orders, files results or messages patients (applies from P2)"
+   enforced: "AI control plane"  hazard: H10
+SI-08 "Merges are reversible links propagated downstream (HL7 A40 / FHIR `Patient.link`). Overlays are safety incidents. Auto-merge precision ≥99.9%, measured on a cross-script Kurdish/Arabic/Latin gold set"
+   enforced: "EMPI"  hazard: H12
+SI-09 "Medication reconciliation cannot complete while any item is undecided"
+   enforced: "Med-rec aggregate"  hazard: H2
+SI-10 "Clinical time is distinct from system time. Back-dating is privileged and audited. Back-entry keeps the original clinical times and is labelled. Back-entry after outages will be frequent, so tooling and audit are sized for it"
+   enforced: "Bitemporal journal"  hazard: H6
+SI-11 "Transfusion requires a wristband ↔ unit ↔ order ↔ sample match plus a two-person electronic witness; a mismatch is a hard stop. Units from public blood banks are relabelled at receipt under two-person **blind double entry** of unit number, ABO/Rh, product and expiry from the original label and the issue note. The original label is never covered; the new label prints the unit number and ABO/Rh beside the barcode; the bedside witness also confirms the unit number on the original label; any mismatch quarantines the unit. Until T2 is activated: a scripted two-person check (identifiers scanned and shown side by side, both electronic signatures required, no automated pass/fail)"
+   enforced: "Transfusion verification (T2) or fallback"  hazard: H8
+SI-12 "Bill clearance, deposits and pre-authorisation never block discharge or emergency care. No payment, deposit or counter rule may delay a verified time-critical inpatient dose (STAT and first doses, antimicrobials, insulin, anticoagulants, anticonvulsants); it is charged to the running bill. Medicines bought by families are received by pharmacy (identified, expiry-checked, relabelled to the patient, flagged \"patient-supplied\"); unverified outside medicines cannot be scanned for administration"
+   enforced: "RCM ↔ ADT/MAR boundary"  hazard: H4, H2
+SI-13 "High-alert medications require a documented independent double check"
+   enforced: "MAR; formulary"  hazard: H2
+SI-14 "Hard stops come only from a governed list. Every interruptive rule has an owner, evidence, a measured PPV and a review-by date. The vendor-validated go-live baseline (Tier A/B) is interruptive from day 0. New or locally modified rules run silent first. Tier A/B rules are never retired on override rate alone"
+   enforced: "CDS registry"  hazard: H4
+SI-15 "Offline: no new prescribing without full CDS, no bed or OT allocation, no identifiers outside pre-allocated blocks, no controlled-drug stock movement, no identity merges. Offline commands are revalidated by the server. No last-writer-wins or CRDT merges on clinical state. **Losing the internet does not make an on-site cell \"offline\":** this rule governs losing the on-site cell itself, edge-agent mode and mobile offline mode"
+   enforced: "Offline matrix; command handler"  hazard: H2, H6
+SI-16 "The banner (photo, two identifiers, allergies with \"NKA\" distinct from \"not assessed\", code status, isolation, dated weight, trilingual name display) appears on every clinical screen, mobile view and print. One patient context per window. Identity is re-verified at signing if the context changed within the last 60 s"
+   enforced: "Design-system shell"  hazard: H1
+SI-17 "Results pending at discharge, and results for discharged patients, go to owned queues"
+   enforced: "Results routing"  hazard: H3
+SI-18 "A Tier 2 function activates for a tenant only where the Regulatory Boundary Register says \"cleared\" or \"not required\", backed by a stored written local opinion (scope, intended purpose, version, jurisdiction; expires after 24 months or on any change). Configuration toggles cannot override it"
+   enforced: "Boundary Register service"  hazard: —
+SI-19 "Every CDS rule and clinical-behaviour flag has a kill switch. Safety-relevant changes default to off"
+   enforced: "Flag service"  hazard: H4
+SI-20 "Usable PHI stays in the hospital's on-site cell and the Kurdistan DR site; anything off-site is ciphertext under hospital-held keys. The only exception is a per-tenant processor entry approved by the Safety Board (data processing agreement, zero retention, region pinning, minimisation, payload audit). Message bodies carry no clinical content. No PHI or PHI-derived data in telemetry, logs, prompts or support sessions that leave the cell"
+   enforced: "Trust Plane; AI gateway; egress tests"  hazard: H13
+SI-21 "Sensitivity labels and purpose-of-use are enforced at the policy enforcement point for every channel: UI, API, print, exports, interfaces, AI grounding and analytics. Labels: HIV, mental health, reproductive and sexual health, gender-based violence, forensic/MLC, VIP (public figures and officials). Each label has its own hazard entry and property tests. Labelled results and pregnancy tests are never released by message"
+   enforced: "Trust Plane PEP; print and export services"  hazard: H14
+H1 wrong patient · H2 wrong drug, dose, route or time · H3 missed or late result · H4 delayed escalation · H5 orphaned work · H6 data loss or corruption · H7 unavailability · H8 wrong blood · H9 alarm not delivered · H10 AI error accepted · H11 cutover double dose · H12 identity overlay · H13 privacy egress · H14 unlawful disclosure of a restricted or sensitivity-labelled record · H15 cross-system seam failure (identity, referral, order/result or medication list across our system and a legacy one) (BP §5.1).
+{
+"SI-01": [
+"SAC-01",
+"SAC-04"
+],
+"SI-16": [
+"SAC-02",
+"SAC-05",
+"SAC-11",
+"SAC-51"
+],
+"none": [
+"SAC-03",
+"SAC-07",
+"SAC-09",
+"SAC-10",
+"SAC-18",
+"SAC-23",
+"SAC-25",
+"SAC-27",
+"SAC-28",
+"SAC-32",
+"SAC-36",
+"SAC-37",
+"SAC-38",
+"SAC-39",
+"SAC-40",
+"SAC-42",
+"SAC-43",
+"SAC-44",
+"SAC-46",
+"SAC-48",
+"SAC-49",
+"SAC-52",
+"SAC-53"
+],
+"SI-15": [
+"SAC-06",
+"SAC-47"
+],
+"SI-08": [
+"SAC-08"
+],
+"SI-05": [
+"SAC-11",
+"SAC-12",
+"SAC-13",
+"SAC-24",
+"SAC-50"
+],
+"SI-14": [
+"SAC-14",
+"SAC-15",
+"SAC-16"
+],
+"SI-07": [
+"SAC-17"
+],
+"SI-03": [
+"SAC-19",
+"SAC-30"
+],
+"SI-02": [
+"SAC-20",
+"SAC-21",
+"SAC-24"
+],
+"SI-13": [
+"SAC-22"
+],
+"SI-09": [
+"SAC-26"
+],
+"SI-04": [
+"SAC-29"
+],
+"SI-17": [
+"SAC-30",
+"SAC-31"
+],
+"SI-21": [
+"SAC-31"
+],
+"SI-20": [
+"SAC-33"
+],
+"SI-18": [
+"SAC-34",
+"SAC-35"
+],
+"SI-11": [
+"SAC-41"
+],
+"SI-06": [
+"SAC-45"
+],
+"SI-10": [
+"SAC-47"
+]
+}

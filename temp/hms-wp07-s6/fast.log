@@ -1,0 +1,174 @@
+$ corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run i18n:lint
+$ eslint --max-warnings 0 . && node packages/eslint-plugin-hms/src/css/cli.ts
+frontend-css-logical: PASS (files=9, findings=0)
+$ tsc --noEmit -p tsconfig.json && corepack pnpm -r run typecheck
+Scope: 6 of 7 workspace projects
+packages/ui-core typecheck$ tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.src.json
+packages/eslint-plugin-hms typecheck$ tsc --noEmit -p tsconfig.json
+packages/i18n typecheck$ tsc --noEmit -p tsconfig.json
+packages/i18n typecheck: Done
+packages/eslint-plugin-hms typecheck: Done
+packages/ui-core typecheck: Done
+packages/hal-client typecheck$ tsc --noEmit -p tsconfig.json
+packages/design-system typecheck$ tsc --noEmit -p tsconfig.json
+packages/hal-client typecheck: Done
+packages/design-system typecheck: Done
+apps/web typecheck$ tsc --noEmit -p tsconfig.json
+apps/web typecheck: Done
+$ node scripts/clean-junit-reports.ts && corepack pnpm -r run test
+Scope: 6 of 7 workspace projects
+packages/i18n test$ vitest run
+packages/ui-core test$ vitest run
+packages/eslint-plugin-hms test$ vitest run
+packages/i18n test: 
+packages/i18n test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/i18n
+packages/i18n test: 
+packages/ui-core test: 
+packages/ui-core test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/ui-core
+packages/ui-core test: 
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/eslint-plugin-hms
+packages/eslint-plugin-hms test: 
+packages/i18n test:  ✓ test/review-marking.test.ts (10 tests) 670ms
+packages/i18n test:    ✓ UnitTest:ckb-ar-drafts-marked-unreviewed (3)
+packages/i18n test:      ✓ marks every ckb and ar message of the shipped catalogues unreviewed (DN-021, KA-031) 322ms
+packages/i18n test:  ✓ test/catalogues.test.ts (9 tests) 809ms
+packages/i18n test:    ✓ the shipped UI catalogues (9)
+packages/i18n test:      ✓ pass the localisation lint 569ms
+packages/i18n test:  ✓ test/clinical-keys.test.ts (15 tests) 1184ms
+packages/i18n test:    ✓ UnitTest:clinical-keys-lint (15)
+packages/i18n test:      ✓ fails an ar plural with a clinical count that drops # in any branch 797ms
+packages/i18n test:      ✓ counts # inside a rich-text tag, but not the # of a nested plural 321ms
+packages/eslint-plugin-hms test:  ✓ test/physical-css.test.ts (11 tests) 37ms
+packages/ui-core test:  ✓ test/smoke.test.ts (3 tests) 780ms
+packages/ui-core test:    ✓ ui-core workspace wiring (3)
+packages/ui-core test:      ✓ imports the package entry point without error 771ms
+packages/i18n test:  ✓ test/ui-intl.test.ts (6 tests) 1204ms
+packages/i18n test:    ✓ UnitTest:ui-intl-western-digits (6)
+packages/i18n test:      ✓ resolves the UI locales to the canonical ckb-u-ca-gregory-nu-latn form, and the same for ar and en 323ms
+packages/i18n test:      ✓ detects every Arabic-Indic and Extended Arabic-Indic digit, and no Western one 406ms
+packages/i18n test:  ✓ test/catalogue-lint.test.ts (23 tests) 701ms
+packages/ui-core test:  ✓ test/banner-model.test.ts (22 tests) 2205ms
+packages/ui-core test:    ✓ UnitTest:allergy-status-nka-distinct-from-not-assessed (5)
+packages/ui-core test:      ✓ never yields NKA for missing, null, unknown, empty-list, malformed, extra-key or contradictory data 391ms
+packages/ui-core test:    ✓ banner model: identity rules (design-system §2.1 rules 1 and 4; DN-029, DN-032) (10)
+packages/ui-core test:      ✓ flags each missing name form, and shows "Identity incomplete" only for the own-script or Latin form 399ms
+packages/ui-core test:    ✓ banner model: other fields (design-system §2.1) (6)
+packages/ui-core test:      ✓ never takes a status from a polluted Object.prototype, at any depth: missing data never yields NKA 1072ms
+packages/ui-core test:  ✓ test/clock.test.ts (4 tests) 137ms
+packages/ui-core test:  ✓ test/clinical-number.test.ts (14 tests) 65ms
+packages/i18n test:  ✓ test/duplicate-keys.test.ts (5 tests) 16ms
+packages/ui-core test:  ✓ test/clinical-number.property.test.ts (6 tests) 3578ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-leading-zero (1)
+packages/ui-core test:      ✓ never shows a naked decimal: a digit always precedes the point 883ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-no-trailing-zero (1)
+packages/ui-core test:      ✓ never ends with a zero after the decimal point, nor with the point itself 446ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-ascii-digits-only (2)
+packages/ui-core test:      ✓ shows only ASCII digits, one point, a leading minus and U+202F between groups of three 363ms
+packages/ui-core test:      ✓ rejects any string containing a character outside ASCII digits, `.` and `-` 758ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-value-unchanged (2)
+packages/ui-core test:      ✓ keeps the numeric value: the digits match the input once both are padded with zeros 467ms
+packages/ui-core test:      ✓ is idempotent: the display form, ungrouped, displays as itself 652ms
+packages/ui-core test:  ✓ test/patient-context.test.ts (25 tests) 3368ms
+packages/ui-core test:    ✓ UnitTest:context-switch-requires-confirmation (9)
+packages/ui-core test:      ✓ changes the patient only through the transitions that allow it (property) 2925ms
+packages/i18n test:  ✓ test/locales.test.ts (4 tests) 18ms
+packages/i18n test:  ✓ test/sorani-letters.test.ts (6 tests) 36ms
+packages/ui-core test:  ✓ test/reverification.property.test.ts (15 tests) 8594ms
+packages/ui-core test:    ✓ PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change (15)
+packages/ui-core test:      ✓ requires re-verification exactly when the elapsed time is at most 60 000 ms, or negative (property) 3907ms
+packages/ui-core test:      ✓ never opens signing without re-verification within the window, nor submits with another user’s re-verification (model) 3957ms
+packages/ui-core test: 
+packages/ui-core test:  Test Files  7 passed (7)
+packages/ui-core test:       Tests  89 passed (89)
+packages/ui-core test:    Start at  11:22:50
+packages/ui-core test:    Duration  17.25s (import 43%, tests 40%, transform 16%, worker 1%)
+packages/ui-core test: 
+packages/i18n test:  ❯ test/pseudo.property.test.ts (7 tests | 1 failed) 9317ms
+packages/i18n test:    ❯ PropertyTest:pseudo-locale-preserves-placeholders (7)
+packages/i18n test:      ✓ generates valid ICU messages to test with 1868ms
+packages/i18n test:      × keeps every placeholder, branch, # and tag of a generated message, in both pseudo-locales 5691ms
+packages/i18n test:      ✓ keeps the structure of any string the ICU parser accepts 228ms
+packages/i18n test:      ✓ expanded (en-XA): brackets the message, accents every ASCII letter and adds 40% to the text 789ms
+packages/i18n test:      ✓ mirrored (ar-XB): wraps each literal text in RLO and PDF and changes nothing else 363ms
+packages/i18n test:      ✓ builds both pseudo-locales from the shipped en catalogue with the same keys and placeholders 41ms
+packages/i18n test:      ✓ describes the pseudo-locales: direction, and the source locale for formatting 2ms
+packages/ui-core test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/ui-core.xml
+packages/eslint-plugin-hms test:  ✓ test/no-jsx-literals.test.ts (117 tests) 4335ms
+packages/eslint-plugin-hms test:    ✓ hms/no-jsx-literals (116)
+packages/eslint-plugin-hms test:      ✓ valid (43)
+packages/eslint-plugin-hms test:        ✓ <p>{t('app.name')}</p> 394ms
+packages/ui-core test: Done
+packages/hal-client test$ vitest run
+packages/eslint-plugin-hms test:  ✓ test/no-physical-css.test.ts (331 tests) 6695ms
+packages/eslint-plugin-hms test:    ✓ hms/no-physical-css (331)
+packages/eslint-plugin-hms test:      ✓ valid (106)
+packages/eslint-plugin-hms test:        ✓ <div style={{ insetInlineStart: 4 }} /> 446ms
+packages/eslint-plugin-hms test:        ✓ const style = { 'inset-inline-start': 4 }; 332ms
+packages/eslint-plugin-hms test:        ✓ <div style={{ paddingInlineEnd: 4 }} /> 303ms
+packages/i18n test:  ✓ test/cli.test.ts (4 tests) 20003ms
+packages/i18n test:    ✓ localisation lint CLI (4)
+packages/i18n test:      ✓ passes on the shipped catalogues by default 6373ms
+packages/i18n test:      ✓ passes on the valid fixtures, whose plural branches differ by locale 4565ms
+packages/i18n test:      ✓ fails on the invalid fixtures with one error per planted problem 3187ms
+packages/i18n test:      ✓ exits 2 for an unknown argument or a missing directory 5870ms
+packages/i18n test: 
+packages/i18n test: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+packages/i18n test: 
+packages/i18n test:  FAIL  test/pseudo.property.test.ts > PropertyTest:pseudo-locale-preserves-placeholders > keeps every placeholder, branch, # and tag of a generated message, in both pseudo-locales
+packages/i18n test: Error: Test timed out in 5000ms.
+packages/i18n test: If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+packages/i18n test:  ❯ test/pseudo.property.test.ts:174:3
+packages/i18n test:     172|   });
+packages/i18n test:     173|
+packages/i18n test:     174|   it('keeps every placeholder, branch, # and tag of a generated messag…
+packages/i18n test:        |   ^
+packages/i18n test:     175|     fc.assert(
+packages/i18n test:     176|       fc.property(icuMessage, fc.constantFrom(...PSEUDO), (source, loc…
+packages/i18n test: 
+packages/i18n test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+packages/i18n test: 
+packages/i18n test: 
+packages/i18n test:  Test Files  1 failed | 9 passed (10)
+packages/i18n test:       Tests  1 failed | 88 passed (89)
+packages/i18n test:    Start at  11:22:50
+packages/i18n test:    Duration  26.75s (tests 72%, import 22%, transform 5%)
+packages/i18n test: 
+packages/i18n test:     Isolate  10 workers spawned · ~4.75s startup each (spawn + environment, per file)
+packages/i18n test:              at least ~2.03s faster with isolate: false — reuses workers across files instead of one per file
+packages/i18n test: 
+packages/eslint-plugin-hms test:  ✓ test/plugin.test.ts (4 tests) 13287ms
+packages/hal-client test: 
+packages/hal-client test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/hal-client
+packages/hal-client test: 
+packages/eslint-plugin-hms test:  ✓ test/css-check.test.ts (10 tests) 21624ms
+packages/eslint-plugin-hms test:    ✓ findStylesheets (2)
+packages/eslint-plugin-hms test:      ✓ finds .css files and skips node_modules, build output and excluded directories 328ms
+packages/eslint-plugin-hms test:    ✓ stylesheet check CLI (5)
+packages/eslint-plugin-hms test:      ✓ exits 1 and reports every finding as JSON for physical.css 6706ms
+packages/eslint-plugin-hms test:      ✓ exits 0 for logical.css 4973ms
+packages/eslint-plugin-hms test:      ✓ exits 1 for a stylesheet it cannot parse 2728ms
+packages/eslint-plugin-hms test:      ✓ exits 2 for an unknown option or a missing path 5058ms
+packages/eslint-plugin-hms test:      ✓ skips its own fixtures in the default workspace scan 1616ms
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  Test Files  5 passed (5)
+packages/eslint-plugin-hms test:       Tests  473 passed (473)
+packages/eslint-plugin-hms test:    Start at  11:22:50
+packages/eslint-plugin-hms test:    Duration  28.09s (tests 58%, import 37%, transform 5%)
+packages/eslint-plugin-hms test: 
+packages/i18n test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/i18n.xml
+packages/i18n test: Failed
+[ELIFECYCLE] Test failed. See above for more details.
+packages/hal-client test:  ✓ test/hal-capture-discarded-after-context-change.test.ts (9 tests) 259ms
+packages/eslint-plugin-hms test: Failed
+[ELIFECYCLE] Test failed. See above for more details.
+packages/hal-client test: Failed
+[ELIFECYCLE] Test failed. See above for more details.
+Error: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL
+
+  × "pnpm recursive run" failed in C:
+  │ \Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp07\frontend\packag
+  │ es\i18n
+
+[ELIFECYCLE] Test failed. See above for more details.
+[ELIFECYCLE] Command failed with exit code 1.

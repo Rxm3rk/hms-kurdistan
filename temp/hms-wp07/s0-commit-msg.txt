@@ -1,0 +1,66 @@
+docs(design-system): WP-0.7 S0 specification, HAL contract v1 and programme entries
+
+Slice S0 of WP-0.7 (design system and client shells) adds specifications
+only. No code is added and no test the specifications name has run.
+
+What S0 adds:
+- docs/specs/modules/design-system.md: the module specification, covering
+  the banner fields and rules, patient context, sign and co-sign with
+  re-verification, the command palette, density, ClinicalNumber, Bdi, the
+  Modal stack guard and LocaleProvider; RTL, bidi, digits and fonts; the
+  web frame and routes; the demo route; the HAL summary; the mobile
+  skeleton; configuration; the test table (§9); the message keys (§10).
+- docs/specs/state-machines/patient-context.yaml and .md: the client
+  patient-context machine (Appendix B.3, version 1). Approval is requested
+  from cso, physician-panel and nurse-panel, with approved_by empty and
+  record null; every transition is proposed (OQ-149). The readings it
+  encodes are DN-026, DN-027, DN-028 and DN-032.
+- docs/specs/hal/: HAL contract v1 (README, hal-v1.schema.json and 69
+  synthetic fixtures; OQ-150).
+- Decisions DN-020 to DN-032, open questions OQ-140 to OQ-152 and known
+  anomalies KA-025 to KA-036. KA-013 now names patient-context.yaml as the
+  first spec it affects.
+- Tightening notes [P] on CTRL-0005-17, CTRL-0016-3, CTRL-0016-6 and
+  CTRL-0016-7, with the matching rows and open question 10 in
+  docs/safety/README.md. No invariant text or control state changed;
+  every control is still planned.
+- Backlog: PLT-UX-01, PLT-UX-02, PLT-UX-03 and KRI-LOC-01 move to spec,
+  with notes; BACKLOG.md is re-rendered by the tool.
+- WORK-PACKAGES.md: WP-0.7 is in-progress. WP-0.7.md records the branch
+  (cut from wp/0.1-programme-bootstrap and fast-forwarded to 05f159a
+  before its first commit), the slices S0 to S13, what S0 delivered and
+  the [HUMAN] gates.
+- STATUS.md now describes this branch: WP-0.7, slice S0 at spec, the
+  next step (the fast-tier run of record, then slice S1) and the items
+  waiting on humans. WP-0.1's pending records stay with
+  wp/0.1-programme-bootstrap.
+
+Decisions recorded:
+- DN-021, closed 2026-10-18. Answered in chat through the question tool
+  by the human lead: "AI drafts, you check (Recommended)". The ckb and ar
+  text is drafted by the agent and marked unreviewed; a clinician review
+  stays a gate before hospital use (OQ-151, KA-031).
+- DN-022, closed 2026-10-18. Answered in chat through the question tool
+  by the human lead: "Approve all three (Recommended)". 0BSD, Unicode-3.0
+  and Zlib join the shipped allowlist in slice S1.
+- Open, to be decided by the human lead (defaults in use): DN-020 (branch
+  base), DN-023 (Windows bundle), DN-024 (Android SDK, macOS), DN-025
+  (Expo and pnpm).
+- Open, to be decided by the CSO [HUMAN]; the stricter default is in use
+  meanwhile: DN-026 to DN-032, the readings of SI-16, SI-01 and SI-05.
+  The CSO also confirms or removes the Western-digit tightening of
+  CTRL-0005-17 (OQ-141).
+
+Hazards: HAZ-0016 (CTRL-0016-1, CTRL-0016-3 to CTRL-0016-8), HAZ-0001
+(CTRL-0001-4, CTRL-0001-6, CTRL-0001-7), HAZ-0005 (CTRL-0005-3,
+CTRL-0005-6, CTRL-0005-17), HAZ-0011 (CTRL-0011-8, CTRL-0011-11; the HAL
+contract and simulated devices only) and HAZ-0020 (CTRL-0020-7, the
+allowlist principle of the HAL audit record). No control is implemented
+or verified.
+
+Checks: safety check, backlog check and repo check PASS, and
+`tools/ci/run fast --no-evidence` PASS (tests=1253, failures=0), all on
+the Windows host (not evidence of record). The fast-tier run of record in
+the WSL clone at this commit has not been made.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

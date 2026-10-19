@@ -1,0 +1,66 @@
+feat(design-system): WP-0.7 S5a patient banner
+
+Slice S5a of WP-0.7 (design system and client shells) builds the one
+patient banner of docs/specs/modules/design-system.md §2.1 in
+frontend/packages/design-system/src/banner.
+
+What S5a adds:
+- PatientBanner: a <section> named banner.region.label that renders
+  PatientIdentity, then allergies (NKA, not assessed, unavailable, or a
+  list showing every item whole), code status, isolation and the dated
+  weight with its source and date, through ClinicalNumber (U+202F group
+  separators removed from ui-core's display form, character work only).
+  In the error state every field still renders; the section carries
+  data-error-state, data-signing-blocked and data-identity-incomplete
+  from ui-core's banner model. An optional actions slot.
+- PatientIdentity, reused by the switch confirmation, the
+  re-verification step, the palette and the chooser: the error state,
+  the photo, every name form (labelled, own script first, a missing form
+  shown as missing), the MRN in an LTR bdi, the date of birth at its
+  precision with the approximate flag, and "Identity incomplete".
+- PatientPhoto ("No photo" when absent, invalid or failing to load),
+  BannerStatus and BANNER_STATUSES (text, icon shape and tone for each
+  status), StatusIcon (12 inline SVG shapes, aria-hidden, never
+  mirrored, outlines distinct within a field), GovernedLabel ("Not
+  translated" on fallback) and useBannerLocale.
+- banner.css: logical properties and token pairs only; no ellipsis,
+  line clamp, fixed height, hidden overflow or nowrap on text;
+  overflow-wrap: anywhere. Imported by styles.css; the banner is
+  exported from the package entry point and listed in the README
+  (integrator wiring).
+- OQ-161 (open): S5a's engineering choices (decorative icons named by
+  their text, tones, the error-state layout, the photo placeholder, how
+  ClinicalNumber gets the weight, governed-label locale, wrapping,
+  reuse of PatientIdentity).
+
+Tests (spec §9 names): UnitTest:banner-renders-every-field,
+UnitTest:banner-missing-data-visible,
+UnitTest:banner-identifiers-never-room-or-bed,
+UnitTest:colour-not-only-carrier, UnitTest:bidi-isolation and
+UnitTest:banner-long-names-wrap (the unit part; jsdom has no layout,
+the narrowest width is E2E:visual and E2E:pseudo-locale in S7). 138
+tests in 6 files; @hms/design-system 219 tests in 14 files.
+
+Checks on the Windows host (not evidence of record), this commit's
+tree (S2 to S4, S8 and S5a, with S5b's files moved out of the
+worktree): `sh tools/ci/run fast --no-evidence` PASS, 8 of 8 steps,
+tests=1992, failures=0: python-unit-tests 688, backend-fast 66,
+frontend-fast 1238 (design-system 219, hal-client 365, ui-core 89,
+i18n 89, eslint-plugin-hms 473, web 3); CSS logical lint findings=0;
+catalogue lint PASS; repo, safety and backlog checks and the secret
+scan PASS. A first run on the same tree failed on host state only:
+repo-check on three t3/* local branches of another session (since
+removed) and python-unit-tests at its 900 s limit on a host at 100%
+CPU from other sessions. Not run: the WSL build host.
+
+Hazards: HAZ-0016 (CTRL-0016-3, which names
+UnitTest:banner-renders-every-field; partly built, KA-033). Spec §9
+also relates UnitTest:banner-renders-every-field to CTRL-0001-7
+(HAZ-0001) and CTRL-0005-3 (HAZ-0005),
+UnitTest:banner-missing-data-visible to CTRL-0016-3 and CTRL-0001-6,
+UnitTest:banner-identifiers-never-room-or-bed to CTRL-0001-4 and
+UnitTest:banner-long-names-wrap to CTRL-0016-3, none named there yet.
+No control changes state; implemented_in and verified_by are left for
+S12.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

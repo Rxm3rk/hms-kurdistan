@@ -1,0 +1,120 @@
+$ corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run i18n:lint
+$ eslint --max-warnings 0 . && node packages/eslint-plugin-hms/src/css/cli.ts
+frontend-css-logical: PASS (files=0, findings=0)
+$ tsc --noEmit -p tsconfig.json && corepack pnpm -r run typecheck
+Scope: 6 of 7 workspace projects
+packages/i18n typecheck$ tsc --noEmit -p tsconfig.json
+packages/eslint-plugin-hms typecheck$ tsc --noEmit -p tsconfig.json
+packages/ui-core typecheck$ tsc --noEmit -p tsconfig.json
+packages/ui-core typecheck: Done
+packages/hal-client typecheck$ tsc --noEmit -p tsconfig.json
+packages/i18n typecheck: Done
+packages/design-system typecheck$ tsc --noEmit -p tsconfig.json
+packages/eslint-plugin-hms typecheck: Done
+packages/hal-client typecheck: Done
+packages/design-system typecheck: Done
+apps/web typecheck$ tsc --noEmit -p tsconfig.json
+apps/web typecheck: Done
+$ node scripts/clean-junit-reports.ts && corepack pnpm -r run test
+Scope: 6 of 7 workspace projects
+packages/ui-core test$ vitest run
+packages/eslint-plugin-hms test$ vitest run
+packages/i18n test$ vitest run
+packages/eslint-plugin-hms test: 
+packages/i18n test: 
+packages/i18n test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/i18n
+packages/eslint-plugin-hms test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/eslint-plugin-hms
+packages/i18n test: 
+packages/eslint-plugin-hms test: 
+packages/ui-core test: 
+packages/ui-core test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/ui-core
+packages/ui-core test: 
+packages/eslint-plugin-hms test:  ✓ test/physical-css.test.ts (11 tests) 28ms
+packages/i18n test:  ✓ test/locales.test.ts (4 tests) 15ms
+packages/i18n test:  ✓ test/catalogue-lint.test.ts (23 tests) 50ms
+packages/i18n test:  ✓ test/catalogues.test.ts (5 tests) 43ms
+packages/i18n test:  ✓ test/duplicate-keys.test.ts (5 tests) 14ms
+packages/ui-core test:  ✓ test/smoke.test.ts (3 tests) 15ms
+packages/ui-core test: 
+packages/ui-core test:  Test Files  1 passed (1)
+packages/ui-core test:       Tests  3 passed (3)
+packages/ui-core test:    Start at  03:43:35
+packages/ui-core test:    Duration  1.46s (import 82%, transform 10%, worker 4%, tests 4%)
+packages/ui-core test: 
+packages/ui-core test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/ui-core.xml
+packages/ui-core test: Done
+packages/hal-client test$ vitest run
+packages/hal-client test: 
+packages/hal-client test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/hal-client
+packages/hal-client test: 
+packages/i18n test:  ✓ test/cli.test.ts (4 tests) 2409ms
+packages/i18n test:    ✓ localisation lint CLI (4)
+packages/i18n test:      ✓ passes on the shipped catalogues by default 604ms
+packages/i18n test:      ✓ passes on the valid fixtures, whose plural branches differ by locale 372ms
+packages/i18n test:      ✓ fails on the invalid fixtures with one error per planted problem 388ms
+packages/i18n test:      ✓ exits 2 for an unknown argument or a missing directory 1022ms
+packages/i18n test: 
+packages/i18n test:  Test Files  5 passed (5)
+packages/i18n test:       Tests  41 passed (41)
+packages/i18n test:    Start at  03:43:34
+packages/i18n test:    Duration  3.43s (tests 80%, import 11%, transform 6%, worker 3%)
+packages/i18n test: 
+packages/i18n test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/i18n.xml
+packages/i18n test: Done
+packages/design-system test$ vitest run
+packages/eslint-plugin-hms test:  ✓ test/css-check.test.ts (10 tests) 2904ms
+packages/eslint-plugin-hms test:    ✓ stylesheet check CLI (5)
+packages/eslint-plugin-hms test:      ✓ exits 1 and reports every finding as JSON for physical.css 468ms
+packages/eslint-plugin-hms test:      ✓ exits 0 for logical.css 516ms
+packages/eslint-plugin-hms test:      ✓ exits 1 for a stylesheet it cannot parse 419ms
+packages/eslint-plugin-hms test:      ✓ exits 2 for an unknown option or a missing path 934ms
+packages/eslint-plugin-hms test:      ✓ skips its own fixtures in the default workspace scan 466ms
+packages/eslint-plugin-hms test:  ✓ test/no-jsx-literals.test.ts (117 tests) 905ms
+packages/hal-client test:  ✓ test/smoke.test.ts (3 tests) 499ms
+packages/hal-client test:    ✓ hal-client workspace wiring (3)
+packages/hal-client test:      ✓ compiles the HAL contract v1 schema with Ajv (JSON Schema 2020-12) 489ms
+packages/hal-client test: 
+packages/hal-client test:  Test Files  1 passed (1)
+packages/hal-client test:       Tests  3 passed (3)
+packages/hal-client test:    Start at  03:43:38
+packages/hal-client test:    Duration  1.45s (tests 54%, import 40%, transform 4%, worker 2%)
+packages/hal-client test: 
+packages/hal-client test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/hal-client.xml
+packages/hal-client test: Done
+packages/design-system test: 
+packages/design-system test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/design-system
+packages/design-system test: 
+packages/eslint-plugin-hms test:  ✓ test/no-physical-css.test.ts (331 tests) 1531ms
+packages/eslint-plugin-hms test:  ✓ test/plugin.test.ts (4 tests) 3388ms
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  Test Files  5 passed (5)
+packages/eslint-plugin-hms test:       Tests  473 passed (473)
+packages/eslint-plugin-hms test:    Start at  03:43:34
+packages/eslint-plugin-hms test:    Duration  5.73s (tests 57%, import 40%, transform 2%, worker 1%)
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/eslint-plugin-hms.xml
+packages/eslint-plugin-hms test: Done
+packages/design-system test:  ✓ test/smoke.test.tsx (3 tests) 55ms
+packages/design-system test: 
+packages/design-system test:  Test Files  1 passed (1)
+packages/design-system test:       Tests  3 passed (3)
+packages/design-system test:    Start at  03:43:39
+packages/design-system test:    Duration  2.58s (environment 76%, setup 17%, tests 2%, transform 2%, import 2%)
+packages/design-system test: 
+packages/design-system test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/design-system.xml
+packages/design-system test: Done
+apps/web test$ vitest run
+apps/web test: 
+apps/web test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/apps/web
+apps/web test: 
+apps/web test:  ✓ test/smoke.test.tsx (3 tests) 44ms
+apps/web test: 
+apps/web test:  Test Files  1 passed (1)
+apps/web test:       Tests  3 passed (3)
+apps/web test:    Start at  03:43:43
+apps/web test:    Duration  3.66s (environment 48%, import 39%, setup 10%, transform 2%, tests 1%)
+apps/web test: 
+apps/web test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/web.xml
+apps/web test: Done
+$ node packages/i18n/src/lint/cli.ts
+frontend-i18n-catalogues: PASS (catalogues=3, keys=4, messages=12)

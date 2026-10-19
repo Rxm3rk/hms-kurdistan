@@ -1,0 +1,362 @@
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;wp08 pid=153222 since=2026-10-19T11:56:25+03:00;)
+heavy.sh: wp05 got slot2.lock after 60s
+Calculating task graph as no cached configuration is available for tasks: :modules:medications:ktlintFormat :modules:medications:test :modules:medications:propertyTest :modules:medications:detekt :modules:medications:ktlintCheck :modules:medications:verifyArchitectureTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :modules:medications:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:state-machine:processResources NO-SOURCE
+> Task :platform:state-machine:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:state-machine:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:state-machine:compileJava NO-SOURCE
+> Task :platform:state-machine:classes UP-TO-DATE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:state-machine:jar UP-TO-DATE
+> Task :modules:medications:processTestResources NO-SOURCE
+> Task :modules:medications:processPropertyTestResources NO-SOURCE
+> Task :modules:medications:processResources NO-SOURCE
+> Task :modules:medications:processTestFixturesResources NO-SOURCE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :modules:medications:loadKtlintReporters FROM-CACHE
+> Task :modules:medications:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+
+> Task :modules:medications:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :modules:medications:runKtlintCheckOverKotlinScripts
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :modules:medications:ktlintKotlinScriptCheck
+
+> Task :modules:medications:detekt
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:1:1: File 'C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt' with '18' functions detected. Defined threshold inside files is set to '11' [TooManyFunctions]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:440:17: The function perturbDoubleCheck appears to be too complex based on Cyclomatic Complexity (complexity: 15). Defined complexity threshold for methods is set to '15' [CyclomaticComplexMethod]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:345:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:380:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:414:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:414:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:444:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:444:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:483:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:563:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:627:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:664:31: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:122:60: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:189:62: In most cases using a spread operator causes a full copy of the array to be created before calling a method. This may result in a performance penalty. [SpreadOperator]
+
+Analysis failed with 14 weighted issues.
+
+> Task :modules:medications:detekt FAILED
+> Task :modules:medications:compileKotlin
+> Task :modules:medications:compileJava NO-SOURCE
+> Task :modules:medications:classes UP-TO-DATE
+> Task :modules:medications:jar
+> Task :modules:medications:runKtlintCheckOverPropertyTestSourceSet
+> Task :modules:medications:runKtlintCheckOverTestSourceSet
+> Task :modules:medications:runKtlintFormatOverKotlinScripts
+> Task :modules:medications:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:medications:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :modules:medications:ktlintKotlinScriptFormat
+> Task :modules:medications:ktlintIntegrationTestSourceSetCheck SKIPPED
+
+> Task :modules:medications:ktlintPropertyTestSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:187:13 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:191:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:191:39 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:192:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:192:46 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:314:58 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:315:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:316:37 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:317:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:317:41 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:374:70 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:472:71 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:521:70 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:547:73 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:559:71 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:559:89 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\propertyTest\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationPropertyTest.kt:652:72 Expected newline before '.'
+
+> Task :modules:medications:ktlintTestSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\test\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuardsTest.kt:526:21 Expected newline before '.'
+
+> Task :modules:medications:runKtlintCheckOverMainSourceSet
+> Task :modules:medications:runKtlintCheckOverTestFixturesSourceSet
+
+> Task :modules:medications:ktlintMainSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:363:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:363:48 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:363:60 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:363:70 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:365:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:365:43 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:366:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:366:50 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:418:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:419:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:420:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:421:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:421:55 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:451:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:453:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:454:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:491:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:492:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:493:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:523:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:526:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\main\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationGuards.kt:527:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+
+> Task :modules:medications:runKtlintFormatOverTestSourceSet
+> Task :modules:medications:runKtlintFormatOverTestFixturesSourceSet
+> Task :modules:medications:ktlintTestSourceSetFormat
+> Task :modules:medications:ktlintTestFixturesSourceSetFormat
+
+> Task :modules:medications:ktlintTestFixturesSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:114:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:115:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:115:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:116:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:117:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:120:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:120:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:121:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:121:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:122:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:122:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:277:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:278:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:278:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:279:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:279:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:280:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:280:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:281:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:281:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:282:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:282:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:283:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:283:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:284:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:284:22 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:285:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:285:25 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:355:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:356:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:356:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:357:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:357:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:358:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:358:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:359:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:359:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:360:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:360:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:361:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:361:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:362:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:363:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:366:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:366:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:396:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:397:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:397:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:398:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:398:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:399:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:399:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:400:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:400:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:401:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:401:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:402:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:402:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:403:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:404:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:404:22 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:407:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:407:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:432:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:433:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:433:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:434:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:434:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:435:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:436:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:470:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:471:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:471:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:472:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:473:17 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:487:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:487:18 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:488:1 Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\src\testFixtures\kotlin\hms\medications\domain\medicationadministration\MedicationAdministrationArbs.kt:488:21 Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body
+
+> Task :modules:medications:runKtlintFormatOverMainSourceSet
+> Task :modules:medications:ktlintMainSourceSetFormat
+> Task :modules:medications:runKtlintFormatOverPropertyTestSourceSet
+> Task :modules:medications:ktlintPropertyTestSourceSetFormat
+> Task :modules:medications:ktlintFormat
+> Task :modules:medications:compileTestFixturesKotlin
+> Task :modules:medications:compileTestFixturesJava NO-SOURCE
+> Task :modules:medications:testFixturesClasses UP-TO-DATE
+> Task :modules:medications:testFixturesJar
+
+> Task :modules:medications:compileTestKotlin
+e: warnings found and -Werror specified
+w: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-5dcdaa39/backend/modules/medications/src/test/kotlin/hms/medications/domain/medicationadministration/MedicationAdministrationGuardsTest.kt:734:87 Unnecessary safe call on a non-null receiver of type 'BackEntry'.
+w: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-5dcdaa39/backend/modules/medications/src/test/kotlin/hms/medications/domain/medicationadministration/MedicationAdministrationGuardsTest.kt:735:87 Unnecessary safe call on a non-null receiver of type 'BackEntry'.
+
+> Task :modules:medications:compileTestKotlin FAILED
+> Task :modules:medications:compilePropertyTestKotlin
+> Task :modules:medications:compilePropertyTestJava NO-SOURCE
+> Task :modules:medications:propertyTestClasses UP-TO-DATE
+> Task :modules:medications:propertyTest
+
+FAILURE: Build completed with 6 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:medications:detekt' (registered by plugin 'hms.quality-conventions').
+> Process 'command 'C:\Users\Surface\.t3\projects\hospitalmanagementsystem\.tools\jdk-25.0.4.1+1\bin\java.exe'' finished with non-zero exit value 2
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:medications:ktlintPropertyTestSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintPropertyTestSourceSetCheck\ktlintPropertyTestSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintPropertyTestSourceSetCheck\ktlintPropertyTestSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:medications:ktlintTestSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintTestSourceSetCheck\ktlintTestSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintTestSourceSetCheck\ktlintTestSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+4: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:medications:ktlintMainSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintMainSourceSetCheck\ktlintMainSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintMainSourceSetCheck\ktlintMainSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+5: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:medications:ktlintTestFixturesSourceSetCheck' (registered by plugin 'org.jlleitschuh.gradle.ktlint').
+> A failure occurred while executing org.jlleitschuh.gradle.ktlint.worker.ConsoleReportWorkAction
+   > KtLint found code style violations. Please see the following reports:
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintTestFixturesSourceSetCheck\ktlintTestFixturesSourceSetCheck.txt
+     - C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\medications\build\reports\ktlint\ktlintTestFixturesSourceSetCheck\ktlintTestFixturesSourceSetCheck.xml
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+6: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:medications:compileTestKotlin' (registered by plugin 'org.jetbrains.kotlin.jvm').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 1m 16s
+45 actionable tasks: 28 executed, 1 from cache, 16 up-to-date
+Configuration cache entry stored.
+exit 1

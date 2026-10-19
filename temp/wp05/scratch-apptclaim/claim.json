@@ -1,0 +1,9 @@
+{"p": {"coverageActive": 0.85, "preApprovalRequestComplete": 0.85, "payerQueryRecorded": 0.85, "queryResponseComplete": 0.85,
+ "approvalTermsRecorded": 0.85, "enhancementRequestComplete": 0.8, "enhancementApprovedBefore": 0.5, "clinicalDischargeRecorded": 0.85,
+ "dischargeAuthRequestComplete": 0.85, "everyLineWithinPreApprovalOrFlagged": 0.85, "finalApprovalTermsRecorded": 0.85,
+ "claimPackComplete": 0.85, "settlementRecorded": 0.85, "settledInFull": 0.5, "deductionReasonsRecorded": 0.8,
+ "denialReasonsRecorded": 0.3, "appealGroundsRecorded": 0.7, "appealWithinDeadline": 0.8, "reconciliationComplete": 0.8,
+ "withdrawalReasonRecorded": 0.12, "privilegedAndAudited": 0.8, "correctionReasonEntered": 0.85},
+ "complement": {"noEnhancementApprovedBefore": "enhancementApprovedBefore", "settledShort": "settledInFull"},
+ "partition": {"stage": {"queryOnPreApproval": 0.22, "queryOnEnhancement": 0.22, "queryOnDischargeAuth": 0.22, "queryOnClaim": 0.22}},
+ "derived": {"queryNotOnClaim": "not queryOnClaim"}}

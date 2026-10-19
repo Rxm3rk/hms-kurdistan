@@ -1,0 +1,52 @@
+..................................................................................................................bootstrap: file.bin: SHA-256 mismatch after download (b5c1fb2efc6d6b4674c2fdcc48ce01b43a3b7c03763c0c3355de0099ee0f8c73); deleted, fetching once more from the start
+.bootstrap: file.bin.part: already complete (16 bytes), verifying
+bootstrap: verified file.bin (sha256 386fd68c7a974d99b14e0b9b6cb67a6399559b565636cff91f32e8f25eac4dae)
+.bootstrap: verified file.bin (sha256 44f8354494a5ba03ba1792a8d3e9c534c47a9181980fde7a3f44b06ef2ae7c7f)
+..bootstrap: resuming https://h.invalid/f at 700 bytes
+bootstrap: verified file.bin (sha256 e392378f849d67bbb1a7bbec84f1098ae3faa751049c009a850130ce6073d91a)
+.bootstrap: reusing verified file.bin
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: JDK: jdk-25.0.4.1+1 exists but does not report the pinned release; replacing it
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+.bootstrap: JDK: reusing .tools/jdk-local-copy (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: reusing verified fake-OpenJDK25U-jdk.zip
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: fake-OpenJDK25U-jdk.zip: SHA-256 mismatch after download (09fdf3db4f4b9d3aad710d2497924e057969942ab5e20fd532f3ae0bbf00c561); deleted, fetching once more from the start
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 64447a5a4ef0cbb4b1bdb883c871d1f58541d6128ba6dc86abdba0393dd48d08)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 64447a5a4ef0cbb4b1bdb883c871d1f58541d6128ba6dc86abdba0393dd48d08)
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+.bootstrap: JDK: not using .tools/jdk-25.0.5+11: it reports java "25.0.5", Temurin-25.0.5+11 (build 25.0.5+11-LTS) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: not using .tools/jdk-amazon-corretto-25: it reports java "25.0.4", Corretto-25.0.4.7.1 (build 25.0.4+7-LTS) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: not using .tools/jdk-ubuntu-25: it reports java "25.0.4.1" (build 25.0.4.1+1-Ubuntu-1ubuntu124.04) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+.bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 de58f9355070235d464c14cb26b487fac5d893f59788677b1249b335ed7d452f)
+....bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+.bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+bootstrap: frontend: Done in 1s
+..bootstrap: frontend: no frontend/package.json; nothing to install
+...bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: fetching from the mirror https://mirror.invalid/g/gradle-1.0-bin.zip; verifying against the official checksum 11e3e8d180c6459653ce95a88e853ab1a4d481de919db9faf4b01e5dbddf3ec6
+bootstrap: verified gradle-1.0-bin.zip (sha256 11e3e8d180c6459653ce95a88e853ab1a4d481de919db9faf4b01e5dbddf3ec6)
+bootstrap: Gradle: placed .tools/gradle-home/wrapper/dists/gradle-1.0-bin/5rgtyagbuldvidyz59he0pky7/gradle-1.0-bin.zip; the wrapper unpacks it on first use
+bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wrapper/dists/gradle-1.0-bin/5rgtyagbuldvidyz59he0pky7/gradle-1.0-bin.zip
+..bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: fetching from the mirror https://mirror.invalid/gradle-1.0-bin.zip; verifying against the official checksum 770e607624d689265ca6c44884d0807d9b054d23c473c106c72be9de08b7376c
+bootstrap: gradle-1.0-bin.zip: SHA-256 mismatch after download (d121be3103007b41edf96f8262925f8c7d61894afe9a041843b631f69445bc57); deleted, fetching once more from the start
+..........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 615 tests in 160.371s
+
+OK
+rc=0

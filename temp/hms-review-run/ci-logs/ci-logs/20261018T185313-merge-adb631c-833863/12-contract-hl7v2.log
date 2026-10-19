@@ -1,0 +1,6 @@
+# contract-hl7v2
+# command: (not built: HL7 v2 conformance-profile tests per interface)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# HL7 v2 conformance-profile tests per interface: not built yet; WP-1.1b builds it. Counted as a failure (fail closed).
+

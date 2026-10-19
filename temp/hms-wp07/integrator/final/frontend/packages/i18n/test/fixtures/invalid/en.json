@@ -1,0 +1,10 @@
+{
+  "fixture.ok": "SYN-en",
+  "fixture.missingInCkb": "SYN-en",
+  "fixture.empty": "SYN-en",
+  "fixture.broken": "SYN-en {name}",
+  "fixture.placeholders": "SYN-en {name} {count, number}",
+  "fixture.ok": "SYN-en duplicate",
+  "banner.fixture": "SYN-en",
+  "clinical.fixtureCount": "{count, plural, one {SYN-en #} other {SYN-en #}}"
+}

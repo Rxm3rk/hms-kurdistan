@@ -1,0 +1,8 @@
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+bootstrap: Gradle: gradle-9.8.1-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wrapper/dists/gradle-9.8.1-bin/a2l6ltp3k1vth6lwipzm5p2jp/gradle-9.8.1-bin.zip
+bootstrap: gitleaks: reusing .tools/bin/gitleaks (8.30.1)
+bootstrap: venv: reusing .tools/venv (matches tools/requirements.txt)
+bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+bootstrap: frontend: Done in 193ms using pnpm v12.12.1
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"

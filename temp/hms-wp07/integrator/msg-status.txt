@@ -1,0 +1,29 @@
+docs(programme): WP-0.7 status after slices S2, S3, S4 and S8
+
+STATUS.md now records the checkpoint of the parallel slices: S2
+(cad75ae, @hms/i18n), S3 (037b572, @hms/ui-core), S4 (ff77e46,
+@hms/design-system) and S8 (b597713, @hms/hal-client and the
+label-printer simulator), each committed alone after its own fast-tier
+run. No slice is in flight; the next step is the WSL fast-tier run of
+record at b597713, then S5a and S5b with S9 and S10 beside them.
+
+Integrator choice [P] recorded: WP-0.7's OQ range OQ-140…OQ-159 is
+full, so it is extended to OQ-160…OQ-169 (no other branch uses them);
+S4's entry, first written as a second OQ-157, is OQ-160 (renumbered in
+ff77e46). The items the slices handed on (the KA-042 lint ban, the §9
+table row for UnitTest:ckb-ar-drafts-marked-unreviewed, S9's IPC
+commands and deadline, S6's injected idempotency key, the plan's
+label-printer path) are listed.
+
+Backlog: PLT-UX-01, PLT-UX-02, PLT-UX-03 and KRI-LOC-01 move from spec to
+in-progress, with notes naming the slices; BACKLOG.md re-rendered with
+`sh tools/hms backlog render`.
+
+Checks: `sh tools/ci/run fast --no-evidence` PASS on the Windows host
+(not evidence of record), 8 of 8 steps, tests=1854, failures=0
+(python 688, backend 66, frontend 1100); backlog check PASS
+(status_in-progress=4, status_spec=0).
+
+Hazards: none; a status record only.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

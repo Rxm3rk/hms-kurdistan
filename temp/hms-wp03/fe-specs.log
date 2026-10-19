@@ -1,0 +1,16 @@
+heavy.sh: waiting for a slot (wp05 pid=105352 since=2026-10-19T10:44:38+03:00;)
+heavy.sh: waiting for a slot (wp05 pid=111570 since=2026-10-19T10:48:44+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;wp08 pid=89838 since=2026-10-19T11:05:19+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=100127 since=2026-10-19T10:49:55+03:00;wp08 pid=89838 since=2026-10-19T11:05:19+03:00;)
+heavy.sh: wp03 got slot2.lock after 1185s
+tools/ci/run fast: 1 step(s) (PARTIAL: --only); logs in build/ci-logs/20261019T110953-fast-09afa41-18292a
+[1/1] frontend-fast ...
+[1/1] frontend-fast: PASS (161.5 s) tests=514, failures=0, errors=0, skipped=0
+tools/ci/run fast: PARTIAL (1 passed, 0 failed, 0 not built; tests=514, failures=0, errors=0, skipped=0; 162 s)
+exit=3

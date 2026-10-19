@@ -1,0 +1,80 @@
+feat(web): WP-0.7 S6 web frame, clinical layout and demo route
+
+Slice S6 of WP-0.7 builds the web client of
+docs/specs/modules/design-system.md §2.2, §2.9, §4 and §5 in
+frontend/apps/web.
+
+What S6 adds:
+- The frame (src/frame): LocaleProvider from ?locale=, the modal stack,
+  DensityProvider from ?density=, the React Aria router, a skip link,
+  the navigation, the command palette, the language picker, the density
+  control, a patient-context status region, the switch confirmation,
+  the demo watermark, the document title from the catalogue and a
+  focus-time check of the session user.
+- Routing (src/routing): code-based TanStack Router routes built by
+  createAppRouteTree; `clinical: boolean` is required on every route's
+  staticData by type; the pathless `_clinical` layout renders
+  PatientBanner and the close control, the chooser when no patient is
+  open, and nothing patient-specific while the address and the context
+  name different patients; a string-only, Zod-validated search format.
+- The patient context (src/patient): one store per window that applies
+  ui-core's transition and adds no rule; the address is a request,
+  never a selection; an unknown patient is never opened (the address is
+  put back), while a failing directory opens the patient with the
+  banner's error state and signing blocked; only the latest request
+  counts and an overtaken or cancelled request sends nothing; the
+  TanStack Query cache is keyed by patient, has no network mode, retry
+  or refetch, and is pruned after every transition; random v4 UUID
+  idempotency keys from getRandomValues; the §2.2 switch confirmation
+  (an alertdialog whose Confirm asks the machine through
+  enabledTransitions) and a GridList patient chooser.
+- The demo (src/demo): /demo/banner under `_clinical`, 25 synthetic
+  Zod-validated fixtures covering every §5 case, a synthetic user, the
+  simulated authenticator and submitter, and an abstract synthetic
+  photo. The app imports src/demo/selected.ts (null); a Vite resolveId
+  plugin swaps in src/demo/index.ts only for `vite build` with
+  VITE_HMS_DEMO=1 and, by default, for the development server.
+- Built pages carry a Content-Security-Policy (default-src 'none', own
+  origin only, React Aria's two style elements by hash, Zod jitless);
+  servers listen on 127.0.0.1 only. Logical CSS only.
+- S1's smoke test gets a 20 s test timeout (it timed out at 5 s beside
+  the whole-app tests).
+- OQ-163 (open; S6's engineering choices, including the stricter
+  reading that hides the banner while the address and the context
+  disagree, for the CSO) and KA-044 (open; the last number of WP-0.7's
+  KA range: no patient, user or clinical route in a production build
+  until WP-0.4, user change noticed on window focus only, missing
+  catalogue keys, react-intl's MISSING_DATA for ckb, the HAL capture
+  binding not wired).
+
+Tests: ArchTest:banner-present-on-every-clinical-route
+(route-tree.test.ts, the spec §9 name), 7 tests;
+demo-absent-from-production-bundle (demo-build-exclusion.test.ts,
+including two in-memory Vite builds), 4; demo fixtures, 30; the patient
+query cache, 12; the address is a request to the patient context, 11;
+the smoke test, 3. @hms/web 67 tests in 6 files.
+
+Checks on the Windows host (not evidence of record), this commit's
+tree: `sh tools/ci/run fast --no-evidence` PASS, 8 of 8 steps,
+tests=2118, failures=0: python-unit-tests 688, backend-fast 66,
+frontend-fast 1364 (web 67, design-system 281, hal-client 365, ui-core
+89, i18n 89, eslint-plugin-hms 473); repo, safety and backlog checks
+and the secret scan PASS. A first run on the same tree failed on host
+state only: from the Python step on, every child process exited with
+0xC0000142 (STATUS_DLL_INIT_FAILED) on a host under load from other
+sessions; no test assertion failed. Served checks of the production
+and demo builds in headless Chrome (dir, computed direction, bdi
+isolation, axe 0 violations, no CSP violations, no external requests,
+no Eastern Arabic-Indic digits) were run by the slice's implementer
+and fixer on the Windows host; they are hand checks, not S7's E2E
+tests. Not run: the WSL build host.
+
+Hazards: HAZ-0016 (CTRL-0016-5, which names
+ArchTest:banner-present-on-every-clinical-route; the mobile and print
+parts of that control are not built). Spec §9 relates the demo
+exclusion to no control yet. The address-is-a-request and query-cache
+tests serve CTRL-0016-6 (HAZ-0016), which names only
+E2E:one-patient-context-per-window (S7). No control changes state;
+implemented_in and verified_by are left for S12.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

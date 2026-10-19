@@ -1,0 +1,6 @@
+# container-scan
+# command: (not built: Container image scan)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# Container image scan: not built yet; WP-0.9 (images from WP-0.2) builds it. Counted as a failure (fail closed).
+

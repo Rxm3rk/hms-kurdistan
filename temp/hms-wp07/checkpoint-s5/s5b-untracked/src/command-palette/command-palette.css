@@ -1,0 +1,100 @@
+/*
+ * The command palette (docs/specs/modules/design-system.md §2.4). Logical properties only; every value
+ * comes from tokens.css. Patient results are the banner's PatientIdentity and wrap under banner.css: nothing
+ * here clips, clamps or truncates an item. Targets are at least --hms-target-min-size in both densities.
+ */
+.hms-palette-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--hms-target-min-size);
+  min-block-size: var(--hms-target-min-size);
+  padding: var(--hms-space-1);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+  cursor: pointer;
+}
+
+.hms-palette-trigger__icon {
+  inline-size: 1.25em;
+  block-size: 1.25em;
+}
+
+.hms-palette {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  inline-size: min(40rem, 100%);
+}
+
+.hms-palette__input {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: var(--hms-target-min-size);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  font: inherit;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+}
+
+.hms-palette__hint,
+.hms-palette__count,
+.hms-palette__empty {
+  margin: 0;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.hms-palette__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  outline: none;
+}
+
+.hms-palette__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+}
+
+.hms-palette__group {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text-muted);
+}
+
+.hms-palette__item {
+  min-block-size: var(--hms-target-min-size);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  overflow-wrap: break-word;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid transparent;
+  border-radius: var(--hms-radius-sm);
+  cursor: pointer;
+}
+
+/* The highlighted item: a border and a surface change, so colour is not the only carrier. */
+.hms-palette__item[data-focused] {
+  background-color: var(--hms-color-bg-sunken);
+  border-color: var(--hms-color-focus);
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: calc(-1 * var(--hms-focus-ring-width));
+}
+
+.hms-palette__command {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.hms-palette__detail {
+  color: var(--hms-color-text-muted);
+}

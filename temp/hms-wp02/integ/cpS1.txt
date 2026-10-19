@@ -1,0 +1,55 @@
+## commits
+I made no commits. HEAD is still 889beec ("merge: wp/0.1-programme-bootstrap at 09afa41 into wp/0.2-environments"). The fast tier failed, so I made neither the S1 checkpoint commit nor the "docs(programme): WP-0.2 status after S1" commit. I did not amend, rebase, push or use --no-verify.
+## results
+Fast tier: one run of `sh tools/ci/run fast --no-evidence` on the Windows host, in the worktree C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02 at 889beec, with S0 and S1 staged. It is not evidence of record. Logs are in build/ci-logs/20261019T121329-fast-889beec-22a1a3 and the output is in C:\Users\Surface\AppData\Local\Temp\hms-wp02\s1fix\fast-integrate.txt.
+
+**Overall: FAIL** (8 passed, 1 failed, 0 not built; 1376 tests, 0 failures, 0 errors, 0 skipped; 1049 s; exit 1).
+
+Steps:
+- doctor-fast PASS (6.6 s)
+- repo-check PASS (2.2 s)
+- python-unit-tests PASS (880.4 s, 796 tests). The step timeout is 900 s, so it passed with only about 20 s to spare.
+- safety-check PASS (2.7 s)
+- backlog-check PASS (1.1 s)
+- **cell-lint FAIL (1.0 s)**: the two DN-017 licence errors and nothing else:
+  - "licence: image k3s-local-path-helper (GPL-2.0-only, shipped): gpl-separate-container ... allowed only with an entry in tools/licence/register.yaml ... which records none for it"
+  - "licence: image postgresql (PostgreSQL, shipped): unmapped: 'PostgreSQL' is not classified in tools/licence/policy.yaml"
+- backend-fast PASS (67.8 s, 66 tests)
+- frontend-fast PASS (76.2 s, 514 tests)
+- secret-scan PASS (11.2 s; history_findings=0, working_tree_findings=0)
+
+The whole tier took 1049 s, over §19.1's 10-minute budget.
+
+Staging check: I staged only S1's files on top of S0's staged changes:
+- ADR-002, ADR-030, DECISIONS-NEEDED, KNOWN-ANOMALIES, OPEN-QUESTIONS and dependency-scorecard;
+- tools/hmstools/cell/* (no __pycache__);
+- ci/runner.py, ci/tests/test_ci.py and ci/tiers.py;
+- deploy/site-cell/cell.yaml.
+
+`git diff --cached` contained no key, passphrase or credential. The only matches were variable names (HMS_COSIGN_PASSWORD, COSIGN_PASSWORD), the passphrase_file setting, and test fixtures (a fake public key body, "s3cret-pass" in a unit test). The secret scan found nothing.
+
+After the failure I put the index back exactly as it was: S0 staged, S1 unstaged or untracked. I saved the index tree first with `git write-tree` (805535ea9d0ac6b15771921f55fc8dd45a7f893b, also written to C:\Users\Surface\AppData\Local\Temp\hms-wp02\s1fix\s0-index-tree.txt) and restored it with `git read-tree`; `git write-tree` afterwards gave the same SHA. I did not change any working-tree file.
+## not_committed
+Nothing is committed: all of S1 is still uncommitted in the worktree, and S0's programme entries are still staged but uncommitted. S0 has never been committed, so a later checkpoint commit will carry S0 and S1 together and its message must cover both.
+
+Reasons and what each needs:
+
+1. **cell-lint fails until the lead answers DN-017.**
+   - PostgreSQL is not classified in tools/licence/policy.yaml (nor in ORT's classifications).
+   - BusyBox 1.37.0 (GPL-2.0-only, the k3s local-path helper) has no licence-register entry with a source offer. The other option is a replacement helper image.
+   - Changing policy.yaml or the register is stop-and-ask item 2, so I did not touch it. I also did not weaken the lint or drop the step from the tier.
+
+2. **docs/program/STATUS.md is not updated.** The task allowed that only after a passing fast tier. When it is updated, it should:
+   - add DN-017 and OQ-135…OQ-138 to "Used by WP-0.2 so far";
+   - record S1 as implemented, reviewed and fixed but uncommitted, blocked on DN-017;
+   - give the WSL cell state: the registry k3d-hms-registry.localhost on networks hms-registry 10.213.0.0/24 and hms-cell-offline 10.213.1.0/24 (internal); 22 lite images mirrored and signed; key fingerprint SHA256:798259c3…; the generated passphrase in HMS_CELL_HOME/cosign.password (mode 600); the registry at about 1.9 GiB plus otel 0.163.1.
+
+3. **The fast-tier time budget needs a recorded decision and an ID.**
+   - python-unit-tests passed at 880.4 s against its 900 s timeout here; it timed out in two earlier S1 runs. The whole tier is 1049 s against §19.1's 10 minutes.
+   - The S1 fixer's draft KA has no ID, because WP-0.2's KA-014…KA-024 range is used up. The lead must extend the range or assign an ID.
+   - I did not change the timeout.
+
+4. **Still open for the lead, not edited by me:**
+   - OQ-137: the strict reading has already been applied to the pins (the Kyverno and OpenFGA charts dropped). The lead still has to confirm it.
+   - OQ-136: whether otel 0.163.1, a patch that only repaired the release workflow, counts as the patch release §4.1 requires.
+   - No fast tier of record has run in the WSL clone at any SHA on this branch.

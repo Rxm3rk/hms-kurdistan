@@ -1,0 +1,141 @@
+## files
+All changes are in the worktree C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02. I made no git writes, and S0's staged changes are as they were (I edited only working-tree copies).
+
+New files:
+- tools\hmstools\cell\charts.py: `cell charts fetch|verify`. It reads each archive in memory and also scans chart archives nested inside a chart.
+- tools\hmstools\cell\tests\test_charts.py: 14 tests.
+
+Changed files:
+- deploy\site-cell\cell.yaml (LF line endings):
+  - The Kyverno chart 3.9.1 is replaced by its release manifest, install.yaml of v1.19.1 (SHA-256 d3322cb3…, the digest GitHub lists for the asset).
+  - The OpenFGA chart entry is removed. Its image stays pinned, and S6 writes a template for it.
+  - The Kyverno CLI moves to `tools`. The readiness-checker image is no longer pinned.
+  - The OpenTelemetry Collector moves from 0.162.0 to 0.163.1: digest sha256:e8e86f8e…, index sha256:5bf46de1….
+  - Every image and tool now has a `released` date, and the image entries that need one have a `note`. Manifests now have `version`, `source` and `published`.
+  - The file now has 24 images (22 in lite), 3 tools, 5 charts and 4 manifest files. The pin-set hash is 39013ce7139ebb81fd112363541ba311519eff1faee3bad82d51403d5a939f1f.
+- tools\hmstools\cell\config.py: the lint now requires a quoted date, no later than resolved_on, for images, tools, charts and manifests. A manifest must be pinned by exactly one of `commit` or `release`, and every file URL must be https.
+- tools\hmstools\cell\images.py: a `download` hook on Ctx, so tests can replace the download.
+- tools\hmstools\cell\__main__.py: the new `charts` subcommand.
+- tools\hmstools\ci\runner.py: the git_info fix (the porcelain output is no longer stripped).
+- Tests:
+  - tools\hmstools\ci\tests\test_ci.py: one new test and one stronger assertion.
+  - tools\hmstools\cell\tests\test_config.py: 5 new tests, with the test file updated to the new fields.
+  - tools\hmstools\cell\tests\test_cli.py: one new test.
+- Documents:
+  - docs\program\OPEN-QUESTIONS.md: OQ-123, OQ-125, OQ-135, OQ-136 and OQ-137.
+  - docs\adr\ADR-030-signature-enforcement-kyverno.md: an update bullet under Decision.
+  - docs\adr\ADR-002-runtime-kotlin-jvm-spring.md: the cell's pinned set.
+  - docs\program\dependency-scorecard.md: the pinned version's release date in each row, plus the OpenFGA, OpenTelemetry and Kyverno rows.
+  - docs\program\KNOWN-ANOMALIES.md: KA-019, provenance.
+  - docs\program\DECISIONS-NEEDED.md: DN-017, a note on BusyBox.
+
+Outside the repository:
+- Scratch scripts: C:\Users\Surface\AppData\Local\Temp\hms-wp02\s1fix\.
+- WSL scratch output: /tmp/hms-s1/records/2026-10-19-images-889beec-dirty-2.json, /tmp/hms-s1/kyverno-prod/, /tmp/hms-s1/upstream-sigs3.txt.
+- HMS_CELL_HOME (~/.local/share/hms-cell):
+  - added manifests/kyverno-v1.19.1/install.yaml;
+  - deleted charts/kyverno-3.9.1.tgz and charts/openfga-0.3.12.tgz, which are no longer pinned;
+  - re-downloaded the CNPG chart and one Keycloak CRD, both byte-identical to the earlier copies;
+  - the registry now also holds otel-collector-k8s 0.163.1, signed.
+## runs
+WSL build host (WSL commands ran from the scratch tree /tmp/hms-s1/tree, a clone at 889beec plus the worktree's uncommitted files, using the WSL clone's venv). None of these runs is evidence of record.
+- Issue 7, Kyverno CLI v1.19.1, `apply --registry`, ImageValidatingPolicy with the cell public key, on hms-cell-offline (internal=true, 1 container):
+  - k3s-pause (signed by `cell images sign`): "pass: 1, fail: 0".
+  - valkey: "pass: 1, fail: 0".
+  - k3s-pause with a throwaway key: "failed image signature verification … pass: 0, fail: 1".
+  - The same digest under spike/pause, which the cell key never signed: "pass: 0, fail: 1".
+- Excluded-vendor scanner run on the two dropped charts: kyverno-3.9.1.tgz "errors: 13 notes: 7"; openfga-0.3.12.tgz "errors: 27 notes: 16".
+- `cell lint`: "cell-lint: FAIL (images=24, tools=3, charts=5, manifest_files=4, profiles=2, licences_allowed=25, licences_conditional_registered=0, lite_expected_mib=5460)". The only errors are the two DN-017 licences.
+- `cell charts fetch`, first run (everything already present): "charts fetch [9 files; 2 other mentions of the excluded vendor, not failed]: PASS".
+- `cell charts fetch`, second run, after moving two files aside: both were "downloaded" and "fetched" from the publishers' https URLs, then PASS. cmp showed both identical to the earlier copies.
+- `cell charts verify`: the same 9 files, PASS, rc=0.
+- `cell images mirror --profile lite`: "copied otel-collector … images mirror [lite, 22 images]: PASS". C: had 20,956,065,792 bytes free before and 20,931,289,088 after, above the 15 GiB line.
+- `cell images sign --profile lite` (passphrase exported from the generated file): otel-collector "signed … 1 signature(s) verified against the cell key", then "images sign [lite, 22 images]: PASS".
+- `cell images verify --profile lite --evidence-dir /tmp/hms-s1/records`: "images verify [lite, 22 images]: PASS".
+  - It wrote 2026-10-19-images-889beec-dirty-2.json: cell lite, standing lite, PASS, counts 22/22/22/0, disk_free_gib 19.5, pin_set_sha256 39013ce7…, fingerprint SHA256:798259c3….
+  - Its dirty_files now begin with "docs/adr/ADR-002-runtime-kotlin-jvm-spring.md" (whole path), so the git_info fix shows in the record.
+- Publisher signatures, checked with the pinned cosign (verification only):
+  - 12 of 27 VERIFIED (list in entries).
+  - The other 15 gave "no signatures found" in the first pass.
+  - The first strict pass had TUF fetch failures; the rerun used a persistent TUF cache and retried only fetch errors.
+  - For all 27 pins, the multi-platform index lists the pinned linux/amd64 digest: "27 of 27".
+- Full unit suite: "Ran 796 tests in 796.332s OK (skipped=6)", wall 802 s.
+- Timing per test class: total 613 s, dominated by WP-0.1's safety tests (WithdrawalTest 106.2 s, GpgSignedRecordTest 94.5 s, HistoryShapeTest 65.2 s, MergeConflictTest 63.6 s, …). The slowest S1 class is cell test_config.LintTest at 8.3 s.
+- WithdrawalTest alone: 94 s in ~/src at a9d5725 and 97 s in the scratch tree. Yet the record for a9d5725 gives the whole suite 113.75 s (699 tests).
+
+Windows host (worktree):
+- The new git_info test fails against the old runner ("['EADME.md'] != ['README.md']", 2 failures) and passes against the fixed one ("Ran 6 tests … OK").
+- Cell modules: "Ran 93 tests … OK". S1 modules alone (config, images, signing, charts): about 9.5 s.
+- test_ci: "Ran 37 tests in 56.722s OK". Lint and charts CLI tests: "Ran 3 tests OK".
+- `sh tools/hms repo check`: "repo: PASS (… adrs_total=30, adrs_valid=30, … blocking_now_items=3 …)".
+- `sh tools/hms cell lint`: FAIL, only the two DN-017 licence errors.
+- `sh tools/ci/run fast --no-evidence`, run 1 (while my WSL timing ran): "FAIL (7 passed, 2 failed …; 1064 s)". python-unit-tests "timed out after 900 s"; cell-lint FAIL (DN-017).
+- Run 2 (WSL idle): "FAIL (7 passed, 2 failed, 0 not built; tests=580 …; 1060 s)", the same two failures. doctor-fast, repo-check, safety-check, backlog-check, backend-fast (66 tests), frontend-fast (514 tests) and secret-scan (0 findings) all PASS.
+- Full unit suite with no timeout: "Ran 796 tests in 1126.806s OK".
+## entries
+Issue by issue:
+
+1. Bitnami charts (major): confirmed and fixed.
+   - OQ-137's strict default [P] now applies to the pins themselves:
+     - Kyverno is pinned through its release manifest instead of the chart.
+     - The OpenFGA chart is dropped.
+     - The Kyverno CLI becomes a tool; the readiness-checker image (used only by the chart's test hook) is dropped.
+   - The new `cell charts fetch|verify` checks what each archive and manifest contains:
+     - Errors: chart metadata (Chart.yaml, Chart.lock, requirements.*) that names the vendor, at any depth; or an image of the vendor named in values or templates, or in a manifest.
+     - Counted but not failed: other mentions, such as the Argo CD README's bitnami-labs link and a Temporal helper comment.
+   - Tests cover the Kyverno-shaped case, nested archives, a vendor dependency in Chart.lock, image references, checksum mismatch, no overwriting, the disk guard and https only.
+   - OQ-137 has an update line, and the lead still confirms.
+
+2. cell-lint fails until DN-017 is answered (major): confirmed; no code change.
+   - Any fix touches policy.yaml or the licence register, which is stop-and-ask item 2.
+   - I added one fact to DN-017's context: busybox.net lists 1.37.0 as unstable, and the 1.37 line has no patch release.
+
+3. OpenTelemetry pin (major): confirmed and fixed. The pin is now 0.163.1 (k8s distribution), set through chart 0.176.0's image tag, as Temporal's is.
+   - OQ-136 records that 0.163.1 only repaired the release workflow, and that 0.163.0's images were never published.
+   - If the lead does not count such a patch, the rule gives 0.152.1 instead.
+   - ADR-002 and the scorecard are updated to match.
+
+4. Records that contradict the pins (minor): confirmed and fixed. Dated update lines are in OQ-125 (k3s 1.35.9 and the OpenTelemetry pin, pointing to OQ-136), OQ-123 (ImageValidatingPolicy, OQ-135) and ADR-030 (a bullet under Decision, to be folded in when it is accepted).
+
+5. How "published digest" was checked (minor): confirmed and fixed.
+   - The OQ-136 wording now names only cosign and crane as checked.
+   - Publisher signatures were actually verified for 12 of 27 pins: CloudNativePG and its PostgreSQL image, Strimzi and Kafka, Kyverno (admission, init and CLI images), OpenFGA, SeaweedFS, OpenTelemetry, Argo CD and cosign.
+   - The other 15 publish no signature: k3s and its system images, k3d, Distribution, Temporal, Keycloak, Valkey and crane. That trust-on-first-use gap is recorded in KA-019, since WP-0.2's KA range is used up.
+
+6. git_info cut the first path (minor): confirmed and fixed. The `git status` porcelain output is no longer stripped, and a new test reproduces the original cut path.
+
+7. The spike did not test the production invocation (minor): confirmed. I ran Kyverno against images signed by `cell images sign`; results are under runs and in OQ-135.
+
+8. No release dates for image pins (minor): confirmed and fixed.
+   - Every image and tool has a `released` date in cell.yaml, and the lint requires it.
+   - Charts and manifests have `published`.
+   - The scorecard's pin column now gives the pinned version's date.
+
+9. Fast-tier time (minor): confirmed, and worse than the review found. Not fixed.
+   - The cause is not S1: S1's modules take about 9.5 s.
+   - The same WP-0.1 safety test class takes 94–97 s in WSL even at a9d5725, whose recorded whole suite took 114 s. Either the host has slowed down, or that record does not reflect a typical run.
+   - Draft KA for the integrator, ID not assigned:
+     > The fast tier exceeds §19.1's 10 minutes. python-unit-tests timed out at 900 s twice on the Windows host (19 Oct 2026; 796 tests take 1127 s untimed). It takes 802 s on the WSL build host, against 114 s in the a9d5725 record. Dominated by the safety sign-off tests. The timeout is unchanged.
+
+For the integrator's STATUS.md line: S1 now uses DN-017 and OQ-135 to OQ-138, and no new IDs came from these fixes.
+## problems
+1. The fast tier fails on the Windows host for two reasons:
+   - cell-lint fails until DN-017 is answered;
+   - python-unit-tests now times out at 900 s (twice on the Windows host), and takes 802 s on the WSL build host.
+   - I did not raise the timeout. The S1 checkpoint needs DN-017 answered and a decision on the time budget.
+   - I could not record the budget breach as a KA: WP-0.2's range KA-014…KA-024 is used up (KA-024 holds the git_info naming rule). The integrator needs to extend the range or assign an ID.
+2. No fast tier ran on the WSL build host as a tier. Only the unit suite ran there. The scratch tree has no .tools or node_modules, so I used the WSL clone's venv.
+3. The slowdown in WSL is not explained.
+   - The same safety test class at a9d5725 now takes 94 s, against a recorded whole-suite time of 114 s.
+   - /run/user/1000/gnupg holds 389 leftover socket directories, and 5 gpg-agents are running, probably left by the safety tests. I did not touch them because they are outside S1. They may be related.
+4. Choices that need the lead:
+   - Following OQ-137's default now changes cell.yaml before the lead confirms it. If the lead chooses option 1 or 3, the two charts go back in and `charts verify` needs an exception for disabled subcharts.
+   - S3 must apply install.yaml without the background, cleanup and reports controllers. Their images are not pinned, so Kyverno's admission check would refuse them if applied.
+5. Pins and stale state:
+   - The OpenTelemetry pin is 0.163.1, a "patch" that only repaired the release workflow. The lead may read the rule differently (OQ-136).
+   - The registry still holds the spike repositories and now-unpinned images (kyverno-cli and readiness-checker under local paths, otel-collector-k8s 0.162.0). Deletion is disabled on the registry, so they stay.
+6. Signing and records:
+   - The passphrase is still the generated one in HMS_CELL_HOME (mode 600). I exported it from that file only for the signing run.
+   - The new scratch record carries pin-set hash 39013ce7…. Any later edit to cell.yaml makes that hash stale.
+7. Some publisher-signature checks matched the repository but not the release tag: Strimzi (operator and Kafka) and CloudNativePG's PostgreSQL image.
+8. Disk: C: went from about 25 GB to 20.9 GB free during the session, mostly through other activity on the host. That is still above the 15 GiB line.

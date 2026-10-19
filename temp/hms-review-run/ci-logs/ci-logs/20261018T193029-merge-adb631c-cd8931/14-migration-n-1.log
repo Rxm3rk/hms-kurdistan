@@ -1,0 +1,6 @@
+# migration-n-1
+# command: (not built: Migration upgrade-and-rollback test against N-1 (§6.8 #9))
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# Migration upgrade-and-rollback test against N-1 (§6.8 #9): not built yet; WP-0.3 builds it. Counted as a failure (fail closed).
+

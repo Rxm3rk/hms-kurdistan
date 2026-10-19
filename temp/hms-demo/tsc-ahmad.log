@@ -1,0 +1,10 @@
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot ()
+heavy.sh: waiting for a slot (demo-tsc-mi pid=202967 since=2026-10-19T13:22:02+03:00;)
+heavy.sh: waiting for a slot (wp05 pid=190163 since=2026-10-19T13:26:58+03:00;)
+heavy.sh: demo-tsc-ahmad got slot2.lock after 960s
+exit=0

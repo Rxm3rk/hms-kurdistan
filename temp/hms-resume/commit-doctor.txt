@@ -1,0 +1,23 @@
+fix(doctor): count the Windows drive behind WSL2's disk; find rustup's cargo
+
+Two wrong readings in the WSL build host's doctor output:
+
+- Free disk reported 947.5 GiB: the size of the WSL2 virtual disk, not the
+  space behind it. The disk lives on C:, which had 34.7 GiB free, below the
+  [P] 50 GiB guide. On WSL2 the check now also measures the Windows drive
+  that holds the virtual disk (C: by default, [P]) and uses the smaller
+  figure, naming both in the output and in --json
+  (windows_drive_free_gib).
+- Rust showed as missing in a non-login shell although rustup installed it
+  in ~/.cargo/bin. The doctor now says so and gives the fix
+  ('. "$HOME/.cargo/env"', or a login shell).
+
+The fake host in the tests now compares paths in POSIX form, so the Linux
+paths of these checks also match when the tests run on Windows.
+
+Tests added: 3 doctor tests (the Windows drive counts on WSL2; native Linux
+ignores /mnt/c; rustup's ~/.cargo/bin is recognised). The doctor's 25 tests
+pass on Windows and on Linux; 'sh tools/ci/run fast' passes on the Windows
+checkout.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

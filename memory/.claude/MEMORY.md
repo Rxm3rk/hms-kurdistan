@@ -1,0 +1,6 @@
+- [User is in Kurdistan](user-kurdistan-based.md) — KRI focus, terse style, expects exhaustive top-quality output, likes read-aloud summaries and PDFs
+- [Derive from existing research](feedback-derive-from-existing-research.md) — build editions/derived docs from the blueprints and research/; tag local facts [L]; no new web research unless asked
+- [Project phase](project-phase.md) — WP-0.1 reviewed (4 major, 17 minor, being fixed); WP-0.2 started stacked (ADR-029 SeaweedFS); read docs/program/STATUS.md first
+- [Resuming killed work](resuming-killed-work.md) — two Claude profiles with separate memory dirs; where killed workflow scripts and agent transcripts live
+- [Tooling locations](pdf-build-tooling.md) — PDF builder and BUILD-PROMPT assembly, lint and review files in %TEMP%, outside the repo
+- [Slow GitHub/Gradle downloads](slow-github-downloads.md) — GitHub assets and services.gradle.org often ~20-30 KB/s here; Maven Central/npm/PyPI/Corretto/Aliyun mirror fast

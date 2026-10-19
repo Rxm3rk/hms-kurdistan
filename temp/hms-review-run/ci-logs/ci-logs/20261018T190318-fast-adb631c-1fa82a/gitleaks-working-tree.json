@@ -1,0 +1,22 @@
+[
+ {
+  "RuleID": "aws-access-token",
+  "Description": "Identified a pattern that may indicate AWS credentials, risking unauthorized cloud resource access and data breaches on AWS platforms.",
+  "StartLine": 2,
+  "EndLine": 2,
+  "StartColumn": 22,
+  "EndColumn": 41,
+  "Match": "REDACTED",
+  "Secret": "REDACTED",
+  "File": "docs/scratch-secret.md",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.9841838,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": "docs/scratch-secret.md:aws-access-token:2"
+ }
+]

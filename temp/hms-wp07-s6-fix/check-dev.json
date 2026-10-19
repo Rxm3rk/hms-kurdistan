@@ -1,0 +1,127 @@
+[
+  {
+    "locale": "ckb",
+    "url": "http://127.0.0.1:5181/demo/banner?locale=ckb&fixture=complete",
+    "finalUrl": "http://127.0.0.1:5181/demo/banner?locale=ckb&patient=SYN-PAT-0001",
+    "htmlDir": "rtl",
+    "htmlLang": "ckb",
+    "bodyDirection": "rtl",
+    "bannerDirection": "rtl",
+    "bannerLabel": "شریتی زانیاریی نەخۆش",
+    "names": [
+      {
+        "text": "هێمن ئازاد عومەر",
+        "dir": "rtl",
+        "lang": "ckb",
+        "tag": "bdi"
+      },
+      {
+        "text": "هيمن آزاد عمر",
+        "dir": "rtl",
+        "lang": "ar",
+        "tag": "bdi"
+      },
+      {
+        "text": "Hêmin Azad Omer",
+        "dir": "ltr",
+        "lang": "und-Latn",
+        "tag": "bdi"
+      }
+    ],
+    "photoStartsAtRightEdge": 16,
+    "photoStartsAtLeftEdge": 1198,
+    "mrn": "<bdi dir=\"ltr\" class=\"hms-bdi hms-patient-identity__mrn\" style=\"unicode-bidi: isolate;\">SYN-100001-1</bdi>",
+    "watermark": "NOT FOR CLINICAL USEبۆ بەکارهێنانی کلینیکی نییە",
+    "title": "نمایشی شریتی نەخۆش (نەخۆشی دەستکرد)",
+    "easternDigits": false,
+    "csp": [],
+    "cspBeforeAxe": [],
+    "axeViolations": [],
+    "consoleErrors": [
+      "error: [i18n] MISSING_DATA  (ckb)"
+    ],
+    "externalRequests": []
+  },
+  {
+    "locale": "ar",
+    "url": "http://127.0.0.1:5181/demo/banner?locale=ar&fixture=complete",
+    "finalUrl": "http://127.0.0.1:5181/demo/banner?locale=ar&patient=SYN-PAT-0001",
+    "htmlDir": "rtl",
+    "htmlLang": "ar",
+    "bodyDirection": "rtl",
+    "bannerDirection": "rtl",
+    "bannerLabel": "شريط بيانات المريض",
+    "names": [
+      {
+        "text": "هێمن ئازاد عومەر",
+        "dir": "rtl",
+        "lang": "ckb",
+        "tag": "bdi"
+      },
+      {
+        "text": "هيمن آزاد عمر",
+        "dir": "rtl",
+        "lang": "ar",
+        "tag": "bdi"
+      },
+      {
+        "text": "Hêmin Azad Omer",
+        "dir": "ltr",
+        "lang": "und-Latn",
+        "tag": "bdi"
+      }
+    ],
+    "photoStartsAtRightEdge": 16,
+    "photoStartsAtLeftEdge": 1198,
+    "mrn": "<bdi dir=\"ltr\" class=\"hms-bdi hms-patient-identity__mrn\" style=\"unicode-bidi: isolate;\">SYN-100001-1</bdi>",
+    "watermark": "NOT FOR CLINICAL USEليس للاستخدام السريري",
+    "title": "عرض توضيحي لشريط المريض (مرضى اصطناعيون)",
+    "easternDigits": false,
+    "csp": [],
+    "cspBeforeAxe": [],
+    "axeViolations": [],
+    "consoleErrors": [],
+    "externalRequests": []
+  },
+  {
+    "locale": "en",
+    "url": "http://127.0.0.1:5181/demo/banner?locale=en&fixture=complete",
+    "finalUrl": "http://127.0.0.1:5181/demo/banner?locale=en&patient=SYN-PAT-0001",
+    "htmlDir": "ltr",
+    "htmlLang": "en",
+    "bodyDirection": "ltr",
+    "bannerDirection": "ltr",
+    "bannerLabel": "Patient banner",
+    "names": [
+      {
+        "text": "هێمن ئازاد عومەر",
+        "dir": "rtl",
+        "lang": "ckb",
+        "tag": "bdi"
+      },
+      {
+        "text": "هيمن آزاد عمر",
+        "dir": "rtl",
+        "lang": "ar",
+        "tag": "bdi"
+      },
+      {
+        "text": "Hêmin Azad Omer",
+        "dir": "ltr",
+        "lang": "und-Latn",
+        "tag": "bdi"
+      }
+    ],
+    "photoStartsAtRightEdge": 1198,
+    "photoStartsAtLeftEdge": 16,
+    "mrn": "<bdi dir=\"ltr\" class=\"hms-bdi hms-patient-identity__mrn\" style=\"unicode-bidi: isolate;\">SYN-100001-1</bdi>",
+    "watermark": "NOT FOR CLINICAL USE",
+    "title": "Banner demonstration (synthetic patients)",
+    "easternDigits": false,
+    "csp": [],
+    "cspBeforeAxe": [],
+    "axeViolations": [],
+    "consoleErrors": [],
+    "externalRequests": []
+  }
+]

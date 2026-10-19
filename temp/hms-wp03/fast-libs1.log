@@ -1,0 +1,13 @@
+warning: in the working copy of 'backend/platform/time/src/main/kotlin/hms/kernel/time/SafetyParameters.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/platform/time/src/main/kotlin/hms/kernel/time/ValidPeriod.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/platform/time/src/main/kotlin/hms/kernel/time/ValidTime.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/platform/time/src/test/kotlin/hms/kernel/time/ClinicalTimeTest.kt', CRLF will be replaced by LF the next time Git touches it
+commitclone: HEAD 1b00abe; staged: 66 files; branches: wp/0.3-platform-kernel 
+heavy.sh: waiting for a slot (wp08 pid=170789 since=2026-10-19T12:23:57+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: wp03 got slot1.lock after 30s
+tools/ci/run fast: 8 step(s); logs in build/ci-logs/20261019T122535-fast-1b00abe-c864f2
+[1/8] doctor-fast ...
+[1/8] doctor-fast: PASS (5.6 s)
+[2/8] repo-check ...
+[2/8] repo-check: FAIL (6.9 s) - crlf: backend/platform/time/src/main/kotlin/hms/kernel/time/SafetyParameters.kt has CRLF line endings (text files must use LF; see .gitattributes); crlf: backend/platform/time/src/main/kotlin/hms/kernel/time/ValidPeriod.kt has CRLF line endings (text files must use LF; see .gitattributes); crlf: backend/platform/time/src/main/kotlin/hms/kernel/time/ValidTime.kt has CRLF line endings (text files must use LF; see .gitattributes); crlf: backend/platform/time/src/test/kotlin/hms/kernel/time/ClinicalTimeTest.kt has CRLF line endings (text files must use LF; see .gitattributes)
+[3/8] python-unit-tests ...

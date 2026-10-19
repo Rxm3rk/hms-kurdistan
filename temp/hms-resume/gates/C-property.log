@@ -1,0 +1,153 @@
+Reusing configuration cache.
+> Task :detekt NO-SOURCE
+> Task :verifyProjectConventions
+> Task :build-logic:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processIntegrationTestResources NO-SOURCE
+> Task :platform:arch-rules:detekt UP-TO-DATE
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:arch-rules:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:processTestResources NO-SOURCE
+> Task :platform:arch-rules:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:arch-rules:processPropertyTestResources NO-SOURCE
+> Task :platform:arch-rules:runKtlintCheckOverPropertyTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:ktlintPropertyTestSourceSetCheck SKIPPED
+> Task :platform:arch-rules:runKtlintCheckOverMainSourceSet UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:arch-rules:ktlintKotlinScriptCheck SKIPPED
+> Task :build-logic:runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:testing:processIntegrationTestResources NO-SOURCE
+> Task :platform:arch-rules:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverTestSourceSet UP-TO-DATE
+> Task :platform:testing:processTestResources NO-SOURCE
+> Task :runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :build-logic:ktlintKotlinScriptCheck UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :platform:arch-rules:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :ktlintKotlinScriptCheck UP-TO-DATE
+> Task :platform:arch-rules:ktlintCheck UP-TO-DATE
+> Task :ktlintCheck UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverTestSourceSet NO-SOURCE
+> Task :build-logic:ktlintTestSourceSetCheck SKIPPED
+> Task :build-logic:runKtlintCheckOverMainSourceSet UP-TO-DATE
+> Task :platform:arch-rules:compileIntegrationTestKotlin NO-SOURCE
+> Task :build-logic:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :build-logic:ktlintCheck UP-TO-DATE
+> Task :platform:arch-rules:compileIntegrationTestJava NO-SOURCE
+> Task :platform:testing:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:integrationTestClasses UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverTestSourceSet UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:testing:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:testing:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:testing:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:arch-rules:compileTestKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileTestJava NO-SOURCE
+> Task :platform:arch-rules:testClasses UP-TO-DATE
+> Task :platform:arch-rules:test UP-TO-DATE
+
+> Task :platform:arch-rules:verifyArchitectureTest
+:platform:arch-rules: ArchitectureTest ran 4 rule checks
+
+> Task :platform:testing:runKtlintCheckOverMainSourceSet FROM-CACHE
+> Task :platform:testing:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:testing:compileKotlin FROM-CACHE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar
+> Task :platform:testing:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compilePropertyTestKotlin NO-SOURCE
+> Task :platform:testing:compileIntegrationTestJava NO-SOURCE
+> Task :platform:testing:integrationTestClasses UP-TO-DATE
+> Task :platform:arch-rules:compilePropertyTestJava NO-SOURCE
+> Task :platform:arch-rules:propertyTestClasses UP-TO-DATE
+> Task :platform:arch-rules:propertyTest NO-SOURCE
+> Task :platform:testing:compileTestKotlin FROM-CACHE
+> Task :platform:testing:compileTestJava NO-SOURCE
+> Task :platform:testing:testClasses UP-TO-DATE
+> Task :platform:testing:test FROM-CACHE
+
+> Task :platform:testing:verifyArchitectureTest
+:platform:testing: ArchitectureTest ran 4 rule checks
+
+> Task :platform:testing:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:testing:compilePropertyTestKotlin
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:testing:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:testing:ktlintPropertyTestSourceSetCheck
+> Task :platform:testing:ktlintCheck
+
+> Task :platform:testing:propertyTest
+
+ScratchFailingPropertyTest > a false property fails the propertyTest task FAILED
+    org.opentest4j.AssertionFailedError: Property failed after 1 attempts
+
+    	Arg 0: 0 (shrunk from -591257060)
+
+    Repeat this test by using seed -7833342760624337663
+
+    Caused by AssertionFailedError: expected:<1> but was:<0>
+        at app//io.kotest.property.internal.Errors_jvmKt.createPropertyAssertionError(errors.jvm.kt:12)
+        at app//io.kotest.property.internal.ErrorsKt.propertyAssertionError(errors.kt:51)
+        at app//io.kotest.property.internal.ErrorsKt.throwPropertyTestAssertionError(errors.kt:28)
+        at app//io.kotest.property.internal.TestKt.handleException(test.kt:85)
+        at app//io.kotest.property.internal.TestKt.test(test.kt:67)
+        at app//io.kotest.property.internal.ProptestKt.proptest(proptest.kt:38)
+        at app//io.kotest.property.PropertyTest1Kt.checkAll(propertyTest1.kt:27)
+        at app//hms.kernel.testing.ScratchFailingPropertyTest$1$1.invokeSuspend(ScratchFailingPropertyTest.kt:12)
+        at app//hms.kernel.testing.ScratchFailingPropertyTest$1$1.invoke(ScratchFailingPropertyTest.kt)
+        at app//hms.kernel.testing.ScratchFailingPropertyTest$1$1.invoke(ScratchFailingPropertyTest.kt)
+
+        Caused by:
+        org.opentest4j.AssertionFailedError: expected:<1> but was:<0>
+            at app//hms.kernel.testing.ScratchFailingPropertyTest$1$1$1.invokeSuspend(ScratchFailingPropertyTest.kt:13)
+            at app//hms.kernel.testing.ScratchFailingPropertyTest$1$1$1.invoke(ScratchFailingPropertyTest.kt)
+            at app//hms.kernel.testing.ScratchFailingPropertyTest$1$1$1.invoke(ScratchFailingPropertyTest.kt)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1$property$1.invokeSuspend(shrinkfns.kt:22)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1$property$1.invoke(shrinkfns.kt)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1$property$1.invoke(shrinkfns.kt)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1$1$smallestA$1.invokeSuspend(shrinkfns.kt:25)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1$1$smallestA$1.invoke(shrinkfns.kt)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1$1$smallestA$1.invoke(shrinkfns.kt)
+            at app//io.kotest.property.internal.ShrinkKt.doStep(shrink.kt:84)
+            at app//io.kotest.property.internal.ShrinkKt.doShrinking(shrink.kt:36)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1.invokeSuspend(shrinkfns.kt:25)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1.invoke(shrinkfns.kt)
+            at app//io.kotest.property.internal.ShrinkfnsKt$shrinkfn$1.invoke(shrinkfns.kt)
+            ... 7 more
+
+2 tests completed, 1 failed
+
+> Task :platform:testing:propertyTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':platform:testing:propertyTest'.
+> There were failing tests. See the report at: file:///C:/Users/Surface/.t3/projects/hospitalmanagementsystem/backend/platform/testing/build/reports/tests/propertyTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 18s
+35 actionable tasks: 9 executed, 4 from cache, 22 up-to-date
+Configuration cache entry reused.

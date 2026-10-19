@@ -1,0 +1,110 @@
+/*
+ * Base styles of the design system's own elements (docs/specs/modules/design-system.md §2, §3). Logical
+ * properties only (§6.5 "RTL by construction"; checked by the stylesheet lint); every value comes from
+ * tokens.css.
+ */
+html {
+  font-family: var(--hms-font-family);
+  font-size: 100%;
+  line-height: var(--hms-line-height);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+}
+
+body {
+  margin: 0;
+  font-size: var(--hms-font-size-md);
+}
+
+/* Visible focus on every focusable element, in both densities, on every surface: a dark outer ring
+   (outline) and a light inner ring (a shadow that fills the outline offset), so at least one ring contrasts
+   with any surface, the filled accent surface included. */
+:focus-visible {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+  box-shadow: 0 0 0 var(--hms-focus-ring-offset) var(--hms-color-focus-inner);
+}
+
+/* Bdi: isolation is also set inline by the component. */
+.hms-bdi {
+  unicode-bidi: isolate;
+}
+
+/* ClinicalNumber: the number and its unit stay together on one line; they are short, so nothing is cut. */
+.hms-clinical-number {
+  white-space: nowrap;
+}
+
+.hms-clinical-number--invalid,
+.hms-clinical-number--missing {
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border-radius: var(--hms-radius-sm);
+  padding-inline: var(--hms-space-1);
+}
+
+/* Message: a key missing from the catalogue at run time, shown as the key in a visible error style (§2.9). */
+.hms-message-missing {
+  color: var(--hms-color-danger-text);
+  background-color: var(--hms-color-danger-bg);
+  border: var(--hms-border-width) dashed var(--hms-color-danger-border);
+  border-radius: var(--hms-radius-sm);
+  padding-inline: var(--hms-space-1);
+}
+
+/* Hidden visually, still read by assistive technology (the modal stack's live region while it is empty). */
+.hms-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The modal stack's live region while a refusal stands: a status line above the open modal, so that a user
+   without assistive technology also learns why nothing opened (§2.8). It holds no control. */
+.hms-modal-stack-status {
+  position: fixed;
+  inset-block-end: var(--hms-space-5);
+  inset-inline: var(--hms-space-4);
+  z-index: var(--hms-z-modal-status);
+  max-inline-size: 40rem;
+  margin-inline: auto;
+  padding-block: var(--hms-space-3);
+  padding-inline: var(--hms-space-4);
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border: var(--hms-border-width) solid var(--hms-color-warning-border);
+  border-radius: var(--hms-radius-md);
+}
+
+/* Modal */
+.hms-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hms-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--hms-space-4);
+  background-color: var(--hms-overlay-scrim);
+}
+
+.hms-modal {
+  max-inline-size: min(48rem, 100%);
+  max-block-size: 100%;
+  overflow: auto;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+}
+
+.hms-dialog {
+  padding: var(--hms-space-5);
+  outline: none;
+}

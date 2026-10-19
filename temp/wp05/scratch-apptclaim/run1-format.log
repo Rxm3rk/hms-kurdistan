@@ -1,0 +1,99 @@
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=134932 since=2026-10-19T11:41:04+03:00;)
+heavy.sh: wp05 got slot1.lock after 15s
+Starting a Gradle Daemon, 1 busy and 1 stopped Daemons could not be reused, use --status for details
+Calculating task graph as no cached configuration is available for tasks: :modules:scheduling:ktlintFormat :satellites:rcm:ktlintFormat
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :satellites:rcm:loadKtlintReporters FROM-CACHE
+> Task :modules:scheduling:loadKtlintReporters FROM-CACHE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :satellites:rcm:runKtlintFormatOverKotlinScripts
+> Task :modules:scheduling:runKtlintFormatOverKotlinScripts
+> Task :satellites:rcm:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :satellites:rcm:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :modules:scheduling:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:scheduling:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :satellites:rcm:ktlintKotlinScriptFormat
+> Task :modules:scheduling:ktlintKotlinScriptFormat
+> Task :modules:scheduling:runKtlintFormatOverMainSourceSet
+> Task :modules:scheduling:ktlintMainSourceSetFormat
+> Task :modules:scheduling:runKtlintFormatOverPropertyTestSourceSet
+> Task :modules:scheduling:ktlintPropertyTestSourceSetFormat
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :satellites:rcm:runKtlintFormatOverTestFixturesSourceSet
+> Task :satellites:rcm:ktlintTestFixturesSourceSetFormat
+> Task :satellites:rcm:runKtlintFormatOverTestSourceSet
+> Task :satellites:rcm:ktlintTestSourceSetFormat
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :modules:scheduling:runKtlintFormatOverTestFixturesSourceSet
+> Task :modules:scheduling:runKtlintFormatOverTestSourceSet
+> Task :satellites:rcm:runKtlintFormatOverMainSourceSet
+> Task :satellites:rcm:runKtlintFormatOverPropertyTestSourceSet
+> Task :modules:scheduling:ktlintTestFixturesSourceSetFormat
+> Task :satellites:rcm:ktlintPropertyTestSourceSetFormat
+> Task :satellites:rcm:ktlintMainSourceSetFormat
+> Task :satellites:rcm:ktlintFormat
+> Task :modules:scheduling:ktlintTestSourceSetFormat
+> Task :modules:scheduling:ktlintFormat
+
+BUILD SUCCESSFUL in 2m 20s
+32 actionable tasks: 20 executed, 2 from cache, 10 up-to-date
+Configuration cache entry stored.
+FORMAT EXIT 0

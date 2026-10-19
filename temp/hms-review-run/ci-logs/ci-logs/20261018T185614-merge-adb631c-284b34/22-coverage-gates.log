@@ -1,0 +1,6 @@
+# coverage-gates
+# command: (not built: Coverage gates: domain and application >= 85% line and branch (§22.1))
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# Coverage gates: domain and application >= 85% line and branch (§22.1): not built yet; WP-0.3 builds it. Counted as a failure (fail closed).
+

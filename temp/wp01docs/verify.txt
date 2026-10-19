@@ -1,0 +1,8 @@
+files checked: 37
+A.20 rows in BUILD-PROMPT: 20
+OQ items: 92
+(c) rows: 43
+Blocking now: ['DN-001', 'DN-002', 'DN-003', 'DN-006']
+STATUS lines: 35
+ERRORS: 0
+

@@ -1,0 +1,14 @@
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import crypto from 'node:crypto';
+const [appDir, url] = process.argv.slice(2);
+const require = createRequire(path.join(appDir, 'package.json'));
+const { chromium } = require('playwright-core');
+const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
+const page = await browser.newPage();
+await page.goto(url, { waitUntil: 'networkidle' });
+await page.keyboard.press('Control+KeyK');
+await page.waitForTimeout(500);
+const texts = await page.evaluate(() => [...document.querySelectorAll('style')].map((s) => s.textContent));
+for (const t of texts) console.log(JSON.stringify(t), crypto.createHash('sha256').update(t).digest('base64'));
+await browser.close();

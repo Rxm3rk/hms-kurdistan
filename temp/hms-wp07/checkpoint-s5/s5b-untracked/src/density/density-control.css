@@ -1,0 +1,46 @@
+/*
+ * The density setting (docs/specs/modules/design-system.md §2.5). Logical properties only; every value
+ * comes from tokens.css. Each option is a target of at least --hms-target-min-size (24 px in compact).
+ */
+.hms-density-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.hms-density-control__label {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.hms-density-control__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.hms-density-control__option {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: var(--hms-target-min-size);
+  min-block-size: var(--hms-target-min-size);
+  padding-inline: var(--hms-space-3);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+  cursor: pointer;
+}
+
+/* The chosen option: a thicker border and a bold label, so colour is not the only carrier. */
+.hms-density-control__option[data-selected] {
+  font-weight: var(--hms-font-weight-bold);
+  background-color: var(--hms-color-bg-sunken);
+  border-width: calc(2 * var(--hms-border-width));
+  border-color: var(--hms-color-focus);
+}
+
+.hms-density-control__option[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}

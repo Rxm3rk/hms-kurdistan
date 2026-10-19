@@ -1,0 +1,6 @@
+# integration-tests
+# command: (not built: Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA))
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA): not built yet; WP-0.3 (needs the container engine and dev stack of WP-0.2) builds it. Counted as a failure (fail closed).
+

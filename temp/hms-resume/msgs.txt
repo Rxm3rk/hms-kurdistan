@@ -1,0 +1,265 @@
+231 True
+===== None 0 f0:ordinal:1
+As you remember we just wrote down the prompt md where its for the project build and the system build and all that lets get straight to it readi it out and lets fucking go!! lets build this
+===== None 13 f0:ordinal:1
+Reading the build prompt's operating sections (§0–§7, §21–§23, Appendix B) as the kickoff prompt says. Next I'll check the host toolchain, then start Phase 0 / WP-0.1.
+===== None 16 f0:ordinal:1
+Host check done: Windows 11 with Node 24/Corepack and Python 3.12 available, but no WSL, Docker/Podman, JDK, Rust, or k3d/Helm; 15.6 GB RAM, 8 cores, 60 GB free. Now checking the repo state before the first commit.
+
+
+===== None 21 f0:ordinal:1
+Confirmed line endings are all LF, so I'm making the first commit now — renaming the branch to `main` and setting repo-local `core.autocrlf=false` (leaving your global git config untouched, I'll just flag that as a separate recommendation).
+
+
+===== None 26 f0:ordinal:1
+No git identity is configured anywhere, so I'm setting a repo-local one from your account email (you can change it with `git config user.name`).
+===== None 32 f0:ordinal:1
+Since the host lacks a JDK and I can't install system software, I'll download a portable Temurin JDK into a git-ignored `.tools/` folder instead, logging it as a deviation for confirmation. Checking current releases now.
+
+
+===== None 36 f0:ordinal:1
+While the JDK downloads, I'll check Maven Central, the Gradle Plugin Portal, and npm for current stable versions, so the pins follow §4.1's rule of using the newest GA release with at least one patch.
+
+
+===== None 41 f0:ordinal:1
+I've confirmed version targets: Spring Boot 4.1.1, Kotlin 2.3.21, JUnit 6.0.3, jOOQ 3.21.7, Flyway 12.4.0, Testcontainers 2.0.5, Gradle 9.8.1, Modulith 2.1.1, and detekt 1.23.8 (staying on the stable line since 2.0 is still alpha). Now I'll set up a project-local Python venv for the hazard-log and backlog validator tools.
+
+
+===== None 51 f0:ordinal:1
+Maven Central and npm download quickly, but GitHub releases and services.gradle.org are too slow for the JDK download, so I'm testing other official JDK vendor CDNs instead.
+
+
+===== None 54 f0:ordinal:1
+Corretto's CDN is fast, so I'll switch to Amazon Corretto 25 for the JDK. For Gradle, I'll test a faster mirror instead of GitHub's slow CDN, verifying it against Gradle's official SHA-256 checksum to ensure it's identical.
+
+
+===== None 61 f0:ordinal:1
+The Temurin download did finish and its checksum verified, so the JDK is ready. My Gradle command ran from the wrong directory, though. Moving those files into `.tools/`.
+===== None 67 f0:ordinal:1
+Gradle 9.8.1 on Temurin 25.0.4.1 is confirmed working. Before launching the seven parallel agents, I'll set up shared pieces myself first—the Python tools launcher, common helpers, and a pre-seeded Gradle wrapper cache—so they don't collide.
+
+
+===== None 71 f0:ordinal:1
+Launching the WP-0.1 build as a workflow: seven agents run in parallel covering the backend Gradle skeleton, frontend pnpm workspace, CI runner/doctor, programme control files, 28 ADRs, hazard log with validator, and backlog generator, followed by an integration agent that greens `tools/ci/run fast` end to end and records the evidence.
+
+
+===== None 75 f0:ordinal:1
+While the workflow runs, I'm updating project memory: the build has started, and the slow-network workaround is worth keeping for future sessions.
+===== None 82 f0:ordinal:1
+Memory's updated, and the build workflow is now running seven parallel builders followed by integration. Once results come in, I'll set up the independent-review stage, since each work package needs a reviewer pass before it's considered done.
+
+
+===== None 87 f0:ordinal:1
+The agents are still in their reading phase; nothing is written yet. I'll wait for the workflow to finish rather than poll.
+===== None 90 f0:ordinal:1
+The build is under way: the plan of record is committed, and seven agents are building WP-0.1 (programme bootstrap) on branch `wp/0.1-programme-bootstrap`. An integration step follows to make the fast CI tier green. After that I'll run an independent review, fix what it finds, and commit in verified slices.
+
+**Done so far**
+- **First commit:** renamed `master` → `main` and committed the plan of record as `ed023b6 chore: import plan of record`. No git identity was configured anywhere, so I set a repo-local one from your account email ("Ahmad"); change it with `git config user.name` if you prefer something else.
+- **Host check:** this machine is missing most of what the prompt assumes. There's no WSL2/Linux, no Docker or Podman, no JDK, no Rust and no k3d/kubectl/Helm. RAM is 15.6 GB, below the 32 GB the full dev cell needs.
+- **Toolchain workaround:** I put a project-local toolchain in a git-ignored `.tools/` folder. That's no system install, no admin rights and no PATH change. It holds Temurin JDK 25.0.4.1, Gradle 9.8.1 and a Python venv, all checked against their official SHA-256 checksums.
+- **Slow network:** downloads from GitHub and services.gradle.org run at about 20–30 KB/s here, while Maven Central, npm and PyPI run at about 20 MB/s. So the Gradle download came from the Aliyun mirror, verified against Gradle's official checksum, so it's byte-for-byte the official file.
+- **Versions:** pinned per the prompt's rule. Spring Boot 4.1.1 sets Kotlin 2.3.21 and JUnit 6.0.3; Spring Modulith is 2.1.1.
+
+**Decisions waiting on you** (these become the "Blocking now" list in `docs/program/DECISIONS-NEEDED.md`):
+1. **Install WSL2 with Ubuntu 24.04** (`wsl --install -d Ubuntu-24.04` in an admin PowerShell). The prompt expects the build on Linux.
+2. **Install a container engine** (Docker Engine inside WSL2) plus k3d, kubectl and Helm. Without them WP-0.2, the local three-node test cluster, can't start, and every later Phase 0 package except WP-0.7 depends on it.
+3. **Confirm the `.tools/` toolchain approach** above.
+4. **Later:** Rust, for the desktop shell in WP-0.7.
+
+Until 1 and 2 are done, the next work package I can do is WP-0.7's web part (design system, patient banner, Kurdish/Arabic/English with right-to-left layout).
+===== None 92 f0:ordinal:2
+Please do all the steps you have full approval go ahead
+===== None 94 f0:ordinal:2
+Understood. Here's the order I'll work in:
+1. Prepare the build host: WSL2, then Ubuntu with a container engine, k3d, kubectl, Helm, JDK, Node and Rust.
+2. Let the running WP-0.1 workflow finish, then review, fix and commit it.
+3. Carry on with the build.
+
+First, a check of what Windows will allow without a reboot.
+===== None 97 f0:ordinal:2
+WSL's app package (2.6.3) is installed and a hypervisor is running, but `wsl.exe` fails with "cannot find the file specified". Looking for the cause.
+===== None 102 f0:ordinal:2
+I found that the WSL install is broken — `C:\Program Files\WSL` is missing wsl.exe, the kernel, and other core files, with only a leftover `docker-desktop` distro remaining. I'll check what options are available to repair it.
+
+
+===== None 105 f0:ordinal:2
+WSL 2.6.3.0 is registered as installed, but most of its files are gone, so it needs reinstalling. Testing where the WSL installer can be downloaded quickly from.
+===== None 108 f0:ordinal:2
+The WSL installer is 247–367 MB on GitHub at ~24 KB/s, so roughly 3–4 hours to download. Checking whether Windows still holds a cached copy of the installer it can repair from.
+===== None 111 f0:ordinal:2
+I found a cached installer at C:\Windows\Installer\28e40.msi matching the WSL 2.6.3.0 package size, which should let Windows repair WSL locally, plus another 365 MB package from October 11th. I'll verify both before running anything.
+
+
+===== None 114 f0:ordinal:2
+The cached package is genuinely WSL 2.6.3.0 with the same product code. Before repairing from it, I'm checking its SHA-256 against the digest GitHub publishes for the official release.
+===== None 117 f0:ordinal:2
+The cached installer's digest matches Microsoft's official WSL 2.6.3.0 release exactly, so I'll use it to repair WSL and skip the 3-hour download. A UAC prompt will pop up asking for admin rights—please click Yes to proceed.
+
+
+===== None 119 f0:ordinal:2
+That was a syntax error on my side; nothing ran and no prompt was shown. Retrying with the arguments built first. **The UAC prompt is coming now; please click Yes.**
+===== None 121 f0:ordinal:2
+says this
+===== None 123 f0:ordinal:2
+The repair wants the original installer file by name. I'm putting a verified copy of it in a folder for you now.
+===== None 126 f0:ordinal:2
+The file is ready. Its checksum matches Microsoft's official release (`562C79AB…2CA0`).
+
+In that dialog:
+1. Clear the **Use source** box and paste: `C:\Users\Surface\AppData\Local\Temp\hms-wsl-src\`
+2. Click **OK**.
+
+The repair should then run on its own. Afterwards I'll check that `wsl.exe` works and carry on with installing Ubuntu 24.04.
+===== None 130 f0:ordinal:4
+WSL is repaired: exit code 0, 621 files restored, no reboot requested. Checking it works and what it can see.
+===== None 133 f0:ordinal:4
+WSL 2.6.3 now works, with WSL2 as the default, and no reboot was needed. Next is Ubuntu 24.04 LTS, the version the build prompt specifies. Checking where its image downloads from and how fast.
+===== None 138 f0:ordinal:4
+The official Ubuntu server is only pulling ~60 KB/s, which would take about 1.8 hours for the 389 MB image, so I'll try alternate Ubuntu mirrors instead and verify the download against Microsoft's official SHA-256 checksum.
+
+
+===== None 141 f0:ordinal:4
+Kernel.org's mirror and init7 are the fastest options, so I'll download from kernel.org and verify it against the official checksum before installing.
+
+
+===== None 144 f0:ordinal:4
+Checksum OK. Before installing, checking WSL's install options and whether a `.wslconfig` already exists.
+===== None 147 f0:ordinal:4
+No .wslconfig file exists yet, so I'll create one allocating 10 GB RAM and 8 cores to WSL (leaving ~5.6 GB for Windows), plus 8 GB swap with gradual memory reclaim. Next I'll install Ubuntu 24.04.5 from the verified image.
+
+
+===== None 150 f0:ordinal:4
+Ubuntu 24.04 is installed and set as the default distro — I'm skipping the sparse VHD option since WSL flagged a data corruption risk. Next I'll look inside the distro before setting up your Linux user.
+
+
+===== None 153 f0:ordinal:4
+Found Ubuntu 24.04.5 with systemd, 8 cores, ~9.7 GB RAM, and a 1 TB sparse disk. Now creating a sudo user `surface` (uid 1000) and marking first-run setup complete.
+
+
+===== None 158 f0:ordinal:4
+The `surface` user is set as default and first-run setup is complete. Now I'll test download speeds from Ubuntu for the package sources needed: the Ubuntu archive, Docker, Kubernetes, Helm, JDK, Node.js, and Rust.
+
+
+===== None 163 f0:ordinal:4
+Git Bash rewrote the Linux path. Disabling that conversion for WSL calls.
+===== None 166 f0:ordinal:4
+Repository speed checks look good except Adoptium, so I'll pull the Linux JDK from Ubuntu's own OpenJDK 25 package instead. Now checking current stable versions of kubectl, Helm, k3d, and Node 24.
+
+
+===== None 169 f0:ordinal:4
+I've pinned versions: kubectl 1.37.1, Helm 4.3.1, k3d 5.8.3, and Node 24.22.0 LTS. I'm now writing an idempotent provisioning script for Ubuntu to run as root, kicking off the slow k3d GitHub download in the background separately.
+
+
+===== None 173 f0:ordinal:4
+While provisioning and the k3d download run in the background, I'm checking whether T3 Code can host the project inside WSL, since the build needs the repo on the Linux file system rather than under `/mnt/c`.
+
+
+===== None 177 f0:ordinal:4
+The k3d binary downloaded quickly this time; only the checksum file's name was wrong. Looking up the release's real checksum asset.
+===== None 181 f0:ordinal:4
+It matches: the official k3d v5.8.3 checksum `dbaa79a7…853e` equals the downloaded file's hash. I'll install it once provisioning finishes. Checking T3's project setup now.
+===== None 185 f0:ordinal:4
+I'll set up Windows for editing/fast inner-loop work and WSL Ubuntu (via a cloned `~/src/hms` checked out at each SHA) to host Docker, k3d, and CI gates on real Linux. Checking on provisioning next.
+
+
+===== None 188 f0:ordinal:4
+Ubuntu is applying its updates; that's the first step. Checking the WP-0.1 build workflow meanwhile.
+===== None 191 f0:ordinal:4
+The builders are progressing on backend, frontend, tools, and docs files. Once Docker is in place, WP-0.2 (the dev cell) unblocks, so I'm reviewing its spec now to kick it off right after WP-0.1's review.
+
+
+===== None 194 f0:ordinal:4
+WP-0.2 needs a three-node k3d dev cell with:
+
+- CloudNativePG: three PostgreSQL instances with quorum synchronous replication;
+- Kafka (Strimzi), Temporal, Keycloak, OpenFGA and Valkey;
+- an object store with Object Lock;
+- locally signed images.
+
+Its exit tests kill nodes and check that no committed write is lost. A rough memory estimate says this fits within the 10 GB I gave WSL, if Kafka runs as one broker instead of three and Argo CD is left out (the prompt's "lite cell"). We'd keep all three PostgreSQL instances, so the failover tests still mean something.
+
+Provisioning and the WP-0.1 workflow are both still running; I'll pick up as soon as either finishes.
+===== None 196 f0:ordinal:5
+/usage
+===== None 197 f0:ordinal:5
+You are currently using your subscription to power your Claude Code usage
+
+Current session: 56% used · resets Oct 18, 6:50pm (Asia/Baghdad)
+Current week (Fable): 0% used · resets Oct 20, 5pm (Asia/Baghdad)
+
+What's contributing to your limits usage?
+Approximate, based on local sessions on this machine — does not include other devices or claude.ai. Behaviors are independent characteristics, not a breakdown.
+
+Last 24h · 919 requests · 2 sessions
+  100% of your usage came from subagent-heavy sessions
+  81% of your usage was at >150k context
+  76% of your usage was at max effort
+  17% of your usage came from workflows
+  14% of your usage went to tool results over 10k tokens
+  Top subagents: general-purpose 54%, workflow-subagent 17%
+
+Last 7d · 940 requests · 6 sessions
+  98% of your usage came from subagent-heavy sessions
+  80% of your usage was at >150k context
+  76% of your usage was at max effort
+  17% of your usage came from workflows
+  14% of your usage went to tool results over 10k tokens
+  Top subagents: general-purpose 53%, workflow-subagent 17%
+===== None 203 f0:ordinal:6
+Provisioning succeeded—Docker's hello-world ran fine, and I confirmed versions for Ubuntu, Docker, kubectl, Helm, OpenJDK, Node, Python, and Rust, plus the Tauri prerequisites. Now installing the verified k3d binary.
+
+
+===== None 206 f0:ordinal:6
+The Linux build host is set up: k3d 5.8.3 is installed, and `surface` can run Docker without sudo—though I'll need to pin a newer k3s image for WP-0.2 since k3d's default Kubernetes 1.31 is too old for kubectl 1.37. Now checking the WP-0.1 workflow.
+
+
+===== None 209 f0:ordinal:6
+The programme-docs builder is done while the other six continue running. I'm now adding a host provisioning script under `tools/host/`, a new unclaimed folder, so the Linux build host can be reproduced from the repo.
+
+
+===== None 212 f0:ordinal:6
+Re-running the repo copy to prove it's idempotent. With everything already installed, it should only re-check.
+===== None 215 f0:ordinal:6
+Confirmed the repo copy is idempotent—reruns cause no changes. Now checking pull speeds for Docker Hub, ghcr.io, and quay.io since GitHub's network access is slow here, which matters for WP-0.2.
+
+
+===== None 218 f0:ordinal:6
+The Linux build host is set up. WP-0.1 is still running, and nothing is committed yet beyond the plan of record.
+
+**What changed on your machine:**
+- **WSL repaired:** your WSL install was broken (most of its files were missing). I repaired it from Windows' cached copy of the official 2.6.3.0 installer; its checksum matched Microsoft's published release. No reboot was needed.
+- **Ubuntu 24.04.5 installed:** it's now your default WSL distro, with a Linux user `surface` (sudo group, no password yet, first-run setup skipped).
+- **`.wslconfig` created:** it gives WSL 10 GB of RAM, all 8 cores and 8 GB of swap.
+- **Toolchain installed and verified inside Ubuntu:**
+
+| Tool | Version |
+|---|---|
+| Docker Engine | 29.9.1 (Compose 5.6) |
+| kubectl | 1.37.1 |
+| Helm | 4.3.1 |
+| k3d | 5.8.3 |
+| OpenJDK | 25.0.4.1 |
+| Node | 24.22.0 |
+| Python | 3.12.3 |
+| Rust | 1.99.1 |
+
+  The Tauri prerequisites are installed too, and a test container ran successfully. Every downloaded binary was checked against its publisher's checksum.
+- **Reproducible:** the setup script is now in the repo as `tools/host/provision-ubuntu.sh`, and a second run of it changed nothing.
+
+**What I deliberately didn't change:** your global git setting `core.autocrlf=true`. It would affect your other repos, and this repo already overrides it locally.
+
+**Still waiting on:** the WP-0.1 build workflow (the programme-docs builder is done, six are still working) and a registry speed test for WP-0.2's container images.
+
+**Next:**
+1. Independent review of WP-0.1, fixes, then commits in verified slices.
+2. The same checks on Linux from a WSL clone.
+3. WP-0.2: the dev cell, now unblocked.
+
+`/usage` shows this session at 56% of its limit, resetting at 6:50 pm. I'm keeping the next review lean (fewer, cheaper agents) so the work gets as far as possible before then.
+===== None 223 f0:ordinal:7
+All three registries are fast enough for WP-0.2: ghcr.io pulled 160 MB in 16 s, quay.io 646 MB in 35 s, and Docker Hub about 3 MB/s. Noting that in memory.
+===== None 227 f0:ordinal:7
+Memory updated. Container registries are fast enough for the dev cell. I'm waiting for the WP-0.1 workflow (six builders, then the integrator) before the review.
+===== None 231 f0:ordinal:8
+You've hit your session limit · resets 6:50pm (Asia/Baghdad)

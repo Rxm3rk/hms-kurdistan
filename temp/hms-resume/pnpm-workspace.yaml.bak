@@ -1,0 +1,32 @@
+# HMS Kurdistan frontend workspace (BUILD-PROMPT.md §6.1).
+# Directories under apps/ and packages/ without a package.json (the README placeholders) are not projects.
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 11 and later read only registry and auth keys from .npmrc, so the install policy lives here.
+# .npmrc repeats the first three for npm-compatible tools.
+saveExact: true
+engineStrict: true
+strictPeerDependencies: true
+# pnpm is pinned by "packageManager"; upgrades go through the version rule and ADR-002, not the notifier.
+updateNotifier: false
+# `pnpm run` fails with a clear message when node_modules does not match the lockfile, instead of running
+# stale tools or installing on its own. Install first: corepack pnpm install --frozen-lockfile.
+verifyDepsBeforeRun: error
+
+# One pinned version per direct dependency (BUILD-PROMPT.md §4.1 version rule). Packages refer to these
+# with "catalog:"; pnpm-lock.yaml pins the full tree. Record changes in ADR-002 and the SBOM.
+catalog:
+  '@eslint/js': 10.0.1
+  '@formatjs/icu-messageformat-parser': 3.5.21
+  '@types/node': 24.13.6
+  '@typescript-eslint/parser': 8.71.2
+  '@typescript-eslint/utils': 8.71.2
+  eslint: 10.9.1
+  postcss: 8.5.30
+  prettier: 3.9.10
+  typescript: 6.0.3
+  typescript-eslint: 8.71.2
+  vite: 8.3.4
+  vitest: 5.0.5

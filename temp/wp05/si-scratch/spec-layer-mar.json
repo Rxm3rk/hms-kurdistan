@@ -1,0 +1,44 @@
+{
+  "SI-01": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-01-two-identifiers-on-every-patient-affecting-command", "clauses": ["a", "d"],
+     "covers": "MAR entries only: every live administration (Give, StartInfusion and their overrides) fires only with wristbandScanMatches or manualTwoIdentifiersConfirmed holding, whose descriptions require the MRN with its check digit confirmed by the identity service and a date of birth or the approximate-DOB flag. Not covered here: labels, wristbands, prints, every other patient-affecting command, and doses recorded by RecordOfflineAdministration (no identity predicate at the server)"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-01-location-never-an-identifier", "clauses": ["b"],
+     "covers": "MAR entries only: whenever a wristband scan identified the patient for a live administration, the scanned label was a patient wristband, never a bed, room or other location label (read from the facts)"}
+  ],
+  "SI-02": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-02-no-administration-without-active-verified-order-or-documented-override", "clauses": ["a"],
+     "covers": "Every step that records an administration of a scheduled dose (to in-progress or completed with MedicationAdministered) had an order that is active and pharmacist-verified (read from the facts), or carries the reportOverride effect. The reading that an offline-recorded or back-entered dose is a documented override is DN-053's"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-02-override-never-waives-SI-01-SI-12-SI-13-SI-15", "clauses": ["a"],
+     "covers": "Every user override (GiveWithOverride, StartInfusionWithOverride) that records an administration holds two identifiers (wristbandScanMatches or manualTwoIdentifiersConfirmed), patientSuppliedCleared, highAlertCheckSatisfied and offlineAllowed"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-02-override-reason-never-defaulted", "clauses": ["b"],
+     "covers": "Every user override that records an administration carries an override reason marked as chosen by the user and entered by the administering user (read from the facts; the mark itself is the channel adapter's, KA-062)"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-02-every-override-reportable", "clauses": ["c"],
+     "covers": "Every recorded administration that did not pass every live check (a live command, an active verified order, wristbandScanMatches and productIdentityMatches) carries the reportOverride effect (a journaled MedicationAdministrationOverridden event). That the event reaches the dashboard is not modelled"}
+  ],
+  "SI-05": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-05-review-task-within-4h-of-dose-before-verification", "clauses": ["j"],
+     "covers": "A live administration against an order that is not pharmacist-verified creates the pharmacist review task (createPharmacistReviewTask). The 4-hour due time is the effect's description, not modelled. Offline-recorded and back-entered doses create the administration review task instead and are not covered"}
+  ],
+  "SI-10": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-10-clinical-time-distinct-from-system-time", "clauses": ["a"],
+     "covers": "A live administration carries no user-typed clinical time: its clinical time is the command's issue time (clinicalTimeContemporaneous); a dose given earlier is a back-entry"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-10-back-dating-is-privileged-and-audited", "clauses": ["b"],
+     "covers": "Every back-entered administration held privilegedAndAudited and its audit record was writable (read from the facts)"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-10-back-entry-keeps-clinical-time-and-label", "clauses": ["c"],
+     "covers": "Every back-entered administration keeps the paper record's clinical time, not later than the server's receipt time, and is labelled back-entry (read from the facts)"}
+  ],
+  "SI-12": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-12-unverified-outside-medicine-cannot-be-scanned", "clauses": ["e"],
+     "covers": "Every live administration held patientSuppliedCleared: the supply was dispensed for this patient and order, unit ward stock of the order's orderable, or a patient-supplied item through its pharmacy relabel at administrable"}
+  ],
+  "SI-13": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-13-high-alert-administration-needs-documented-independent-double-check", "clauses": ["a"],
+     "covers": "Every live administration of an order whose high-alert flag is set or unknown held highAlertCheckSatisfied and carries a double check that names this dose. Offline-recorded and back-entered doses are not covered"},
+    {"machine": "medication-administration", "property": "PropertyTest:SI-13-double-check-needs-two-different-people", "clauses": ["a"],
+     "covers": "Every live administration of an order flagged high-alert carries a double check by a user other than the administering user, authenticated in their own right, privileged to double-check and attesting (read from the facts)"}
+  ],
+  "SI-15": [
+    {"machine": "medication-administration", "property": "PropertyTest:SI-15-offline-administration-only-against-orders-verified-before-outage", "clauses": ["f"],
+     "covers": "Every live administration issued offline (a lost on-site cell, edge-agent or mobile offline mode, from the envelope) is against an order whose pharmacist verification time is before the start of that outage (read from the facts)"}
+  ]
+}

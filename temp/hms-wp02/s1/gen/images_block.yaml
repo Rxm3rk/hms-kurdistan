@@ -1,0 +1,275 @@
+images:
+  - name: k3s
+    upstream: docker.io/rancher/k3s:v1.35.9-k3s1
+    digest: sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c
+    index_digest: sha256:ec9868c6a38d4e8c1869832fb5fd1eb8473c39794a0b44d2b952e7ba911951bc
+    local: rancher/k3s
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+  - name: k3s-pause
+    upstream: docker.io/rancher/mirrored-pause:3.10.2
+    digest: sha256:412c4a7219cb8a299a37337f3d87810c5340095322e15594a1637785adad0f17
+    index_digest: sha256:f548e0e8e3dc1896ca956272154dde3314e8cc4fde0a57577ee9fa1c63f5baf4
+    local: rancher/mirrored-pause
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+  - name: k3s-coredns
+    upstream: docker.io/rancher/mirrored-coredns-coredns:1.14.7
+    digest: sha256:2329f5f0e7e79fbe56dcdf11ecc4337ee2476bb251095bc275fe9461cb88a55b
+    index_digest: sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286
+    local: rancher/mirrored-coredns-coredns
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+  - name: k3s-local-path-provisioner
+    upstream: docker.io/rancher/local-path-provisioner:v0.0.37
+    digest: sha256:c3f2c60ee2490eb83ac00101d7e239fd8c20a5b8b4038e2dfc36a7e66fe99c08
+    index_digest: sha256:e757967a5ec338f6a9b371c5a9688bedaa8c3578ea3dd4db329ea0084be0a86f
+    local: rancher/local-path-provisioner
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+  - name: k3s-local-path-helper
+    upstream: docker.io/rancher/mirrored-library-busybox:1.37.0
+    digest: sha256:ad9fa4d07136a83e69a54ef00102f579d04eba431932de3b0f098cc5d5948f9f
+    index_digest: sha256:101b4afd76732482eff9b95cae5f94bcf295e521fbec4e01b69c5421f3f3f3e5
+    local: rancher/mirrored-library-busybox
+    licence: GPL-2.0-only
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+  - name: k3d-proxy
+    upstream: ghcr.io/k3d-io/k3d-proxy:5.8.3
+    digest: sha256:86df1112d4ba91b3c5c8cfabfad384e562612305a18f7473057cc0c00045bfd2
+    index_digest: sha256:d43e6ffd27c216d0b21815c1226c8aeac2e07086ac5a988eb39bd7e308f6e370
+    local: k3d-io/k3d-proxy
+    licence: MIT
+    role: substrate
+    component: k3d-lb-registry
+    profiles: [lite, dev]
+    ships: false
+  - name: k3d-tools
+    upstream: ghcr.io/k3d-io/k3d-tools:5.8.3
+    digest: sha256:79b6b3cd0b5066918eaaf79efcf3106edf97f6a7232a144bc7366afed979515f
+    index_digest: sha256:c5ceb2b9e8ff2cf55917b0bee8bc9c54fe1483a16366b734117e2cfac1417bed
+    local: k3d-io/k3d-tools
+    licence: MIT
+    role: substrate
+    component: k3d-lb-registry
+    profiles: [lite, dev]
+    ships: false
+  - name: registry
+    upstream: docker.io/distribution/distribution:3.1.2
+    digest: sha256:b92d85255a404bc3933c6ae76bc0835a1031dfad6dba623cc6e027f5cef72acd
+    index_digest: sha256:d106962e6fe3fa69c178cec77eeeee5edb626b8df6535b7bd6b95e658a0a5ca9
+    local: distribution/distribution
+    licence: Apache-2.0
+    role: registry
+    component: k3d-lb-registry
+    profiles: [lite, dev]
+    ships: false
+  - name: kyverno
+    upstream: reg.kyverno.io/kyverno/kyverno:v1.19.1
+    digest: sha256:8040e9f566cc643a814e97abe9341b777824e1fbd789cd6a93b5f4dd2b2da8fd
+    index_digest: sha256:b31d8511ae5fd6010e2a01ea72ebae08eb82fa51d91af14a1d9fe989949b4edb
+    local: kyverno/kyverno
+    licence: Apache-2.0
+    role: signature-enforcement
+    component: kyverno
+    profiles: [lite, dev]
+    ships: true
+  - name: kyverno-pre
+    upstream: reg.kyverno.io/kyverno/kyvernopre:v1.19.1
+    digest: sha256:69a45a3db7c31216938e1988d133742573e8be4354c53af4bac956016d31d8cd
+    index_digest: sha256:c25c47461f06f2845a48c319ae86fbbc1730a7b9ed5b701889c9dc1f9ee94b09
+    local: kyverno/kyvernopre
+    licence: Apache-2.0
+    role: signature-enforcement
+    component: kyverno
+    profiles: [lite, dev]
+    ships: true
+  - name: kyverno-cli
+    upstream: reg.kyverno.io/kyverno/kyverno-cli:v1.19.1
+    digest: sha256:2fc27b9b52bc976781462b7f4db741fd73d03db39ef29923c2b5d131950751df
+    index_digest: sha256:ced7b2be0b04250cabfe695f15307f69eb715fe23234816388af4f3812915b2a
+    local: kyverno/kyverno-cli
+    licence: Apache-2.0
+    role: signature-enforcement
+    component: kyverno
+    profiles: [lite, dev]
+    ships: true
+  - name: kyverno-readiness-checker
+    upstream: ghcr.io/kyverno/readiness-checker:v1.19.1
+    digest: sha256:90150313a2caca6e5a396c59b48c04bc07889998c4d156f99b008a10279c8518
+    index_digest: sha256:31bb42ce7f5b2e27c1cf633aeff4f0cad1f5bb63761e2cb09f0e25cdd26572bf
+    local: kyverno/readiness-checker
+    licence: Apache-2.0
+    role: signature-enforcement
+    component: kyverno
+    profiles: [lite, dev]
+    ships: true
+  - name: cloudnative-pg
+    upstream: ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1
+    digest: sha256:b0f9805bd5f98592e7320b5ea624dd10a7a6ef8e477df5650655c94f0b242497
+    index_digest: sha256:923c267ec29636db3bee20f993d0ec4973fa22998e1adad37da79e4d32b5bc07
+    local: cloudnative-pg/cloudnative-pg
+    licence: Apache-2.0
+    role: database-operator
+    component: cnpg-operator
+    profiles: [lite, dev]
+    ships: true
+  - name: postgresql
+    upstream: ghcr.io/cloudnative-pg/postgresql:18.6-202610120828-minimal-trixie
+    digest: sha256:e5fffed938c8b55b41d9a6a88a47424d46f90aa15d807aa60348b85ea5bd498f
+    index_digest: sha256:c9be7f221a05b18fe65259d9136affbabe3b39ad91c3b68f8f2f990a45f35f38
+    local: cloudnative-pg/postgresql
+    licence: PostgreSQL
+    role: database
+    component: postgresql
+    profiles: [lite, dev]
+    ships: true
+  - name: strimzi-operator
+    upstream: quay.io/strimzi/operator:1.0.1
+    digest: sha256:d229eb37721c8f9fe75ebeec439b67b27a81c1880f2612a40ed2994758842998
+    index_digest: sha256:9c32dfe22d8602f43e8d8780706fbf65f023bcde3cef272688f35d1eead2640f
+    local: strimzi/operator
+    licence: Apache-2.0
+    role: event-backbone-operator
+    component: strimzi-operators
+    profiles: [lite, dev]
+    ships: true
+  - name: kafka
+    upstream: quay.io/strimzi/kafka:1.0.1-kafka-4.2.0
+    digest: sha256:481393dd9b020bb612aeae46fa153e553d902f6a0327b1b4bc0816ad876e4870
+    index_digest: sha256:8cbd25d7bb132cc64fde7ac8460a5e4198fc67deadfd1bef5430866a7befbe47
+    local: strimzi/kafka
+    licence: Apache-2.0
+    role: event-backbone
+    component: kafka
+    profiles: [lite, dev]
+    ships: true
+  - name: temporal-server
+    upstream: docker.io/temporalio/server:1.32.1
+    digest: sha256:2695f2564ec51aa84232bf3fa59b31e2cce99bec437a64f5bc487cbe21b2de0e
+    index_digest: sha256:acecbab5b0b8ae9cf4012b508866ca97feda3709577bf157b537239f40029049
+    local: temporalio/server
+    licence: MIT
+    role: workflow
+    component: temporal
+    profiles: [lite, dev]
+    ships: true
+  - name: temporal-admin-tools
+    upstream: docker.io/temporalio/admin-tools:1.32.1
+    digest: sha256:4fdaf9122f8beb448c823976232f6616a8cd94687f6984eeaf25c2b1457d5fed
+    index_digest: sha256:9ef0dc5b063bf4ffd5c1512de72e0e73e225bd2c7006a18ce69bd592a8862a83
+    local: temporalio/admin-tools
+    licence: MIT
+    role: workflow
+    component: temporal
+    profiles: [lite, dev]
+    ships: true
+  - name: temporal-ui
+    upstream: docker.io/temporalio/ui:2.54.1
+    digest: sha256:1f950ff598c810f371c60f1bf16de742caa6b8f60e0cdba05526a434e09b6d43
+    index_digest: sha256:ff0943fe532b8e33c46cd28b29e81e0ce0b6f55b9ee50a38ef1b437cc4de3fa5
+    local: temporalio/ui
+    licence: MIT
+    role: workflow
+    component: temporal
+    profiles: [dev]
+    ships: true
+  - name: keycloak-operator
+    upstream: quay.io/keycloak/keycloak-operator:26.8.1
+    digest: sha256:cdb45ea07cf03cd5226bb1374bba5aef602756810395b315124e0b9bc1365636
+    index_digest: sha256:60996d513b9e9945657b348655c98071c366bb0212deefa1508785941b1651dc
+    local: keycloak/keycloak-operator
+    licence: Apache-2.0
+    role: identity-operator
+    component: keycloak
+    profiles: [lite, dev]
+    ships: true
+  - name: keycloak
+    upstream: quay.io/keycloak/keycloak:26.8.1
+    digest: sha256:ed1cab21814c7d18ce8f0e11d5a1fa1c6923de12dd4c7625a18c5d34452a57a4
+    index_digest: sha256:79c623a22abacf3fe6c00a5fb30f5b7843d717b234033b80995891c06116d244
+    local: keycloak/keycloak
+    licence: Apache-2.0
+    role: identity
+    component: keycloak
+    profiles: [lite, dev]
+    ships: true
+  - name: openfga
+    upstream: docker.io/openfga/openfga:v1.18.3
+    digest: sha256:14f9c0d8dd0816a916c778d58be94d99aa86054fdfe0b36c36bb18a5fe766783
+    index_digest: sha256:01a6000aa6040a4d0bde6ea1d3359ac3b9f21dc972ac6103a87b38659a836776
+    local: openfga/openfga
+    licence: Apache-2.0
+    role: authorisation
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+  - name: valkey
+    upstream: docker.io/valkey/valkey:9.1.2
+    digest: sha256:ac9c858b86dc81f3482d53a9d854547379a5f41e012500f839ab257c399063e0
+    index_digest: sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
+    local: valkey/valkey
+    licence: BSD-3-Clause
+    role: cache
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+  - name: seaweedfs
+    upstream: docker.io/chrislusf/seaweedfs:4.48
+    digest: sha256:aba492e2a4e4c90bff795745e8e660affa1f09e7650f5981bd7bccd1a06cd931
+    index_digest: sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    local: chrislusf/seaweedfs
+    licence: Apache-2.0
+    role: object-store
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+  - name: otel-collector
+    upstream: docker.io/otel/opentelemetry-collector-k8s:0.162.0
+    digest: sha256:87adfbde7aff1288d7da30cb0cfbe00d0785b40f3919b1b16b745f0e859f0125
+    index_digest: sha256:ed6862e1506e11c08a0ec4cc7e1395eb5cf10e3acf2c2ba3846edc1b6b3916d6
+    local: otel/opentelemetry-collector-k8s
+    licence: Apache-2.0
+    role: telemetry
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+  - name: argocd
+    upstream: quay.io/argoproj/argocd:v3.5.5
+    digest: sha256:f055c9fc40b04cbfb68010505f3f6f3a57fe656c919b9b9a6dd45feba836e521
+    index_digest: sha256:13db7b10db23283b1b36f855046602e18539a8a8204c9f6f039e8896c8897518
+    local: argoproj/argocd
+    licence: Apache-2.0
+    role: delivery
+    component: argocd
+    profiles: [dev]
+    ships: true
+
+tools:
+  - name: crane
+    upstream: gcr.io/go-containerregistry/crane:v0.22.1
+    digest: sha256:18efc5092649b2a674d384663044e04edf76705c4faa2875e8a322b4e80f070a
+    index_digest: sha256:1f968817b95790bed063f71175aa6b8ff879fa17064020415f3e18bb6e6a36e1
+    licence: Apache-2.0
+    purpose: copies images by digest (crane copy --platform linux/amd64)
+  - name: cosign
+    upstream: ghcr.io/sigstore/cosign/cosign:v3.1.3
+    digest: sha256:6ca1127dc1e9ff19f3f2bfa214936813a86fbbf52919652eda49d393c888ad3c
+    index_digest: sha256:9e5c2f2edc34351160407ca3416c61855bdf9403c3c5936e0f0be7fc261611b8
+    licence: Apache-2.0
+    purpose: key pair, signing with a signing configuration without Rekor, offline verification (OQ-135)

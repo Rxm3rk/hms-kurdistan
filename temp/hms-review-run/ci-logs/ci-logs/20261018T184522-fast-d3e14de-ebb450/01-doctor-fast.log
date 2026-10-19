@@ -1,0 +1,17 @@
+# doctor-fast
+# command: sh tools/doctor --tier fast --json
+# cwd: .
+# result: PASS (exit code 0)
+
+HMS Kurdistan host doctor (tier: fast)  2026-10-18T18:45:23+03:00
+repository: /home/surface/src/hospitalmanagementsystem
+
+ITEM                    STATUS   FOUND
+JDK 25                  OK       JAVA_HOME: 25.0.4.1
+Node.js 24              OK       v24.22.0
+pnpm via Corepack       OK       pnpm 12.12.1 (corepack 0.36.0, frontend/package.json packageManager)
+Project venv            OK       Python 3.12.3, 7 pins match
+gitleaks in .tools/bin  OK       8.30.1
+
+doctor: PASS (5 ok, 0 required missing, 0 warnings)
+{"check": "doctor", "counts": {"items": 5, "missing": 0, "ok": 5, "warnings": 0}, "errors": [], "generated_at": "2026-10-18T18:45:23+03:00", "host": {"machine": "x86_64", "release": "6.6.87.2-microsoft-standard-WSL2", "root": "/home/surface/src/hospitalmanagementsystem", "system": "Linux"}, "items": [{"fix": {}, "found": "JAVA_HOME: 25.0.4.1", "id": "jdk", "name": "JDK 25", "need": "JDK 25 (system java, JAVA_HOME or the project-local .tools/jdk-*)", "note": "", "required": true, "status": "OK"}, {"fix": {}, "found": "v24.22.0", "id": "node", "name": "Node.js 24", "need": "Node.js 24 LTS", "note": "", "required": true, "status": "OK"}, {"fix": {}, "found": "pnpm 12.12.1 (corepack 0.36.0, frontend/package.json packageManager)", "id": "pnpm", "name": "pnpm via Corepack", "need": "pnpm through Corepack ('corepack pnpm'), never 'corepack enable'", "note": "", "required": true, "status": "OK"}, {"fix": {}, "found": "Python 3.12.3, 7 pins match", "id": "venv", "name": "Project venv", "need": "the project venv .tools/venv: Python 3.12 with the pins of tools/requirements.txt", "note": "", "required": true, "status": "OK"}, {"fix": {}, "found": "8.30.1", "id": "gitleaks", "name": "gitleaks in .tools/bin", "need": "gitleaks 8.x in .tools/bin", "note": "", "required": true, "status": "OK"}], "ok": true, "profile": null, "thresholds": {"dev_cell_cores": 8, "dev_cell_ram_gib": 30.0, "disk_free_gib": 50.0, "lite_cell_cores": 4, "lite_cell_ram_gib": 15.0, "marked": "[P]", "windows_reserve_gib": 4.0}, "tier": "fast", "warnings": [], "windows_steps": []}

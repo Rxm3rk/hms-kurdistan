@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 670" width="100%" role="img" aria-label="Configuration chain from vendor to user, with locks" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<title>Configuration chain: vendor, Kurdistan pack, tenant, legal entity, facility, department, unit, user; a lock stops every level below it from overriding</title>
+<text x="20" y="32" font-size="19" font-weight="700" fill="currentColor">Where a setting gets its value</text>
+<text x="20" y="54" font-size="13" fill="currentColor" fill-opacity="0.8">The most specific level wins, unless a level above it has locked the setting.</text>
+<line x1="28" y1="128" x2="28" y2="522" stroke="currentColor" stroke-width="2" stroke-opacity="0.6"/>
+<path d="M21 516 L28 530 L35 516 Z" fill="currentColor" fill-opacity="0.6"/>
+<text x="0" y="0" font-size="11" fill="currentColor" fill-opacity="0.7" transform="translate(16 330) rotate(-90)" text-anchor="middle">more specific</text>
+<text x="367.0" y="92" font-size="13.5" font-weight="700" text-anchor="middle" fill="currentColor">Ordinary setting</text>
+<text x="367.0" y="109" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.75">most specific value wins</text>
+<text x="591.0" y="92" font-size="13.5" font-weight="700" text-anchor="middle" fill="currentColor">Locked at the hospital</text>
+<text x="591.0" y="109" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.75">a governed lock, by approved change</text>
+<text x="815.0" y="92" font-size="13.5" font-weight="700" text-anchor="middle" fill="currentColor">Vendor-locked safety setting</text>
+<text x="815.0" y="109" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.75">e.g. a safety-invariant limit</text>
+<text x="144" y="109" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.75">level (general to specific)</text>
+<rect x="44" y="124" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="141" font-size="13.5" font-weight="600" fill="currentColor">Vendor foundation</text>
+<text x="56" y="157" font-size="10.5" fill="currentColor" fill-opacity="0.7">shipped with the product</text>
+<rect x="44" y="176" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="193" font-size="13.5" font-weight="600" fill="currentColor">Kurdistan pack</text>
+<text x="56" y="209" font-size="10.5" fill="currentColor" fill-opacity="0.7">regional defaults (KRI)</text>
+<rect x="44" y="228" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="245" font-size="13.5" font-weight="600" fill="currentColor">Tenant</text>
+<text x="56" y="261" font-size="10.5" fill="currentColor" fill-opacity="0.7">the hospital group</text>
+<rect x="44" y="280" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="297" font-size="13.5" font-weight="600" fill="currentColor">Legal entity</text>
+<text x="56" y="313" font-size="10.5" fill="currentColor" fill-opacity="0.7">the legal organisation</text>
+<rect x="44" y="332" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="349" font-size="13.5" font-weight="600" fill="currentColor">Facility</text>
+<text x="56" y="365" font-size="10.5" fill="currentColor" fill-opacity="0.7">one hospital</text>
+<rect x="44" y="384" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="401" font-size="13.5" font-weight="600" fill="currentColor">Department</text>
+<text x="56" y="417" font-size="10.5" fill="currentColor" fill-opacity="0.7">for example, medicine</text>
+<rect x="44" y="436" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="453" font-size="13.5" font-weight="600" fill="currentColor">Unit</text>
+<text x="56" y="469" font-size="10.5" fill="currentColor" fill-opacity="0.7">for example, a ward</text>
+<rect x="44" y="488" width="200" height="40" rx="6" fill="currentColor" fill-opacity="0.06" stroke="currentColor" stroke-opacity="0.45"/>
+<text x="56" y="505" font-size="13.5" font-weight="600" fill="currentColor">User</text>
+<text x="56" y="521" font-size="10.5" fill="currentColor" fill-opacity="0.7">personal preference</text>
+<rect x="262" y="124" width="210" height="40" rx="6" fill="#4C7BD9" fill-opacity="0.15" stroke="#4C7BD9"/>
+<text x="274" y="149" font-size="12.5" font-weight="600" fill="currentColor">vendor default</text>
+<rect x="262" y="176" width="210" height="40" rx="6" fill="#4C7BD9" fill-opacity="0.15" stroke="#4C7BD9"/>
+<text x="274" y="201" font-size="12.5" font-weight="600" fill="currentColor">Kurdistan default</text>
+<rect x="262" y="228" width="210" height="40" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+<text x="367.0" y="252" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.45">no value set</text>
+<rect x="262" y="280" width="210" height="40" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+<text x="367.0" y="304" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.45">no value set</text>
+<rect x="262" y="332" width="210" height="40" rx="6" fill="#4C7BD9" fill-opacity="0.15" stroke="#4C7BD9"/>
+<text x="274" y="357" font-size="12.5" font-weight="600" fill="currentColor">hospital's value</text>
+<rect x="262" y="384" width="210" height="40" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+<text x="367.0" y="408" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.45">no value set</text>
+<rect x="262" y="436" width="210" height="40" rx="6" fill="#2E9E6B" fill-opacity="0.2" stroke="#2E9E6B" stroke-width="2.2"/>
+<text x="274" y="453" font-size="12.5" font-weight="600" fill="currentColor">ward's value</text>
+<text x="274" y="469" font-size="10.5" fill="currentColor" fill-opacity="0.75">used: the most specific value</text>
+<rect x="262" y="488" width="210" height="40" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+<text x="367.0" y="512" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.45">no value set</text>
+<rect x="486" y="124" width="210" height="40" rx="6" fill="#4C7BD9" fill-opacity="0.15" stroke="#4C7BD9"/>
+<text x="498" y="149" font-size="12.5" font-weight="600" fill="currentColor">vendor default</text>
+<rect x="486" y="176" width="210" height="40" rx="6" fill="#4C7BD9" fill-opacity="0.15" stroke="#4C7BD9"/>
+<text x="498" y="201" font-size="12.5" font-weight="600" fill="currentColor">Kurdistan default</text>
+<rect x="486" y="228" width="210" height="40" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+<text x="591.0" y="252" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.45">no value set</text>
+<rect x="486" y="280" width="210" height="40" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+<text x="591.0" y="304" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.45">no value set</text>
+<rect x="486" y="332" width="210" height="40" rx="6" fill="#D98E04" fill-opacity="0.18" stroke="#D98E04" stroke-width="2.2"/>
+<path d="M499 350 v-3 a5 5 0 0 1 10 0 v3" fill="none" stroke="#D98E04" stroke-width="2.2"/>
+<rect x="496" y="350" width="16" height="11" rx="2" fill="#D98E04"/>
+<circle cx="504" cy="355.5" r="1.6" fill="#ffffff"/>
+<text x="520" y="349" font-size="12.5" font-weight="600" fill="currentColor">value locked here</text>
+<text x="520" y="365" font-size="10.5" fill="currentColor" fill-opacity="0.75">used by every level below</text>
+<rect x="486" y="384" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="503" cy="404" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="498" y1="409" x2="508" y2="399" stroke="#C2453D" stroke-width="1.8"/>
+<text x="518" y="401" font-size="12.5" font-weight="600" fill="currentColor">cannot override</text>
+<text x="518" y="417" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="486" y="436" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="503" cy="456" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="498" y1="461" x2="508" y2="451" stroke="#C2453D" stroke-width="1.8"/>
+<text x="518" y="453" font-size="12.5" font-weight="600" fill="currentColor">cannot override</text>
+<text x="518" y="469" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="486" y="488" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="503" cy="508" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="498" y1="513" x2="508" y2="503" stroke="#C2453D" stroke-width="1.8"/>
+<text x="518" y="505" font-size="12.5" font-weight="600" fill="currentColor">cannot override</text>
+<text x="518" y="521" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="124" width="210" height="40" rx="6" fill="#D98E04" fill-opacity="0.18" stroke="#D98E04" stroke-width="2.2"/>
+<path d="M723 142 v-3 a5 5 0 0 1 10 0 v3" fill="none" stroke="#D98E04" stroke-width="2.2"/>
+<rect x="720" y="142" width="16" height="11" rx="2" fill="#D98E04"/>
+<circle cx="728" cy="147.5" r="1.6" fill="#ffffff"/>
+<text x="744" y="141" font-size="12.5" font-weight="600" fill="currentColor">safety value, fixed</text>
+<text x="744" y="157" font-size="10.5" fill="currentColor" fill-opacity="0.75">used everywhere; vendor only</text>
+<rect x="710" y="176" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="196" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="201" x2="732" y2="191" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="193" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="209" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="228" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="248" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="253" x2="732" y2="243" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="245" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="261" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="280" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="300" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="305" x2="732" y2="295" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="297" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="313" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="332" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="352" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="357" x2="732" y2="347" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="349" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="365" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="384" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="404" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="409" x2="732" y2="399" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="401" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="417" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="436" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="456" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="461" x2="732" y2="451" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="453" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="469" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<rect x="710" y="488" width="210" height="40" rx="6" fill="#C2453D" fill-opacity="0.08" stroke="#C2453D" stroke-dasharray="5 3"/>
+<circle cx="727" cy="508" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="722" y1="513" x2="732" y2="503" stroke="#C2453D" stroke-width="1.8"/>
+<text x="742" y="505" font-size="12.5" font-weight="600" fill="currentColor">cannot be set</text>
+<text x="742" y="521" font-size="10.5" fill="currentColor" fill-opacity="0.75">refused; ignored if found</text>
+<path d="M26 563 v-3 a5 5 0 0 1 10 0 v3" fill="none" stroke="#D98E04" stroke-width="2.2"/>
+<rect x="23" y="563" width="16" height="11" rx="2" fill="#D98E04"/>
+<circle cx="31" cy="568.5" r="1.6" fill="#ffffff"/>
+<text x="48" y="568" font-size="11.5" fill="currentColor">Lock: no level below it may set its own value. A hospital lock is lifted only at its own level or above, by an approved change.</text>
+<circle cx="31" cy="584" r="7" fill="none" stroke="#C2453D" stroke-width="1.8"/>
+<line x1="26" y1="589" x2="36" y2="579" stroke="#C2453D" stroke-width="1.8"/>
+<text x="48" y="589" font-size="11.5" fill="currentColor">An override below a lock is refused when written, and ignored if one is ever found in storage.</text>
+<rect x="22" y="599" width="18" height="14" rx="3" fill="#2E9E6B" fill-opacity="0.2" stroke="#2E9E6B" stroke-width="2"/>
+<text x="48" y="610" font-size="11.5" fill="currentColor">Green: the value in use (amber when that value is locked). A vendor lock is part of the product code; no hospital setting removes it.</text>
+<text x="48" y="631" font-size="11.5" fill="currentColor">Not drawn: tighten-only safety settings, where a lower level may make the value stricter but never looser.</text>
+<text x="48" y="652" font-size="10.5" fill="currentColor" fill-opacity="0.65">Source: docs/specs/modules/platform-tenancy.md sections 5.1 to 5.6 (rules W-4, W-5, W-7; property R-L). Specified, not yet coded. Illustrative values.</text>
+</svg>

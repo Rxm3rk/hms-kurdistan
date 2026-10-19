@@ -1,0 +1,6 @@
+tools/ci/run fast: 2 step(s) (PARTIAL: --only); logs in build/ci-logs/20261018T175631-fast-ed023b6-b9ce1d
+[1/2] safety-check ...
+[1/2] safety-check: PASS (0.6 s)
+[2/2] backlog-check ...
+[2/2] backlog-check: PASS (0.4 s)
+tools/ci/run fast: PARTIAL (2 passed, 0 failed, 0 not built; tests=0, failures=0, errors=0, skipped=0; 1 s)

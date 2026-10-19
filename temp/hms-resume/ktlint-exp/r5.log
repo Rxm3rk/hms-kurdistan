@@ -1,0 +1,149 @@
+Calculating task graph as configuration cache cannot be reused because an input to plugin class 'org.gradle.kotlin.dsl.plugins.precompiled.PrecompiledScriptPlugins' has changed.
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors
+> Task :build-logic:generateScriptPluginAdapters
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:compileKotlin
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar
+> Task :build-logic:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :verifyProjectConventions
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:arch-rules:processIntegrationTestResources NO-SOURCE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processResources NO-SOURCE
+> Task :detekt NO-SOURCE
+> Task :platform:arch-rules:processPropertyTestResources NO-SOURCE
+> Task :platform:arch-rules:processTestResources NO-SOURCE
+> Task :platform:testing:processIntegrationTestResources NO-SOURCE
+> Task :platform:testing:processTestResources NO-SOURCE
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :build-logic:runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :build-logic:ktlintKotlinScriptCheck UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverTestSourceSet NO-SOURCE
+> Task :build-logic:ktlintTestSourceSetCheck SKIPPED
+> Task :platform:testing:loadKtlintReporters
+> Task :platform:testing:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:testing:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:testing:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:arch-rules:loadKtlintReporters
+> Task :platform:arch-rules:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:arch-rules:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:arch-rules:ktlintKotlinScriptCheck SKIPPED
+> Task :loadKtlintReporters
+
+> Task :platform:testing:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:arch-rules:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:arch-rules:runKtlintCheckOverPropertyTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:ktlintPropertyTestSourceSetCheck SKIPPED
+> Task :build-logic:runKtlintCheckOverMainSourceSet
+> Task :platform:testing:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:testing:runKtlintCheckOverMainSourceSet
+> Task :platform:testing:ktlintPropertyTestSourceSetCheck
+> Task :platform:testing:ktlintMainSourceSetCheck
+> Task :platform:testing:compileKotlin
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :build-logic:ktlintMainSourceSetCheck
+> Task :build-logic:ktlintCheck
+> Task :platform:arch-rules:compileKotlin
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:arch-rules:runKtlintCheckOverMainSourceSet
+> Task :runKtlintCheckOverKotlinScripts
+> Task :platform:arch-rules:ktlintMainSourceSetCheck
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:arch-rules:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:testing:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compilePropertyTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compileIntegrationTestJava NO-SOURCE
+> Task :platform:arch-rules:integrationTestClasses UP-TO-DATE
+> Task :platform:arch-rules:compilePropertyTestJava NO-SOURCE
+> Task :platform:arch-rules:propertyTestClasses UP-TO-DATE
+> Task :platform:testing:compileIntegrationTestJava NO-SOURCE
+> Task :platform:testing:integrationTestClasses UP-TO-DATE
+> Task :platform:arch-rules:propertyTest NO-SOURCE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:testing:runKtlintCheckOverTestSourceSet
+> Task :platform:arch-rules:runKtlintCheckOverTestSourceSet
+> Task :ktlintKotlinScriptCheck
+> Task :ktlintCheck
+> Task :platform:testing:ktlintTestSourceSetCheck
+> Task :platform:testing:ktlintCheck
+> Task :platform:arch-rules:compileTestKotlin
+> Task :platform:testing:compileTestKotlin
+> Task :platform:testing:compilePropertyTestKotlin
+> Task :platform:arch-rules:ktlintTestSourceSetCheck
+> Task :platform:arch-rules:ktlintCheck
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+> Task :platform:testing:compileTestJava NO-SOURCE
+> Task :platform:testing:testClasses UP-TO-DATE
+> Task :platform:arch-rules:compileTestJava NO-SOURCE
+> Task :platform:arch-rules:testClasses UP-TO-DATE
+> Task :platform:testing:propertyTest
+> Task :platform:testing:test
+
+> Task :platform:testing:verifyArchitectureTest
+:platform:testing: ArchitectureTest ran 4 rule checks
+
+> Task :platform:arch-rules:test
+
+> Task :platform:arch-rules:verifyArchitectureTest
+:platform:arch-rules: ArchitectureTest ran 4 rule checks
+
+> Task :fastTier
+
+BUILD SUCCESSFUL in 3m 2s
+45 actionable tasks: 35 executed, 10 up-to-date
+Configuration cache entry stored.

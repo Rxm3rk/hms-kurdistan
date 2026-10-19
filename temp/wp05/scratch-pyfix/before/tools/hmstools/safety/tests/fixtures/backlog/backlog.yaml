@@ -1,0 +1,6 @@
+# Synthetic test fixture for the tools/hmstools/safety tests (provenance: synthetic).
+# A deliberately short backlog: most feature IDs of the real hazard log are absent from it.
+features:
+  - {id: ACC-ID-01, title: EMPI}
+  - {id: MED-MAR-01, title: eMAR}
+  - {id: TRU-REG-02, title: Safety case + hazard log}

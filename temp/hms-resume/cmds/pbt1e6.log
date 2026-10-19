@@ -1,0 +1,34 @@
+Calculating task graph as no cached configuration is available for tasks: :platform:testing:propertyTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:testing:compilePropertyTestKotlin UP-TO-DATE
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+> Task :platform:testing:propertyTest
+
+BUILD SUCCESSFUL in 4s
+16 actionable tasks: 1 executed, 15 up-to-date
+Configuration cache entry stored.

@@ -1,0 +1,6 @@
+# contract-openapi
+# command: (not built: OpenAPI 3.1 contract tests for module BFFs and public APIs)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# OpenAPI 3.1 contract tests for module BFFs and public APIs: not built yet; WP-0.4 builds it. Counted as a failure (fail closed).
+

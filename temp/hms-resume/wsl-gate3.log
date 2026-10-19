@@ -1,0 +1,32 @@
+== HEAD d3e14de; changes before run: 0
+bootstrap: frontend: Done in 82ms using pnpm v12.12.1
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"
+== bootstrap exit=0
+tools/ci/run fast: 8 step(s); logs in build/ci-logs/20261018T184345-fast-d3e14de-136ce4
+[1/8] doctor-fast ...
+[1/8] doctor-fast: PASS (0.8 s)
+[2/8] repo-check ...
+[2/8] repo-check: PASS (0.2 s)
+[3/8] python-unit-tests ...
+[3/8] python-unit-tests: PASS (26.6 s) tests=392, failures=0, errors=0, skipped=0
+[4/8] safety-check ...
+[4/8] safety-check: PASS (0.4 s)
+[5/8] backlog-check ...
+[5/8] backlog-check: PASS (0.2 s)
+[6/8] backend-fast ...
+[6/8] backend-fast: PASS (27.7 s) tests=66, failures=0, errors=0, skipped=0
+[7/8] frontend-fast ...
+[7/8] frontend-fast: PASS (18.1 s) tests=514, failures=0, errors=0, skipped=0
+[8/8] secret-scan ...
+[8/8] secret-scan: PASS (2.5 s) history_findings=0, working_tree_findings=0
+tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=972, failures=0, errors=0, skipped=0; 69 s)
+evidence: docs/program/evidence/ci/2026-10-18-fast-d3e14de.json
+== fast exit=0
+== doctor exit=1
+total 28
+drwxr-xr-x  2 surface surface 4096 Oct 18 18:44 .
+drwxrwxrwt 10 root    root    4096 Oct 18 18:44 ..
+-rw-r--r--  1 surface surface 5352 Oct 18 18:44 2026-10-18-d3e14de.json
+-rw-r--r--  1 surface surface 2701 Oct 18 18:44 2026-10-18-d3e14de.txt
+-rw-r--r--  1 surface surface 6347 Oct 18 18:44 2026-10-18-fast-d3e14de.json
+== changes after run: 0

@@ -1,0 +1,65 @@
+## files
+All new or changed in the worktree C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02. Nothing is staged or committed, and the git index is untouched.
+
+New:
+- deploy/site-cell/k3d/lite.k3d.yaml: cluster hms-lite, 3 servers and 0 agents, subnet 10.213.2.0/24, the API on 127.0.0.1:6550, the load balancer kept, registries.use set to k3d-hms-registry.localhost:5000, the k3s arguments from the plan's §2.1 (--disable=traefik,servicelb,metrics-server, --system-default-registry, --disable-default-registry-endpoint), serversMemory 3g, k3d create timeout 600 s. The file has no image line: cell up fills it in from cell.yaml.
+- deploy/site-cell/k3d/dev.k3d.yaml: the same, except hms-dev, 10.213.3.0/24, port 6551 and 8g [P]. Never run.
+- tools/hmstools/cell/docker.py: reads docker inspect and `ip -j route` output; the fixed-address check (IPAMConfig must be set, inside the subnet, held while running, not shared); fix_address (disconnect, then connect --ip at the address the container holds); route overlap check.
+- tools/hmstools/cell/kube.py: kubectl readyz, nodes, pods and node leases; images not from the local registry; the etcd member list from k3s's /db/info with the server token, TLS checked against the node's server CA; member_problems; reading a node's own etcd config file (works without quorum).
+- tools/hmstools/cell/k3d.py: profile checks and rendering; Substrate.up, start, stop and status; memory guard (6.5 GiB for lite; all server memory for the unmeasured dev profile); disk guard; offline signature check of every substrate image, k3s first; fixing the load balancer's and registry's addresses; the address checks; when an existing cluster does not come back, it prints addresses against etcd and stops, never recreating. Also load_scenario and restart_test (R1).
+- tests/chaos/scenarios/cell-restart.yaml: R1, cell-restart-any-order, HAZ-0028, CTRL-0028-3; bounds api_ready_s 300 [P], poll_s 2, memory_pressure_avg10_max 10 [P]; the pass list.
+- tools/hmstools/cell/tests/test_docker.py, test_kube.py, test_k3d.py: 61 tests. test_k3d.py runs against a fake Docker, k3d and kubectl and a fake clock, with no sleeping.
+- tools/hmstools/cell/tests/fixtures/: docker-inspect-lite.json, docker-inspect-registry.json, kubectl-nodes-lite.json, kubectl-pods-kube-system.json, etcd-members-lite.json, etcd-config-server-0.yaml and ip-route.json are trimmed real captures from the lite cell (WSL build host, 19 Oct), with tokens and container environments removed. docker-inspect-prototype.json (IPAMConfig null, server-0 and server-1 swapped) and etcd-members-prototype.json are rebuilt from the plan's §1 evidence.
+
+Changed: tools/hmstools/cell/__main__.py. New subcommands: up --only substrate, start, stop, status (each with --profile and --json), and chaos cell-restart [--evidence | --evidence-dir DIR] [--json]. --evidence writes to docs/program/evidence/chaos/.
+
+Outside the repository (scratch only):
+- C:\Users\Surface\AppData\Local\Temp\hms-wp02\s2\ (run.sh, sync-tree.sh, final.sh, exp1.sh, diag-create.sh, capture.sh, keeper.pid, fast-windows.txt);
+- WSL /tmp/hms-s2/ (the scratch tree, logs, and records in /tmp/hms-s2/records/);
+- HMS_CELL_HOME/k3d/ (the rendered lite.k3d.yaml and lite.kubeconfig, mode 600).
+## runs
+WSL build host, lite cell, from the scratch tree /tmp/hms-s2/tree (HEAD 889beec plus the worktree's uncommitted files, so records are -dirty):
+- exp1.sh (12:3x): a 1-server k3d cluster with a fixed subnet. The server got IPAMConfig 10.213.9.3; the load balancer and registry got IPAMConfig None. So k3d 5.8.3 does not fix those two addresses. Deleted afterwards.
+- cell up --only substrate, 12:47: created the cluster, all checks OK except etcd-members ("Remote end closed connection": etcd's JSON gateway listens only on 127.0.0.1:2382). FAIL, rc=1. I switched to k3s /db/info.
+- cell up, 12:50: SyntaxError from my edit, rc=1.
+- cell up, 12:50:45: existing cluster, every check OK. PASS, rc=0.
+- cell status, 12:51: running, healthy, rc=0.
+- Development R1, 12:51: PASS (API ready 21.4 s after the first start). Record in /tmp/hms-s2/records/dev/. After this run I added the requirement that each kubelet's lease is renewed after the kill.
+- final.sh, 12:59: deleted the dev cluster, then cell up FAIL rc=1. k3d's own 300 s create timeout expired waiting for server-1 ("k3s is up and running"), and k3d rolled back.
+- diag-create.sh, 13:05: direct k3d create with --no-rollback succeeded in 110 s. etcd logged "apply request took too long" (slow disk). I raised the k3d create timeout to 600 s in both yaml files.
+- final.sh, 13:08 to 13:12: deleted that cluster, then:
+  - cell up --only substrate PASS rc=0 (9.0 GiB available at start; created; LB re-attached at 10.213.2.6 and registry at 10.213.2.2, both now fixed; API and 3 nodes Ready; 11 checks OK, including etcd-members "3 started voting members, each at its node's fixed address" and system-pods "2 kube-system pods ready, every image from k3d-hms-registry.localhost:5000").
+  - cell status: running, healthy, rc=0.
+  - R1 #1: PASS rc=0. API ready 21.6 s after the first start; nodes Ready with renewed leases at 23.6 s; addresses unchanged; same 3 etcd member IDs. Record /tmp/hms-s2/records/2026-10-19-cell-restart-889beec-dirty.json.
+  - R1 #2: PASS rc=0. API 18.5 s; nodes 22.0 s; peak memory pressure (avg10) 0.0; MemAvailable 8.01 GiB before, 8.05 after. Record ...-889beec-dirty-2.json.
+  - cell stop: PASS rc=0. Took 62 s: server-0 and the load balancer were SIGKILLed (exit 137) at docker stop's 60 s limit.
+  - cell status: stopped, healthy (5 fixed addresses), rc=0.
+  - End state: available 9285 MiB; C: 19G free.
+- The keeper (Start-Process wsl.exe ... sleep infinity, pid 10020) was started before the session and stopped at the end with Stop-Process. Afterwards no sleep process was left in WSL.
+
+Windows host:
+- New slice tests: `python -B -m unittest test_docker test_kube test_k3d`: 61 tests, OK. Re-run after the final cosmetic edits: OK.
+- Slice tests plus test_cli: 67 tests, OK.
+- Whole cell test package (discover): 154 tests, OK (29.5 s). This was before the last cosmetic edits, which were line wrapping and JSON indentation only.
+- `sh tools/hms repo check`: PASS (text_files_checked=410, crlf_files=0, adrs_valid=30, tenant_matches=0). The only warnings are the 4 existing plan-of-record CRLF files.
+- `sh heavy.sh wp02-s2-fast sh tools/ci/run fast --no-evidence`: NOT RUN YET. At hand-over it was still waiting for a heavy.sh slot (slot 1 held by wp03 pid=173944 since 13:02:57; slot 2 blocked by the free-memory rule). It is still queued in the background and writes to C:\Users\Surface\AppData\Local\Temp\hms-wp02\s2\fast-windows.txt. I cannot report any step result for it.
+## entries
+For the integrator. I edited no programme file.
+- OQ-122: the chosen subnets are 10.213.2.0/24 (lite) and 10.213.3.0/24 (dev), outside 172.16.0.0/12 as S1's update said. cell up checks `ip -j -4 route`.
+- OQ-122: the plan assumed k3d fixes the load balancer's and registry's addresses. Measured, it does not: IPAMConfig is null for both. cell up re-attaches both with `docker network connect --ip` at the address they hold, and the check covers 5 containers. The fallback (restart policy no) was not needed, so no KA for it.
+- etcd membership is read from k3s `https://<node>:6443/db/info` with the server token, because etcd's HTTP gateway listens only on 127.0.0.1:2382.
+- k3d create timeout is 600 s: one create under slow I/O hit 300 s; the next took 110 s.
+- R1 also requires a kubelet lease renewal after the kill. This is stricter than the plan.
+- Lite numbers (labelled lite, not SLO evidence): R1 API ready 21.6 s and 18.5 s; nodes 23.6 s and 22.0 s.
+- KA-022: fixed addresses and R1 now pass on the bare substrate. S5 adds PostgreSQL and WORM.
+- Scratch R1 records are only in WSL /tmp/hms-s2/records; nothing was written to docs/program/evidence.
+- IDs used: none new. CTRL-0028-3 and HAZ-0028 are cited in the scenario.
+## problems
+1. The fast tier did not run before hand-over: heavy.sh was still waiting for a slot held by wp03. When it runs, expect cell-lint to fail on DN-017 (the PostgreSQL licence not classified in policy.yaml; BusyBox GPL-2.0-only in the k3s local-path helper with no register entry). I did not touch policy.yaml or register.yaml.
+2. On the last Windows fast run (S1), python-unit-tests took 880 s against a 900 s timeout. S2 adds about 3 s of tests.
+3. The first fresh create through cell up failed (k3d's 300 s timeout under slow etcd disk writes). The later fresh create passed, with the timeout raised to 600 s.
+4. A 12:47 cell up run failed on the old etcd method, and one run failed on my SyntaxError. Both happened and were superseded.
+5. C: free fell from about 24 to 19 GiB during the session. That is still above the 15 GiB line. Little of the fall came from this slice: no images were pulled from the internet.
+6. k3d cluster delete leaves the k3d-hms-lite network behind while the registry is attached; I cleaned it up by hand. `cell down` (S7) must disconnect the registry first.
+7. cell stop SIGKILLs server-0 and the load balancer after 60 s (the last etcd member loses quorum; nginx ignores SIGTERM). This is harmless, but noted.
+8. The registry's addresses on its own two networks (hms-registry, hms-cell-offline) are still not fixed. Only its address on the cell network is.

@@ -1,0 +1,10 @@
+{"p": {"slotAvailable": 0.56, "differentSlotRequested": 0.675, "requiredParticipantsAccepted": 0.36, "waitlistEntryComplete": 0.24,
+ "offeredSlotMatchesConstraints": 0.13, "topRankedForSlot": 0.7, "waitlistOffer": 0.25, "holdResponseWindowOpen": 0.36,
+ "waitlistWindowEnded": 0.15, "patientIdentifiedByTwoIdentifiers": 0.5, "withinCheckInWindow": 0.37, "walkInSessionOpen": 0.41,
+ "cancellationReasonGiven": 0.64, "cancellingPartyRecorded": 0.38, "cancellationEndsNeed": 0.45, "lateCancellation": 0.35,
+ "noShowGraceElapsed": 0.24, "noShowReasonGiven": 0.66, "patientInHospital": 0.11, "modificationKeepsSlot": 0.45,
+ "privilegedAndAudited": 0.65, "correctionReasonEntered": 0.73, "cc": 0.26, "ended": 0.26},
+ "complement": {"participantAcceptanceAwaited": "requiredParticipantsAccepted", "notWaitlistOffer": "waitlistOffer",
+ "holdResponseWindowElapsed": "holdResponseWindowOpen", "cancellationNeedsRebooking": "cancellationEndsNeed",
+ "timelyCancellation": "lateCancellation", "patientNotInHospital": "patientInHospital"},
+ "derived": {"consultationCompleted": "cc", "linkedEncounterEndedWithoutConsultation": "ended and not cc"}}

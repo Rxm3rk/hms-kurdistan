@@ -1,0 +1,21 @@
+heavy.sh: waiting for a slot (wp08 pid=181166 since=2026-10-19T12:59:43+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (demo-tsc-mi pid=202967 since=2026-10-19T13:22:02+03:00;)
+heavy.sh: waiting for a slot (demo-tsc-a7a pid=196595 since=2026-10-19T13:25:17+03:00;)
+heavy.sh: waiting for a slot (wp05 pid=190163 since=2026-10-19T13:26:58+03:00;)
+heavy.sh: wp07-status got slot1.lock after 1455s
+tools/ci/run fast: 8 step(s); logs in build/ci-logs/20261019T132750-fast-68d222c-ab4bc9
+[1/8] doctor-fast ...
+[1/8] doctor-fast: PASS (5.7 s)
+[2/8] repo-check ...
+[2/8] repo-check: PASS (3.3 s)
+[3/8] python-unit-tests ...
+exit=0

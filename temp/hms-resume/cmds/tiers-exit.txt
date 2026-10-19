@@ -1,0 +1,2 @@
+nightly exit=1
+release exit=1

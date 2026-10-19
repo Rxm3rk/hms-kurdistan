@@ -1,0 +1,107 @@
+2026-10-19 10:19:51 wp/0.8-documents-printing: saved 266cb56 (207 files changed, 26560 insertions(+), 66 deletions(-))
+warning: in the working copy of 'backend/platform/time/src/main/kotlin/hms/kernel/time/ClinicalTime.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/platform/time/src/test/kotlin/hms/kernel/time/ClinicalTimeTest.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'backend/platform/time/src/test/kotlin/hms/kernel/time/RecordedTimeTest.kt', CRLF will be replaced by LF the next time Git touches it
+2026-10-19 10:19:51 wp/0.3-platform-kernel: saved 03132be (73 files changed, 10640 insertions(+), 57 deletions(-))
+warning: in the working copy of 'backend/modules/lis/src/main/kotlin/hms/lis/domain/specimen/SpecimenGuards.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'docs/specs/state-machines/specimen.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'docs/specs/state-machines/specimen.yaml', CRLF will be replaced by LF the next time Git touches it
+2026-10-19 10:19:51 wp/0.5-state-machines: saved 749bf2b (202 files changed, 35727 insertions(+), 70 deletions(-))
+2026-10-19 10:19:51 wp/0.2-environments: saved fb8f535 (32 files changed, 2961 insertions(+), 125 deletions(-))
+warning: in the working copy of 'frontend/apps/web/src/demo/demo-banner-page.tsx', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'frontend/apps/web/src/frame/app-frame.tsx', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'frontend/apps/web/src/routing/clinical-layout.tsx', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'frontend/apps/web/src/routing/search.ts', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'frontend/apps/web/src/routing/static-data.ts', CRLF will be replaced by LF the next time Git touches it
+2026-10-19 10:19:51 wp/0.7-design-system: saved 4b782c5 (27 files changed, 2416 insertions(+))
+2026-10-19 10:24:43 wp/0.8-documents-printing: saved a12db0d (207 files changed, 26561 insertions(+), 66 deletions(-))
+2026-10-19 10:24:43 wp/0.3-platform-kernel: saved 8070c11 (76 files changed, 11369 insertions(+), 57 deletions(-))
+2026-10-19 10:24:43 wp/0.5-state-machines: saved 547c08f (212 files changed, 37737 insertions(+), 72 deletions(-))
+2026-10-19 10:24:43 wp/0.2-environments: saved 5378120 (32 files changed, 2978 insertions(+), 125 deletions(-))
+2026-10-19 10:24:43 wp/0.7-design-system: saved 2cd76c6 (27 files changed, 2421 insertions(+))
+2026-10-19 10:30:25 wp/0.8-documents-printing: saved c17bf73 (207 files changed, 26633 insertions(+), 66 deletions(-))
+2026-10-19 10:30:25 wp/0.5-state-machines: saved cd3c594 (216 files changed, 39304 insertions(+), 72 deletions(-))
+2026-10-19 10:30:25 wp/0.2-environments: saved 8a44704 (33 files changed, 3279 insertions(+), 125 deletions(-))
+2026-10-19 10:30:25 wp/0.7-design-system: saved 6c0d914 (27 files changed, 2421 insertions(+))
+2026-10-19 10:38:24 wp/0.8-documents-printing: saved 0f4168a (208 files changed, 26744 insertions(+), 66 deletions(-))
+2026-10-19 10:38:24 wp/0.3-platform-kernel: saved 5acc445 (76 files changed, 11413 insertions(+), 57 deletions(-))
+2026-10-19 10:38:24 wp/0.5-state-machines: saved 1064e99 (258 files changed, 44843 insertions(+), 73 deletions(-))
+2026-10-19 10:38:24 wp/0.2-environments: saved ebbf61e (34 files changed, 3505 insertions(+), 125 deletions(-))
+2026-10-19 10:38:24 wp/0.7-design-system: saved ef3ac1b (33 files changed, 3114 insertions(+))
+2026-10-19 10:48:17 wp/0.8-documents-printing: saved d2af985 (209 files changed, 27067 insertions(+), 66 deletions(-))
+2026-10-19 10:48:17 wp/0.5-state-machines: saved 20ef7db (263 files changed, 46084 insertions(+), 73 deletions(-))
+2026-10-19 10:48:17 wp/0.7-design-system: saved f097d0d (34 files changed, 3120 insertions(+), 1 deletion(-))
+2026-10-19 10:51:50 wp/0.5-state-machines: saved dafaa6c (263 files changed, 46210 insertions(+), 73 deletions(-))
+2026-10-19 10:51:50 uploaded to GitHub (0 refs updated)
+2026-10-19 10:57:01 wp/0.8-documents-printing: saved 7fd430a (209 files changed, 27376 insertions(+), 66 deletions(-))
+2026-10-19 10:57:01 wp/0.5-state-machines: saved dc444ee (268 files changed, 48382 insertions(+), 73 deletions(-))
+2026-10-19 10:57:01 wp/0.7-design-system: saved 6b8f8f8 (34 files changed, 3119 insertions(+), 1 deletion(-))
+2026-10-19 10:57:01 uploaded to GitHub (3 refs updated)
+2026-10-19 11:16:56 wp/0.8-documents-printing: saved 61cad85 (189 files changed, 26981 insertions(+))
+2026-10-19 11:16:56 wp/0.3-platform-kernel: saved 3186933 (76 files changed, 11625 insertions(+), 57 deletions(-))
+2026-10-19 11:16:56 wp/0.5-state-machines: saved 930ef59 (269 files changed, 49016 insertions(+), 83 deletions(-))
+2026-10-19 11:16:56 wp/0.2-environments: saved c821ce7 (34 files changed, 3513 insertions(+), 125 deletions(-))
+2026-10-19 11:16:56 wp/0.7-design-system: saved 6455a1d (37 files changed, 3162 insertions(+), 1 deletion(-))
+2026-10-19 11:16:56 uploaded to GitHub (6 refs updated)
+2026-10-19 11:16:56 hms-demo: saved 39d9cea
+2026-10-19 11:36:50 wp/0.8-documents-printing: saved 6507fd2 (190 files changed, 27211 insertions(+), 5 deletions(-))
+2026-10-19 11:36:50 wp/0.3-platform-kernel: saved fc11ae4 (63 files changed, 5396 insertions(+))
+2026-10-19 11:36:50 wp/0.7-design-system: saved 84edeb7 (37 files changed, 3241 insertions(+), 1 deletion(-))
+2026-10-19 11:36:50 uploaded to GitHub (4 refs updated)
+2026-10-19 11:36:50 hms-demo: saved 1f4b9ea
+2026-10-19 11:47:51 wp/0.8-documents-printing: saved f6583e6 (200 files changed, 27597 insertions(+), 5 deletions(-))
+2026-10-19 11:47:51 wp/0.3-platform-kernel: saved ef16119 (63 files changed, 5407 insertions(+))
+2026-10-19 11:47:51 wp/0.5-state-machines: saved d0faf79 (269 files changed, 49164 insertions(+), 83 deletions(-))
+2026-10-19 11:47:51 uploaded to GitHub (3 refs updated)
+2026-10-19 11:47:51 hms-demo: saved 2288e66
+2026-10-19 11:57:39 wp/0.8-documents-printing: saved 027080f (200 files changed, 27603 insertions(+), 5 deletions(-))
+2026-10-19 11:57:39 wp/0.5-state-machines: saved 7a8f811 (269 files changed, 49458 insertions(+), 83 deletions(-))
+2026-10-19 11:57:39 wp/0.7-design-system: saved 2cd9be1 (37 files changed, 3257 insertions(+), 1 deletion(-))
+2026-10-19 11:57:39 uploaded to GitHub (3 refs updated)
+2026-10-19 11:57:39 hms-demo: saved f5754f5
+2026-10-19 12:07:32 wp/0.8-documents-printing: saved 04e2bb1 (200 files changed, 27606 insertions(+), 5 deletions(-))
+2026-10-19 12:07:32 wp/0.3-platform-kernel: saved 505e98d (63 files changed, 5411 insertions(+))
+2026-10-19 12:07:32 wp/0.5-state-machines: saved 79be888 (269 files changed, 49516 insertions(+), 83 deletions(-))
+2026-10-19 12:07:32 wp/0.7-design-system: saved 220889f (38 files changed, 3673 insertions(+), 1 deletion(-))
+2026-10-19 12:07:32 uploaded to GitHub (4 refs updated)
+2026-10-19 12:07:32 hms-demo: saved 7cc5a23
+2026-10-19 12:17:18 wp/0.8-documents-printing: saved 3d87dd5 (147 files changed, 21178 insertions(+), 10 deletions(-))
+2026-10-19 12:17:18 wp/0.3-platform-kernel: saved f040dd1 (65 files changed, 5452 insertions(+), 24 deletions(-))
+2026-10-19 12:17:18 wp/0.5-state-machines: saved 9212f56 (269 files changed, 49523 insertions(+), 83 deletions(-))
+2026-10-19 12:17:18 wp/0.7-design-system: saved 9e03238 (38 files changed, 3682 insertions(+), 1 deletion(-))
+2026-10-19 12:17:18 uploaded to GitHub (5 refs updated)
+2026-10-19 12:17:18 hms-demo: saved 6d12fa2
+2026-10-19 12:26:51 wp/0.3-platform-kernel: saved 41c951d (74 files changed, 5542 insertions(+), 27 deletions(-))
+2026-10-19 12:26:51 uploaded to GitHub (1 refs updated)
+2026-10-19 12:26:51 hms-demo: saved a54f040
+2026-10-19 12:36:50 wp/0.3-platform-kernel: saved 259e825 (85 files changed, 6910 insertions(+), 28 deletions(-))
+2026-10-19 12:36:50 uploaded to GitHub (1 refs updated)
+2026-10-19 12:36:50 hms-demo: saved 85534ee
+2026-10-19 12:46:51 wp/0.8-documents-printing: saved 0baa5e9 (152 files changed, 21862 insertions(+), 10 deletions(-))
+2026-10-19 12:46:51 wp/0.3-platform-kernel: saved 42c0d72 (115 files changed, 10173 insertions(+), 37 deletions(-))
+2026-10-19 12:46:51 wp/0.5-state-machines: saved 04a7315 (270 files changed, 49966 insertions(+), 83 deletions(-))
+2026-10-19 12:46:51 wp/0.2-environments: saved ec02f76 (49 files changed, 5722 insertions(+), 125 deletions(-))
+2026-10-19 12:46:51 uploaded to GitHub (4 refs updated)
+2026-10-19 12:46:51 hms-demo: saved e94223e
+2026-10-19 12:57:39 wp/0.8-documents-printing: saved f233884 (164 files changed, 23326 insertions(+), 10 deletions(-))
+2026-10-19 12:57:39 wp/0.3-platform-kernel: saved 38b5c4b (141 files changed, 12202 insertions(+), 38 deletions(-))
+2026-10-19 12:57:39 wp/0.2-environments: saved 682417f (52 files changed, 6689 insertions(+), 125 deletions(-))
+2026-10-19 12:57:39 uploaded to GitHub (3 refs updated)
+2026-10-19 12:57:39 hms-demo: saved 104516e
+2026-10-19 13:06:50 wp/0.8-documents-printing: saved 502ecd2 (85 files changed, 10095 insertions(+), 89 deletions(-))
+2026-10-19 13:06:50 wp/0.3-platform-kernel: saved b8c8443 (209 files changed, 13799 insertions(+), 41 deletions(-))
+2026-10-19 13:06:50 wp/0.2-environments: saved 25e29f4 (52 files changed, 6696 insertions(+), 125 deletions(-))
+2026-10-19 13:06:50 wp/0.7-design-system: saved 86b35a7 (1 file changed, 14 insertions(+), 11 deletions(-))
+2026-10-19 13:06:50 uploaded to GitHub (6 refs updated)
+2026-10-19 13:06:50 hms-demo: saved b0f50b2
+2026-10-19 13:17:20 wp/0.8-documents-printing: saved 0c018c1 (91 files changed, 11383 insertions(+), 89 deletions(-))
+2026-10-19 13:17:20 wp/0.3-platform-kernel: saved 7065b36 (216 files changed, 14231 insertions(+), 42 deletions(-))
+2026-10-19 13:17:20 wp/0.5-state-machines: saved d7cbe48 (270 files changed, 49966 insertions(+), 83 deletions(-))
+2026-10-19 13:17:20 wp/0.2-environments: saved dbdee91 (55 files changed, 6735 insertions(+), 126 deletions(-))
+2026-10-19 13:17:20 uploaded to GitHub (5 refs updated)
+2026-10-19 13:17:20 hms-demo: saved 21c0df5
+2026-10-19 13:37:17 wp/0.8-documents-printing: saved 05ee716 (91 files changed, 11466 insertions(+), 89 deletions(-))
+2026-10-19 13:37:17 wp/0.3-platform-kernel: saved 83fccb0 (147 files changed, 8694 insertions(+), 25 deletions(-))
+2026-10-19 13:37:17 uploaded to GitHub (2 refs updated)
+2026-10-19 13:43:47 uploaded to GitHub (0 refs updated)
+2026-10-19 13:46:50 uploaded to GitHub (0 refs updated)

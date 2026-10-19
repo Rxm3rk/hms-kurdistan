@@ -1,0 +1,46 @@
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java 25.0.4.1)
+bootstrap: Gradle: gradle-9.8.1-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wr== bootstrap exit=0
+tools/ci/run fast: 8 step(s); logs in build/ci-logs/20261018T182904-fast-b24f94e-32b80e
+[1/8] doctor-fast ...
+[1/8] doctor-fast: PASS (0.8 s)
+[2/8] repo-check ...
+[2/8] repo-check: PASS (0.2 s)
+[3/8] python-unit-tests ...
+[3/8] python-unit-tests: PASS (23.6 s) tests=389, failures=0, errors=0, skipped=0
+[4/8] safety-check ...
+[4/8] safety-check: PASS (0.4 s)
+[5/8] backlog-check ...
+[5/8] backlog-check: PASS (0.2 s)
+[6/8] backend-fas
+real	7m40.614s
+user	1m39.062s
+sys	0m17.128s
+s=66, failures=0, errors=0, skipped=0
+[7/8] frontend-fast ...
+[7/8] frontend-fast: PASS (28.0 s) tests=514, failures=0, errors=0, skipped=0
+[8/8] secret-scan ...
+[8/8] secret-scan: PASS (3.1 s) history_findings=0, working_tree_findings=0
+tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=969, failures=0, errors=0, skipped=0; 460 s)
+evidence: docs/program/evidence/ci/2026-10-18-fast-b24f94e-dirty.json
+== fast exit=0
+2026-10-18-fast-b24f94e-dirty.json
+2026-10-18-gates-bite.md
+== doctor exit=1
+== doctor --json exit=1
+ M BLUEPRINT-KURDISTAN.md
+ M BLUEPRINT-KURDISTAN.pdf
+ M BLUEPRINT.md
+ M BUILD-PROMPT.md
+ M README.md
+ M assets/icon.svg
+ M research/00-INDEX.md
+ M research/01-global-vendor-landscape.md
+ M research/02-open-source-and-platforms.md
+ M research/03-clinical-modules-and-workflows.md
+total 28
+drwxr-xr-x  2 surface surface 4096 Oct 18 18:36 .
+drwxrwxrwt 11 root    root    4096 Oct 18 18:36 ..
+-rw-r--r--  1 surface surface 4966 Oct 18 18:36 2026-10-18-b24f94e.json
+-rw-r--r--  1 surface surface 2384 Oct 18 18:36 2026-10-18-b24f94e.txt
+-rw-r--r--  1 surface surface 7724 Oct 18 18:36 2026-10-18-fast-b24f94e-dirty.json

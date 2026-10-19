@@ -1,0 +1,2 @@
+- [Plain-language status](plain-language-status.md) — explain progress by what the product does, not WP/R-/DN codes
+- [WP-0.7 human decisions](wp07-human-decisions.md) — AI-drafted ckb/ar text marked unreviewed; 0BSD, Unicode-3.0, Zlib approved; record as DNs

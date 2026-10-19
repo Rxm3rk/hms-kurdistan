@@ -1,0 +1,121 @@
+banner.region.label	Patient banner	شریتی زانیاریی نەخۆش	شريط بيانات المريض
+banner.photo.alt	Patient photo	وێنەی نەخۆش	صورة المريض
+banner.photo.missing	No photo	وێنە تۆمار نەکراوە	لا توجد صورة مسجلة
+banner.name.kurdish.label	Name (Kurdish)	ناو (کوردی)	الاسم (بالكردية)
+banner.name.arabic.label	Name (Arabic)	ناو (عەرەبی)	الاسم (بالعربية)
+banner.name.latin.label	Name (Latin)	ناو (لاتینی)	الاسم (بالحروف اللاتينية)
+banner.name.kurdishMissing	Kurdish name missing	ناوی کوردی تۆمار نەکراوە	الاسم الكردي غير مسجل
+banner.name.arabicMissing	Arabic name missing	ناوی عەرەبی تۆمار نەکراوە	الاسم العربي غير مسجل
+banner.name.latinMissing	Latin name missing	ناوی لاتینی تۆمار نەکراوە	الاسم اللاتيني غير مسجل
+banner.identity.incomplete	Identity incomplete	ناسنامە ناتەواوە	الهوية غير مكتملة
+banner.mrn.label	MRN	ژمارەی تۆماری پزیشکی	رقم السجل الطبي
+banner.dob.label	Date of birth	ڕێکەوتی لەدایکبوون	تاريخ الميلاد
+banner.dob.approximateFlag	Approximate date of birth	ڕێکەوتی لەدایکبوونی نزیکەیی	تاريخ ميلاد تقريبي
+banner.dob.missing	Date of birth missing	ڕێکەوتی لەدایکبوون تۆمار نەکراوە	تاريخ الميلاد غير مسجل
+banner.dob.unavailable	Date of birth unavailable	ڕێکەوتی لەدایکبوون بەردەست نییە	تاريخ الميلاد غير متاح
+banner.allergies.label	Allergies	هەستیارییەکان	الحساسية
+banner.allergies.nka	No known allergies (NKA)	هیچ هەستیارییەکی زانراو نییە (NKA)	لا توجد حساسية معروفة (NKA)
+banner.allergies.notAssessed	Allergies not assessed	هەستیاری هێشتا هەڵنەسەنگێنراوە	لم يتم تقييم الحساسية بعد
+banner.allergies.unavailable	Allergy status unavailable	باری هەستیاری بەردەست نییە	حالة الحساسية غير متاحة
+banner.allergies.count	{count, plural, one {# allergy} other {# allergies}}	{count, plural, one {# هەستیاری} other {# هەستیاری}}	{count, plural, one {# حساسية} two {# حساسية} few {# حساسيات} many {# حساسية} other {# حساسية}}
+banner.codeStatus.label	Code status	باری بووژاندنەوە	حالة الإنعاش
+banner.codeStatus.notDocumented	Code status not documented	باری بووژاندنەوە تۆمار نەکراوە	حالة الإنعاش غير موثقة
+banner.codeStatus.unavailable	Code status unavailable	باری بووژاندنەوە بەردەست نییە	حالة الإنعاش غير متاحة
+banner.codeStatus.recordedOn	{status}, recorded {date}	{status}، ڕێکەوتی تۆمارکردن {date}	{status}، تاريخ التسجيل {date}
+banner.isolation.label	Isolation	جیاکردنەوە	العزل
+banner.isolation.noneRecorded	No isolation recorded	هیچ جیاکردنەوەیەک تۆمار نەکراوە	لا يوجد عزل مسجل
+banner.isolation.unavailable	Isolation status unavailable	باری جیاکردنەوە بەردەست نییە	حالة العزل غير متاحة
+banner.weight.label	Weight	کێش	الوزن
+banner.weight.value	{weight} ({source}, {date})	{weight} ({source}، {date})	{weight} ({source}، {date})
+banner.weight.source.measured	measured	پێوراو	مقيس
+banner.weight.source.stated	stated	ڕاگەیەندراو	مصرح به
+banner.weight.source.estimated	estimated	خەمڵێنراو	تقديري
+banner.weight.missing	No dated weight	هیچ کێشێکی بەرواردار تۆمار نەکراوە	لا يوجد وزن مؤرخ
+banner.weight.unavailable	Weight unavailable	کێش بەردەست نییە	الوزن غير متاح
+banner.label.untranslated	Not translated	وەرنەگێڕدراوە	غير مترجم
+banner.dataUnavailable	Patient banner data unavailable	زانیاریی شریتی نەخۆش بەردەست نییە	بيانات شريط المريض غير متاحة
+patientContext.none	No patient selected	هیچ نەخۆشێک هەڵنەبژێردراوە	لم يتم اختيار مريض
+patientContext.close	Close patient record	داخستنی تۆماری نەخۆش	إغلاق سجل المريض
+patientContext.switch.title	Change patient?	گۆڕینی نەخۆش؟	تغيير المريض؟
+patientContext.switch.body	This window holds one patient. Opening another patient replaces the current one.	ئەم پەنجەرەیە تەنها یەک نەخۆش لەخۆ دەگرێت. کردنەوەی نەخۆشێکی تر جێگەی نەخۆشی ئێستا دەگرێتەوە.	تعرض هذه النافذة مريضا واحدا فقط. فتح مريض آخر يحل محل المريض الحالي.
+patientContext.switch.current	Current patient	نەخۆشی ئێستا	المريض الحالي
+patientContext.switch.requested	Requested patient	نەخۆشی داواکراو	المريض المطلوب
+patientContext.switch.confirm	Switch to requested patient	گۆڕین بۆ نەخۆشی داواکراو	الانتقال إلى المريض المطلوب
+patientContext.switch.cancel	Keep current patient	مانەوە لەسەر نەخۆشی ئێستا	الإبقاء على المريض الحالي
+patientContext.switch.requestedInvalid	The requested patient's identity data is unavailable, so this switch cannot be confirmed.	زانیاریی ناسنامەی نەخۆشی داواکراو بەردەست نییە، بۆیە ئەم گۆڕینە پشتڕاست ناکرێتەوە.	بيانات هوية المريض المطلوب غير متاحة، لذا لا يمكن تأكيد هذا التغيير.
+patientContext.switch.blockedByModal	Finish or cancel the open dialog before changing patient.	پێش گۆڕینی نەخۆش، پەنجەرەی کراوە تەواو بکە یان هەڵیبوەشێنەوە.	يجب إنهاء مربع الحوار المفتوح أو إلغاؤه قبل تغيير المريض.
+patientContext.clearedByUserChange	The patient was closed because the user changed.	نەخۆشەکە داخرا چونکە بەکارهێنەر گۆڕدرا.	تم إغلاق المريض بسبب تغيير المستخدم.
+sign.title	Sign	واژۆکردن	التوقيع
+sign.cosign.title	Co-sign	واژۆی هاوبەش	التوقيع المشترك
+sign.review.heading	Review before signing	پێداچوونەوە پێش واژۆکردن	المراجعة قبل التوقيع
+sign.intent.author	I am the author of this entry and I sign it.	من نووسەری ئەم تۆمارەم و واژۆی دەکەم.	أقر بأنني من حرر هذا القيد، وأوقع عليه.
+sign.intent.cosign	I have reviewed this entry and I co-sign it.	من پێداچوونەوەم بەم تۆمارەدا کردووە و واژۆی هاوبەشی دەکەم.	أقر بأنني راجعت هذا القيد، وأوقع عليه توقيعا مشتركا.
+sign.action	Sign	واژۆکردن	توقيع
+sign.cosign.action	Co-sign	واژۆی هاوبەش	توقيع مشترك
+sign.cancel	Cancel	هەڵوەشاندنەوە	إلغاء
+sign.blockedByBanner	Signing is not possible: the patient's identity data is incomplete or unavailable.	واژۆکردن ناکرێت: زانیاریی ناسنامەی نەخۆش ناتەواوە یان بەردەست نییە.	لا يمكن التوقيع: بيانات هوية المريض غير مكتملة أو غير متاحة.
+sign.authenticate.heading	Confirm it is you	پشتڕاستکردنەوەی ناسنامەی بەکارهێنەر	تأكيد هوية المستخدم
+sign.authenticate.simulated	Simulated sign-in (demonstration only)	چوونەژوورەوەی لاسایی (تەنها بۆ نمایش)	تسجيل دخول محاكى (للعرض التوضيحي فقط)
+sign.authenticate.cosignPin	Co-signing needs a badge tap and a PIN.	واژۆی هاوبەش پێویستی بە نزیککردنەوەی کارت لە خوێنەرەوە و ژمارەی نهێنی (PIN) هەیە.	يتطلب التوقيع المشترك لمس البطاقة على القارئ وإدخال الرمز الشخصي (PIN).
+sign.reverify.title	Confirm the patient	پشتڕاستکردنەوەی نەخۆش	تأكيد هوية المريض
+sign.reverify.reason	{windowSeconds, plural, one {The patient in this window changed in the last # second. Check that this is the right patient before signing.} other {The patient in this window changed in the last # seconds. Check that this is the right patient before signing.}}	{windowSeconds, plural, one {نەخۆشی ئەم پەنجەرەیە لە # چرکەی ڕابردوودا گۆڕدرا. پێش واژۆکردن، دڵنیابوونەوە پێویستە کە ئەمە نەخۆشی دروستە.} other {نەخۆشی ئەم پەنجەرەیە لە # چرکەی ڕابردوودا گۆڕدرا. پێش واژۆکردن، دڵنیابوونەوە پێویستە کە ئەمە نەخۆشی دروستە.}}	{windowSeconds, plural, zero {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} one {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} two {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} few {تغير المريض في هذه النافذة خلال آخر # ثوان. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} many {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} other {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.}}
+sign.reverify.confirm	This is the right patient	ئەمە نەخۆشی دروستە	هذا هو المريض الصحيح
+sign.reverify.reject	Not this patient	ئەمە نەخۆشەکە نییە	ليس هذا المريض
+sign.reverify.rejected	This is not the right patient. Nothing was signed. Close or change the patient.	ئەمە نەخۆشی دروست نییە. هیچ شتێک واژۆ نەکرا. نەخۆشەکە دابخە یان بیگۆڕە.	هذا ليس المريض الصحيح. لم يتم توقيع أي شيء. يجب إغلاق المريض أو تغييره.
+sign.reverify.signerDiffers	The person signing must confirm the patient. Confirm the patient again.	ئەو کەسەی واژۆ دەکات دەبێت خۆی نەخۆشەکە پشتڕاست بکاتەوە. نەخۆشەکە دووبارە پشتڕاست بکەرەوە.	يجب أن يؤكد الشخص الذي يوقع هوية المريض بنفسه. يلزم تأكيد المريض مرة أخرى.
+sign.refused.reverify	Signing was refused. Confirm the patient again.	واژۆکردن ڕەتکرایەوە. نەخۆشەکە دووبارە پشتڕاست بکەرەوە.	تم رفض التوقيع. يلزم تأكيد المريض مرة أخرى.
+sign.done	Signed	واژۆکرا	تم التوقيع
+sign.failed	Not signed. Nothing was saved.	واژۆ نەکرا. هیچ شتێک پاشەکەوت نەکرا.	لم يتم التوقيع. لم يتم حفظ أي شيء.
+sign.outcomeUnknown	It is not known whether this was signed. Check the record before signing again.	نازانرێت ئایا ئەمە واژۆکراوە یان نا. پێش دووبارە واژۆکردن، تۆمارەکە بپشکنە.	لا يعرف ما إذا كان قد تم التوقيع. يجب التحقق من السجل قبل التوقيع مرة أخرى.
+sign.contextChanged	Not signed: the patient in this window changed. Nothing was saved.	واژۆ نەکرا: نەخۆشی ئەم پەنجەرەیە گۆڕدرا. هیچ شتێک پاشەکەوت نەکرا.	لم يتم التوقيع: تغير المريض في هذه النافذة. لم يتم حفظ أي شيء.
+commandPalette.open.label	Open command palette	کردنەوەی لیستی فەرمانەکان	فتح لوحة الأوامر
+commandPalette.dialog.label	Command palette	لیستی فەرمانەکان	لوحة الأوامر
+commandPalette.search.label	Search commands	گەڕان لە فەرمانەکان	البحث في الأوامر
+commandPalette.search.placeholder	Type a command or search	فەرمانێک بنووسە یان بگەڕێ	أمر أو عبارة بحث
+commandPalette.noResults	No matching commands	هیچ فەرمانێکی گونجاو نییە	لا توجد أوامر مطابقة
+commandPalette.resultCount	{count, plural, one {# result} other {# results}}	{count, plural, one {# ئەنجام} other {# ئەنجام}}	{count, plural, zero {# نتيجة} one {# نتيجة} two {# نتيجة} few {# نتائج} many {# نتيجة} other {# نتيجة}}
+commandPalette.hint	Arrow keys to choose, Enter to run, Escape to close.	دوگمەکانی تیر بۆ هەڵبژاردن، Enter بۆ جێبەجێکردن، Escape بۆ داخستن.	مفاتيح الأسهم للاختيار، وEnter للتنفيذ، وEscape للإغلاق.
+commandPalette.group.navigation	Go to	چوون بۆ	الانتقال إلى
+commandPalette.group.patients	Patients	نەخۆشەکان	المرضى
+commandPalette.group.settings	Settings	ڕێکخستنەکان	الإعدادات
+commandPalette.command.changeLanguage	Change language	گۆڕینی زمان	تغيير اللغة
+commandPalette.command.changeDensity	Change density	گۆڕینی چڕیی پیشاندان	تغيير كثافة العرض
+density.label	Density	چڕیی پیشاندان	كثافة العرض
+density.comfortable	Comfortable	ئاسوودە	مريح
+density.compact	Compact	چڕ	مضغوط
+language.picker.label	Language	زمان	اللغة
+modal.close	Close	داخستن	إغلاق
+modal.blocked	Finish or cancel the open dialog first.	سەرەتا پەنجەرەی کراوە تەواو بکە یان هەڵیبوەشێنەوە.	يجب أولا إنهاء مربع الحوار المفتوح أو إلغاؤه.
+app.skipToContent	Skip to main content	بازدان بۆ ناوەڕۆکی سەرەکی	الانتقال إلى المحتوى الرئيسي
+app.mainNav.label	Main navigation	ڕێنیشاندەری سەرەکی	التنقل الرئيسي
+clinical.number.invalid	Invalid value	بەهای نادروست	قيمة غير صالحة
+clinical.value.missing	Not recorded	تۆمار نەکراوە	غير مسجل
+demo.watermark	NOT FOR CLINICAL USE	بۆ بەکارهێنانی کلینیکی نییە	ليس للاستخدام السريري
+demo.banner.title	Banner demonstration (synthetic patients)	نمایشی شریتی نەخۆش (نەخۆشی دەستکرد)	عرض توضيحي لشريط المريض (مرضى اصطناعيون)
+demo.syntheticNotice	Every patient on this page is synthetic.	هەموو نەخۆشەکانی ئەم پەڕەیە دەستکردن.	جميع المرضى في هذه الصفحة اصطناعيون.
+demo.fixture.label	Synthetic patient	نەخۆشی دەستکرد	مريض اصطناعي
+hal.error.unavailable	This device function is unavailable.	ئەم کارەی ئامێرەکە بەردەست نییە.	وظيفة الجهاز هذه غير متاحة.
+hal.error.notPermitted	This workstation or your role may not use this device.	ئەم وێستگەی کارە یان ڕۆڵەکەت ڕێگەی بەکارهێنانی ئەم ئامێرەی نییە.	لا يسمح لمحطة العمل هذه أو لدور المستخدم باستخدام هذا الجهاز.
+hal.error.invalidRequest	The device could not accept this request.	ئامێرەکە نەیتوانی ئەم داواکارییە وەربگرێت.	تعذر على الجهاز قبول هذا الطلب.
+hal.error.deviceError	The device reported a problem.	ئامێرەکە کێشەیەکی ڕاگەیاند.	أبلغ الجهاز عن مشكلة.
+hal.error.timeout	The device did not respond in time.	ئامێرەکە لە کاتی خۆیدا وەڵامی نەدایەوە.	لم يستجب الجهاز في الوقت المحدد.
+hal.error.cancelled	Cancelled.	هەڵوەشێنرایەوە.	تم الإلغاء.
+hal.error.outcomeUnknown	The device may already have done this. Check the printer or terminal before trying again.	لەوانەیە ئامێرەکە پێشتر ئەمەی کردبێت. پێش هەوڵدانەوە، چاپکەر یان ئامێری پارەدان بپشکنە.	ربما نفذ الجهاز هذه العملية بالفعل. يجب التحقق من الطابعة أو جهاز الدفع قبل المحاولة مرة أخرى.
+hal.reason.noShell	Open this workspace in the HMS workstation app to use devices.	بۆ بەکارهێنانی ئامێرەکان، ئەم شوێنی کارە لە بەرنامەی وێستگەی کاری HMS بکەرەوە.	لاستخدام الأجهزة، يجب فتح مساحة العمل هذه في تطبيق محطة عمل HMS.
+hal.reason.notImplemented	This device function is not available in this version.	ئەم کارەی ئامێر لەم وەشانەدا بەردەست نییە.	وظيفة الجهاز هذه غير متوفرة في هذا الإصدار.
+hal.reason.noDevice	No device of this kind is connected.	هیچ ئامێرێکی لەم جۆرە پەیوەست نەکراوە.	لا يوجد جهاز متصل من هذا النوع.
+hal.reason.capabilityNotGranted	Ask your administrator if you need this device here.	ئەگەر لێرە پێویستت بەم ئامێرە هەیە، پرسیار لە بەڕێوەبەری سیستەم بکە.	عند الحاجة إلى هذا الجهاز هنا، يرجى التواصل مع مسؤول النظام.
+hal.reason.stepUpRefused	The badge was not accepted.	کارتەکە قبووڵ نەکرا.	لم يتم قبول البطاقة.
+hal.reason.invalidRequest	The request did not match what the device expects.	داواکارییەکە لەگەڵ ئەوەی ئامێرەکە چاوەڕێی دەکات ناگونجێت.	الطلب لا يطابق ما يتوقعه الجهاز.
+hal.reason.unsupportedFormat	The device cannot handle this format.	ئامێرەکە ناتوانێت ئەم فۆرماتە بەکاربهێنێت.	لا يدعم الجهاز هذا التنسيق.
+hal.reason.unknownDevice	The selected device is not known to this workstation.	ئەم وێستگەی کارە ئامێرە هەڵبژێردراوەکە ناناسێت.	الجهاز المحدد غير معروف لمحطة العمل هذه.
+hal.reason.deviceOffline	The device is offline.	ئامێرەکە پەیوەست نییە.	الجهاز غير متصل.
+hal.reason.mediaOut	The device is out of paper or labels.	کاغەز یان لیبڵی ئامێرەکە تەواو بووە.	نفد الورق أو الملصقات من الجهاز.
+hal.reason.deviceFault	The device reported a fault.	ئامێرەکە تێکچوونێکی ڕاگەیاند.	أبلغ الجهاز عن عطل.
+hal.reason.deviceTimeout	The device did not answer.	ئامێرەکە وەڵامی نەدایەوە.	لم يرد الجهاز.
+hal.reason.userTimeout	Nothing was received in time.	هیچ شتێک لە کاتی خۆیدا وەرنەگیرا.	لم يتم استلام أي شيء في الوقت المحدد.
+hal.reason.userCancelled	Cancelled at the device.	لەسەر ئامێرەکە هەڵوەشێنرایەوە.	تم الإلغاء من الجهاز.
+hal.sign.prompt.consent	Sign below to confirm your consent.	بۆ پشتڕاستکردنەوەی ڕەزامەندییەکەت، لە خوارەوە واژۆ بکە.	لتأكيد الموافقة، يرجى التوقيع أدناه.
+hal.sign.prompt.receipt	Sign below to confirm receipt.	بۆ پشتڕاستکردنەوەی وەرگرتن، لە خوارەوە واژۆ بکە.	لتأكيد الاستلام، يرجى التوقيع أدناه.
+hal.sign.prompt.document	Sign below.	لە خوارەوە واژۆ بکە.	يرجى التوقيع أدناه.
+hal.capture.discardedAfterContextChange	The capture was discarded because the patient in this window changed. Nothing was saved.	ئەوەی وەرگیرا فڕێدرا چونکە نەخۆشی ئەم پەنجەرەیە گۆڕدرا. هیچ شتێک پاشەکەوت نەکرا.	تم تجاهل ما تم التقاطه لأن المريض في هذه النافذة تغير. لم يتم حفظ أي شيء.

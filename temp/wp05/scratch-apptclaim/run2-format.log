@@ -1,0 +1,110 @@
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155077 since=2026-10-19T11:56:25+03:00 args=:modules:medications:ktlintFormat :modules:medications:test :modules:medications:propertyTest :modules:medications:detekt :modules:medications:ktlintCheck :modules:medications:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=113128 since=2026-10-19T11:59:03+03:00 args=:platform:state-machine:test :platform:testing:test :platform:testing:propertyTest :platform:state-machine:detekt :platform:testing:detekt :platform:state-machine:ktlintCheck :platform:testing:ktlintCheck -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=113128 since=2026-10-19T11:59:03+03:00 args=:platform:state-machine:test :platform:testing:test :platform:testing:propertyTest :platform:state-machine:detekt :platform:testing:detekt :platform:state-machine:ktlintCheck :platform:testing:ktlintCheck -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155229 since=2026-10-19T12:04:32+03:00 args=:modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+heavy.sh: waiting for a slot (demo-tsc-a7a pid=174307 since=2026-10-19T12:58:51+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=181166 since=2026-10-19T12:59:43+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+heavy.sh: waiting for a slot (demo-tsc-mi pid=202967 since=2026-10-19T13:22:02+03:00;)
+heavy.sh: wp05 got slot1.lock after 1440s
+Calculating task graph as configuration cache cannot be reused because file '..\tests\invariants\build.gradle.kts' has changed.
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :modules:scheduling:loadKtlintReporters UP-TO-DATE
+> Task :satellites:rcm:loadKtlintReporters UP-TO-DATE
+> Task :modules:scheduling:runKtlintFormatOverKotlinScripts UP-TO-DATE
+> Task :satellites:rcm:runKtlintFormatOverKotlinScripts UP-TO-DATE
+> Task :satellites:rcm:ktlintKotlinScriptFormat UP-TO-DATE
+> Task :satellites:rcm:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:scheduling:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:scheduling:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :modules:scheduling:ktlintKotlinScriptFormat UP-TO-DATE
+> Task :satellites:rcm:runKtlintFormatOverMainSourceSet UP-TO-DATE
+> Task :satellites:rcm:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :satellites:rcm:runKtlintFormatOverTestSourceSet UP-TO-DATE
+> Task :modules:scheduling:runKtlintFormatOverMainSourceSet UP-TO-DATE
+> Task :satellites:rcm:ktlintMainSourceSetFormat UP-TO-DATE
+> Task :satellites:rcm:ktlintTestSourceSetFormat UP-TO-DATE
+> Task :modules:scheduling:ktlintMainSourceSetFormat UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :modules:scheduling:runKtlintFormatOverTestFixturesSourceSet
+> Task :modules:scheduling:ktlintTestFixturesSourceSetFormat
+> Task :modules:scheduling:runKtlintFormatOverTestSourceSet
+> Task :modules:scheduling:ktlintTestSourceSetFormat
+> Task :satellites:rcm:runKtlintFormatOverTestFixturesSourceSet
+> Task :satellites:rcm:ktlintTestFixturesSourceSetFormat UP-TO-DATE
+> Task :satellites:rcm:runKtlintFormatOverPropertyTestSourceSet
+> Task :satellites:rcm:ktlintPropertyTestSourceSetFormat
+> Task :satellites:rcm:ktlintFormat
+> Task :modules:scheduling:runKtlintFormatOverPropertyTestSourceSet
+> Task :modules:scheduling:ktlintPropertyTestSourceSetFormat
+> Task :modules:scheduling:ktlintFormat
+
+BUILD SUCCESSFUL in 45s
+32 actionable tasks: 9 executed, 23 up-to-date
+Configuration cache entry stored.
+FORMAT EXIT 0

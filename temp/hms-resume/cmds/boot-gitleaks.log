@@ -1,0 +1,2 @@
+bootstrap: gitleaks: reusing .tools/bin/gitleaks.exe (8.30.1)
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"

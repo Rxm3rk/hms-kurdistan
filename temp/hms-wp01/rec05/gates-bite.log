@@ -1,0 +1,274 @@
+02:45:18 checking out 05f159a56e4900508b87db002177b8ef2eee46ee (detached) in /home/surface/src/hms-plant
+02:45:19 sh tools/bootstrap
+02:45:23 ---- plant 1 [repo-check] Untracked `docs/scratch-crlf.md` with CRLF line endings (outside the plan of record)
+02:45:23 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.4 s): ERROR crlf: docs/scratch-crlf.md has CRLF line endings (text files must use LF; see .gitattributes)
+02:45:23 ---- plant 2 [repo-check] `SYN-TENANT-0001` and its hostname `syn-tenant-0001.hms.invalid` in backend configuration (`backend/platform/testing/src/main/resources/application-scratch.yaml`)
+02:45:23 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.4 s): ERROR tenant: backend/platform/testing/src/main/resources/application-scratch.yaml:3: 'SYN-TENANT-0001' matches registered tenant identifier SYN-TENANT-0001 (no tenant-specific code or configuration, 
+02:45:24 ---- plant 3 [repo-check] Branch `wp/9.9-syn-tenant-0001` (created at the commit under test)
+02:45:24 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR branch: wp/9.9-syn-tenant-0001: contains the word 'tenant' (no branch per customer or tenant, §2.3)
+02:45:24 ---- plant 4 [repo-check] Branch `customer-acme` (created at the commit under test)
+02:45:24 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR branch: customer-acme: does not match main, wp/<n.m>-<slug>, release/<version> or hotfix/<slug> (§3.6)
+02:45:25 ---- plant 5 [repo-check] Branch `feature/scratch` (created at the commit under test)
+02:45:25 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR branch: feature/scratch: does not match main, wp/<n.m>-<slug>, release/<version> or hotfix/<slug> (§3.6)
+02:45:25 ---- plant 6 [repo-check] `docs/program/STATUS.md` padded to 159 lines (limit 150)
+02:45:25 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR limits: docs/program/STATUS.md has 159 lines (at most 150, §3.1)
+02:45:26 ---- plant 7 [repo-check] `docs/adr/ADR-010-workflow-temporal.md` deleted
+02:45:26 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.5 s): ERROR adr: docs/adr/ADR-010-*.md is missing (§4.2 baseline)
+02:45:26 ---- plant 8 [repo-check] ADR-001's status set to `accepted` (§4.2 keeps it accepted-provisional)
+02:45:26 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.4 s): ERROR adr: docs/adr/ADR-001-core-data-option-a.md: status 'accepted': §4.2 keeps ADR-001 accepted-provisional until the reference-cell run (template B.1)
+02:45:27 ---- plant 9 [repo-check] ADR-002's `## Reopen if` heading renamed to `## Revisit when`
+02:45:27 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR adr: docs/adr/ADR-002-runtime-kotlin-jvm-spring.md: no '## Reopen if' heading (template B.1)
+02:45:28 ---- plant 10 [repo-check] The index link to ADR-002 in `docs/adr/README.md` broken (`(ADR-002-runtime-kotlin-jvm-spring.md)` changed to `(ADR-002-runtime.md)`)
+02:45:28 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR adr: docs/adr/ADR-002-runtime-kotlin-jvm-spring.md: not linked from docs/adr/README.md
+02:45:28 ---- plant 11 [repo-check] 13 "Blocking now" items in `docs/program/DECISIONS-NEEDED.md` (2 present, 11 scratch items added; limit 10)
+02:45:28 run: sh tools/hms repo check --json
+repo-check: FAIL (exit 1, 0.3 s): ERROR limits: docs/program/DECISIONS-NEEDED.md 'Blocking now' has 13 items (at most 10, §3.1)
+02:45:29 ---- plant 12 [python-unit-tests] A failing test, `tools/hmstools/repo/tests/test_gates_bite_scratch.py` (`assertEqual(1 + 1, 3)`)
+02:45:29 run: .tools/venv/bin/python -I -m unittest discover -s tools -t tools -p 'test_*.py'
+python-unit-tests: FAIL (exit 1, 149.3 s): FAIL: test_planted_failure (hmstools.repo.tests.test_gates_bite_scratch.GatesBiteScratchTest.test_planted_failure)
+02:47:47 temporary GPG keys A 6FFBDB9DC8D951E5C7408527C9F78AA3FD6182D7 and B 9C961F32E3286C4DF84B0114197C9A57DE40D0D6 in /tmp/gates-bite.5vx6cs/gnupg
+02:47:47 NOTE: The signed sign-off plants use a GPG home the script creates for the run under /tmp (`$SCRATCH_GNUPGHOME` in the commands), holding two ed25519 keys generated for the run: key A, `Dr Scratch Reviewer <scratch-reviewer@hms.invalid>`, fingerprint `6FFBDB9DC8D951E5C7408527C9F78AA3FD6182D7` (it stands for a human signer), and key B, `HMS build agent (scratch) <build-agent@hms.invalid>`, fingerprint `9C961F32E3286C4DF84B0114197C9A57DE40D0D6` (it stands for a key the agent controls). Plants that say "the temporary key" without a letter use key A. The check runs with that keyring so that git can verify both signatures (`%G?` = G). The keyring is deleted at the end of the run. Scratch commits use the reviewer's name and address as author and committer, or the agent's where a plant says so; none of them is pushed or kept.
+02:47:47 sign-off record: role cso, decision accepted, subject_version 'sha256:88247b107c0a87457fe66cc8c59ccb308da3195b66021a150f9c7a42e9da84ab'
+02:47:47 ---- plant 13 [safety-check] HAZ-0001 `residual_risk.accepted_by: Dr Scratch Reviewer` filled, no sign-off record
+02:47:47 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.7 s): ERROR docs/safety/hazard-log.yaml: HAZ-0001 residual_risk.accepted_by is filled ('Dr Scratch Reviewer') but no sign-off record under docs/safety/signoffs/ has subject 'HAZ-0001' and field 'residual_ri
+02:47:48 ---- plant 14 [safety-check] The same, with a matching record `docs/safety/signoffs/SO-2026-0001.yaml` left untracked (name Dr Scratch Reviewer, role `cso`, decision `accepted`, `subject_version` HAZ-0001's current version as the check computes it, `sha256:88247b107c0a87457fe66cc8c59ccb308da3195b66021a150f9c7a42e9da84ab`, `signer_key` the fingerprint of the temporary key in the notes)
+02:47:48 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.7 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: sign-off record is untracked or has uncommitted changes; only a committed, signed record counts
+02:47:49 ---- plant 15 [safety-check] The same, the record and the field committed together in an unsigned scratch commit (`git log --format=%G?` = N)
+02:47:49 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.8 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: no signer is trusted in docs/safety/signoffs/allowed-signers.yaml (it lists none, or its history does not allow the list), so no sign-off record can autho
+02:47:50 ---- plant 16 [safety-check] The same, committed in a commit signed by a GPG key generated for the run in a temporary keyring, **with** an AI co-author trailer (`Co-Authored-By: Claude <noreply@anthropic.com>`); the check runs with that keyring
+02:47:50 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: no signer is trusted in docs/safety/signoffs/allowed-signers.yaml (it lists none, or its history does not allow the list), so no sign-off record can autho
+02:47:51 ---- plant 17 [safety-check] R-01: the same, committed in a commit signed by the temporary GPG key, **no** trailer (the key is in no allowed-signers list; the check runs with that keyring). **Expected FAIL after R-01**; PASS before the fix is the known defect R-01
+02:47:51 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.8 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: no signer is trusted in docs/safety/signoffs/allowed-signers.yaml (it lists none, or its history does not allow the list), so no sign-off record can autho
+02:47:52 ---- plant 18 [safety-check] HAZ-0001 `status: open` changed to `status: accepted`
+02:47:53 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.9 s): ERROR docs/safety/hazard-log.yaml: HAZ-0001 has status 'accepted' but not every control is at least 'verified'
+02:47:54 ---- plant 19 [safety-check] CTRL-0001-1 `state: planned` changed to `state: verified`, `verified_by` empty
+02:47:54 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.7 s): ERROR docs/safety/hazard-log.yaml: CTRL-0001-1 is 'verified' but verified_by is empty; 'verified' needs passing tests listed
+02:47:55 ---- plant 20 [safety-check] One word of SI-01's `invariant_text` in HAZ-0001 changed ("never room or bed" to "never room or ward")
+02:47:55 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.7 s): ERROR docs/safety/hazard-log.yaml: HAZ-0001 invariant_text is not the verbatim SI-01 text of BUILD-PROMPT §2.1; never weaken, narrow or reinterpret an invariant
+02:47:55 ---- plant 21 [safety-check] CTRL-0001-4's `covers` list emptied (`covers: [b]` to `covers: []`)
+02:47:56 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.6 s): ERROR docs/safety/hazard-log.yaml: schema: hazards/0/controls/3/covers: [] should be non-empty
+02:47:56 ---- plant 22 [safety-check] HAZ-0001 `cso_triage` filled (`{by: Dr Scratch Reviewer, date: "2026-10-19"}`), no record
+02:47:56 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.8 s): ERROR docs/safety/hazard-log.yaml: HAZ-0001 cso_triage.by is filled ('Dr Scratch Reviewer') but no sign-off record under docs/safety/signoffs/ has subject 'HAZ-0001' and field 'cso_triage.by'; approva
+02:47:57 ---- plant 23 [safety-check] A state-machine spec `docs/specs/state-machines/scratch-machine.yaml` with `approval.approved_by` filled, no record
+02:47:57 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.7 s): ERROR docs/specs/state-machines/scratch-machine.yaml: scratch-machine approval.approved_by is filled (['Dr Scratch Reviewer']) but no sign-off record under docs/safety/signoffs/ has subject 'scratch-m
+02:47:58 ---- plant 24 [safety-check] An unparsable hazard log (a line `scratch: [unclosed` appended)
+02:47:58 run: sh tools/hms safety check --json
+safety-check: FAIL (exit 1, 0.5 s): ERROR docs/safety/hazard-log.yaml: does not parse as YAML: while parsing a flow sequence in "<unicode string>", line 4148, column 10 did not find expected ',' or ']' in "<unicode string>", line 4149, 
+02:47:59 ---- plant 25 [signoff-anchor] Key A anchored; the record is signed by key B, which the list does not hold (`signer_key` B)
+02:47:59 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 0.8 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit eaab78dafc42 touching the sign-off record is signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D6, which docs/safety/signoffs/allowed-signers.yam
+02:48:00 ---- plant 26 [signoff-anchor] Key A anchored; the record committed without a signature (`%G?` = N)
+02:48:00 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit 08d03fd942d8 touching the sign-off record has no good signature (git %G? = N: no signature, or one this host cannot check (SSH needs gpg.ssh.allowe
+02:48:01 ---- plant 27 [signoff-anchor] Key A anchored; the record signed by key A in a commit with an AI co-author trailer (`Co-Authored-By: Claude <noreply@anthropic.com>`)
+02:48:02 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit 760417050e55 carries an AI co-author trailer; the agent never writes sign-off records
+02:48:03 ---- plant 28 [signoff-anchor] Key A anchored; the record signed by key A with `decision: triaged` on `residual_risk.accepted_by` (the field needs `accepted`)
+02:48:03 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.2 s): ERROR docs/safety/hazard-log.yaml: HAZ-0001 residual_risk.accepted_by is filled ('Dr Scratch Reviewer') but no sign-off record with decision 'accepted' backs it (SO-2026-0001 (triaged)); only 'accepte
+02:48:05 ---- plant 29 [signoff-anchor] Key A anchored; the record signed by key A for HAZ-0001's current version, then a later commit changes HAZ-0001 (its title), so the record's `subject_version` is stale
+02:48:05 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 0.9 s): ERROR docs/safety/hazard-log.yaml: HAZ-0001 residual_risk.accepted_by is filled ('Dr Scratch Reviewer') but sign-off record(s) SO-2026-0001 (sha256:88247b107c0a87457fe66cc8c59ccb308da3195b66021a150f9c
+02:48:06 ---- plant 30 [signoff-anchor] Key A anchored; a later commit without a signature adds key B for Dr Scratch Reviewer to the list (agent identity); the record is then signed by key B
+02:48:04 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 6555c0e4ea83 changed the list without a good signature (git %G? = N); after the trust anchor every change must be signed by a key that the trust
+02:48:05 ---- plant 31 [signoff-anchor] Key A anchored; a later commit signed by key B itself (not listed) adds key B to the list; the record is then signed by key B
+02:48:06 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit e6defc7e4d24 changed the list in a commit signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D6, which the version before it does not list; aft
+02:48:07 ---- plant 32 [signoff-anchor] Key A anchored; a later commit without a signature empties the list, a commit without a trailer then lists key B (a second anchor attempt), and the record is signed by key B
+02:48:07 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 7738f5b099d3 changed the list without a good signature (git %G? = N); after the trust anchor every change must be signed by a key that the trust
+02:48:08 ---- plant 33 [signoff-anchor] The anchor commit itself carries an AI co-author trailer (it lists key A); the record is then signed by key A
+02:48:09 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.2 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 17a5564ea02b changed the list to add a key in a commit that carries an AI co-author trailer; only a human adds a signer; after the trust anchor 
+02:48:10 ---- plant 34 [signoff-anchor] Key A anchored (role `cso` only); the record signed by key A names the role `pharmacist-panel`
+02:48:10 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit c91e7721d56b is signed by 'Dr Scratch Reviewer', who is listed for cso, not for the record's role 'pharmacist-panel'
+02:48:12 ---- plant 35 [signoff-anchor] Key A anchored for Dr Scratch Reviewer; the record signed by key A names another person, Dr Other Person (the field is filled with that name)
+02:48:12 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.4 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit aefe90912116 is signed by the key of 'Dr Scratch Reviewer', but the record names 'Dr Other Person'; a person signs only records in their own name
+02:48:13 ---- plant 36 [signoff-anchor] Key A anchored; the record signed by key A gives key B as its `authentication.signer_key`
+02:48:14 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: authentication.signer_key '9C961F32E3286C4DF84B0114197C9A57DE40D0D6' is not the key that signed commit ee2b131e6fd9
+02:48:15 ---- plant 37 [signoff-anchor] Key A anchored; the record signed by key A, then edited (its statement) in a later commit without a signature
+02:48:15 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit fc3a2317aead touching the sign-off record has no good signature (git %G? = N: no signature, or one this host cannot check (SSH needs gpg.ssh.allowe
+02:48:16 ---- plant 38 [signoff-anchor] Key A anchored; key B added to the list in the working tree only (not committed); the record is then signed by key B
+02:48:17 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit 140245cdfb88 touching the sign-off record is signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D6, which docs/safety/signoffs/allowed-signers.yam
+02:48:18 ---- plant 39 [signoff-anchor] Control, **expected PASS**: key A anchored; the record signed by key A matches its field, decision, role and `subject_version`. Valid record accepted (the gate is not simply closed)
+02:48:18 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: PASS (exit 0, 1.0 s): safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_i
+02:48:19 ---- plant 40 [signoff-anchor] KA-011, **expected PASS**: with the shipped empty list, a commit by the agent identity without a trailer anchors the agent's own key B under the name Dr Scratch Reviewer, role `cso`; the record is then signed by key B. Known limitation KA-011; not a gate failure: the check warns that the anchor must be verified out of band
+02:48:20 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-anchor: PASS (exit 0, 0.9 s): safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_i
+02:48:21 ---- plant 41 [backlog-check] PLT-CORE-01 `status: todo` changed to `status: built`, `tests: []`
+02:48:21 run: sh tools/hms backlog check --json
+backlog-check: FAIL (exit 1, 0.4 s): ERROR PLT-CORE-01: status 'built' needs at least one test in 'tests' (§3.1, §3.5)
+02:48:21 ---- plant 42 [backlog-check] PLT-CORE-01 `status: todo` changed to `status: verified`, `tests: []`
+02:48:21 run: sh tools/hms backlog check --json
+backlog-check: FAIL (exit 1, 0.4 s): ERROR PLT-CORE-01: status 'verified' needs at least one test in 'tests' (§3.1, §3.5)
+02:48:22 ---- plant 43 [backlog-check] PLT-CORE-01's title hand-edited in `backlog.yaml` ("Clinical journal" to "Clinical journal (hand-edited)")
+02:48:22 run: sh tools/hms backlog check --json
+backlog-check: FAIL (exit 1, 0.5 s): ERROR PLT-CORE-01: 'title' is 'Clinical journal (hand-edited)' in backlog.yaml but 'Clinical journal' in Appendix A (line 2442); run 'tools/hms backlog generate'
+02:48:23 ---- plant 44 [backlog-check] The KRI-ID-01 record deleted from `backlog.yaml`
+02:48:23 run: sh tools/hms backlog check --json
+backlog-check: FAIL (exit 1, 0.3 s): ERROR KRI-ID-01 (BUILD-PROMPT.md line 2752) is missing from backlog.yaml
+02:48:23 ---- plant 45 [backlog-check] `docs/program/BACKLOG.md` hand-edited (a line appended)
+02:48:23 run: sh tools/hms backlog check --json
+backlog-check: FAIL (exit 1, 0.4 s): ERROR docs/program/BACKLOG.md is not up to date with backlog.yaml (first difference at line 415); run 'tools/hms backlog render'
+02:48:24 ---- plant 46 [ci-runner] `tools/hmstools/backlog/__main__.py` replaced by a check that prints `{"ok": false, ...}` as its JSON line and exits 0
+02:48:24 run: sh tools/ci/run fast --only backlog-check --no-evidence
+ci-runner: FAIL (exit 1, 0.4 s): [1/1] backlog-check: FAIL (0.1 s) - exit code 0 but the JSON says ok=false
+02:48:25 ---- plant 47 [secret-scan] A GitHub personal access token (`ghp_` + 36 random alphanumerics, generated for the run) in an untracked file `scratch-secrets/github-token.txt`
+02:48:25 run: sh tools/ci/run fast --only secret-scan --no-evidence
+secret-scan: FAIL (exit 1, 4.7 s): [1/1] secret-scan: FAIL (4.3 s) history_findings=0, working_tree_findings=1 - 1 finding(s), secrets redacted: github-pat at scratch-secrets/github-token.txt:1
+02:48:30 ---- plant 48 [secret-scan] The same token only in the history of a scratch branch `wp/9.9-scratch-secret` (one commit adds the file, the next deletes it; the working tree never holds it)
+02:48:31 run: sh tools/ci/run fast --only secret-scan --no-evidence
+secret-scan: FAIL (exit 1, 4.4 s): [1/1] secret-scan: FAIL (4.0 s) history_findings=1, working_tree_findings=0 - 1 finding(s), secrets redacted: github-pat at scratch-secrets/github-token.txt:1 (commit 1a94dc05e9c1)
+02:48:36 ---- plant 49 [secret-scan] An AWS access key id (`AKIA` + 16 random characters of [A-Z2-7]) in an untracked file `scratch-secrets/aws.txt`
+02:48:36 run: sh tools/ci/run fast --only secret-scan --no-evidence
+secret-scan: FAIL (exit 1, 4.4 s): [1/1] secret-scan: FAIL (4.0 s) history_findings=0, working_tree_findings=1 - 1 finding(s), secrets redacted: aws-access-token at scratch-secrets/aws.txt:1
+02:48:39 ---- plant 50 [secret-scan] A PEM private-key block (an RSA `BEGIN` line for a private key, a random body and the matching `END` line, put together at run time) in an untracked file `scratch-secrets/deploy-key.txt` (`*.pem` and `*.key` are git-ignored, so the scan never sees such names)
+02:48:39 run: sh tools/ci/run fast --only secret-scan --no-evidence
+secret-scan: FAIL (exit 1, 5.5 s): [1/1] secret-scan: FAIL (5.1 s) history_findings=0, working_tree_findings=1 - 1 finding(s), secrets redacted: private-key at scratch-secrets/deploy-key.txt:1
+02:48:45 ---- plant 51 [secret-scan] Scope note, not a gate violation: a plain `password = "correct-horse"` assignment in an untracked file (no gitleaks default rule matches it; expected PASS, as the review recorded)
+02:48:45 run: sh tools/ci/run fast --only secret-scan --no-evidence
+secret-scan: PASS (exit 3, 4.4 s): [1/1] secret-scan: PASS (4.0 s) history_findings=0, working_tree_findings=0
+02:48:50 ---- plant 52 [frontend] `frontend/packages/i18n/src/ScratchBanner.tsx`: a `title` attribute and the text "Hello" as JSX literals, and `marginLeft` and `textAlign: 'left'` in an inline style
+02:48:50 run: cd frontend && corepack pnpm run lint:es
+frontend: FAIL (exit 1, 12.9 s): 3:16 error Hard-coded string in the user-visible attribute "title": use a message from the ICU catalogues (BUILD-PROMPT.md §6.5) hms/no-jsx-literals
+02:49:03 run: cd frontend && corepack pnpm run fast
+frontend: FAIL (exit 1, 10.4 s): 3:16 error Hard-coded string in the user-visible attribute "title": use a message from the ICU catalogues (BUILD-PROMPT.md §6.5) hms/no-jsx-literals
+02:49:11 ---- plant 53 [frontend] `frontend/packages/i18n/src/scratch.css`: `margin-left: 4px` and `float: right`
+02:49:11 run: cd frontend && corepack pnpm run lint:css
+frontend: FAIL (exit 1, 0.5 s): ERROR packages/i18n/src/scratch.css:2:3 Physical CSS property "margin-left": use the logical property "margin-inline-start" so the layout mirrors in right-to-left locales (BUILD-PROMPT.md §6.5).
+02:49:11 run: cd frontend && corepack pnpm run fast
+frontend: FAIL (exit 1, 10.9 s): ERROR packages/i18n/src/scratch.css:2:3 Physical CSS property "margin-left": use the logical property "margin-inline-start" so the layout mirrors in right-to-left locales (BUILD-PROMPT.md §6.5).
+02:49:22 ---- plant 54 [frontend] The key `language.en.endonym` deleted from `frontend/packages/i18n/src/messages/ckb.json`
+02:49:23 run: cd frontend && corepack pnpm run i18n:lint
+frontend: FAIL (exit 1, 0.4 s): ERROR ckb.json: key "language.en.endonym" is missing (present in ar.json, en.json)
+02:49:23 run: cd frontend && corepack pnpm run fast
+frontend: FAIL (exit 1, 18.5 s): packages/i18n typecheck: src/catalogues.ts(21,72): error TS2741: Property '"language.en.endonym"' is missing in type '{ "app.name": string; "language.ar.endonym": string; "language.ckb.endonym": strin
+02:49:39 ---- plant 55 [frontend] An ICU syntax error in `frontend/packages/i18n/src/messages/ar.json` (`"app.name": "HMS {Kurdistan"`)
+02:49:39 run: cd frontend && corepack pnpm run i18n:lint
+frontend: FAIL (exit 1, 0.4 s): ERROR ar.json: key "app.name": ICU MessageFormat syntax error EXPECT_ARGUMENT_CLOSING_BRACE at line 1, column 5
+02:49:40 run: cd frontend && corepack pnpm run fast
+frontend: FAIL (exit 1, 30.5 s): packages/i18n test: + "ar.json: key \"app.name\": ICU MessageFormat syntax error EXPECT_ARGUMENT_CLOSING_BRACE at line 1, column 5",
+02:50:08 ---- plant 56 [backend] `backend/platform/testing/src/main/kotlin/hms/kernel/testing/ScratchKtlint.kt`: `fun scratchTwice(value: Int) : Int = value * 2` (a ktlint violation, detekt-clean)
+02:50:08 run: sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+backend: FAIL (exit 1, 130.7 s): backend/platform/testing/src/main/kotlin/hms/kernel/testing/ScratchKtlint.kt:3:29 Unexpected whitespace
+02:52:09 ---- plant 57 [backend] `backend/platform/testing/src/main/kotlin/hms/kernel/testing/ScratchDetekt.kt`: `fun noop() {}` (a detekt violation, ktlint-clean)
+02:52:09 run: sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+backend: FAIL (exit 1, 60.9 s): backend/platform/testing/src/main/kotlin/hms/kernel/testing/ScratchDetekt.kt:3:12: This empty block of code can be removed. [EmptyFunctionBlock]
+02:53:06 ---- plant 58 [backend] `backend/platform/testing/src/propertyTest/kotlin/hms/kernel/testing/ScratchFailingPropertyTest.kt`: the false property "every `Arb.int()` is even"
+02:53:06 run: sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+backend: FAIL (exit 1, 117.9 s): ScratchFailingPropertyTest > a planted false property: every int is even FAILED
+02:54:57 ---- plant 59 [backend] `backend/platform/testing/src/main/kotlin/hms/kernel/testing/domain/ScratchClock.kt`: domain code calling `Instant.now()`
+02:54:57 run: sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+backend: FAIL (exit 1, 176.8 s): Method <hms.kernel.testing.domain.ScratchClock.stamp()> calls method <java.time.Instant.now()> in (ScratchClock.kt:7)
+02:57:41 ---- plant 60 [backend] A class in `hms.scratchbeta.application` using `hms.scratchalpha.domain` (both under `backend/platform/testing/src/main/kotlin/hms/`): a module boundary crossed outside the api package
+02:57:41 run: sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+backend: FAIL (exit 1, 80.2 s): Method <hms.scratchbeta.application.ScratchBeta.read(hms.scratchalpha.domain.ScratchAlpha)> calls method <hms.scratchalpha.domain.ScratchAlpha.getValue()> in (ScratchBeta.kt:7) uses module 'scratchalp
+02:58:58 ---- plant 61 [signoff-merge] Rogue merge: the side line merged into the main line in a merge commit without a signature (`%G?` = N, agent identity), keeping the main line's list (key A); the record is then signed by key B. Expected FAIL: the main line trusts key A already, but the unsigned merge approves nothing for the side line, so no signer is trusted
+02:58:58 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.8 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit f73ac386bccf merged lines of history that trust different versions of the list without a good signature (git %G? = N)
+02:59:01 ---- plant 62 [signoff-merge] Rogue merge: the side line merged into the main line in a merge commit without a signature (`%G?` = N, agent identity), keeping the side line's list (key B); the record is then signed by key B. Expected FAIL: the side line trusts key B already, but the unsigned merge approves nothing for the main line, so no signer is trusted
+02:59:01 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.3 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 7353c985894f merged lines of history that trust different versions of the list without a good signature (git %G? = N)
+02:59:00 ---- plant 63 [signoff-merge] Rogue merge: the side line merged into the main line in a merge commit without a signature (`%G?` = N, agent identity), keeping both keys (B and A); the record is then signed by key B. Expected FAIL: the unsigned merge approves the merged list for neither line, so no signer is trusted
+02:59:02 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.9 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit db8b8ce3a13b merged lines of history that trust different versions of the list without a good signature (git %G? = N)
+02:59:04 ---- plant 64 [signoff-merge] Rogue merge: the side line merged into the main line in a merge commit signed by key B (agent identity, no trailer), keeping the main line's list (key A); the record is then signed by key B. Expected FAIL: key B's signature approves key A for the side line and the main line trusts key A already, so the merge settles the conflict on key A alone, and the record signed by key B is not authenticated
+02:59:05 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.2 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit 0b96d840bc51 touching the sign-off record is signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D6, which docs/safety/signoffs/allowed-signers.yam
+02:59:06 ---- plant 65 [signoff-merge] Rogue merge: the side line merged into the main line in a merge commit signed by key B (agent identity, no trailer), keeping the side line's list (key B); the record is then signed by key B. Expected FAIL: key B approves the merged list only for the side line, which lists it, so no signer is trusted
+02:59:07 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 2017b1650fb0 merged lines of history that trust different versions of the list in a commit signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D
+02:59:08 ---- plant 66 [signoff-merge] Rogue merge: the side line merged into the main line in a merge commit signed by key B (agent identity, no trailer), keeping both keys (B and A); the record is then signed by key B. Expected FAIL: key B approves the merged list only for the side line, which lists it, so no signer is trusted
+02:59:08 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 8ae4b0e61474 merged lines of history that trust different versions of the list in a commit signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D
+02:59:10 ---- plant 67 [signoff-merge] Rogue merge: the main line merged into the side line in a merge commit without a signature (`%G?` = N, agent identity), keeping the main line's list (key A); the record is then signed by key B. Expected FAIL: the main line trusts key A already, but the unsigned merge approves nothing for the side line, so no signer is trusted
+02:59:10 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.4 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit a86a11ff3d1f merged lines of history that trust different versions of the list without a good signature (git %G? = N)
+02:59:12 ---- plant 68 [signoff-merge] Rogue merge: the main line merged into the side line in a merge commit without a signature (`%G?` = N, agent identity), keeping the side line's list (key B); the record is then signed by key B. Expected FAIL: the side line trusts key B already, but the unsigned merge approves nothing for the main line, so no signer is trusted
+02:59:12 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit d53fde821c5d merged lines of history that trust different versions of the list without a good signature (git %G? = N)
+02:59:13 ---- plant 69 [signoff-merge] Rogue merge: the main line merged into the side line in a merge commit without a signature (`%G?` = N, agent identity), keeping both keys (B and A); the record is then signed by key B. Expected FAIL: the unsigned merge approves the merged list for neither line, so no signer is trusted
+02:59:14 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.0 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit d0194f0b80e0 merged lines of history that trust different versions of the list without a good signature (git %G? = N)
+02:59:15 ---- plant 70 [signoff-merge] Rogue merge: the main line merged into the side line in a merge commit signed by key B (agent identity, no trailer), keeping the main line's list (key A); the record is then signed by key B. Expected FAIL: key B's signature approves key A for the side line and the main line trusts key A already, so the merge settles the conflict on key A alone, and the record signed by key B is not authenticated
+02:59:15 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 0.8 s): ERROR docs/safety/signoffs/SO-2026-0001.yaml: commit eeba6a7d1ab1 touching the sign-off record is signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D6, which docs/safety/signoffs/allowed-signers.yam
+02:59:16 ---- plant 71 [signoff-merge] Rogue merge: the main line merged into the side line in a merge commit signed by key B (agent identity, no trailer), keeping the side line's list (key B); the record is then signed by key B. Expected FAIL: key B approves the merged list only for the side line, which lists it, so no signer is trusted
+02:59:17 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.1 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit c43010a080c3 merged lines of history that trust different versions of the list in a commit signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D
+02:59:18 ---- plant 72 [signoff-merge] Rogue merge: the main line merged into the side line in a merge commit signed by key B (agent identity, no trailer), keeping both keys (B and A); the record is then signed by key B. Expected FAIL: key B approves the merged list only for the side line, which lists it, so no signer is trusted
+02:59:19 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 0.9 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 924b3cf051c2 merged lines of history that trust different versions of the list in a commit signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D
+02:59:20 ---- plant 73 [signoff-merge] Merge signed by the human: the side line merged into the main line in a merge commit signed by key A (reviewer identity), keeping the main line's list (key A); the record is then signed by key B. Expected FAIL: key A approves only for the main line and the side line has not approved key A, so no signer is trusted
+02:59:20 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 2.2 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 270644f1806e merged lines of history that trust different versions of the list in a commit signed by key 6FFBDB9DC8D951E5C7408527C9F78AA3FD6182D
+02:59:23 ---- plant 74 [signoff-merge] Merge signed by the human: the side line merged into the main line in a merge commit signed by key A (reviewer identity), keeping both keys (a human merges the agent's line without noticing the extra key); the record is then signed by key B. Expected FAIL while the side line has not approved the merged list
+02:59:24 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.2 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 2322149b767c merged lines of history that trust different versions of the list in a commit signed by key 6FFBDB9DC8D951E5C7408527C9F78AA3FD6182D
+02:59:25 ---- plant 75 [signoff-merge] Rogue settlement: after an unsigned merge of the side line into the main line keeping both keys, the agent makes a comment-only edit of the list signed by key B, then another without a signature; the record is then signed by key B. Expected FAIL: the agent cannot settle the conflict alone
+02:59:26 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.3 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit bf96482c5635 changed the list while its history is in conflict in a commit signed by key 9C961F32E3286C4DF84B0114197C9A57DE40D0D6, which not eve
+02:59:27 ---- plant 76 [signoff-merge] A revert does not settle: after an unsigned merge of the side line into the main line keeping both keys, `git revert -m 1` of the merge, signed by key A (reviewer identity), restores the main line's list (key A); the record is then signed by key A. Expected FAIL: a revert of the merge is a change like any other, and the side line has not approved key A
+02:59:28 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: FAIL (exit 1, 1.3 s): ERROR docs/safety/signoffs/allowed-signers.yaml: commit 291dda817364 changed the list while its history is in conflict in a commit signed by key 6FFBDB9DC8D951E5C7408527C9F78AA3FD6182D7, which not eve
+02:59:29 ---- plant 77 [signoff-merge] Control, **expected PASS**: the side line merged into the main line in a merge commit signed by key A (reviewer identity), keeping the main line's list (key A); then a comment-only edit of the list signed by key B, so that every side has approved the same signers (key A); the record is then signed by key A. A conflict settled by the approval of every side (the gate is not locked for good)
+02:59:30 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: PASS (exit 0, 1.2 s): safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_i
+02:59:29 ---- plant 78 [signoff-merge] Known PASS: the side line merged into the main line in a merge commit signed by key A (reviewer identity), keeping both keys; then a comment-only edit of the list signed by key B; the record is then signed by key B. Key A's signature on a list that holds key B approves key B for the main line, as a signed change on one line would: a key anchored on another line becomes trusted only if a key of the human's line approves it (KA-011). The check warns of both anchors and of the settled conflict
+02:59:30 run: GNUPGHOME="$SCRATCH_GNUPGHOME" sh tools/hms safety check --json
+signoff-merge: PASS (exit 0, 0.9 s): safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_i
+02:59:31 ==== clean runs
+02:59:31 clean run [repo-check]: sh tools/hms repo check --json
+repo-check: PASS (exit 0, 0.5 s): repo: PASS (text_files_checked=354, binary_files_skipped=3, crlf_files=0, crlf_plan_of_record=4, required_files_present=11, adrs_total=28, adrs_valid=28, tenant_files_scanned=132, tenant_matches=0, br
+02:59:31 clean run [python-unit-tests]: .tools/venv/bin/python -I -m unittest discover -s tools -t tools -p 'test_*.py'
+python-unit-tests: PASS (exit 0, 188.3 s): Ran 673 tests in 187.280s
+03:02:27 clean run [safety-check]: sh tools/hms safety check --json
+safety-check: PASS (exit 0, 1.1 s): safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_i
+03:02:29 clean run [backlog-check]: sh tools/hms backlog check --json
+backlog-check: PASS (exit 0, 0.4 s): backlog: PASS (hazard_log_entries=27, features_with_hazards=101, hazard_links=237, rows=236, features=234, part_rows=2, phase_R1=110, phase_R1.1=3, phase_R2a=9, phase_R2b=25, phase_R2.1=6, phase_P2=48
+03:02:29 clean run [ci-runner]: sh tools/ci/run fast --only backlog-check --no-evidence
+ci-runner: PASS (exit 3, 1.1 s): tools/ci/run fast: PARTIAL (1 passed, 0 failed, 0 not built; tests=0, failures=0, errors=0, skipped=0; -2 s)
+03:02:28 clean run [secret-scan]: sh tools/ci/run fast --only secret-scan --no-evidence
+secret-scan: PASS (exit 3, 5.1 s): [1/1] secret-scan: PASS (4.6 s) history_findings=0, working_tree_findings=0
+03:02:34 clean run [frontend]: cd frontend && corepack pnpm run lint:es
+frontend: PASS (exit 0, 14.7 s): $ eslint --max-warnings 0 .
+03:02:49 clean run [frontend]: cd frontend && corepack pnpm run lint:css
+frontend: PASS (exit 0, 0.5 s): frontend-css-logical: PASS (files=0, findings=0)
+03:02:50 clean run [frontend]: cd frontend && corepack pnpm run i18n:lint
+frontend: PASS (exit 0, 0.5 s): frontend-i18n-catalogues: PASS (catalogues=3, keys=4, messages=12)
+03:02:50 clean run [frontend]: cd frontend && corepack pnpm run fast
+frontend: PASS (exit 0, 30.7 s): frontend-i18n-catalogues: PASS (catalogues=3, keys=4, messages=12)
+03:03:19 clean run [backend]: sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+backend: PASS (exit 0, 69.5 s): BUILD SUCCESSFUL in 1m 4s
+03:04:24 ==== full fast tier on the clean tree
+fast-tier: PASS (exit 0, 254.8 s): tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=1253, failures=0, errors=0, skipped=0; 235 s)
+record written: /tmp/hms-records-05f159a/2026-10-19-gates-bite-05f159a.md (78 plants: 73 FAIL, 5 PASS, 0 not applicable, 0 other)
+03:08:21 logs: /tmp/hms-records-05f159a/2026-10-19-gates-bite-05f159a.logs

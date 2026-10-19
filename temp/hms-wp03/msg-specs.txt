@@ -1,0 +1,44 @@
+docs(specs): WP-0.3 platform kernel module specifications
+
+Specify first (BUILD-PROMPT §3.2) for the cluster-free parts of WP-0.3
+(DN-040):
+
+- docs/specs/modules/platform-kernel.md: ids (UUIDv7), time (Clock,
+  recorded vs clinical time, the SI-10 entry-timing classifier,
+  BusinessCalendar, governed safety parameters), context (CommandContext,
+  TransactionContext, VolatileStore), money, quantity (UCUM, doses, the one
+  comparison API) and TestClock. Kernel API 1 for WP-0.5 is §5 to §8.
+- platform-journal.md (journal as outbox, ADR-004), platform-tenancy.md
+  (hierarchy and configuration chain with locks), platform-config.md
+  (signed bundles, flags, kill switches; ADR-020), platform-tasks.md
+  (task engine, SI-03, TaskOrphaned) and platform-workflow.md (the port
+  only; ADR-010).
+- docs/specs/events/envelope.md (CloudEvents 1.0 rules) and catalogue.md
+  (§8.5), and docs/specs/state-machines/task.yaml (approval requested,
+  approved_by empty).
+
+Review: two automated lenses per spec (correctness; clinical safety and
+hazard), 28 critical and about 170 major findings fixed; then an
+automated cross-spec check found 39 mismatches, all fixed in two
+alignment rounds and checked with a stale-name grep. Automated reviews
+(AI), not human ones (§3.5). Open items keep local labels; they are
+numbered into WP-0.3's ranges in a following commit.
+
+Programme files: DN-040 (the human lead's approval of the early start)
+and DN-041 (host t3/* branches; resolved by the lead, who deleted them
+at 08:05); WP-0.3 in-progress in WORK-PACKAGES.md and its file;
+STATUS.md for this branch.
+
+Tests (Windows host, not evidence of record), on a scratch clone holding
+exactly this commit's content: tools/ci/run fast --no-evidence: doctor,
+repo, safety and backlog checks, backend-fast (66 tests) and the secret
+scan PASS; python-unit-tests timed out at its 900 s cap under the load of
+five parallel streams, and frontend-fast failed on a node_modules tree
+that my scratch-clone script had deleted. Re-run in the same clone:
+frontend-fast alone PASS (514 tests); the same Python suite alone, without
+the cap: PASS, 699 tests in 1167 s.
+
+Hazards: none changed; the specs cite H5, H6, HAZ-0003, HAZ-0005 and
+HAZ-0010 and their controls, all still planned.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

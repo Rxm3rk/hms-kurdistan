@@ -1,0 +1,26 @@
+{
+  "MIT": [
+    {
+      "name": "@formatjs/icu-messageformat-parser",
+      "versions": [
+        "3.5.21"
+      ],
+      "paths": [
+        "C:\\Users\\Surface\\.t3\\projects\\hospitalmanagementsystem\\frontend\\node_modules\\.pnpm\\@formatjs+icu-messageformat-parser@3.5.21\\node_modules\\@formatjs/icu-messageformat-parser"
+      ],
+      "license": "MIT",
+      "homepage": "https://github.com/formatjs/formatjs#readme"
+    },
+    {
+      "name": "@formatjs/icu-skeleton-parser",
+      "versions": [
+        "2.1.12"
+      ],
+      "paths": [
+        "C:\\Users\\Surface\\.t3\\projects\\hospitalmanagementsystem\\frontend\\node_modules\\.pnpm\\@formatjs+icu-skeleton-parser@2.1.12\\node_modules\\@formatjs/icu-skeleton-parser"
+      ],
+      "license": "MIT",
+      "homepage": "https://github.com/formatjs/formatjs#readme"
+    }
+  ]
+}

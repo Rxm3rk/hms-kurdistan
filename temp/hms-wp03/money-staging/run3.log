@@ -1,0 +1,81 @@
+wp03 gradle.sh: waiting for the worktree build lock (pid=150225 args=--continue :platform:ids:ktlintFormat :platform:ids:test :platform:ids:propertyTest :platform:ids:detekt :platform:ids:ktlintCheck :platform:ids:verifyArchitectureTest :platform:testing:test :platform:testing:propertyTest :platform:testing:detekt :platform:testing:ktlintCheck :platform:testing:verifyArchitectureTest since=2026-10-19T12:00:30+03:00)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;wp08 pid=158675 since=2026-10-19T12:01:26+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;wp05 pid=159473 since=2026-10-19T12:02:30+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: wp03 got slot1.lock after 360s
+Starting a Gradle Daemon, 1 busy and 2 stopped Daemons could not be reused, use --status for details
+Reusing configuration cache.
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:money:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:time:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:money:processTestResources NO-SOURCE
+> Task :platform:time:processResources NO-SOURCE
+> Task :platform:money:processPropertyTestResources NO-SOURCE
+> Task :platform:money:processResources NO-SOURCE
+> Task :platform:money:loadKtlintReporters UP-TO-DATE
+> Task :platform:money:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:money:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:money:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:money:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:time:compileKotlin UP-TO-DATE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:time:compileJava NO-SOURCE
+> Task :platform:time:classes UP-TO-DATE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:time:jar UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :platform:money:compileKotlin UP-TO-DATE
+> Task :platform:money:compileJava NO-SOURCE
+> Task :platform:money:classes UP-TO-DATE
+> Task :platform:money:jar UP-TO-DATE
+> Task :platform:money:compileTestKotlin UP-TO-DATE
+> Task :platform:money:compileTestJava NO-SOURCE
+> Task :platform:money:testClasses UP-TO-DATE
+> Task :platform:money:test UP-TO-DATE
+
+> Task :platform:money:verifyArchitectureTest
+:platform:money: ArchitectureTest ran 4 rule checks
+
+> Task :platform:money:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:money:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:money:ktlintPropertyTestSourceSetCheck UP-TO-DATE
+> Task :platform:money:compilePropertyTestKotlin
+> Task :platform:money:compilePropertyTestJava NO-SOURCE
+> Task :platform:money:propertyTestClasses UP-TO-DATE
+> Task :platform:money:propertyTest UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:money:runKtlintCheckOverMainSourceSet
+> Task :platform:money:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:money:runKtlintCheckOverTestSourceSet
+> Task :platform:money:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:money:ktlintCheck UP-TO-DATE
+
+BUILD SUCCESSFUL in 35s
+21 actionable tasks: 6 executed, 15 up-to-date
+Configuration cache entry reused.
+exit 0

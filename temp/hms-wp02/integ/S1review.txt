@@ -1,0 +1,66 @@
+## issues
+[
+ {
+  "severity": "major",
+  "file": "deploy/site-cell/cell.yaml",
+  "problem": "The pin set includes Bitnami charts, but `cell lint` still passes the \"no Bitnami\" check. The Kyverno 3.9.1 and OpenFGA 0.3.12 chart .tgz files are pinned by SHA-256 and pulled into HMS_CELL_HOME/charts, and both contain Bitnami charts. The lint only scans the text of cell.yaml. The chart notes call them \"third-party subcharts\", which keeps the word the lint looks for out of the file. OQ-137 proposes the strict reading of §4.1 (\"No Bitnami images or charts\") as its default, yet both charts stay pinned \"until then\". So the file header's claim (\"no image or chart from the vendor\") and the lint's PASS on that rule are not true of the pin set.",
+  "evidence": "In WSL I ran `tar tzf` and `tar xzOf` on ~/.local/share/hms-cell/charts (SHA-256s match cell.yaml).\n- kyverno-3.9.1.tgz: `kyverno/charts/reports-server/charts/postgresql/Chart.yaml` with `repository: oci://registry-1.docker.io/bitnamicharts`, and images `docker.io/bitnami/postgresql:16.1.0-debian-11-r22`, `docker.io/bitnami/os-shell`, `docker.io/bitnami/postgres-exporter`.\n- openfga-0.3.12.tgz: `openfga/charts/common`, `charts/mysql` and `charts/postgresql`, with `repository: https://charts.bitnami.com/bitnami` and `home: https://bitnami.com`.\n- cell.yaml chart notes: \"The chart packages third-party subcharts; whether it may be used is OQ-137\".",
+  "fix": "Follow OQ-137's own strict default now:\n- Pin Kyverno from its release manifest (install.yaml at the release tag, URL plus SHA-256, as the Keycloak Operator manifests are pinned), and drop the openfga chart entry in favour of an own template later.\n- Or keep the entries but mark them blocked (e.g. a `blocked_by: OQ-137` field that lint reports as an error or a counted warning), and name the vendor plainly in the note instead of a euphemism.\n- Also add a chart check (a later `cell charts verify`, or lint over the cached .tgz) that unpacks each pinned chart and fails on the excluded vendor in Chart.yaml dependencies or values."
+ },
+ {
+  "severity": "major",
+  "file": "tools/hmstools/ci/tiers.py",
+  "problem": "The new `cell-lint` fast-tier step fails against the committed pin set, so the S1 checkpoint cannot pass the fast tier (§3.6) until DN-017 is answered. This is honest and the implementer disclosed it, but it blocks the commit: the slice is not committable as delivered. The only fixes that keep the safety rule are a lead decision (PostgreSQL added to policy.yaml and to the ORT classifications, plus a BusyBox register entry with a source offer) or replacing the helper image. Weakening the lint is not an option.",
+  "evidence": "On the Windows host, `sh tools/hms cell lint` gave:\n- \"ERROR licence: image k3s-local-path-helper (GPL-2.0-only, shipped): gpl-separate-container ... records none for it\"\n- \"ERROR licence: image postgresql (PostgreSQL, shipped): unmapped\"\n- \"cell-lint: FAIL (images=26, ...)\"\n\nThe implementer's fast-tier run 2 was \"FAIL (8 passed, 1 failed ...)\", and the one failure is cell-lint.",
+  "fix": "Hold the S1 checkpoint commit until the lead answers DN-017. Do not edit policy.yaml or the register without that decision, and do not drop the step from the tier. If the lead picks option 2 for BusyBox, add the replacement helper image to cell.yaml and record the deviation from k3s's defaults."
+ },
+ {
+  "severity": "major",
+  "file": "deploy/site-cell/cell.yaml",
+  "problem": "The OpenTelemetry Collector pin does not follow §4.1. §4.1 pins \"the newest GA release that has had at least one patch release\". The implementer pinned 0.162.0, whose line never had a patch release, by applying OQ-107's 14-day reading. OQ-107 is scoped to \"projects [that] publish no patch releases\", but this project does publish them: 0.163.1 exists, and OQ-136 itself cites it. The reason given for not taking it (\"no chart ships 0.163 yet\") contradicts how Temporal was handled in the same slice: there the chart's image tag was overridden to reach the patch release (chart 1.7.0 ships 1.32.0, and 1.32.1 is pinned). Re-pinning after commit is a phase-boundary change, so this is costly to fix later.",
+  "evidence": "WSL, pinned crane `ls docker.io/otel/opentelemetry-collector-k8s`: 0.160.0, 0.161.0, 0.162.0, 0.163.1.\n- OQ-107: \"Some projects publish no patch releases (SeaweedFS numbers releases 4.nn). For those, the rule is read as ...\"\n- OQ-136: \"0.163.1 (16 October 2026) is three days old and no chart ships 0.163 yet, so the OQ-107 reading ... gives 0.162.0\".\n- Temporal chart note: \"server and admin-tools 1.32.1 ... set through the chart's image tags; the chart ships 1.32.0\".",
+  "fix": "Either pin 0.163.1 (the k8s distribution, digest-pinned) through chart 0.176.0's image tag override, as for Temporal, or record a lead decision that extends OQ-107 to projects that do publish patches. Do not carry the stretched reading silently. Update OQ-136, ADR-002 and the scorecard row to match."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/OPEN-QUESTIONS.md",
+  "problem": "Open programme records now contradict the new pins and the spike decision.\n- OQ-125 still says \"k3s is pinned at v1.37.1-k3s1 ... otherwise at v1.36.5-k3s1\", but cell.yaml pins v1.35.9+k3s1 (OQ-136), and OQ-125 has no update line.\n- ADR-030 and OQ-123 still name a ClusterPolicy verifyImages design, which OQ-135 shows cannot verify the cosign 3 bundle that cell.yaml chose (`format: cosign-3-bundle`).\n\nThe implementer flagged ADR-030 and OQ-123, but not OQ-125.",
+  "evidence": "OQ-125 line 474: \"k3s is pinned at v1.37.1-k3s1 only if every operator's support matrix covers Kubernetes 1.37, otherwise at v1.36.5-k3s1.\" cell.yaml: `version: v1.35.9+k3s1`. OQ-135: \"ClusterPolicy ... for B reported 'no signatures found'\".",
+  "fix": "Have the integrator add dated update lines:\n- in OQ-125, pointing to OQ-136 (k3s 1.35 because of Kyverno 1.19's 1.33–1.35 support);\n- in OQ-123 and ADR-030, pointing to OQ-135 (ImageValidatingPolicy).\n\nDo both in the S1 checkpoint, so no open record names a pin or policy kind that the committed pins contradict."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/OPEN-QUESTIONS.md",
+  "problem": "OQ-136 over-generalises how \"published digest\" was checked. It says \"none of these publishers lists image digests in its release notes\" but adds \"(checked for cosign and crane)\": 2 of about 20 publishers. The reading also makes the upstream check trust-on-first-use: the pinned digest is whatever the registry served that day. Several publishers (Sigstore for cosign, Kyverno, CloudNativePG) publish verifiable image signatures that were not checked. No WSL run in this slice compared any image against publisher-side provenance.",
+  "evidence": "OQ-136: \"none of these publishers lists image digests in its release notes (checked for cosign and crane), so an image is pinned by the digest its publisher's registry served for the tag on 19 October 2026\".\n\nMy re-check with the pinned crane matched cell.yaml for k3s (index ec9868c6…, amd64 b87c7167…), Kyverno (b31d8511… / 8040e9f5…), PostgreSQL 18.6 (c9be7f22… / e5fffed9…), cosign v3.1.3 (9e5c2f2e… / 6ca1127d…) and BusyBox (101b4afd… / ad9fa4d0…). That confirms consistency with the registry, not with an independent publication.",
+  "fix": "Reword to name the publishers actually checked. For publishers that sign their images, verify the upstream signature or provenance once and record the result. Or record the trust-on-first-use gap explicitly as a KA (from KA-014…KA-024) until WP-0.9's supply-chain work."
+ },
+ {
+  "severity": "minor",
+  "file": "tools/hmstools/ci/runner.py",
+  "problem": "`git_info` strips the whole `git status --porcelain` output before splitting it. When the first entry is an unstaged change (\" M path\"), its leading space is lost and `line[3:]` drops the first character of the path. S1's images record shows this. The function is shared with the CI runner's records, so every evidence record's dirty_files list can be wrong.",
+  "evidence": "/tmp/hms-s1/records/2026-10-19-images-889beec-dirty.json: `'dirty_files': ['ocs/adr/README.md', 'docs/program/BACKLOG.md', ...]`.\n\nIn the scratch tree, `git status --short` lists \" M docs/adr/README.md\" first. In runner.py the inner `git()` returns `proc.stdout.decode(...).strip()`, then `files = [line[3:] for line in lines ...]`.",
+  "fix": "In git_info, do not strip the porcelain output; use `rstrip('\\n')` or a separate helper, or use `--porcelain=v1 -z`. Add a unit test where the first entry is \" M file\"."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/OPEN-QUESTIONS.md",
+  "problem": "The spike does not show that Kyverno verifies what the production command writes. Spike variant B signed spike/b twice: once with `--use-signing-config=false --signing-config sc.json`, and again with only `--signing-config` (B2). Both landed in the same image, so the Kyverno ImageValidatingPolicy PASS for \"B\" cannot be tied to the invocation `signing.sign_args` uses. No production-signed image (for example k3s-pause from the lite mirror) was checked with the Kyverno CLI. OQ-135's \"Kyverno 1.19.1 verifies that bundle offline\" is therefore inferred for the production signatures, not observed.",
+  "evidence": "The spike-sign.sh \"B\" invocation has `--signing-config sc.json --use-signing-config=false`, and the \"B2\" invocation has only `--signing-config sc.json`. Both target `$REG/spike/b@$D`, and the registry holds one `sha256-412c…` tag for spike/b. signing.py FORBIDDEN rejects `--use-signing-config`, so production equals B2 only.",
+  "fix": "Before S3 (or as a note in OQ-135 now), run kyverno-cli `apply --registry` with the ImageValidatingPolicy and the cell public key against one image signed by `cell images sign` (e.g. the pause image) on hms-cell-offline. Record it as a WSL build host run, or state in OQ-135 that the production invocation is untested by Kyverno."
+ },
+ {
+  "severity": "minor",
+  "file": "deploy/site-cell/cell.yaml",
+  "problem": "Image pins carry no release dates, although the lens and the plan ask for re-checking \"the release dates under §4.1\". Only charts have `published`. The scorecard's date column gives each project's latest GA, not the pinned version's date. For k3s it shows 2026-09-30, which is not necessarily v1.35.9's date. So the age and maturity of image pins such as k3s v1.35.9, Keycloak 26.8.1, Valkey 9.1.2, cosign v3.1.3 and Distribution 3.1.2 cannot be checked from the records.",
+  "evidence": "cell.yaml: images entries have name, upstream, digest, index_digest, local, licence, role, component, profiles and ships, but no date. Charts have `published: \"2026-09-23\"` etc. Scorecard k3s row: \"at least 32 (2026-09-30)\" under \"Releases in the last year (latest GA)\".",
+  "fix": "Add a `released` date per image (and per tool) to cell.yaml, and have lint require a well-formed date. Or add a pinned-version date column to the scorecard section."
+ },
+ {
+  "severity": "minor",
+  "file": "tools/hmstools/ci/tiers.py",
+  "problem": "The fast tier exceeds §19.1's 10-minute budget on the Windows host, and python-unit-tests runs close to its 900 s timeout. Run 1 timed out while WSL was busy. S1 adds about 60 tests and a new step. The implementer disclosed this, but no KA or DN records it, so the fast tier is now flaky on this host.",
+  "evidence": "Implementer runs on the Windows host:\n- python-unit-tests: 849.6 s against a 900 s step timeout; run 1 timed out at 900 s.\n- Whole tier: 1014–1514 s against §19.1's ≤10 min.",
+  "fix": "Record the budget breach as a KA from WP-0.2's range (KA-014…KA-024), with the measured figures and their host label. Do not raise the timeout silently. Consider having S9 or the integrator profile the slowest test modules."
+ }
+]

@@ -1,0 +1,42 @@
+..............................C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.............C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc\build\docrender-runtime\Lib\site-packages\weasyprint\pdf\__init__.py:150: ResourceWarning: unclosed file <_io.BufferedReader name='C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem\\t3-406132fc\\build\\docrender-runtime\\Lib\\site-packages\\weasyprint\\pdf\\sRGB2014.icc'>
+  document.color_profiles['srgb'] = ColorProfile(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+----------------------------------------------------------------------
+Ran 59 tests in 577.429s
+
+OK
+exit=0

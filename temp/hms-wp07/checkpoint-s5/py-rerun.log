@@ -1,0 +1,7 @@
+tools/ci/run fast: 2 step(s) (PARTIAL: --only); logs in build/ci-logs/20261019T075829-fast-fcadc88-ab553e
+[1/2] repo-check ...
+[1/2] repo-check: PASS (4.2 s)
+[2/2] python-unit-tests ...
+[2/2] python-unit-tests: FAIL (901.0 s) - timed out after 900 s; process tree killed
+tools/ci/run fast: PARTIAL (1 passed, 1 failed, 0 not built; tests=0, failures=0, errors=0, skipped=0; 906 s)
+exit=1

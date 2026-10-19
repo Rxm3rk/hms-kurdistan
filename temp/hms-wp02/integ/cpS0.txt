@@ -1,0 +1,41 @@
+## commits
+I made no commits. HEAD is still 889beec, "merge: wp/0.1-programme-bootstrap at 09afa41 into wp/0.2-environments" (the commit S0 made earlier). The S0 checkpoint commit and the "docs(programme): WP-0.2 status after S0" commit were not made, because the fast tier failed and I was told to commit only if it passes. I did not amend, rebase or push, and I did not use --no-verify.
+## results
+The fast tier failed on one step. Every other step passed.
+
+Run on the Windows host, in the worktree C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02, with the S0 files staged: `sh tools/ci/run fast --no-evidence`. This is not evidence of record and wrote no record. Full output is in C:\Users\Surface\AppData\Local\Temp\hms-wp02\s0\fast-integrate.txt (logs in build/ci-logs/20261019T062922-fast-889beec-c795a6).
+
+- [1/8] doctor-fast: PASS (1.7 s)
+- [2/8] repo-check: **FAIL** (0.7 s). The only errors are three branch names that break the §3.6 naming rule: t3/state-machines-invariants, t3/wp-0-3-platform-kernel and t3/wp08-documents-printing. Other sessions created these local branches in the shared repository, along with the worktrees wp/0.3-platform-kernel (t3-4f6f2a03), wp/0.5-state-machines (t3-5dcdaa39) and wp/0.8-documents-printing (t3-406132fc). None of the slice's files causes this. A separate `sh tools/hms repo check` run showed every file rule passing (adrs_valid=30, status_lines=41, blocking_now_items=2, crlf_files=0), with branches=10.
+- [3/8] python-unit-tests: PASS (892.7 s), 716 tests, 0 failures, 0 errors, 0 skipped
+- [4/8] safety-check: PASS (8.0 s)
+- [5/8] backlog-check: PASS (2.9 s)
+- [6/8] backend-fast: PASS (114.8 s), 66 tests, 0 failures
+- [7/8] frontend-fast: PASS (158.8 s), 514 tests, 0 failures
+- [8/8] secret-scan: PASS (16.5 s), history_findings=0, working_tree_findings=0
+- Summary line: "tools/ci/run fast: FAIL (7 passed, 1 failed, 0 not built; tests=1296, failures=0, errors=0, skipped=0; 1196 s)"
+
+Checks I made before the run:
+- `git status --short` showed exactly the 19 slice files, which I staged: the new ADR-030 file plus the 18 modified files listed by S0 and its fix round. Nothing outside the slice is staged and nothing is left unstaged.
+- I grepped `git diff --cached` for private-key headers and for password, passphrase, secret, token and API-key assignments, including COSIGN_PASSWORD=. Nothing matched, and the secret scan also passed.
+- I reviewed the code diffs:
+  - The runner's `git_info` keeps its old default, so ci/ records are named exactly as before.
+  - evidence.py now uses `ignore_untracked_under` and opens with mode "x", so a rerun adds -2, -3 instead of overwriting.
+- I checked the two edited WP-0.1 tests against BUILD-PROMPT §18.3 line 2021, which says "For every SI…". HAZ-0028 and HAZ-0029 have `invariants: []`. The new assertion still requires all 27 entries that list an SI to carry the 10⁶ and at least 10⁴ counts, so the rule is not weakened.
+## not_committed
+Everything in S0 is uncommitted: all 19 files, still staged in the worktree index on wp/0.2-environments at HEAD 889beec.
+- New: docs/adr/ADR-030-signature-enforcement-kyverno.md
+- Modified docs: docs/adr/README.md, docs/program/{BACKLOG.md, DECISIONS-NEEDED.md, KNOWN-ANOMALIES.md, OPEN-QUESTIONS.md, STATUS.md, WORK-PACKAGES.md, backlog.yaml, evidence/README.md, work-packages/WP-0.2.md}, docs/safety/{README.md, hazard-log.yaml}
+- Modified code and tests: tools/hmstools/cell/{evidence.py, tests/test_evidence.py}, tools/hmstools/ci/{runner.py, tests/test_ci.py}, tools/hmstools/safety/tests/{test_hazard_log_rules.py, test_seeded_content.py}
+
+**Why:** the fast tier failed at repo-check, and I was told to commit only if it passes. I did not commit past a failing gate. The failure comes from shared repository state, not from the slice: three local branches other sessions created, t3/state-machines-invariants, t3/wp-0-3-platform-kernel and t3/wp08-documents-printing. I did not rename or delete them. They belong to other sessions and sit outside this worktree's scope, and changing them would mean writing to other sessions' git refs.
+
+The STATUS commit ("docs(programme): WP-0.2 status after S0") was not made either, because its precondition, a passing fast tier and the S0 commit, is not met. STATUS.md as staged already describes S0 as uncommitted and waiting for this checkpoint.
+
+**To unblock, the lead or the owners of those sessions should do one of these:**
+1. Rename the three branches to the §3.6 form wp/<n.m>-<slug>. Each seems to duplicate a wp/ branch that already exists (wp/0.5-state-machines, wp/0.3-platform-kernel, wp/0.8-documents-printing), so deleting them may be enough.
+2. Or decide how repo-check should treat other sessions' branches.
+
+After that, rerunning `sh tools/ci/run fast --no-evidence` in the worktree and committing the staged files can go ahead unchanged. Proposed subject: "feat(cell): WP-0.2 S0 programme entries, hazards HAZ-0028 and HAZ-0029, ADR-030". The Hazards line would read: "HAZ-0028 (H6, H7) and HAZ-0029 (H6, H14), new; every control planned".
+
+**Also still owed:** the fast record of record in the WSL clone at the checkpoint SHA (none exists on this branch yet), and the open lead decisions KA-024 and OQ-133 [HUMAN].

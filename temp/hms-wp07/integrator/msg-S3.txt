@@ -1,0 +1,71 @@
+feat(ui-core): WP-0.7 S3 clinical numbers, banner model and patient context
+
+Slice S3 of WP-0.7 (design system and client shells) fills
+frontend/packages/ui-core, the DOM-free core that the web app and the
+mobile app share.
+
+What S3 adds:
+- src/clinical-number.ts: formatClinicalNumber and
+  formatClinicalQuantity apply the ISMP display rules (leading zero, no
+  trailing zero, no naked decimal; integer parts of 1000 and above
+  grouped with U+202F, DN-031) to decimal strings, character by
+  character: no Number, parseFloat, Math, toFixed or Intl, so no value is
+  recalculated. Units go through a display map; the shipped one is a
+  synthetic sample marked NOT FOR CLINICAL USE (ug → mcg, U and [iU] →
+  units; OQ-152, KA-036).
+- src/banner-model.ts: parseBannerData parses each banner field on its
+  own with strict Zod schemas; allergies are nka, not-assessed, list or
+  unavailable, and missing, malformed or contradictory data never yields
+  NKA. Untrusted input is first copied into plain data (own enumerable
+  properties only, null-prototype objects, depth-limited), so a polluted
+  Object.prototype, a getter or a class instance cannot supply a status.
+  There is no location field. Name forms are normalised to NFC and
+  checked character by character against their script (letters, marks,
+  digits, punctuation, single U+0020; ZWNJ and ZWJ in ckb and ar only).
+  The model carries the error state, identity-incomplete and
+  signing-blocked flags.
+- src/patient-context.ts: the machine of
+  docs/specs/state-machines/patient-context.yaml, with each predicate
+  implemented once, the inclusive 60 s re-verification window on a
+  monotonic clock (an unknown or unreadable time counts as within it),
+  re-verification counted only for the signer, and a tenant window that
+  can only lengthen it. The idempotency key source is always injected;
+  ui-core has no default.
+- src/clock.ts: the Clock interface, the system clock and a fake clock.
+- tsconfig.src.json type-checks src with no ambient types (no DOM, no
+  Node); package.json's typecheck script runs it after tsconfig.json.
+  No dependency list changed.
+- OQ-158 (open): identifier and photo formats, the name-form rules, the
+  untrusted-input copy, the platform assumptions, the label fallback
+  order, the weight field and the event details. KA-041 (open): the date
+  of birth is checked for form and calendar only.
+
+Tests (spec §9 names): UnitTest:clinical-number-ismp-display-rules;
+PropertyTest:clinical-number-leading-zero, -no-trailing-zero,
+-ascii-digits-only and -value-unchanged; StaticAnalysis:clinical-number-
+no-arithmetic; UnitTest:allergy-status-nka-distinct-from-not-assessed;
+UnitTest:context-switch-requires-confirmation;
+PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change
+(59 999 ms and 60 000 ms require re-verification, 60 001 ms does not;
+with a model property independent of the machine's output); also a
+conformance test against patient-context.yaml. @hms/ui-core 89 tests in
+7 files.
+
+Checks on the Windows host (not evidence of record), this commit's tree
+(S2 and S3): `sh tools/ci/run fast --no-evidence` PASS, 8 of 8 steps,
+tests=1400, failures=0: python-unit-tests 674, backend-fast 66,
+frontend-fast 660 (ui-core 89, i18n 89); repo, safety and backlog checks
+and the secret scan PASS. Not run: the WSL build host.
+
+Hazards: HAZ-0005 (CTRL-0005-17, which names
+UnitTest:clinical-number-ismp-display-rules) and HAZ-0016 (CTRL-0016-4,
+which names UnitTest:allergy-status-nka-distinct-from-not-assessed;
+CTRL-0016-7, which names PropertyTest:SI-16-re-verification-at-signing-
+after-recent-context-change, client part only, the server refusal is
+KA-025). Spec §9 also relates the clinical-number properties to
+CTRL-0005-17, StaticAnalysis:clinical-number-no-arithmetic to
+CTRL-0005-6 and UnitTest:context-switch-requires-confirmation to
+CTRL-0016-6, none named there yet. No control changes state;
+implemented_in and verified_by are left for S12.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,6 @@
+# e2e-smoke
+# command: (not built: End-to-end smoke in en, ckb and ar (Playwright))
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# End-to-end smoke in en, ckb and ar (Playwright): not built yet; WP-0.7 builds it. Counted as a failure (fail closed).
+

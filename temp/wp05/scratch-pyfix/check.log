@@ -1,0 +1,1 @@
+state-machines: PASS (specs=8, machines_generated=8, client_side_machines=0, transitions=228, predicates=231, effects=137, proposed_edges=135, proposed_transitions=153, approval_fields_filled=0, generated_files=16, generated_files_written=0, approval_records=0)

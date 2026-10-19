@@ -1,0 +1,258 @@
+=== HEAD adb631c96f4c30fdd27cedda3c5d209cc3514fdb ===
+=== git status before ===
+=== date 2026-10-18T19:29:26+03:00 ===
+=== bootstrap ===
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java 25.0.4.1)
+bootstrap: Gradle: gradle-9.8.1-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wrapper/dists/gradle-9.8.1-bin/a2l6ltp3k1vth6lwipzm5p2jp/gradle-9.8.1-bin.zip
+bootstrap: gitleaks: reusing .tools/bin/gitleaks (8.30.1)
+bootstrap: venv: reusing .tools/venv (matches tools/requirements.txt)
+bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+bootstrap: frontend: Done in 136ms using pnpm v12.12.1
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"
+
+real	0m1.689s
+user	0m0.716s
+sys	0m0.437s
+bootstrap exit=0
+=== doctor ===
+HMS Kurdistan host doctor (tier: full)  2026-10-18T19:29:27+03:00
+repository: /home/surface/src/hospitalmanagementsystem
+
+ITEM                         STATUS   FOUND
+Operating system             OK       Ubuntu 24.04.5 LTS, kernel 6.6.87.2-microsoft-standard-WSL2 (WSL2)
+Container engine             OK       Docker version 29.9.1, build dfc520d
+Container engine reachable   OK       docker server 29.9.1
+k3d                          OK       k3d version v5.8.3
+kubectl                      OK       Client Version: v1.37.1
+Helm                         OK       v4.3.1+gc0d08d0
+JDK 25                       OK       PATH: 25.0.4.1
+Node.js 24                   OK       v24.22.0
+pnpm via Corepack            OK       pnpm 12.12.1 (corepack 0.36.0, frontend/package.json packageManager)
+Rust stable and cargo        OK       rustc 1.99.1 (58cf8f9c3 2026-10-13); cargo 1.99.1 (5f94df478 2026-08-27)
+Tauri 2 Linux prerequisites  OK       all present
+Python 3.12                  OK       3.12.3 (the interpreter running doctor)
+Git                          OK       git version 2.43.0
+core.autocrlf (effective)    OK       false
+.gitattributes               OK       present
+Project venv                 OK       Python 3.12.3, 7 pins match
+gitleaks in .tools/bin       OK       8.30.1
+RAM                          MISSING  9.7 GiB
+                                      need: >= 32 GB for the dev cell (measured >= 30 GiB), >= 16 GB for the lite cell (>= 15 GiB) [P]
+CPU cores                    OK       8 logical cores
+Free disk                    MISSING  947.5 GiB free on the repository volume (the WSL2 virtual disk); 35.5 GiB free on C:, which holds that disk
+                                      need: >= 50 GiB free [P]
+                                      note: On WSL2 the smaller figure counts: the virtual disk can only grow while its Windows drive has space [P].
+
+Cell profile this host supports: none
+  thresholds [P]: dev cell RAM >= 32 GB (measured >= 30 GiB) and >= 8 cores; lite cell RAM >= 16 GB (>= 15 GiB) and >= 4 cores; free disk >= 50 GiB
+
+To fix (tools/doctor never installs anything; run these yourself):
+- RAM [MISSING]  Ubuntu 24.04 (WSL2):
+    Give the Linux environment more memory: 32 GB for the dev cell, 16 GB for the lite cell (on Windows, set 'memory' in .wslconfig, below).
+- Free disk [MISSING]  Ubuntu 24.04 (WSL2):
+    Free space on the volume that holds the repository, or move the repository to a larger volume.
+    # WSL2: free space on the Windows drive that holds the virtual disk (C: by default), or move the distribution to a larger drive with 'wsl --manage Ubuntu-24.04 --move <folder>' (in Windows).
+
+doctor: FAIL (18 ok, 2 required missing, 0 warnings)
+doctor exit=1
+=== doctor --tier fast ===
+HMS Kurdistan host doctor (tier: fast)  2026-10-18T19:29:28+03:00
+repository: /home/surface/src/hospitalmanagementsystem
+
+ITEM                    STATUS   FOUND
+JDK 25                  OK       PATH: 25.0.4.1
+Node.js 24              OK       v24.22.0
+pnpm via Corepack       OK       pnpm 12.12.1 (corepack 0.36.0, frontend/package.json packageManager)
+Project venv            OK       Python 3.12.3, 7 pins match
+gitleaks in .tools/bin  OK       8.30.1
+
+doctor: PASS (5 ok, 0 required missing, 0 warnings)
+doctor-fast exit=0
+=== fast (with evidence) ===
+tools/ci/run fast: 8 step(s); logs in build/ci-logs/20261018T192928-fast-adb631c-a90bae
+[1/8] doctor-fast ...
+[1/8] doctor-fast: PASS (0.8 s)
+[2/8] repo-check ...
+[2/8] repo-check: PASS (0.3 s)
+[3/8] python-unit-tests ...
+[3/8] python-unit-tests: PASS (25.4 s) tests=392, failures=0, errors=0, skipped=0
+[4/8] safety-check ...
+[4/8] safety-check: PASS (0.4 s)
+[5/8] backlog-check ...
+[5/8] backlog-check: PASS (0.2 s)
+[6/8] backend-fast ...
+[6/8] backend-fast: PASS (20.2 s) tests=66, failures=0, errors=0, skipped=0
+[7/8] frontend-fast ...
+[7/8] frontend-fast: PASS (13.6 s) tests=514, failures=0, errors=0, skipped=0
+[8/8] secret-scan ...
+[8/8] secret-scan: PASS (1.8 s) history_findings=0, working_tree_findings=0
+tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=972, failures=0, errors=0, skipped=0; 60 s)
+evidence: docs/program/evidence/ci/2026-10-18-fast-adb631c.json
+
+real	1m0.507s
+user	0m52.718s
+sys	0m7.145s
+fast exit=0
+=== merge (with evidence) ===
+tools/ci/run merge: 23 step(s); logs in build/ci-logs/20261018T193029-merge-adb631c-cd8931
+[1/23] doctor-fast ...
+[1/23] doctor-fast: PASS (0.8 s)
+[2/23] repo-check ...
+[2/23] repo-check: PASS (0.2 s)
+[3/23] python-unit-tests ...
+[3/23] python-unit-tests: PASS (26.1 s) tests=392, failures=0, errors=0, skipped=0
+[4/23] safety-check ...
+[4/23] safety-check: PASS (0.4 s)
+[5/23] backlog-check ...
+[5/23] backlog-check: PASS (0.2 s)
+[6/23] backend-fast ...
+[6/23] backend-fast: PASS (17.3 s) tests=66, failures=0, errors=0, skipped=0
+[7/23] frontend-fast ...
+[7/23] frontend-fast: PASS (16.2 s) tests=514, failures=0, errors=0, skipped=0
+[8/23] secret-scan ...
+[8/23] secret-scan: PASS (2.4 s) history_findings=0, working_tree_findings=0
+[9/23] integration-tests ...
+[9/23] integration-tests: NOT-BUILT (0.0 s) - Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA): not built yet; WP-0.3 (needs the container engine and dev stack of WP-0.2) builds it. Counted as a failure (fail closed).
+[10/23] contract-openapi ...
+[10/23] contract-openapi: NOT-BUILT (0.0 s) - OpenAPI 3.1 contract tests for module BFFs and public APIs: not built yet; WP-0.4 builds it. Counted as a failure (fail closed).
+[11/23] contract-asyncapi ...
+[11/23] contract-asyncapi: NOT-BUILT (0.0 s) - AsyncAPI and CloudEvents contract tests for published events: not built yet; WP-0.3 builds it. Counted as a failure (fail closed).
+[12/23] contract-hl7v2 ...
+[12/23] contract-hl7v2: NOT-BUILT (0.0 s) - HL7 v2 conformance-profile tests per interface: not built yet; WP-1.1b builds it. Counted as a failure (fail closed).
+[13/23] contract-fhir ...
+[13/23] contract-fhir: NOT-BUILT (0.0 s) - FHIR validator against pinned profiles: not built yet; WP-1.12 builds it. Counted as a failure (fail closed).
+[14/23] migration-n-1 ...
+[14/23] migration-n-1: NOT-BUILT (0.0 s) - Migration upgrade-and-rollback test against N-1 (§6.8 #9): not built yet; WP-0.3 builds it. Counted as a failure (fail closed).
+[15/23] e2e-smoke ...
+[15/23] e2e-smoke: NOT-BUILT (0.0 s) - End-to-end smoke in en, ckb and ar (Playwright): not built yet; WP-0.7 builds it. Counted as a failure (fail closed).
+[16/23] axe ...
+[16/23] axe: NOT-BUILT (0.0 s) - axe accessibility checks: not built yet; WP-0.7 builds it. Counted as a failure (fail closed).
+[17/23] rtl-visual-diffs ...
+[17/23] rtl-visual-diffs: NOT-BUILT (0.0 s) - RTL visual diffs: not built yet; WP-0.7 builds it. Counted as a failure (fail closed).
+[18/23] licence-scan-ort ...
+[18/23] licence-scan-ort: NOT-BUILT (0.0 s) - ORT licence scan from its official container image: not built yet; WP-0.9 (needs a container engine, WP-0.2) builds it. Counted as a failure (fail closed).
+[19/23] vulnerability-scan ...
+[19/23] vulnerability-scan: NOT-BUILT (0.0 s) - Dependency vulnerability scan (Trivy, OSV-Scanner): not built yet; WP-0.9 builds it. Counted as a failure (fail closed).
+[20/23] container-scan ...
+[20/23] container-scan: NOT-BUILT (0.0 s) - Container image scan: not built yet; WP-0.9 (images from WP-0.2) builds it. Counted as a failure (fail closed).
+[21/23] sbom ...
+[21/23] sbom: NOT-BUILT (0.0 s) - CycloneDX SBOM generation and the licence check on it: not built yet; WP-0.9 builds it. Counted as a failure (fail closed).
+[22/23] coverage-gates ...
+[22/23] coverage-gates: NOT-BUILT (0.0 s) - Coverage gates: domain and application >= 85% line and branch (§22.1): not built yet; WP-0.3 builds it. Counted as a failure (fail closed).
+[23/23] mutation-tests ...
+[23/23] mutation-tests: NOT-BUILT (0.0 s) - Mutation tests (PIT) on touched Tier 2 code: not built yet; WP-1.5 (first Tier 2 sidecar) builds it. Counted as a failure (fail closed).
+tools/ci/run merge: FAIL (8 passed, 0 failed, 15 not built; tests=972, failures=0, errors=0, skipped=0; 59 s)
+evidence: docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json
+
+real	0m59.053s
+user	1m5.522s
+sys	0m8.166s
+merge exit=1
+=== merge --list ===
+doctor-fast              built                                        sh tools/doctor --tier fast --json
+repo-check               built                                        sh tools/hms repo check --json
+python-unit-tests        built                                        .tools/venv/bin/python -I -m unittest discover -s tools -t tools -p 'test_*.py'
+safety-check             built                                        sh tools/hms safety check --json
+backlog-check            built                                        sh tools/hms backlog check --json
+backend-fast             built                                        sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+frontend-fast            built                                        corepack pnpm run fast
+secret-scan              built                                        .tools/bin/gitleaks git --config .gitleaks.toml --redact --log-opts='--full-history --branches --tags --remotes' . && .tools/bin/gitleaks dir --config .gitleaks.toml --redact <tracked and untracked, not ignored, files>
+integration-tests        NOT-BUILT (WP-0.3 (needs the container engine and dev stack of WP-0.2)) (not built: Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA))
+contract-openapi         NOT-BUILT (WP-0.4)                           (not built: OpenAPI 3.1 contract tests for module BFFs and public APIs)
+contract-asyncapi        NOT-BUILT (WP-0.3)                           (not built: AsyncAPI and CloudEvents contract tests for published events)
+contract-hl7v2           NOT-BUILT (WP-1.1b)                          (not built: HL7 v2 conformance-profile tests per interface)
+contract-fhir            NOT-BUILT (WP-1.12)                          (not built: FHIR validator against pinned profiles)
+migration-n-1            NOT-BUILT (WP-0.3)                           (not built: Migration upgrade-and-rollback test against N-1 (§6.8 #9))
+e2e-smoke                NOT-BUILT (WP-0.7)                           (not built: End-to-end smoke in en, ckb and ar (Playwright))
+axe                      NOT-BUILT (WP-0.7)                           (not built: axe accessibility checks)
+rtl-visual-diffs         NOT-BUILT (WP-0.7)                           (not built: RTL visual diffs)
+licence-scan-ort         NOT-BUILT (WP-0.9 (needs a container engine, WP-0.2)) (not built: ORT licence scan from its official container image)
+vulnerability-scan       NOT-BUILT (WP-0.9)                           (not built: Dependency vulnerability scan (Trivy, OSV-Scanner))
+container-scan           NOT-BUILT (WP-0.9 (images from WP-0.2))      (not built: Container image scan)
+sbom                     NOT-BUILT (WP-0.9)                           (not built: CycloneDX SBOM generation and the licence check on it)
+coverage-gates           NOT-BUILT (WP-0.3)                           (not built: Coverage gates: domain and application >= 85% line and branch (§22.1))
+mutation-tests           NOT-BUILT (WP-1.5 (first Tier 2 sidecar))    (not built: Mutation tests (PIT) on touched Tier 2 code)
+exit=0
+=== nightly --list ===
+doctor-fast              built                                        sh tools/doctor --tier fast --json
+repo-check               built                                        sh tools/hms repo check --json
+python-unit-tests        built                                        .tools/venv/bin/python -I -m unittest discover -s tools -t tools -p 'test_*.py'
+safety-check             built                                        sh tools/hms safety check --json
+backlog-check            built                                        sh tools/hms backlog check --json
+backend-fast             built                                        sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+frontend-fast            built                                        corepack pnpm run fast
+secret-scan              built                                        .tools/bin/gitleaks git --config .gitleaks.toml --redact --log-opts='--full-history --branches --tags --remotes' . && .tools/bin/gitleaks dir --config .gitleaks.toml --redact <tracked and untracked, not ignored, files>
+cell-check               NOT-BUILT (WP-0.2)                           (not built: The named cell is up and reachable)
+property-1e6             NOT-BUILT (WP-0.5)                           (not built: 10^6 randomised property-based command sequences across all invariants (C2))
+property-channels        NOT-BUILT (WP-0.5)                           (not built: >= 10^4 sequences through each real channel adapter)
+scenario-suites          NOT-BUILT (WP-0.5)                           (not built: Clinical scenario suites (§18.5))
+e2e-full                 NOT-BUILT (WP-0.7)                           (not built: Full end-to-end suites)
+golden-image-print       NOT-BUILT (WP-0.8)                           (not built: Golden-image print tests)
+scaled-day-dev-cell      NOT-BUILT (WP-0.6)                           (not built: Scaled functional day (about 30 beds) on the dev cell, p95 against the host baseline)
+day-300-bed              NOT-BUILT (WP-0.6 [HUMAN: reference hardware]) (not built: The 300-bed day on the reference cell)
+day-1000-bed             NOT-BUILT (WP-0.6 [HUMAN: hardware])         (not built: The 1,000-bed day on the central profile)
+chaos                    NOT-BUILT (WP-0.2)                           (not built: Chaos: node kill, WAN cut, power-cut emulation, broker loss, database failover, clock skew)
+restore-test             NOT-BUILT (WP-1.13)                          (not built: Restore test)
+parser-fuzzing           NOT-BUILT (WP-1.1b)                          (not built: Parser fuzzing (Jazzer))
+exit=0
+=== release --list ===
+doctor-fast              built                                        sh tools/doctor --tier fast --json
+repo-check               built                                        sh tools/hms repo check --json
+python-unit-tests        built                                        .tools/venv/bin/python -I -m unittest discover -s tools -t tools -p 'test_*.py'
+safety-check             built                                        sh tools/hms safety check --json
+backlog-check            built                                        sh tools/hms backlog check --json
+backend-fast             built                                        sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+frontend-fast            built                                        corepack pnpm run fast
+secret-scan              built                                        .tools/bin/gitleaks git --config .gitleaks.toml --redact --log-opts='--full-history --branches --tags --remotes' . && .tools/bin/gitleaks dir --config .gitleaks.toml --redact <tracked and untracked, not ignored, files>
+integration-tests        NOT-BUILT (WP-0.3 (needs the container engine and dev stack of WP-0.2)) (not built: Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA))
+contract-openapi         NOT-BUILT (WP-0.4)                           (not built: OpenAPI 3.1 contract tests for module BFFs and public APIs)
+contract-asyncapi        NOT-BUILT (WP-0.3)                           (not built: AsyncAPI and CloudEvents contract tests for published events)
+contract-hl7v2           NOT-BUILT (WP-1.1b)                          (not built: HL7 v2 conformance-profile tests per interface)
+contract-fhir            NOT-BUILT (WP-1.12)                          (not built: FHIR validator against pinned profiles)
+migration-n-1            NOT-BUILT (WP-0.3)                           (not built: Migration upgrade-and-rollback test against N-1 (§6.8 #9))
+e2e-smoke                NOT-BUILT (WP-0.7)                           (not built: End-to-end smoke in en, ckb and ar (Playwright))
+axe                      NOT-BUILT (WP-0.7)                           (not built: axe accessibility checks)
+rtl-visual-diffs         NOT-BUILT (WP-0.7)                           (not built: RTL visual diffs)
+licence-scan-ort         NOT-BUILT (WP-0.9 (needs a container engine, WP-0.2)) (not built: ORT licence scan from its official container image)
+vulnerability-scan       NOT-BUILT (WP-0.9)                           (not built: Dependency vulnerability scan (Trivy, OSV-Scanner))
+container-scan           NOT-BUILT (WP-0.9 (images from WP-0.2))      (not built: Container image scan)
+sbom                     NOT-BUILT (WP-0.9)                           (not built: CycloneDX SBOM generation and the licence check on it)
+coverage-gates           NOT-BUILT (WP-0.3)                           (not built: Coverage gates: domain and application >= 85% line and branch (§22.1))
+mutation-tests           NOT-BUILT (WP-1.5 (first Tier 2 sidecar))    (not built: Mutation tests (PIT) on touched Tier 2 code)
+cell-check               NOT-BUILT (WP-0.2)                           (not built: The named cell is up and reachable)
+signed-images            NOT-BUILT (WP-0.9 (registry and signing from WP-0.2)) (not built: Signed container images (local registry, offline cosign keys, no transparency log))
+helm-charts              NOT-BUILT (WP-0.2)                           (not built: Helm charts)
+tier2-sidecars           NOT-BUILT (WP-1.5)                           (not built: Tier 2 sidecar builds)
+desktop-shell            NOT-BUILT (WP-0.7)                           (not built: Desktop shell build (Tauri 2))
+mobile-builds            NOT-BUILT (WP-0.7 [HUMAN: iOS needs macOS])  (not built: Mobile builds (React Native))
+sbom-vex                 NOT-BUILT (WP-0.9)                           (not built: CycloneDX SBOM and VEX)
+slsa-provenance          NOT-BUILT (WP-0.9)                           (not built: SLSA provenance)
+cosign-signatures        NOT-BUILT (WP-0.9)                           (not built: cosign signatures)
+release-evidence-pack    NOT-BUILT (WP-0.9)                           (not built: The Release Evidence Pack (§10.1))
+release-notes            NOT-BUILT (WP-0.9)                           (not built: Trilingual release notes)
+offline-media            NOT-BUILT (WP-1.13)                          (not built: Offline media image)
+exit=0
+=== fast --list ===
+doctor-fast              built                                        sh tools/doctor --tier fast --json
+repo-check               built                                        sh tools/hms repo check --json
+python-unit-tests        built                                        .tools/venv/bin/python -I -m unittest discover -s tools -t tools -p 'test_*.py'
+safety-check             built                                        sh tools/hms safety check --json
+backlog-check            built                                        sh tools/hms backlog check --json
+backend-fast             built                                        sh backend/gradlew -p backend fastTier -Phms.pbt.sequences=1000 --no-build-cache --console=plain
+frontend-fast            built                                        corepack pnpm run fast
+secret-scan              built                                        .tools/bin/gitleaks git --config .gitleaks.toml --redact --log-opts='--full-history --branches --tags --remotes' . && .tools/bin/gitleaks dir --config .gitleaks.toml --redact <tracked and untracked, not ignored, files>
+exit=0
+=== ls evidence ci ===
+total 48
+drwxr-xr-x 2 surface surface  4096 Oct 18 19:31 .
+drwxr-xr-x 5 surface surface  4096 Oct 18 19:03 ..
+-rw-r--r-- 1 surface surface  6346 Oct 18 19:30 2026-10-18-fast-adb631c.json
+-rw-r--r-- 1 surface surface  6347 Oct 18 19:03 2026-10-18-fast-d3e14de.json
+-rw-r--r-- 1 surface surface  3277 Oct 18 19:03 2026-10-18-gates-bite.md
+-rw-r--r-- 1 surface surface 17151 Oct 18 19:31 2026-10-18-merge-adb631c-dirty.json
+=== git status after ===
+?? docs/program/evidence/ci/2026-10-18-fast-adb631c.json
+?? docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json
+=== date 2026-10-18T19:31:28+03:00 ===
+SCRIPT-DONE

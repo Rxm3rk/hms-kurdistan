@@ -1,0 +1,189 @@
+  - id: HAZ-0028
+    title: Committed data lost, or writes accepted unsafely, after losing cell nodes
+    description: >-
+      After one or two of the on-site cell's three nodes fail, PostgreSQL loses transactions it had
+      acknowledged as committed, or goes on accepting writes in a state where one more failure would
+      lose them: replication degraded to asynchronous, a commit acknowledged on the primary only, or
+      two primaries accepting writes. Documentation, orders and administrations that users saw saved
+      would then be missing or divergent after a failover; or the cell stops taking writes after a
+      single-node loss that it should survive.
+    seeded_hazard: [H6, H7]
+    invariants: []
+    modules: [platform-site, platform-journal]
+    features: [PLT-OPS-01, PLT-OPS-04, PLT-SITE-01]
+    causes:
+      - Synchronous replication set up so that a commit can return before a standby has flushed it, or so that it degrades to asynchronous when the standbys are absent
+      - A cancelled synchronous wait (statement_timeout or a cancel request), which PostgreSQL reports as success with a warning while the commit is on the primary only
+      - A failover that promotes a standby lacking acknowledged transactions, or a partition after which two primaries accept writes
+      - Nodes that come back with different addresses after a whole-cell power loss, so the cluster cannot re-form (seen in the WP-0.2 prototype on 18 October 2026, whose embedded etcd lost quorum; DN-015)
+    effects:
+      - Records that clinicians saw saved are missing after a failover (H6)
+      - The cell stops accepting writes after a single-node loss that it should survive (H7)
+    initial_risk:
+      severity: major
+      likelihood: occasional
+      level: high
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance. Severity: lost clinical writes are silent
+        and can change treatment. Likelihood: node failures happen in every on-site cell's life, and
+        the WP-0.2 prototype showed a whole-cell restart that did not recover; judged before the
+        controls below.
+    controls:
+      - id: CTRL-0028-1
+        type: design
+        risk_control_option: design
+        description: >-
+          Quorum synchronous replication inside the cell: three PostgreSQL instances (CloudNativePG);
+          a commit returns only after its WAL is flushed on the primary and on any one of the two
+          standbys (synchronous_standby_names 'ANY 1' naming both standbys, synchronous_commit on);
+          required pod anti-affinity on hostname; failover promotes only a standby that holds every
+          acknowledged commit, and no two primaries acknowledge writes. Killing any single node, the
+          primary's or a standby's, loses no committed transaction and keeps the database writable.
+        sources: ["§5.1", "§16.2", "§21 WP-0.2"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "ChaosTest:node-kill-primary"
+          - "ChaosTest:node-kill-standby"
+          - "ChaosTest:node-kill-each"
+          - "ChaosTest:primary-pod-kill"
+          - "ChaosTest:primary-partition"
+      - id: CTRL-0028-2
+        type: design
+        risk_control_option: design
+        description: >-
+          Never degrade to asynchronous: absent standbys stay in the synchronous list
+          (dataDurability required), so while both standbys are lost or fenced, commits wait and
+          are not acknowledged, and no stale standby is promoted. Losing two nodes stops writes.
+        sources: ["§5.1", "§16.2", "§21 WP-0.2"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "ChaosTest:standbys-fenced-writes-block"
+          - "ChaosTest:two-node-loss-writes-stop"
+      - id: CTRL-0028-3
+        type: design
+        risk_control_option: protective
+        description: >-
+          Every node of the cell keeps a fixed address across restarts, and the cell does not report
+          itself up while a node's address differs from its etcd member's peer address. The cell
+          recovers when all nodes stop at once and start in any order: the API is ready within
+          300 s [P], the addresses are unchanged and PostgreSQL converges.
+        sources: ["§5.1", "§16.1", "§18.7 (power-cut emulation)"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "ChaosTest:cell-restart-any-order"
+      - id: CTRL-0028-4
+        type: design
+        risk_control_option: design
+        description: >-
+          The application's database access layer never cancels a commit's synchronous wait and
+          never sets statement_timeout on a commit, and it treats the warning "canceling wait for
+          synchronous replication" as a failed commit, never as success.
+        sources: ["§16.2", "§21 WP-0.3"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "IntegrationTest:commit-wait-cancel-is-failure"
+        notes: >-
+          A tightening [P]: §16.2 requires that a commit wait for a standby and never degrade to
+          asynchronous, but names no rule for a cancelled wait, which PostgreSQL reports as success
+          with a warning. WP-0.2's failover probe already fails any such write (ack_local_only,
+          OQ-126); the product rule is built with the access layer in WP-0.3 (KA-023).
+      - id: CTRL-0028-5
+        type: test
+        risk_control_option: protective
+        description: >-
+          The nightly chaos suite runs the node-kill, database-failover and whole-cell restart
+          scenarios against a write probe. A run fails on any acknowledged write missing after
+          recovery, any write acknowledged on the primary only, primaries that overlap, instances
+          that diverge, an acknowledgement while two nodes are down, or a write RTO above 300 s
+          (§16.2: RTO ≤5 min engineering).
+        sources: ["§16.2", "§18.7", "§19.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "ChaosTest:node-kill-*"
+          - "ChaosTest:db-failover-*"
+          - "ChaosTest:cell-restart-any-order"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-site-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
+    notes: >-
+      Added in WP-0.2; the first entry for H7 (KA-008). The tests run on the lite cell of a 10 GB WSL
+      host, whose three nodes share one kernel, disk, clock and power supply (KA-014); their results
+      are labelled "lite". Whether lite evidence verifies these controls is DN-005's decision: until
+      it is answered, a control that passes on the lite cell goes no further than `implemented`.
+  - id: HAZ-0029
+    title: A locked object deleted, or its retention shortened, before the retention expires
+    description: >-
+      A document, scan, audit or backup object stored under Object Lock in compliance mode is
+      deleted, or its retention is shortened or downgraded, before the retention expires: through an
+      application fault, a compromised application account, an object store that does not enforce
+      the lock, or a lock that does not survive a restart. Part of the legal record or of the audit
+      trail is then lost.
+    seeded_hazard: [H6, H14]
+    invariants: []
+    modules: [platform-files, trust-audit]
+    features: [TRU-AUD-01, PLT-OPS-04, PLT-SITE-01]
+    causes:
+      - An object store that advertises Object Lock but lets a COMPLIANCE retention be shortened or a locked version be deleted (versitygw v1.4.1 failed this way in WP-0.2; ADR-029)
+      - Lock state lost when the store's pod, its node or the whole cell restarts
+      - Product code that uses a store-specific API and so bypasses the S3 Object Lock checks
+    effects:
+      - Documents of the legal record lost before their retention ends (H6)
+      - Audit evidence of disclosures lost, so unlawful access can no longer be shown or investigated (H14)
+    initial_risk:
+      severity: major
+      likelihood: remote
+      level: medium
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance. Likelihood: one of the three candidate
+        stores failed the WORM test in WP-0.2 (ADR-029); judged before the controls below.
+    controls:
+      - id: CTRL-0029-1
+        type: design
+        risk_control_option: design
+        description: >-
+          The object store enforces S3 Object Lock in compliance mode and is adopted, at every
+          version, only after it passes the WORM test: a locked version refuses deletion, deletion
+          with governance bypass, a shortened retention, a downgrade to GOVERNANCE and bucket
+          deletion, and keeps its bytes. Product code reaches the store only through the S3 API
+          behind platform-files (ADR-029).
+        sources: ["§4.1 (Object storage)", "§5.2 (platform-files)", "§21 WP-0.2"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "ContractTest:worm-W01-W11"
+      - id: CTRL-0029-2
+        type: test
+        risk_control_option: protective
+        description: >-
+          The WORM checks are repeated on the same locked version after the store's pod is deleted,
+          after its node is killed and after a whole-cell restart, in the nightly chaos suite.
+        sources: ["§4.1 (Object storage)", "§18.7", "§21 WP-0.2"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "ChaosTest:worm-recheck-after-restart"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-files-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
+    notes: >-
+      Added in WP-0.2. Compliance-mode Object Lock does not stop an operating-system administrator
+      from destroying the disk itself; that risk belongs to the on-site immutable backup target and
+      the DR copies (§16.2; WP-1.13), not to this entry.

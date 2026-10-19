@@ -1,0 +1,261 @@
+# The specimen of one laboratory collection, from the active order to its disposal (BUILD-PROMPT §8.4
+# "Specimen"; R11 §10.4; §9.7 "one order lifecycle", "identity and barcode", "Scan, don't type" and
+# "designed downtime per ancillary"; §9.8 pre-analytic; SAC-09). Template: BUILD-PROMPT Appendix B.3.
+# Explanation: docs/specs/state-machines/specimen.md. Specification: docs/specs/modules/
+# state-machines-and-invariants.md. Approval request and the readings the guards encode: DN-054
+# (items 1 to 16, listed in specimen.md); the defaults are the stricter readings that do not block
+# urgent care.
+#
+# One instance per specimen (one accession number). A specimen may serve several orders (§9.8:
+# collection lists "consolidate tubes"). The predicates are implemented once in hms.lis.domain.specimen
+# (SpecimenGuards) as pure functions of SpecimenFacts; time arrives in the facts, never from the system
+# clock. Facts owned by another module (order and result statuses, the identity service's MRN answers,
+# the Trust Plane's privileges and audit availability, connectivity, the channel's "chosen by the user"
+# mark) are that module's answers, as each description says. A channel that cannot supply a "chosen by
+# the user" mark (API, interface, migration loader) supplies none, so a guard that needs one is refused.
+machine: specimen
+version: 1
+owner: lis
+approval: {status: requested, required: [lab-cso], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [ordered, label-printed, collected, in-transit, received, in-process, resulted, stored, disposed, rejected, cancelled, lost, entered-in-error]
+# stored is not terminal: a stored specimen still owes its disposal (DN-054 item 7).
+terminal: [disposed, rejected, cancelled, lost, entered-in-error]
+initial: ordered
+# CreateFromOrder: a laboratory order that needs the specimen becomes active (§9.7). CreateForRecollection:
+# a recollection task asks for a new specimen for the same open orders after a rejection, a loss or a
+# result that cannot be used (DN-054 item 16). Both start in ordered.
+created_by: [CreateFromOrder, CreateForRecollection]
+predicates:   # each implemented once in hms.lis.domain.specimen (SpecimenGuards) and unit-tested
+  servedOrderActive: "at least one order this specimen serves is in the order machine's state active (signed, verified where verification applies, not on hold); pending-verification, on-hold, completed, revoked and entered-in-error do not count. The order states are the orders module's answer: as recorded when the command is received online, or as last synced to the device offline (DN-054 item 9)"
+  servedOrdersEnded: "the specimen serves at least one order, and every order it serves is either revoked or entered-in-error in the order machine, or completed with no result derived from this specimen (the results module's answer). An empty order list counts as not ended, so the specimen stays visible as open work (fails closed; DN-054 item 8)"
+  wristbandScanMatches: "a wristband scan was read for this command (never typed); its source is a patient wristband, never a bed, room, location or chart label (SI-01 clause b; CTRL-0001-4); the barcode (a DataMatrix with MRN and encounter, §12) decoded an MRN that equals the specimen patient's MRN; the identity service confirms that the MRN's check digit is valid (CTRL-0001-7) and that the MRN is current, neither merged into another record nor retired (SI-08); and the patient's name and date of birth, or the approximate-DOB flag, from the record were shown on the device and the user confirmed them (SI-01 clauses a and d). A merged or retired MRN never matches through the merge link: the command is refused, and the identity service raises the re-banding task. The same reading as medication-administration's wristbandScanMatches (DN-053, DN-054 item 4)"
+  noUsableWristband: "the user recorded that the patient wears no wristband or that it cannot be read, and no wristband scan in this bedside session decoded an MRN. A band that scans, to this or to any other patient, never opens the override: a mismatch stays a hard stop (DN-054 item 3)"
+  twoIdentifiersActivelyConfirmed: "an active two-identifier check was recorded in this bedside session: either the patient stated their name and date of birth and the user confirmed both against the record shown on the device, or an identity document was read through the shell HAL (§9.1) and the identity service matched it to the specimen's patient; the identity service confirms the MRN's check digit and that the MRN is current; a room, bed or location never counts. A patient who cannot state their identity (a neonate, an unconscious or confused patient) cannot pass this check and is re-banded (DN-054 item 3)"
+  identityOverrideReasonChosen: "the user chose the override reason, no-wristband or wristband-unreadable, never defaulted (the channel adapter's 'chosen' mark)"
+  notTransfusionSample: "the test catalogue marks no test the specimen serves as a pre-transfusion sample (SI-11; catalogue content is governed configuration [HUMAN]); an unknown flag counts as a transfusion sample"
+  labelIdentifiersComplete: "the label content carries the specimen's accession barcode and the patient's two identifiers: the name in the patient's script and in a Latin transliteration, and the MRN with a valid check digit plus the date of birth at its recorded precision or the approximate-DOB flag; no identifier slot holds a room or bed (SI-01 clauses a to d; CTRL-0001-5). Downtime and alias-kit labels are held to the same rule (CTRL-0001-8)"
+  accessionFromPermittedSource: "the specimen has an accession number, and: when the command was issued online (connected to the on-site cell), the cell's accession service issued it; when it was issued offline (the device lost the on-site cell, or runs in edge-agent or mobile offline mode; losing the internet alone is not offline, SI-15 clause h), the number lies inside a pre-allocated, site-prefixed downtime accession block assigned to this device and was not used before (SI-15 clause c; CTRL-0015-6; §9.7). The mode is the one in which the command was issued, from the command's offline envelope. A number from neither source never counts (DN-054 item 10)"
+  kitAccessionFromAllocatedBlock: "the labels scanned belong to an alias or downtime kit (band and labels issued together, §9.1 alias pools, SAC-06): their accession numbers lie inside the pre-allocated, site-prefixed block issued with that kit and were not used before, and the kit's identity (the alias identity printed on its band and labels) is the specimen patient's, by the identity service's answer (SI-15 clause c; DN-054 item 5)"
+  reprintReasonChosen: "the user chose a reprint reason, never defaulted (the channel adapter's 'chosen' mark); the reprint is recorded with user, device and time, and the reprinted labels carry the specimen's existing accession number"
+  collectorIdentified: "the collector is the authenticated user of the command's session (the Trust Plane's answer), never a typed name, and the collecting device is recorded. For a specimen the patient collected (the catalogue marks the specimen type), the collector recorded is the user who receives and labels it in the patient's presence"
+  collectionTimeRecorded: "a clinical collection time, confirmed by the collector, is recorded apart from the system time of the command (SI-10 clause a). It is not later than the recording time and not earlier than the start of this bedside session (the wristband scan or the active two-identifier check), except for a specimen type the catalogue marks as patient-collected, whose time is the one the patient stated, not later than the session start, and recorded as stated by the patient. An earlier time is back-dating and goes through BackEnterDowntimeCollection or the privileged, audited back-dating path of the command handler (SI-10 clause b; CTRL-0010-4; DN-054 item 15)"
+  labelledAtBedside: "the label on the tube was scanned after the patient was identified in this bedside session (the wristband scan, or on the override path the active two-identifier check), on the same device, and its accession number equals this specimen's: the system's evidence that the label was applied in the patient's presence (SAC-09). A session ends when another wristband is scanned, another patient is identified, or the session is closed, so a label scanned after another patient's identification never matches. This does not detect a wrong blood in tube (WBIT), a later LIS feature (DN-054 item 6)"
+  downtimeBackEntryAllowed: "the user holds the downtime back-entry privilege for laboratory collections (governed configuration, §9.26; a Trust Plane answer); a recorded downtime episode (the platform-site record of the cell or device outage) covers the clinical collection time; and the audit record can be written with the command (an audit outage refuses the command; it never runs unaudited)"
+  paperCollectionRecorded: "the collector's identity and the clinical collection time are entered from the paper downtime record; the time lies inside the downtime episode and is not later than the recording time; the entry keeps that time as the clinical time and is labelled as back-entry (SI-10 clauses b and c; CTRL-0010-5)"
+  downtimeLabelConfirmed: "the tube's label was scanned at back-entry (never typed); its accession number equals the specimen's existing accession number, or, for a specimen without one, lies inside a pre-allocated, site-prefixed downtime block and was not used before (SI-15 clause c); and the two identifiers printed on the label were shown to the user and confirmed against the specimen patient's record (SI-01)"
+  dispatchScanRecorded: "the specimen's label was scanned at dispatch (a transport scan event with user, device, location and time; §9.8 'transport tracking by scan events'), and the scanned accession number equals this specimen's"
+  receiptScanMatchesOrder: "the label was scanned (never typed) at laboratory receipt, the scanned accession number equals this specimen's, and the specimen serves at least one order (§9.8 acceptance 1)"
+  acceptableForEveryTest: "an acceptability check was recorded at or after receipt, the specimen has at least one eligible test (a test whose order is not revoked or entered-in-error), and every eligible test passes every criterion for that test: the container is one the catalogue allows for it; the volume is at least its catalogue minimum; the time from the clinical collection time to now is within its stability limit (stability runs from the clinical time, SI-10); the recorded haemolysis, icterus, lipaemia and clotting are within its governed limits; and the label matched at receipt. Catalogue values are governed configuration [HUMAN]; an unknown value fails that test (DN-054 item 11)"
+  notAcceptableForEveryTest: "the exact complement of acceptableForEveryTest"
+  acceptableForSomeTest: "an acceptability check was recorded at or after receipt and at least one eligible test passes every criterion for that test, as in acceptableForEveryTest"
+  caveatAuthorised: "the user holds the laboratory's accept-with-caveat privilege (governed configuration, §9.26; a Trust Plane answer), and the audit record can be written with the command (an audit outage refuses the command; it never runs unaudited)"
+  caveatAllowedForSpecimen: "the catalogue marks the specimen type as irreplaceable, or marks every failed criterion of every eligible test as waivable for that test (governed configuration [HUMAN]); no failed criterion is a label or identity criterion, which is never waived (DN-054 item 11)"
+  caveatReasonChosen: "the user chose the caveat reason, never defaulted (the channel adapter's 'chosen' mark)"
+  allTestsFinished: "testing on this specimen has ended: every test it serves has a result in the result machine's final, amended or corrected state, or a result cancelled or entered in error, or was rejected for this specimen at the acceptability check, or belongs to an order that was revoked or entered in error. The result and order states are the results and orders modules' answers; a preliminary result does not count (DN-054 item 12)"
+  noTestNeedsRecollection: "no test the specimen serves whose order is still open (not completed, revoked or entered-in-error) has a result that was cancelled or entered in error with no final, amended or corrected result from this specimen"
+  testNeedsRecollection: "the exact complement of noTestNeedsRecollection"
+  storageLocationScanned: "a storage location (rack and position) was scanned for the specimen (never typed), with user and time (§9.8 'storage location for add-ons')"
+  retentionNotRequired: "the test catalogue sets no retention period for any test the specimen serves (governed configuration [HUMAN]); an unknown retention rule counts as required, so the specimen is stored (fails closed)"
+  retentionElapsed: "the specimen has a recorded storage time, and now is at or after that time plus the longest catalogue retention period of the tests it serves; an unknown period never elapses"
+  noLegalHold: "no legal hold is recorded on the specimen: no hold from the retention and legal-hold engine (§9.27; §13 DP-9 'never auto-delete') and no forensic or medico-legal (MLC) hold, which the SI-21 forensic/MLC label places on the case; an unknown hold status counts as held (DN-054 item 13)"
+  rejectionReasonChosen: "the user chose a rejection reason (never defaulted; the channel adapter's 'chosen' mark) from the coded list: unlabelled, mislabelled, haemolysed, clotted, insufficient, wrong-container, expired-stability (§8.4 lists unlabelled, haemolysed, insufficient, wrong container and expired stability; §9.8 adds clotting and mislabelled; DN-054 item 2)"
+  labelDefectReasonChosen: "the user chose a rejection reason (never defaulted; the channel adapter's 'chosen' mark) and it is unlabelled or mislabelled: the tube reached the laboratory without a label that scans to this specimen's accession number, so the receipt scan cannot succeed"
+  lossDeclared: "a user declared the specimen lost, with their identity and the time, after being shown the specimen's last scan event; a declaration is a deliberate action, never raised automatically"
+  privilegedAndAudited: "the user holds the specimen entered-in-error privilege for this laboratory (governed configuration, §9.26; a Trust Plane answer), and the audit record of the correction can be written with the command (an audit outage refuses the command; it never runs unaudited). B.3's name, required on every exit from a terminal state (WP-0.5 spec §1.2)"
+  errorReasonEntered: "the user chose an entered-in-error reason from the governed list (content [HUMAN]), never defaulted (the channel adapter's 'chosen' mark)"
+effects:
+  emitSpecimenCollected: "a SpecimenCollected event (§8.5; OML, SSU^U03) is journaled with the clinical collection time and the recorded time (SI-10), the collector, the device, the identification method (wristband scan, identity override, alias kit or downtime back-entry) and the accession number"
+  emitSpecimenReceived: "a SpecimenReceived event (§8.5; SSU^U03) is journaled with the receipt scan, the user and the time"
+  emitSpecimenRejected: "a SpecimenRejected event (§8.5; SSU^U03) is journaled with the coded reason and the tests it affects (the whole specimen, or only the tests rejected at the acceptability check); it feeds the rejection register of the lab-quality pack (§9.8)"
+  recollectionTaskRaised: "an owned recollection task with an SLA (§9.8 'an automatic recollection task to the care team'; SI-03 clause b) names the patient by two identifiers, the open orders concerned and the reason. Its owner is the ordering clinician's care team; for an order from an external referring doctor it is the laboratory's outpatient desk, as an owned seam task (SI-03 clause d). It leads to CreateForRecollection and closes when the new specimen reaches collected or every order concerned has ended. It is raised even when an order has since ended; its owner then closes it (DN-054 item 16)"
+  transportOverdueWatch: "an owned work item for laboratory reception and the collecting unit, due at the catalogue transport limit for the specimen's priority (governed configuration [HUMAN]; shorter for STAT); it closes on Receive, Reject, ReportLost, Cancel or MarkEnteredInError. When it falls due its owner is asked to find the tube or declare it lost (SI-03; DN-054 item 16)"
+  identityOverrideReported: "the identity override is journaled as a reportable event (§9.7 'every override of a failed scan is a reportable event') with the user, the reason, the method (stated identifiers or identity document), the device and the time; for no-wristband, an owned banding task goes to the unit or draw station (§9.1 wristbands at registration)"
+  unacceptableTestsRejected: "every eligible test that failed a criterion is rejected for this specimen with the failed criterion as its coded reason, a SpecimenRejected event names those tests, and a recollection task (as recollectionTaskRaised) is raised for them; the specimen goes on for the tests that passed"
+  caveatCarriedOnResults: "every result derived from this specimen carries the caveat (the failed criteria, the reason and the authoriser) in every view, print, report and interface message"
+  collectionWorkWithdrawn: "the specimen leaves every collection list, and any labels printed for its accession number are recorded as void, so a later scan of them at collection or receipt is refused"
+  drawnSpecimenDispositionTask: "an owned task with an SLA (SI-03 clause b) to the laboratory, or to the collecting unit while the specimen has not reached the laboratory, to store or discard the drawn specimen under laboratory rules and any legal hold; the specimen record stays cancelled"
+  disposalScheduled: "a disposal work item owned by the laboratory falls due at the end of the longest catalogue retention period of the tests the specimen serves (governed configuration [HUMAN]); a legal hold suspends it"
+  storedLossIncidentRaised: "an owned quality incident for the laboratory: a stored specimen is missing; no recollection by default, because its results exist"
+  errorReviewTaskRaised: "an owned task with an SLA to the laboratory and to the ordering clinician to review the specimen's orders, labels and every result derived from it, and to order a recollection where one is needed (SI-03 clause b; H1)"
+  derivedResultsFlagged: "every result derived from this specimen is shown at once, in every view, as 'under review: specimen entered in error' until the review task decides; the result machine's specimenUsable stops holding for the specimen, so no new value from it is filed"
+transitions:
+  - from: ordered
+    on: PrintLabels
+    guard: [servedOrderActive, wristbandScanMatches, labelIdentifiersComplete, accessionFromPermittedSource]
+    to: label-printed
+    description: "§8.4; R11 §10.4. Labels print on demand at the bedside after the wristband scan (§9.8 'scan wristband → print labels on demand'). Offline, the accession number comes from a pre-allocated downtime block (SI-15; §9.7)."
+  - from: ordered
+    on: PrintLabelsWithIdentityOverride
+    guard: [servedOrderActive, noUsableWristband, twoIdentifiersActivelyConfirmed, identityOverrideReasonChosen, notTransfusionSample, labelIdentifiersComplete, accessionFromPermittedSource]
+    effects: [identityOverrideReported]
+    to: label-printed
+    proposed: true
+    description: "Proposed (DN-054 item 3): no wristband, or an unreadable one, at an outpatient draw station or the bedside. A reportable override (§9.7) with an active two-identifier check; never on a band that scans to anyone, never for a pre-transfusion sample (SI-11)."
+  - from: ordered
+    on: AssignKitLabels
+    guard: [servedOrderActive, wristbandScanMatches, labelIdentifiersComplete, kitAccessionFromAllocatedBlock]
+    to: label-printed
+    proposed: true
+    description: "Proposed (DN-054 item 5): labels issued with the band in an alias or downtime kit from one pre-allocated block (§9.1 alias pools; SAC-06; CTRL-0001-8) are bound to the specimen at the bedside after the band scan."
+  - from: label-printed
+    on: ReprintLabels
+    guard: [servedOrderActive, labelIdentifiersComplete, reprintReasonChosen]
+    to: label-printed
+    description: "Proposed (DN-054 item 5): a printer jam or a damaged label needs a reprint, or the specimen could never be collected. Same accession number and identity; Collect checks the patient and the label again in one bedside session."
+  - from: label-printed
+    on: Collect
+    guard: [servedOrderActive, collectorIdentified, collectionTimeRecorded, wristbandScanMatches, labelledAtBedside]
+    effects: [emitSpecimenCollected, transportOverdueWatch]
+    to: collected
+    description: "§8.4 'collected (collector, time, scanned wristband)'; §9.8 'record collector, time and device; labels applied in the patient's presence'; SAC-09. Collection time is clinical time (SI-10)."
+  - from: label-printed
+    on: CollectWithIdentityOverride
+    guard: [servedOrderActive, collectorIdentified, collectionTimeRecorded, noUsableWristband, twoIdentifiersActivelyConfirmed, identityOverrideReasonChosen, notTransfusionSample, labelledAtBedside]
+    effects: [emitSpecimenCollected, transportOverdueWatch, identityOverrideReported]
+    to: collected
+    proposed: true
+    description: "Proposed (DN-054 item 3): the reportable identity override at collection; the tube-label scan in the same bedside session is still required; never on a mismatch, never for a pre-transfusion sample."
+  - from: [ordered, label-printed]
+    on: BackEnterDowntimeCollection
+    guard: [downtimeBackEntryAllowed, paperCollectionRecorded, downtimeLabelConfirmed]
+    effects: [emitSpecimenCollected, transportOverdueWatch]
+    to: in-transit
+    description: "Proposed (DN-054 item 10): a specimen collected on paper during a full downtime (§16.3 L4) is back-entered with its original clinical time and labelled (SI-10 clause c). It enters in-transit: the next real scan is the receipt at the laboratory, so no scan that never happened is recorded. A collection that happened is a fact, so an order ended since does not refuse it; Cancel then applies."
+  - from: collected
+    on: Dispatch
+    guard: [dispatchScanRecorded]
+    effects: [transportOverdueWatch]
+    to: in-transit
+    description: "§8.4; §9.8 'transport tracking by scan events'. The transport watch is renewed at dispatch."
+  - from: in-transit
+    on: Receive
+    guard: [receiptScanMatchesOrder]
+    effects: [emitSpecimenReceived]
+    to: received
+    description: "§8.4; §9.8 acceptance 1."
+  - from: received
+    on: StartProcessing
+    guard: [acceptableForEveryTest]
+    to: in-process
+    description: "§8.4; §9.8 'receipt scan with acceptability checks'. Every eligible test passed its own criteria."
+  - from: received
+    on: StartProcessing
+    guard: [acceptableForSomeTest, notAcceptableForEveryTest]
+    effects: [unacceptableTestsRejected, emitSpecimenRejected]
+    to: in-process
+    proposed: true
+    description: "Proposed (DN-054 item 11): acceptability is per test. The tests that passed go on; only the affected tests are rejected, with a recollection task for them."
+  - from: received
+    on: AcceptWithCaveat
+    guard: [notAcceptableForEveryTest, caveatAuthorised, caveatAllowedForSpecimen, caveatReasonChosen]
+    effects: [caveatCarriedOnResults]
+    to: in-process
+    proposed: true
+    description: "Proposed (DN-054 item 11): an irreplaceable specimen (or a waivable criterion) is processed with a caveat on every derived result; a label or identity criterion is never waived."
+  - from: in-process
+    on: MarkResulted
+    guard: [allTestsFinished, noTestNeedsRecollection]
+    to: resulted
+    description: "§8.4; R11 §10.4. Testing on the specimen has ended."
+  - from: in-process
+    on: MarkResulted
+    guard: [allTestsFinished, testNeedsRecollection]
+    effects: [recollectionTaskRaised]
+    to: resulted
+    proposed: true
+    description: "Proposed (DN-054 item 12): a test whose result was cancelled or entered in error while its order stays open is finished for this specimen; the order gets a recollection, so the specimen is never stuck in in-process."
+  - from: resulted
+    on: Store
+    guard: [storageLocationScanned]
+    effects: [disposalScheduled]
+    to: stored
+    description: "§8.4 'resulted → stored or disposed'."
+  - from: resulted
+    on: Dispose
+    guard: [retentionNotRequired, noLegalHold]
+    to: disposed
+    description: "§8.4 'resulted → stored or disposed'. Never while a legal hold applies (DN-054 item 13)."
+  - from: stored
+    on: Dispose
+    guard: [retentionElapsed, noLegalHold]
+    to: disposed
+    description: "Proposed (DN-054 item 7): a stored specimen is disposed at the end of its retention period, never under a legal hold."
+  - from: [received, in-process]
+    on: Reject
+    guard: [rejectionReasonChosen]
+    effects: [emitSpecimenRejected, recollectionTaskRaised]
+    to: rejected
+    description: "Proposed (§8.4 'R11 does not say which states can reject; propose: received and in process'; A.20; DN-054 item 1)."
+  - from: in-transit
+    on: Reject
+    guard: [labelDefectReasonChosen]
+    effects: [emitSpecimenRejected, recollectionTaskRaised]
+    to: rejected
+    description: "Proposed (DN-054 item 1): an unlabelled or mislabelled tube cannot pass the receipt scan (§9.8 acceptance 1), so its rejection starts from in-transit; only the two label reasons are allowed here."
+  - from: [ordered, label-printed]
+    on: Cancel
+    guard: [servedOrdersEnded]
+    effects: [collectionWorkWithdrawn]
+    to: cancelled
+    description: "Proposed (SI-03; DN-054 item 8): §8.4 draws no cancel path, so a specimen whose orders were all discontinued or entered in error would stay open for ever (H5). Nothing was drawn yet."
+  - from: [collected, in-transit, received, in-process]
+    on: Cancel
+    guard: [servedOrdersEnded]
+    effects: [drawnSpecimenDispositionTask]
+    to: cancelled
+    description: "Proposed (SI-03; DN-054 item 8): the orders ended after the draw; the tube needs a disposition."
+  - from: [collected, in-transit, received, in-process]
+    on: ReportLost
+    guard: [lossDeclared]
+    effects: [recollectionTaskRaised]
+    to: lost
+    description: "Proposed (SI-03; DN-054 item 8): a drawn specimen that cannot be found ends as lost, and the patient gets a recollection task."
+  - from: stored
+    on: ReportLost
+    guard: [lossDeclared]
+    effects: [storedLossIncidentRaised]
+    to: lost
+    description: "Proposed (DN-054 item 8): a stored specimen that goes missing leaves storage as lost, never by a false disposal; its results exist, so no recollection by default."
+  - from: "*"
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, errorReasonEntered]
+    effects: [errorReviewTaskRaised, derivedResultsFlagged]
+    to: entered-in-error
+    description: "Proposed (DN-054 item 14): a specimen recorded against the wrong patient or order, or created in error, is never deleted (H6). From a terminal state this is an audited correction."
+proposed:
+  - "label-printed→label-printed"
+  - "ordered→in-transit"
+  - "label-printed→in-transit"
+  - "stored→disposed"
+  - "received→rejected"
+  - "in-process→rejected"
+  - "in-transit→rejected"
+  - "ordered→cancelled"
+  - "label-printed→cancelled"
+  - "collected→cancelled"
+  - "in-transit→cancelled"
+  - "received→cancelled"
+  - "in-process→cancelled"
+  - "collected→lost"
+  - "in-transit→lost"
+  - "received→lost"
+  - "in-process→lost"
+  - "stored→lost"
+  - "*→entered-in-error"
+invariants: [SI-01, SI-03, SI-10, SI-11, SI-15]
+events: [SpecimenCollected, SpecimenReceived, SpecimenRejected]   # §8.5; §8.5 names no event for cancelled, lost or entered-in-error (specimen.md)
+hazards: [HAZ-0001, HAZ-0003, HAZ-0010, HAZ-0011, HAZ-0015]
+sources:
+  - "BUILD-PROMPT §8.4 (Specimen; approval: lab CSO)"
+  - "R11 §10.4 (Specimen); R11 §8 (Specimen attributes)"
+  - "BUILD-PROMPT §2.1 SI-01, SI-03, SI-08, SI-10, SI-11, SI-15, SI-21"
+  - "BUILD-PROMPT §8.5 (SpecimenCollected / Received / Rejected)"
+  - "BUILD-PROMPT §9.1 (wristbands and labels at registration; alias pools; identity documents)"
+  - "BUILD-PROMPT §9.7 (one order lifecycle; identity and barcode; Scan, don't type; designed downtime per ancillary)"
+  - "BUILD-PROMPT §9.8 (pre-analytic: bedside collection, transport scans, receipt acceptability checks, coded rejection reason, recollection task, storage location; acceptance 1)"
+  - "BUILD-PROMPT §9.27 and §13 DP-9 (retention and legal hold)"
+  - "BUILD-PROMPT §12 (wristband DataMatrix with MRN and encounter; peripheral downtime behaviour)"
+  - "BUILD-PROMPT §16.3 (downtime layers; L4 paper and back-entry)"
+  - "BUILD-PROMPT §18.4 SAC-06, SAC-09"
+  - "BUILD-PROMPT A.20 (undrawn transitions: specimen rejection)"

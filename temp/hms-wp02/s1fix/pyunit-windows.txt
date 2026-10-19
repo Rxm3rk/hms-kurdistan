@@ -1,0 +1,70 @@
+..................................................................................................................bootstrap: file.bin: SHA-256 mismatch after download (b5c1fb2efc6d6b4674c2fdcc48ce01b43a3b7c03763c0c3355de0099ee0f8c73); deleted, fetching once more from the start
+.bootstrap: file.bin.part: already complete (16 bytes), verifying
+bootstrap: verified file.bin (sha256 386fd68c7a974d99b14e0b9b6cb67a6399559b565636cff91f32e8f25eac4dae)
+.bootstrap: verified file.bin (sha256 44f8354494a5ba03ba1792a8d3e9c534c47a9181980fde7a3f44b06ef2ae7c7f)
+..bootstrap: resuming https://h.invalid/f at 700 bytes
+bootstrap: verified file.bin (sha256 e392378f849d67bbb1a7bbec84f1098ae3faa751049c009a850130ce6073d91a)
+.bootstrap: reusing verified file.bin
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: JDK: jdk-25.0.4.1+1 exists but does not report the pinned release; replacing it
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+.bootstrap: JDK: reusing .tools/jdk-local-copy (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: reusing verified fake-OpenJDK25U-jdk.zip
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: fake-OpenJDK25U-jdk.zip: SHA-256 mismatch after download (96181049c45feadac5278d774339702930eb3d089c308ff10daf7ecf9fbbe691); deleted, fetching once more from the start
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 23bd35a74e9466a2bd0be8d271e799d7ea85f27f34713149335b58041125dc39)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 23bd35a74e9466a2bd0be8d271e799d7ea85f27f34713149335b58041125dc39)
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+.bootstrap: JDK: not using .tools/jdk-25.0.5+11: it reports java "25.0.5", Temurin-25.0.5+11 (build 25.0.5+11-LTS) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: not using .tools/jdk-amazon-corretto-25: it reports java "25.0.4", Corretto-25.0.4.7.1 (build 25.0.4+7-LTS) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: not using .tools/jdk-ubuntu-25: it reports java "25.0.4.1" (build 25.0.4.1+1-Ubuntu-1ubuntu124.04) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+.bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+.bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 3852f953b9564a4ed97c8b80c30a5dc32b7b346ba492cb284b6afa77ad3bb74e)
+....bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+.bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+bootstrap: frontend: Done in 1s
+..bootstrap: frontend: no frontend/package.json; nothing to install
+...bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: fetching from the mirror https://mirror.invalid/g/gradle-1.0-bin.zip; verifying against the official checksum 11e3e8d180c6459653ce95a88e853ab1a4d481de919db9faf4b01e5dbddf3ec6
+bootstrap: verified gradle-1.0-bin.zip (sha256 11e3e8d180c6459653ce95a88e853ab1a4d481de919db9faf4b01e5dbddf3ec6)
+bootstrap: Gradle: placed .tools/gradle-home/wrapper/dists/gradle-1.0-bin/5rgtyagbuldvidyz59he0pky7/gradle-1.0-bin.zip; the wrapper unpacks it on first use
+bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wrapper/dists/gradle-1.0-bin/5rgtyagbuldvidyz59he0pky7/gradle-1.0-bin.zip
+..bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: fetching from the mirror https://mirror.invalid/gradle-1.0-bin.zip; verifying against the official checksum 770e607624d689265ca6c44884d0807d9b054d23c473c106c72be9de08b7376c
+bootstrap: gradle-1.0-bin.zip: SHA-256 mismatch after download (d121be3103007b41edf96f8262925f8c7d61894afe9a041843b631f69445bc57); deleted, fetching once more from the start
+...........................................................................................................----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 59567)
+Traceback (most recent call last):
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02\tools\hmstools\cell\tests\test_worm.py", line 58, in do_PUT
+    versions = s.buckets[bucket].setdefault(key, {})
+               ~~~~~~~~~^^^^^^^^
+KeyError: 'worm-39aacb228cd6'
+----------------------------------------
+....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 796 tests in 1126.806s
+
+OK
+exit 0 wall 1129 s

@@ -1,0 +1,2 @@
+ERROR  unmapped: minimatch@10.2.6 [shipped, pnpm-licences.json]: 'BlueOak-1.0.0' is not classified in tools/licence/policy.yaml
+licence: FAIL (components=122, allowed=121, conditional=0, conditional_registered=0, denied=0, unmapped=1)

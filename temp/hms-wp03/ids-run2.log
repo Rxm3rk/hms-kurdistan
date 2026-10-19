@@ -1,0 +1,143 @@
+wp03 gradle.sh: waiting for the worktree build lock (pid=136497 args=:platform:time:ktlintFormat since=2026-10-19T11:43:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=150496 args=--continue :platform:time:test :platform:time:propertyTest :platform:time:detekt :platform:time:ktlintCheck :platform:time:verifyArchitectureTest since=2026-10-19T11:43:56+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=134434 args=:platform:money:ktlintFormat :platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:47:04+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=134434 args=:platform:money:ktlintFormat :platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:47:04+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=134434 args=:platform:money:ktlintFormat :platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:47:04+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=134434 args=:platform:money:ktlintFormat :platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:47:04+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=134434 args=:platform:money:ktlintFormat :platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:47:04+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=134434 args=:platform:money:ktlintFormat :platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:47:04+03:00)
+heavy.sh: wp03 got slot2.lock after 0s
+Calculating task graph as no cached configuration is available for tasks: :platform:ids:ktlintFormat :platform:ids:test :platform:ids:propertyTest :platform:ids:detekt :platform:ids:ktlintCheck :platform:ids:verifyArchitectureTest :platform:testing:test :platform:testing:propertyTest :platform:testing:detekt :platform:testing:ktlintCheck :platform:testing:verifyArchitectureTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :platform:ids:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:ids:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:ids:compileKotlin UP-TO-DATE
+> Task :platform:ids:processResources NO-SOURCE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:ids:processPropertyTestResources NO-SOURCE
+> Task :platform:ids:processTestResources NO-SOURCE
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :platform:ids:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:ids:compileJava NO-SOURCE
+> Task :platform:ids:runKtlintFormatOverKotlinScripts NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:ids:classes UP-TO-DATE
+> Task :platform:ids:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:ids:ktlintKotlinScriptFormat SKIPPED
+> Task :platform:ids:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :platform:ids:runKtlintFormatOverTestSourceSet UP-TO-DATE
+> Task :platform:ids:runKtlintFormatOverMainSourceSet UP-TO-DATE
+> Task :platform:ids:ktlintTestSourceSetFormat UP-TO-DATE
+> Task :platform:ids:ktlintMainSourceSetFormat UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:ids:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:ids:jar UP-TO-DATE
+> Task :platform:ids:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:ids:compileTestKotlin UP-TO-DATE
+> Task :platform:testing:compileTestKotlin UP-TO-DATE
+> Task :platform:ids:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:ids:compileTestJava NO-SOURCE
+> Task :platform:ids:testClasses UP-TO-DATE
+> Task :platform:testing:compileTestJava NO-SOURCE
+> Task :platform:testing:processTestResources NO-SOURCE
+> Task :platform:testing:testClasses UP-TO-DATE
+> Task :platform:testing:test UP-TO-DATE
+> Task :platform:ids:test UP-TO-DATE
+> Task :platform:testing:compilePropertyTestKotlin UP-TO-DATE
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+> Task :platform:testing:propertyTest UP-TO-DATE
+> Task :platform:testing:detekt UP-TO-DATE
+
+> Task :platform:ids:verifyArchitectureTest
+:platform:ids: ArchitectureTest ran 4 rule checks
+
+> Task :platform:testing:loadKtlintReporters UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:testing:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:testing:ktlintKotlinScriptCheck SKIPPED
+
+> Task :platform:testing:verifyArchitectureTest
+:platform:testing: ArchitectureTest ran 4 rule checks
+
+> Task :platform:ids:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:ids:compilePropertyTestKotlin
+> Task :platform:ids:compilePropertyTestJava NO-SOURCE
+> Task :platform:ids:propertyTestClasses UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:testing:runKtlintCheckOverMainSourceSet
+> Task :platform:testing:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:ids:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:ids:ktlintPropertyTestSourceSetCheck UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:testing:ktlintPropertyTestSourceSetCheck UP-TO-DATE
+> Task :platform:ids:runKtlintCheckOverMainSourceSet
+> Task :platform:ids:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:ids:runKtlintFormatOverPropertyTestSourceSet
+> Task :platform:ids:ktlintPropertyTestSourceSetFormat
+> Task :platform:ids:ktlintFormat
+> Task :platform:ids:runKtlintCheckOverTestSourceSet
+> Task :platform:ids:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:ids:ktlintCheck UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:ids:propertyTest
+> Task :platform:testing:runKtlintCheckOverTestSourceSet
+> Task :platform:testing:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:testing:ktlintCheck UP-TO-DATE
+
+BUILD SUCCESSFUL in 47s
+48 actionable tasks: 13 executed, 35 up-to-date
+Configuration cache entry stored.
+exit 0

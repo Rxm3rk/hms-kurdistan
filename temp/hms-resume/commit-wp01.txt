@@ -1,0 +1,68 @@
+feat(programme): WP-0.1 programme bootstrap
+
+Bootstrap the HMS Kurdistan programme per BUILD-PROMPT.md §21 WP-0.1:
+the monorepo layout, the programme control files, the backlog of record,
+the ADR baseline, the seeded hazard log, the host doctor and bootstrap,
+the Gradle and pnpm workspaces and the local CI runner with the fast tier.
+
+Programme control (§3.1): STATUS, WORK-PACKAGES (Phase 0 plan, WP-0.1 to
+WP-0.9 files from template B.4), DECISIONS-NEEDED (DN-001 to DN-012),
+OPEN-QUESTIONS (Q-K1 to Q-K19, the A.20 conflicts, Appendix A placements,
+engineering choices [P]), ASSUMPTIONS (L-1 to L-37), COMMANDS,
+KNOWN-ANOMALIES (KA-001 to KA-006), evidence/ and reviews/ READMEs,
+CHANGELOG, and README placeholders for docs/specs, runbooks, user,
+content-sources, content, deploy and tests.
+
+Backlog: tools/hmstools/backlog generates docs/program/backlog.yaml (234
+feature IDs) from Appendix A and renders BACKLOG.md; the check reconciles
+the A.18 counts and engineer-week totals. Ten-row spot check (seed
+20261018) recorded under docs/program/evidence/backlog/.
+
+ADRs: ADR-001 to ADR-028 from §4.2 (ADR-001 and ADR-009
+accepted-provisional) with the index; ADR-002 records the pinned set.
+
+Safety: docs/safety/hazard-log.yaml with H1-H15 and HAZ-0001 to HAZ-0021
+(one per SI-01 to SI-21), every control state planned, every approval
+field empty; its JSON Schema; the sign-off record format; and
+'tools/hms safety check' with the approval-field gate (§3.5). The risk
+vocabulary is [P], awaiting CSO confirmation (OQ-095).
+
+Tools: tools/doctor, tools/bootstrap (project-local JDK 25, Gradle,
+gitleaks and the venv, all SHA-256 checked), tools/ci/run (fast tier built;
+merge, nightly and release fail closed with NOT-BUILT steps naming their
+work packages), 'tools/hms repo check' (CRLF, required files, ADR template
+and index, tenant-identifier and branch-per-tenant detectors, limits),
+'tools/hms licence check' with tools/licence/policy.yaml and the ORT
+configuration (.ort.yml, classifications, evaluator rules, curations; ORT
+not run yet, KA-005), .gitattributes, .gitignore, .editorconfig,
+.gitleaks.toml, the PR template and CODEOWNERS (placeholder handles,
+KA-004), tools/host/provision-ubuntu.sh.
+
+Backend: Gradle 9.8.1 root in backend/ with the version catalogue and
+convention plugins (Kotlin 2.3.21 on JDK 25, detekt 1.23.8, ktlint 1.8.0,
+test tiers as source sets: test, propertyTest, integrationTest), the
+ArchUnit rule library platform/arch-rules (domain purity, module api
+boundaries, Temporal only behind WorkflowPort, no system clock in domain
+code) and platform/testing (the property-test budget).
+
+Frontend: pnpm 12.12.1 workspace with strict TypeScript, ESLint with the
+local rules hms/no-jsx-literals and hms/no-physical-css, a CSS checker,
+and @hms/i18n with ICU catalogues in en, ckb and ar plus the localisation
+lint.
+
+Hazards and invariants: the hazard log seeds H1-H15 and SI-01 to SI-21;
+no control is implemented or verified yet (KA-006). No feature ID is
+built by this work package.
+
+Tests added: 384 Python unit tests (tools/), 66 backend tests (51 in
+arch-rules, 15 in testing), 514 frontend tests (473 for the ESLint plugin,
+41 for i18n). Verified on the Windows checkout: tools/ci/run fast passes
+every step; each gate fails on a planted violation and passes once it is
+removed (docs/program/evidence/ci/2026-10-18-gates-bite.md). The run of
+record follows in the WSL clone at this commit.
+
+Host: on the human's instruction the build agent provisioned the Linux
+build host (WSL2, Ubuntu 24.04 and its toolchain), a recorded deviation
+from §3.4 item 9; see DN-001 to DN-004.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

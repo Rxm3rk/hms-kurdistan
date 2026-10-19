@@ -1,0 +1,5 @@
+$ node packages/eslint-plugin-hms/src/css/cli.ts
+ERROR  packages/i18n/src/scratch.css:2:3  Physical CSS property "margin-left": use the logical property "margin-inline-start" so the layout mirrors in right-to-left locales (BUILD-PROMPT.md §6.5).
+ERROR  packages/i18n/src/scratch.css:3:3  "float: right" is a physical direction: use "inline-end" so the layout mirrors in right-to-left locales (BUILD-PROMPT.md §6.5).
+frontend-css-logical: FAIL (files=1, findings=2)
+[ELIFECYCLE] Command failed with exit code 1.

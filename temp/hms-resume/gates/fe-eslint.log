@@ -1,0 +1,12 @@
+$ eslint --max-warnings 0 .
+
+C:\Users\Surface\.t3\projects\hospitalmanagementsystem\frontend\packages\i18n\src\ScratchBanner.tsx
+  2:3   error  Unsafe return of a value of type error                                                                                                                  @typescript-eslint/no-unsafe-return
+  3:16  error  Hard-coded string in the user-visible attribute "title": use a message from the ICU catalogues (BUILD-PROMPT.md §6.5)                                   hms/no-jsx-literals
+  3:35  error  Physical CSS property "marginLeft": use the logical property "marginInlineStart" so the layout mirrors in right-to-left locales (BUILD-PROMPT.md §6.5)  hms/no-physical-css
+  3:61  error  "textAlign: left" is a physical direction: use "start" so the layout mirrors in right-to-left locales (BUILD-PROMPT.md §6.5)                            hms/no-physical-css
+  3:71  error  Hard-coded text "Hello" in JSX: user-facing strings must come from the ICU message catalogues (BUILD-PROMPT.md §6.5)                                    hms/no-jsx-literals
+
+✖ 5 problems (5 errors, 0 warnings)
+
+[ELIFECYCLE] Command failed with exit code 1.

@@ -1,0 +1,234 @@
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=109843 args=:platform:money:ktlintFormat since=2026-10-19T10:50:01+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=132765 args=:platform:money:test :platform:money:propertyTest :platform:money:detekt :platform:money:ktlintCheck :platform:money:verifyArchitectureTest --continue since=2026-10-19T11:19:10+03:00)
+wp03 gradle.sh: waiting for the worktree build lock (pid=113147 args=--continue :platform:time:ktlintFormat :platform:time:test :platform:time:propertyTest :platform:time:detekt :platform:time:ktlintCheck :platform:time:verifyArchitectureTest since=2026-10-19T11:20:40+03:00)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=106754 since=2026-10-19T11:14:25+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=106754 since=2026-10-19T11:14:25+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=106754 since=2026-10-19T11:14:25+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=106754 since=2026-10-19T11:14:25+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=106754 since=2026-10-19T11:14:25+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp03 pid=106754 since=2026-10-19T11:14:25+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp08 pid=124071 since=2026-10-19T11:36:38+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=134645 since=2026-10-19T11:22:17+03:00;wp05 pid=111951 since=2026-10-19T11:39:55+03:00;)
+heavy.sh: wp03 got slot2.lock after 975s
+Calculating task graph as no cached configuration is available for tasks: :platform:ids:ktlintFormat :platform:testing:ktlintFormat :platform:ids:test :platform:ids:propertyTest :platform:ids:detekt :platform:ids:ktlintCheck :platform:ids:verifyArchitectureTest :platform:testing:test :platform:testing:propertyTest :platform:testing:detekt :platform:testing:ktlintCheck :platform:testing:verifyArchitectureTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:ids:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:ids:processResources NO-SOURCE
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:ids:processTestResources NO-SOURCE
+> Task :platform:ids:processPropertyTestResources NO-SOURCE
+> Task :platform:testing:processTestResources NO-SOURCE
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:ids:loadKtlintReporters FROM-CACHE
+> Task :platform:ids:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:ids:runKtlintFormatOverKotlinScripts NO-SOURCE
+> Task :platform:ids:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:ids:ktlintKotlinScriptFormat SKIPPED
+> Task :platform:ids:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:ids:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :platform:testing:jar UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:ids:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:ids:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:testing:loadKtlintReporters FROM-CACHE
+> Task :platform:testing:runKtlintFormatOverKotlinScripts NO-SOURCE
+> Task :platform:testing:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :platform:testing:ktlintKotlinScriptFormat SKIPPED
+
+> Task :platform:ids:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:testing:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:testing:runKtlintFormatOverMainSourceSet
+> Task :platform:ids:runKtlintFormatOverMainSourceSet
+> Task :platform:testing:ktlintMainSourceSetFormat
+> Task :platform:ids:ktlintMainSourceSetFormat
+> Task :platform:ids:runKtlintCheckOverMainSourceSet
+> Task :platform:ids:ktlintMainSourceSetCheck
+> Task :platform:ids:runKtlintFormatOverPropertyTestSourceSet
+> Task :platform:ids:runKtlintCheckOverTestSourceSet
+> Task :platform:ids:ktlintPropertyTestSourceSetFormat
+> Task :platform:ids:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:ids:ktlintTestSourceSetCheck
+> Task :platform:testing:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:testing:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:testing:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:ids:ktlintPropertyTestSourceSetCheck
+> Task :platform:ids:ktlintCheck
+> Task :platform:testing:runKtlintCheckOverPropertyTestSourceSet
+> Task :platform:testing:runKtlintCheckOverMainSourceSet
+> Task :platform:testing:ktlintMainSourceSetCheck
+> Task :platform:testing:ktlintPropertyTestSourceSetCheck
+> Task :platform:testing:runKtlintCheckOverTestSourceSet
+> Task :platform:testing:ktlintTestSourceSetCheck
+> Task :platform:testing:ktlintCheck
+> Task :platform:ids:compileKotlin
+> Task :platform:ids:runKtlintFormatOverTestSourceSet
+> Task :platform:ids:ktlintTestSourceSetFormat
+> Task :platform:ids:ktlintFormat
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:testing:runKtlintFormatOverPropertyTestSourceSet
+> Task :platform:testing:ktlintPropertyTestSourceSetFormat
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:testing:runKtlintFormatOverTestSourceSet
+> Task :platform:ids:compileJava NO-SOURCE
+> Task :platform:ids:classes UP-TO-DATE
+> Task :platform:testing:ktlintTestSourceSetFormat
+> Task :platform:testing:ktlintFormat
+> Task :platform:testing:compilePropertyTestKotlin
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+> Task :platform:ids:jar
+> Task :platform:testing:compileTestKotlin
+> Task :platform:testing:compileTestJava NO-SOURCE
+> Task :platform:testing:testClasses UP-TO-DATE
+
+> Task :platform:ids:compilePropertyTestKotlin
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:12:37 Unresolved reference 'chooseArbs'.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:54:9 Unresolved reference 'chooseArbs'.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:60:9 Unresolved reference 'chooseArbs'.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:72:13 Cannot infer type for type parameter 'C'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:21 Cannot infer type for type parameter 'A'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:30 Cannot infer type for type parameter 'A'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:30 Cannot infer type for type parameter 'B'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:30 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:57 Cannot infer type for type parameter 'A'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:63 Cannot infer type for type parameter 'B'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:76 Cannot infer type for type parameter 'A'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:76:76 Cannot infer type for type parameter 'B'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:77:30 Cannot infer type for type parameter 'C'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:82:33 Cannot infer type for implicit value parameter 'it'. Specify it explicitly.
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:82:33 Operator call 'component1()' is ambiguous for destructuring of type '??? (Unknown type for value parameter <destruct>)'. Applicable candidates:
+fun <T> Array<out T>.component1(): T
+fun ByteArray.component1(): Byte
+fun ShortArray.component1(): Short
+fun IntArray.component1(): Int
+fun LongArray.component1(): Long
+fun FloatArray.component1(): Float
+fun DoubleArray.component1(): Double
+fun BooleanArray.component1(): Boolean
+fun CharArray.component1(): Char
+fun <T> List<T>.component1(): T
+fun <K, V> Map.Entry<K, V>.component1(): K
+fun UIntArray.component1(): UInt
+fun ULongArray.component1(): ULong
+fun UByteArray.component1(): UByte
+fun UShortArray.component1(): UShort
+e: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-4f6f2a03/backend/platform/ids/src/propertyTest/kotlin/hms/kernel/ids/UuidV7GeneratorPropertyTest.kt:82:33 Operator call 'component2()' is ambiguous for destructuring of type '??? (Unknown type for value parameter <destruct>)'. Applicable candidates:
+fun <T> Array<out T>.component2(): T
+fun ByteArray.component2(): Byte
+fun ShortArray.component2(): Short
+fun IntArray.component2(): Int
+fun LongArray.component2(): Long
+fun FloatArray.component2(): Float
+fun DoubleArray.component2(): Double
+fun BooleanArray.component2(): Boolean
+fun CharArray.component2(): Char
+fun <T> List<T>.component2(): T
+fun <K, V> Map.Entry<K, V>.component2(): V
+fun UIntArray.component2(): UInt
+fun ULongArray.component2(): ULong
+fun UByteArray.component2(): UByte
+fun UShortArray.component2(): UShort
+
+> Task :platform:ids:compilePropertyTestKotlin FAILED
+> Task :platform:testing:propertyTest
+> Task :platform:ids:compileTestKotlin
+> Task :platform:ids:compileTestJava NO-SOURCE
+> Task :platform:ids:testClasses UP-TO-DATE
+> Task :platform:testing:test
+
+> Task :platform:testing:verifyArchitectureTest
+:platform:testing: ArchitectureTest ran 4 rule checks
+
+> Task :platform:ids:test
+
+> Task :platform:ids:verifyArchitectureTest
+:platform:ids: ArchitectureTest ran 4 rule checks
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':platform:ids:compilePropertyTestKotlin' (registered by plugin 'org.jetbrains.kotlin.jvm').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 47s
+53 actionable tasks: 37 executed, 2 from cache, 14 up-to-date
+Configuration cache entry stored.
+exit 1

@@ -1,0 +1,49 @@
+build(frontend): WP-0.7 S1 dependency gate and package frames
+
+Slice S1 of WP-0.7 (design system and client shells) pins the web
+client's dependencies and creates the package frames the later slices
+fill. No design-system component, route or HAL call exists yet.
+
+What S1 adds:
+- 26 exact pins in the pnpm catalog under the §4.1 version rule, read
+  per major.minor line (OQ-153): React and React DOM 19.3.1, React Aria
+  Components 1.22.1, react-intl 12.1.4, TanStack Router 1.170.45 and
+  Query 5.104.4, Zod 4.6.7, @tauri-apps/api 2.12.4 and the Fontsource
+  Noto Sans Arabic and Noto Sans 5.2.10 (shipped); the test, lint, font
+  and Playwright/axe tools (build-only). jsdom stays on 29.1.1 (OQ-154);
+  additions beyond the plan's list are in OQ-155; the fonts in OQ-156.
+  TypeScript stays at 6.0.3. The lockfile is regenerated.
+- New packages @hms/ui-core (DOM-free) and @hms/hal-client, and package
+  files for @hms/design-system and @hms/web, each with tsconfig, Vitest
+  config and a smoke test; frontend/tsconfig.dom.json; fast-check for
+  @hms/i18n (slice S2's property test).
+- vitest.shared.ts takes a jsdom environment and setup files and runs
+  test/**/*.test.{ts,tsx}; eslint.config.js adds the react-hooks rules;
+  test-results/, playwright-report/ and target/ are ignored.
+- Licence policy: 0BSD, Unicode-3.0 and Zlib allowed in shipped code
+  (DN-022, decided by the human lead on 18 October 2026), with the ORT
+  classifications, a dated note in ADR-022 and a new test. ADR-002
+  records the pinned set and that the dependency-scorecard rows are
+  still to be written (DN-020, OQ-104). COMMANDS.md §3 and the licence
+  README filter every shipped package.
+- DN-033 (open, human lead) and KA-037: isbot 5.2.2 (Unlicense), a
+  dependency of TanStack Router, fails the shipped-scope licence check.
+  The policy is unchanged; WP-0.7 cannot close until DN-033 is answered.
+
+Tests on the Windows host (not evidence of record):
+- `sh tools/ci/run fast --no-evidence` PASS, 8 of 8 steps, tests=1266,
+  failures=0: python-unit-tests 674 (licence package 65, one new),
+  backend-fast 66, frontend-fast 526 (ui-core 3, i18n 41, hal-client 3,
+  eslint-plugin-hms 473, design-system 3, web 3); catalogue lint
+  catalogues=3, keys=4; no secret-scan findings.
+- `corepack pnpm install --frozen-lockfile` passes; Prettier check
+  passes.
+- Licence check, COMMANDS.md §3: build-only scope PASS (components=280);
+  shipped scope FAIL (components=39, unmapped=1: isbot, KA-037).
+Not run: the WSL build host (the plan's S1 gate of record).
+
+Hazards: none. The hazard log names no hazard or control for dependency
+pins, licence policy or package wiring, and S1's smoke tests verify no
+control. No control changes state; no invariant text changes.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,4269 @@
+# Backlog of record for HMS Kurdistan (BUILD-PROMPT.md §3.1; WP-0.1).
+#
+# GENERATED from BUILD-PROMPT.md Appendix A (feature tables A.1 to A.17) by 'tools/hms backlog generate';
+# work_packages are derived from the BUILD-PROMPT.md §21 work packages.
+# Only these fields are edited, by hand or by tools: status, work_packages, tests, hazards, notes.
+# Every other field is refreshed from BUILD-PROMPT.md on each generate, and 'tools/hms backlog check' fails
+# if it differs from the plan.
+#
+# On regeneration status, tests, hazards and notes are kept; the §21 entries of work_packages are refreshed
+# and entries added by hand or by tools are kept after them. If a feature disappears from Appendix A,
+# generate stops without writing.
+#
+# status: todo | spec | in-progress | built | verified (BUILD-PROMPT.md §3.1). built and verified need tests.
+# stance: B build, I integrate, P partner or licence; domain_level: true is the dagger (†) in Appendix A.
+# placement_marked: the Appendix A note carries [P] (keep the placement open until a human confirms, §1).
+# A row with 'part' is a sub-scope of a feature ID: A.18 counts its engineer-weeks, not a feature ID.
+#
+# After any edit run 'tools/hms backlog render' to refresh docs/program/BACKLOG.md.
+
+- id: PLT-CORE-01
+  group: PLT
+  section: A.1
+  title: Clinical journal
+  size: XL
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Bitemporal append-only journal; entered-in-error/amend semantics; provenance
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CORE-02
+  group: PLT
+  section: A.1
+  title: Enterprise hierarchy
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Tenant>legal entity>facility>unit>bed; scoped config inheritance
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.3
+  - WP-1.1 (full)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CORE-03
+  group: PLT
+  section: A.1
+  title: State machines + invariants
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Domain state machines; server-side safety invariants on all channels
+  kurdistan_note: SI-01..21 kept; SI-20/21 restated (K §5.1)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CORE-04
+  group: PLT
+  section: A.1
+  title: Event catalogue + outbox
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Domain event catalogue; transactional outbox
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CORE-05
+  group: PLT
+  section: A.1
+  title: Terminology service
+  size: L
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: SNOMED/LOINC/ICD-10 variants/UCUM/ATC + licence entitlements
+  kurdistan_note: WHO ICD-10; SNOMED GPS until licensed (ADR-015)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CORE-06
+  group: PLT
+  section: A.1
+  title: Rules engine
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Versioned rules; simulation/replay; approval; effective dating (reg C)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.1 (non-device rules)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CORE-07
+  group: PLT
+  section: A.1
+  title: Task/work-queue engine
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Every item owned; SLA timer; orphan alarm
+  kurdistan_note: Seam messages to hospital A are owned tasks (SI-03)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CFG-01
+  group: PLT
+  section: A.1
+  title: Config-as-product
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Typed registry; change sets; signed bundles; promotion; 3-way merge
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CFG-02
+  group: PLT
+  section: A.1
+  title: Country packs
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Effective-dated code sets, tax, claims, statutory reports
+  kurdistan_note: Kurdistan pack; BP calendar addition kept (with PLT-UX-03)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CFG-03
+  group: PLT
+  section: A.1
+  title: Forms engine
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: FHIR Questionnaire/SDC renderer + builder
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-CFG-04
+  group: PLT
+  section: A.1
+  title: Extension SDK
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Plugin slots; SMART app launch
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-UX-01
+  group: PLT
+  section: A.1
+  title: Design system
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Keyboard-first design system; WCAG 2.2 AA
+  kurdistan_note: Western digits for clinical numerals (K §6.2)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-UX-02
+  group: PLT
+  section: A.1
+  title: Workstation shell
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Silent ZPL wristband/label print; scanners; badge tap; FHIRcast
+  kurdistan_note: Kurdish/Arabic label shaping or raster fallback (K §9.2)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-UX-03
+  group: PLT
+  section: A.1
+  title: i18n / RTL
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Arabic RTL; Hijri+Gregorian; bilingual prints; multi-script/phonetic name search
+  kurdistan_note: 'Re-scoped, same size: Kurdish+Arabic RTL; Hijri optional'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.7 (base)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-UX-04
+  group: PLT
+  section: A.1
+  title: Mobile app framework
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Mobile clinical app framework; encrypted offline cache
+  kurdistan_note: 'One app: nurse mode (BCMA, R2b) + physician mode (K §6.6) · Placed R2b: Mobile app is needed for nurse BCMA in R2b'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-01
+  group: PLT
+  section: A.1
+  title: Cells
+  size: XL
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Cell-based multi-tenant SaaS with in-country cells (IN/SA/AE)
+  kurdistan_note: Becomes on-site hospital cells + Kurdistan central/DR site (K-16)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-02
+  group: PLT
+  section: A.1
+  title: On-prem install
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: On-prem/state-DC install from same signed artefacts
+  kurdistan_note: P2→MVP inside PLT-SITE-01; cell at hospital A by M18
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-03
+  group: PLT
+  section: A.1
+  title: Edge cell
+  size: XL
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: Edge cell (local primary) for low-connectivity hospitals
+  kurdistan_note: Single-hospital cell now default; multi-site edge cell P3 (KDV-2)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6 (multi-site edge cell (after a dedicated reconciliation hazard analysis))
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-04
+  group: PLT
+  section: A.1
+  title: HA + DR
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: HA multi-AZ; cross-region DR; PITR
+  kurdistan_note: On-site sync HA; Kurdistan DR site, RPO ≤15 min (K-17)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-05
+  group: PLT
+  section: A.1
+  title: Observability
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Observability; RUM per screen/site; SLO dashboards
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-06
+  group: PLT
+  section: A.1
+  title: Performance gate
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Synthea 1000-bed day-in-the-life load test in CI
+  kurdistan_note: K tests 300-bed day on three-node cell (K-13)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-OPS-07
+  group: PLT
+  section: A.1
+  title: Zero-downtime releases
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Expand/contract releases; N-2 on-prem policy
+  kurdistan_note: Monthly on-site train; max drift N-1 (ADR-021)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-EDGE-01
+  group: PLT
+  section: A.1
+  title: Site edge agent (BP new)
+  size: L
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: 'Plane B appliance: continuity replica, queue state, print spool, device bridge'
+  kurdistan_note: Outpatient-tier sites; merged into cell at hospitals (ADR-011)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-SITE-01
+  group: PLT
+  section: A.1
+  title: On-site cell (K new)
+  size: L+M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: 'Umbrella, 48 ew: PLT-OPS-02 (L) + fleet/licensing/certificates/updates (L) + on-site immutable backup, off-site replication (M)'
+  kurdistan_note: Sub-IDs not assigned; ew here excludes PLT-OPS-02
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: PLT-PWR-01
+  group: PLT
+  section: A.1
+  title: Power-loss resilience (K new)
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Power-loss resilience (K §4.1); power design in ADR-026
+  kurdistan_note: 'Inferred R1: RG1 power obligations; M18 power-cut tests'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-IAM-01
+  group: TRU
+  section: A.2
+  title: SSO/MFA
+  size: L
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: SAML/OIDC SSO; SCIM; phishing-resistant MFA; badge tap-and-go
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-IAM-02
+  group: TRU
+  section: A.2
+  title: RBAC/ABAC
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: RBAC+ABAC+care relationship; privilege-gated clinical actions
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-IAM-03
+  group: TRU
+  section: A.2
+  title: Break-the-glass
+  size: S
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Reason capture; review queue
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-PRV-01
+  group: TRU
+  section: A.2
+  title: Sensitivity labels
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Labels + purpose-of-use propagated to UI/API/print/HIE
+  kurdistan_note: 'SI-21 labels: HIV, MH, reproductive, GBV, MLC, VIP'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-PRV-02
+  group: TRU
+  section: A.2
+  title: Consent management
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Consent management incl. ABDM consent artefacts
+  kurdistan_note: ABDM artefacts out; K consent registry (K §10)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-AUD-01
+  group: TRU
+  section: A.2
+  title: BALP audit
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: 100% PHI-access audit; tamper-evident; SIEM streaming
+  kurdistan_note: Message report releases logged
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-AUD-02
+  group: TRU
+  section: A.2
+  title: Privacy monitoring
+  size: M
+  phase: P2
+  stance: B+I
+  domain_level: false
+  scope: Privacy monitoring; patient-facing access log
+  kurdistan_note: Patient-visible access log P2 (K §10)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-KEY-01
+  group: TRU
+  section: A.2
+  title: Per-tenant KMS
+  size: M
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: Per-tenant KMS + BYOK/HYOK
+  kurdistan_note: BP P2→MVP; HSM/TPM KMS, no HYOK (ADR-008); inferred R1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.4 (base)
+  - WP-1.13 (full)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-SEC-01
+  group: TRU
+  section: A.2
+  title: Secure SDLC
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: IEC 81001-5-1/SSDF; SBOM/VEX; signed builds; VDP
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-SEC-02
+  group: TRU
+  section: A.2
+  title: ISO 27001 + SOC 2
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: ISO 27001/27701/27017/27018 + SOC 2 Type II
+  kurdistan_note: 'ISO 27001(+27701) ≈M24; SOC 2 only if a buyer asks · Placed R1: Controls built from R1; the certification itself is [HUMAN]'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-SEC-03
+  group: TRU
+  section: A.2
+  title: Market attestations
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: CERT-In Safe-to-Host; NCA ECC/CCC; ADHICS; MeitY/CST
+  kurdistan_note: 'Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-BCP-01
+  group: TRU
+  section: A.2
+  title: Read-only continuity
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Unit snapshots ≤15 min stale; shadow viewer; printable packets
+  kurdistan_note: Edge-agent continuity R1; DR continuity instance by hospital A RG4
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-BCP-02
+  group: TRU
+  section: A.2
+  title: Downtime ID blocks
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Downtime MRN/encounter/accession blocks; offline wristband/label print
+  kurdistan_note: Downtime accession numbers in outpatient lab protocol
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-BCP-03
+  group: TRU
+  section: A.2
+  title: Back-entry
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Back-entry + reconciliation keeping original event times
+  kurdistan_note: Frequent outages; sized for back-entry (SI-10); inferred R1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-BCP-04
+  group: TRU
+  section: A.2
+  title: Immutable backups
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Isolated immutable backups; clean-room rebuild; quarterly restore tests
+  kurdistan_note: On site + DR site; ≥90 days of restore points
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-BCP-05
+  group: TRU
+  section: A.2
+  title: Code-Dark drills
+  size: S
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Drill tooling; SAFER self-assessment workbook
+  kurdistan_note: BP P2→MVP; WAN- and power-cut drills gate RG3
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.13
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-REG-01
+  group: TRU
+  section: A.2
+  title: QMS + Boundary Register
+  size: XL (BP L→XL)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: ISO 13485/IEC 62304/ISO 14971 QMS; Regulatory Boundary Register service (reg Y)
+  kurdistan_note: ISO 13485 certificate deferred; Register is Tier 2 switch (K-05)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: TRU-REG-02
+  group: TRU
+  section: A.2
+  title: Safety case + hazard log
+  size: L (BP M→L)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Hazard-log service; Release Evidence Pack generator
+  kurdistan_note: DCB0129 model; safety case per release (K §5.3)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-ID-01
+  group: ACC
+  section: A.3
+  title: EMPI
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Probabilistic match; steward queue; reversible merge/unmerge
+  kurdistan_note: Cross-script gold set (S14-K); auto-merge precision ≥99.9%
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-ID-02
+  group: ACC
+  section: A.3
+  title: National ID plug-ins
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: ABHA; Absher/Nafath/Iqama; Emirates ID/UAE Pass
+  kurdistan_note: 'Replaced, same size: Iraqi ID documents (card, residency, passport, UNHCR/IDP)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-ID-03
+  group: ACC
+  section: A.3
+  title: Aliases, newborn, photo
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Unknown/trauma/MCI aliases; distinct newborn naming; photo capture
+  kurdistan_note: Inferred R1 (registration); K §4.3 Identity list
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-REG-01
+  group: ACC
+  section: A.3
+  title: Registration
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Sponsor/payer selection; coverage; consents; AR/EN names
+  kurdistan_note: Output language captured at registration (K §6.7)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-ADT-01
+  group: ACC
+  section: A.3
+  title: ADT
+  size: L
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: ADT incl. pending/LOA/corrections; HL7 ADT broadcast
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-ADT-02
+  group: ACC
+  section: A.3
+  title: Bed board
+  size: M
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: Bed state machine; EVS status; isolation
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-SCH-01
+  group: ACC
+  section: A.3
+  title: Scheduling
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Provider/resource scheduling; templates; overbooking; waitlists
+  kurdistan_note: Friday–Saturday weekend; Kurdistan holidays
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-SCH-02
+  group: ACC
+  section: A.3
+  title: Referral tracking
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Referral intake; order-to-completion tracking
+  kurdistan_note: BP P2→MVP; owned queues across hospital-A seam
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-OPD-01
+  group: ACC
+  section: A.3
+  title: OPD token journey
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards
+  kurdistan_note: Display boards in R1.1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.3
+  - Phase 1.1 (queue display boards)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-OPD-02
+  group: ACC
+  section: A.3
+  title: ABDM Scan-and-Share
+  size: S
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: ABDM QR registration (IN)
+  kurdistan_note: 'Dropped: India national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-OPD-03
+  group: ACC
+  section: A.3
+  title: Kiosk
+  size: M
+  phase: P2
+  stance: B+I
+  domain_level: false
+  scope: Self-service check-in + payment
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ACC-TRF-01
+  group: ACC
+  section: A.3
+  title: Transfer centre
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Transfer centre; patient transport tasks
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CHT-01
+  group: CLN
+  section: A.4
+  title: Chart + banner
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: 'Banner: photo, 2 IDs, allergies, code status, isolation, dated weight'
+  kurdistan_note: Name in patient's script plus Latin (SI-01, SI-16)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CHT-02
+  group: CLN
+  section: A.4
+  title: Problems/allergies
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Coded problems; coded allergies (reaction/severity); home meds
+  kurdistan_note: '''NKA'' distinct from ''not assessed'''
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CHT-03
+  group: CLN
+  section: A.4
+  title: Results review
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Results review; trending; cumulative views
+  kurdistan_note: Inferred R1 (wedge LIS/RIS results)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-ORD-01
+  group: CLN
+  section: A.4
+  title: Orderables + order sets
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Orderables catalogue; versioned order sets
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-ORD-02
+  group: CLN
+  section: A.4
+  title: CPOE
+  size: XL
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: All timing types; verbal read-back/co-sign; lifecycle; order-to-result tracking
+  kurdistan_note: OPD orders R1; inpatient CPOE R2b; R2a orders on paper · Outpatient orders R1; inpatient CPOE R2b
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4 (outpatient)
+  - WP-3.1 (inpatient)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-01
+  group: CLN
+  section: A.4
+  title: Drug KB adapter
+  size: M
+  phase: R1
+  stance: P
+  domain_level: false
+  scope: Drug KB abstraction (FDB/Medi-Span/Multum/MIMS/regional); local re-tiering
+  kurdistan_note: 'Regional brand mapping; R1 OPD use unstated · Placed R1: [P] Pulled to R1 so outpatient e-prescribing is screened'
+  placement_marked: true
+  status: todo
+  work_packages:
+  - WP-1.5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-02
+  group: CLN
+  section: A.4
+  title: Order checks
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: DDI/allergy/dose/route/duplicate/renal/age checks (reg C)
+  kurdistan_note: 'KB screening at R2a transcription; CPOE checks R2b · Placed R1: [P] Outpatient subset in R1; transcription checks R2a; full CPOE checks R2b'
+  placement_marked: true
+  status: todo
+  work_packages:
+  - WP-1.5 (outpatient subset)
+  - WP-3.1 (full)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-03
+  group: CLN
+  section: A.4
+  title: CDS telemetry + harness
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Override/PPV/alert-burden telemetry; CPOE error-category regression harness (Leapfrog-style, unofficial)
+  kurdistan_note: 'Harness runs after every KB/content release (K §6.3) · Placed R1: CDS runs from R1, so telemetry and the harness do too'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-04
+  group: CLN
+  section: A.4
+  title: CDS Hooks + CQL
+  size: M
+  phase: P2
+  stance: B+I
+  domain_level: false
+  scope: CDS Hooks client; CQL engine
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-05
+  group: CLN
+  section: A.4
+  title: NEWS2/PEWS/MEOWS
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: EWS from validated obs; escalation tasks; obs frequency (reg Y)
+  kurdistan_note: 'Regulated Module #1; non-ICU wards; Register-gated'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.5 (`reg-ews`) and its fallback
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-06
+  group: CLN
+  section: A.4
+  title: Sepsis screen
+  size: S
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Rule-based non-interruptive worklist flag (reg Y)
+  kurdistan_note: 'Regulated Module #2 (K-07)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - 'Phase 5 (sepsis screen, Regulated Module #2)'
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-07
+  group: CLN
+  section: A.4
+  title: Predictive deterioration
+  size: M
+  phase: P3
+  stance: P
+  domain_level: false
+  scope: Cleared partner; silent-mode local validation (reg Y)
+  kurdistan_note: 'Conflict: K §4.3 P2 vs K §11.2 P3 · Placed P3: Device-grade partner model, silent first (K §11.2 AI-3)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-CDS-08
+  group: CLN
+  section: A.4
+  title: VTE prompts
+  size: S
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: VTE risk assessment; prophylaxis prompts
+  kurdistan_note: Inferred R2b (inpatient CPOE); sweep candidate (K §5.6)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-DOC-01
+  group: CLN
+  section: A.4
+  title: Clinical notes
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: H&P/progress/consult notes; templates; co-sign; addenda
+  kurdistan_note: English clinical text; OPD chart in R1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-DOC-02
+  group: CLN
+  section: A.4
+  title: Copy-forward provenance
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Copy-forward provenance; bloat indicators; change-since-last-note
+  kurdistan_note: 'BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-DOC-03
+  group: CLN
+  section: A.4
+  title: Discharge + AVS
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Discharge navigator; summary; bilingual AVS
+  kurdistan_note: 'Patient instructions: Sorani/Badini/Arabic approved templates'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-DOC-04
+  group: CLN
+  section: A.4
+  title: HIM + legal record
+  size: L (BP M→L)
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Deficiencies; scanning; ROI; amendments; LHR; signatures; retention
+  kurdistan_note: Manual ROI register until R2.1; never auto-delete
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.12
+  - Phase 4 (release-of-information workflow automation)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-MRC-01
+  group: CLN
+  section: A.4
+  title: Med rec
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Med rec at admission/transfer/discharge
+  kurdistan_note: Polyclinic history is reconciliation input only (SI-09)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-HND-01
+  group: CLN
+  section: A.4
+  title: I-PASS
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: I-PASS handoff; team/rounding lists
+  kurdistan_note: Inferred R2b (inpatient)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-RES-01
+  group: CLN
+  section: A.4
+  title: Results inbox
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Routing; surrogates; unacknowledged monitoring; pending-at-discharge queue
+  kurdistan_note: Named in R2b; R1 OPD inbox unstated · Outpatient result acknowledgement runs in R1 through DX-ORD-01
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-ED-01
+  group: CLN
+  section: A.4
+  title: ED triage + board
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: ED quick-reg; configurable triage; tracking board with timers
+  kurdistan_note: One triage scale per tenant
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-ED-02
+  group: CLN
+  section: A.4
+  title: ED pathway clocks
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Stroke/STEMI/sepsis clocks; disposition; boarding view
+  kurdistan_note: Workflow timers, not a device
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-ED-03
+  group: CLN
+  section: A.4
+  title: MCI mode
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: MCI/disaster mode
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-BH-01
+  group: CLN
+  section: A.4
+  title: Suicide screen + restraint
+  size: S
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Suicide screening; restraint/seclusion orders and timers
+  kurdistan_note: Inferred R2b (inpatient orders)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-IPC-01
+  group: CLN
+  section: A.4
+  title: Isolation flags
+  size: S
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Isolation flags and alerts
+  kurdistan_note: 'Banner (R1) and bed board (R2a) both carry isolation · Placed R1: Banner flag in R1; bed-board use in R2a'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-IPC-02
+  group: CLN
+  section: A.4
+  title: HAI surveillance
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: HAI surveillance; device-days; outbreaks
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-AMS-01
+  group: CLN
+  section: A.4
+  title: Stewardship
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Restricted-antimicrobial approval; time-outs; DOT
+  kurdistan_note: BP P2→MVP; K →P2; stewardship control set at go-live
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the stewardship module)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-ACP-01
+  group: CLN
+  section: A.4
+  title: Code status + ACP
+  size: S
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: Code status; advance care planning documents
+  kurdistan_note: 'Code status on banner (R1); ''code documentation'' in R2b · Placed R2a: Inpatient workflow; the banner field exists from R1'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-INC-01
+  group: CLN
+  section: A.4
+  title: Incidents + RCA
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Incident/safety-event reporting; RCA workflow
+  kurdistan_note: 'In K §4.3 Quality MVP; release unstated · Placed R1: Safety-event reporting from the first go-live'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-QI-01
+  group: CLN
+  section: A.4
+  title: Accreditation KPIs
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: NABH/CBAHI/JAWDA/JCI indicator capture
+  kurdistan_note: 'Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.11 (engine)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: CLN-IMM-01
+  group: CLN
+  section: A.4
+  title: Immunisation (BP new)
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Administration/history; lot from stores; BCMA scan; VXU, FHIR Immunization
+  kurdistan_note: BCMA scan with inpatient BCMA (BP); ABDM part unaddressed in K
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: NUR-FLW-01
+  group: NUR
+  section: A.5
+  title: Flowsheets
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Assessments; flowsheets; I&O; LDAs; charting by exception
+  kurdistan_note: UI language per nurse; drug names, units in Latin
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: NUR-FLW-02
+  group: NUR
+  section: A.5
+  title: Risk scores
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Braden/Morse/delirium with care-plan triggers
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: NUR-CP-01
+  group: NUR
+  section: A.5
+  title: Care plans
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Care plans; shift worklists; nurse handoff
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: NUR-WND-01
+  group: NUR
+  section: A.5
+  title: Wound photos
+  size: S
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Wound photography + documentation
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: NUR-STF-01
+  group: NUR
+  section: A.5
+  title: Acuity staffing
+  size: M
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: Acuity-based staffing view
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-PHV-01
+  group: MED
+  section: A.6
+  title: Pharmacist verification
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Verification queue with clinical screening
+  kurdistan_note: Pharmacist-cover alarm; 24×7 cover is an RG1 obligation
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-FRM-01
+  group: MED
+  section: A.6
+  title: Formulary
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Formulary; LASA/tall-man; high-alert flags; item-master link
+  kurdistan_note: Inferred R1 (OP POS); regional brands
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-DSP-01
+  group: MED
+  section: A.6
+  title: IP dispensing
+  size: L
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: Unit dose/ward stock; returns; charge on dispense/admin
+  kurdistan_note: Against transcribed paper orders, Core transcription control set
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.4
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-OPP-01
+  group: MED
+  section: A.6
+  title: OP pharmacy POS
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Retail POS; batch/expiry; e-Rx receipt
+  kurdistan_note: 'Re-scoped: retail, dual currency, KRG pricing; H1/X, DPCO dropped'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-MAR-01
+  group: MED
+  section: A.6
+  title: eMAR
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Schedules; PRN reassessment; independent double-check; titrations
+  kurdistan_note: No MAR from transcribed orders in R2a
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-BCM-01
+  group: MED
+  section: A.6
+  title: Mobile BCMA
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Patient+med scan; override reasons; dashboards; offline cache
+  kurdistan_note: Unverified patient-supplied medicines never scannable
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-INF-01
+  group: MED
+  section: A.6
+  title: Infusion model
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Infusion data model; pump-channel association; manual rate/volume checks
+  kurdistan_note: Inferred R2b (with eMAR)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-INF-02
+  group: MED
+  section: A.6
+  title: Smart pumps
+  size: L
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: PIV/IPEC via first vendor gateway (reg C)
+  kurdistan_note: Only once BCMA ≥95% (K-09)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-ADC-01
+  group: MED
+  section: A.6
+  title: ADC/robots
+  size: M
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: ADC/robot interfaces; override policy
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-CS-01
+  group: MED
+  section: A.6
+  title: Controlled drugs
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Controlled-substance registers + reconciliation (NDPS/SFDA/MOHAP)
+  kurdistan_note: 'Replaced, same size: Iraqi narcotics registers'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-ONC-01
+  group: MED
+  section: A.6
+  title: Chemotherapy
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Regimens; BSA dosing; dual verification (reg C)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-IV-01
+  group: MED
+  section: A.6
+  title: IV compounding
+  size: M
+  phase: P3
+  stance: B+I
+  domain_level: false
+  scope: IV compounding/TPN; IV workflow interfaces
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-ERX-01
+  group: MED
+  section: A.6
+  title: National e-Rx
+  size: M
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: Wasfaty; Riayati/NABIDH; ABDM e-Rx
+  kurdistan_note: 'Dropped: national e-Rx interface (K §14.2)'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-DOSE-01
+  group: MED
+  section: A.6
+  title: Dose Engine (BP new)
+  size: L
+  phase: P2
+  stance: B
+  domain_level: true
+  scope: Shared Class C Dose Engine (Tier 2)
+  kurdistan_note: MVP→P2 (≈M50); extended fallback control set meanwhile
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the Dose Engine first; shadow mode ≥4 weeks, C2 activation)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-TNT-01
+  group: MED
+  section: A.6
+  title: Track-and-trace (BP new)
+  size: M
+  phase: DROPPED-K
+  stance: B
+  domain_level: true
+  scope: SFDA RSD and UAE Tatmeen from GS1 scans
+  kurdistan_note: 'Dropped: KSA/UAE-only'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: MED-KRI-01
+  group: MED
+  section: A.6
+  title: Brand master + labels (K new)
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Regional brand master; in-house unit-dose barcode labels
+  kurdistan_note: 'Release unstated; brands serve POS, labels serve BCMA · Placed R1: Brand master for the R1 POS; unit-dose labels by R2a'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-ORD-01
+  group: DX
+  section: A.7
+  title: Diagnostic order lifecycle
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Order>specimen/exam>result>ack
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-CRT-01
+  group: DX
+  section: A.7
+  title: Critical results
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Named recipient; read-back; escalation
+  kurdistan_note: Extended to external referring doctors (SI-04)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-LAB-01
+  group: DX
+  section: A.7
+  title: Phlebotomy + accessioning
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Worklists; bedside labels; accessioning; tracking
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-LAB-02
+  group: DX
+  section: A.7
+  title: Analyzer connectivity
+  size: L
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: Middleware + direct ASTM/HL7 drivers; LAW-ready
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-LAB-03
+  group: DX
+  section: A.7
+  title: Validation + autoverification
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Result validation; autoverification v1; delta/critical rules; reports (reg C)
+  kurdistan_note: Autoverification v1 R1.1; manual validation until then
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  - Phase 1.1 (LIS autoverification v1 in `reg-lis-rules`, activated only where the Boundary Register allows)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-LAB-04
+  group: DX
+  section: A.7
+  title: QC / lab-quality pack
+  size: M (BP L; K M)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Levey-Jennings/Westgard QC; reagent/lot tracking
+  kurdistan_note: NABL upsizing dropped; ISO 15189-aligned quality pack kept
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-LAB-05
+  group: DX
+  section: A.7
+  title: Send-outs
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Send-out tests; reference-lab interfaces
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-LAB-06
+  group: DX
+  section: A.7
+  title: ISO 15189 doc control
+  size: M
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: Document control; risk register
+  kurdistan_note: BP NABL condition (P3→P2) not addressed in K
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-MIC-01
+  group: DX
+  section: A.7
+  title: Microbiology
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Culture; AST; cascade reporting; antibiogram
+  kurdistan_note: WHONET/GLASS export
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (microbiology)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-AP-01
+  group: DX
+  section: A.7
+  title: Anatomic pathology
+  size: L
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: AP workflow; synoptic reporting
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-POC-01
+  group: DX
+  section: A.7
+  title: POCT
+  size: M
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: POCT data-manager integration
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-RIS-01
+  group: DX
+  section: A.7
+  title: RIS core
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Orders; scheduling; protocoling; MWL/MPPS broker; tracking
+  kurdistan_note: Moved into wedge (KDV-10); BP had R2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.8
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-RIS-02
+  group: DX
+  section: A.7
+  title: Radiology reporting
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Templates; structured reports; actionable-finding follow-up
+  kurdistan_note: BP Form F gate dropped (PCPNDT out)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.8
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-RIS-03
+  group: DX
+  section: A.7
+  title: Dose capture
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: RDSR capture; exceedance review
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-PAC-01
+  group: DX
+  section: A.7
+  title: PACS integration
+  size: M
+  phase: R1
+  stance: I
+  domain_level: false
+  scope: DICOMweb + IID launch; bundled OSS PACS tier
+  kurdistan_note: OSS viewer labelled non-diagnostic
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.8
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-CRD-01
+  group: DX
+  section: A.7
+  title: ECG/endoscopy
+  size: M
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: ECG/cardiology + endoscopy report integration
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-BB-01
+  group: DX
+  section: A.7
+  title: Bedside transfusion
+  size: M
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: BCMA extension; orders; consent; reactions (reg C)
+  kurdistan_note: Two-person e-witness; relabelled units; Register-gated T2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.10
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-BB-02
+  group: DX
+  section: A.7
+  title: Blood bank interface
+  size: M
+  phase: R2b
+  stance: I
+  domain_level: false
+  scope: e-RaktKosh/third-party/cleared BECS interface
+  kurdistan_note: 'Not dropped in K §4.1; K §9.1 assumes no interface · Placed R2b: Optional inbound adapter only; no interface assumed (K §9.1)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.10 (optional)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-BB-03a
+  group: DX
+  section: A.7
+  title: Blood-centre inventory (BP split)
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Inventory; ISBT 128 labelling (regulated track)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-BB-03b
+  group: DX
+  section: A.7
+  title: Compatibility engine (BP split)
+  size: XL
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: IVD-grade compatibility engine
+  kurdistan_note: Never built; licensed if ever needed
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DX-BB-KRI-01
+  group: DX
+  section: A.7
+  title: Unit receipt + relabel (K new)
+  size: S
+  phase: R2b
+  stance: B+I
+  domain_level: true
+  scope: Receipt of public blood-bank units; relabel with our barcode
+  kurdistan_note: Blind two-person double entry; mismatch quarantines (SI-11)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.10
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DEV-GW-01
+  group: DEV
+  section: A.8
+  title: Device gateway
+  size: L
+  phase: R2.1
+  stance: B+I
+  domain_level: false
+  scope: Middleware PCD-01/DEC; device–patient association
+  kurdistan_note: 'Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 4 (the validated ICU monitor feed)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DEV-VAL-01
+  group: DEV
+  section: A.8
+  title: Vitals validation UX
+  size: M
+  phase: R2.1
+  stance: B
+  domain_level: false
+  scope: Nurse validation of auto-captured vitals; artifact marking
+  kurdistan_note: Inferred with ICU monitor feed (R2.1)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 4 (the validated ICU monitor feed)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DEV-ALM-01
+  group: DEV
+  section: A.8
+  title: Alarm analytics
+  size: M
+  phase: P3
+  stance: I
+  domain_level: false
+  scope: Via ACM-capable platform (reg Y)
+  kurdistan_note: Alarm forwarding never built
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DEV-SDC-01
+  group: DEV
+  section: A.8
+  title: SDC/SDPi
+  size: L
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: ISO/IEEE 11073 SDC plug-and-play (reg C)
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P3
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-OT-01
+  group: SPC
+  section: A.9
+  title: OT booking
+  size: M
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: OT booking/scheduling; list management
+  kurdistan_note: Privileges gate OT booking (K §12.2)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-OT-02
+  group: SPC
+  section: A.9
+  title: WHO checklist
+  size: S
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: WHO checklist; consent; site marking; pre-op checklist
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.7
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-OT-03
+  group: SPC
+  section: A.9
+  title: Intra-op record + charging
+  size: M
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: Intra-op record; counts; implants/consumables to charge+stock; op note
+  kurdistan_note: OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.3 (charging and stock)
+  - WP-3.7 (clinical record)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-AN-01
+  group: SPC
+  section: A.9
+  title: Anaesthesia record
+  size: M
+  phase: R2.1
+  stance: B
+  domain_level: false
+  scope: Pre-assessment; intra-op/PACU record (manual/semi-auto vitals)
+  kurdistan_note: Lite; paper record until R2.1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 4 (anaesthesia pre-assessment and intra-op/PACU record (lite))
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-AN-02
+  group: SPC
+  section: A.9
+  title: Full AIMS
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Machine/monitor feed (reg C)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (full AIMS)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-OT-04
+  group: SPC
+  section: A.9
+  title: OR analytics
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Utilisation; turnover; first-case on-time
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-ICU-01
+  group: SPC
+  section: A.9
+  title: ICU flowsheet
+  size: L
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: q1h flowsheet; fluid balance; drips; ventilator; bundles
+  kurdistan_note: Validated monitor feed in R2.1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.8
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-ICU-02
+  group: SPC
+  section: A.9
+  title: ICU severity scores
+  size: S
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: APACHE II/SOFA (reg C)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-ICU-03
+  group: SPC
+  section: A.9
+  title: Tele-ICU
+  size: L
+  phase: P3
+  stance: B+P
+  domain_level: false
+  scope: Tele-ICU
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-MAT-01
+  group: SPC
+  section: A.9
+  title: L&D + newborn
+  size: M
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: L&D record; newborn registration; mother–baby link; birth notification
+  kurdistan_note: Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.5 (newborn registration, mother–baby link, birth notification)
+  - WP-3.9 (L&D record)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-MAT-02
+  group: SPC
+  section: A.9
+  title: Antenatal + partograph
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Antenatal episode; WHO LCG; fetal monitoring
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (maternity depth)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-NIC-01
+  group: SPC
+  section: A.9
+  title: NICU
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: NICU flowsheets; feeds; human-milk tracking
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (maternity depth)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-ONC-01
+  group: SPC
+  section: A.9
+  title: Oncology
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Regimens; cycles; staging
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-DIE-01
+  group: SPC
+  section: A.9
+  title: Diet orders
+  size: S
+  phase: R2b
+  stance: B
+  domain_level: false
+  scope: Diet orders with allergy logic; tray tickets
+  kurdistan_note: Religious preferences; inferred R2b (inpatient orders)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-3.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-REH-01
+  group: SPC
+  section: A.9
+  title: Rehab
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Rehab/physio/dietitian documentation
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-DIA-01
+  group: SPC
+  section: A.9
+  title: Dialysis
+  size: M
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: Dialysis documentation; machine integration
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-OTH-01
+  group: SPC
+  section: A.9
+  title: Specialty kits
+  size: L
+  phase: P3
+  stance: B+P
+  domain_level: false
+  scope: Ophthalmology/dental/cath/endoscopy
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: SPC-DTH-01
+  group: SPC
+  section: A.9
+  title: Death certificate
+  size: S
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: MCCD/national forms; mortuary register
+  kurdistan_note: 'Re-scoped: KRG forms; WHO-format ICD-10 cause of death'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-ACC-01
+  group: RCM
+  section: A.10
+  title: Patient account + ledger
+  size: XL
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Single patient financial account; append-only ledger
+  kurdistan_note: Functional-currency ledger keeps original amounts (K §12.1)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-CHG-01
+  group: RCM
+  section: A.10
+  title: Charge router
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Charges from orders, administrations, bed-days, supplies
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-TAR-01
+  group: RCM
+  section: A.10
+  title: Tariff engine
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Price lists; room categories; packages; effective dating
+  kurdistan_note: IQD lists default; USD only where permitted (L-33)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-CSH-01
+  group: RCM
+  section: A.10
+  title: Cashiering
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Deposits; interim bills; discounts; refunds; shifts; UPI/mada/card
+  kurdistan_note: Re-scoped, same size; dual currency builds on it
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-TAX-01
+  group: RCM
+  section: A.10
+  title: Tax engine
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Tax + e-invoicing (GST; ZATCA Fatoora; UAE VAT)
+  kurdistan_note: 'Replaced, same size: Kurdistan receipt/tax rules (Q-K6)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-INS-01
+  group: RCM
+  section: A.10
+  title: Payer contracts + claims
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Contract rules; eligibility; pre-auth; claims with attachments
+  kurdistan_note: 'Re-scoped: corporate/NGO/insurer credit, document packs; automation R1.1'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  - Phase 1.1 (document-pack automation)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-NAT-01
+  group: RCM
+  section: A.10
+  title: NPHIES
+  size: L
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: NPHIES adapter (SA)
+  kurdistan_note: 'Dropped: KSA national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-NAT-02
+  group: RCM
+  section: A.10
+  title: NHCX/PM-JAY/TPA
+  size: L
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: NHCX + PM-JAY TMS + TPA workflows (IN)
+  kurdistan_note: 'Dropped: India national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-NAT-03
+  group: RCM
+  section: A.10
+  title: Shafafiya/eClaimLink
+  size: M
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: DoH/DHA XML adapters (AE)
+  kurdistan_note: 'Dropped: UAE national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-COD-01
+  group: RCM
+  section: A.10
+  title: Coding workbench
+  size: M
+  phase: R2.1
+  stance: B
+  domain_level: false
+  scope: Coding workbench (ICD-10-AM/SBS; ICD-10; CPT); CDI worklists
+  kurdistan_note: 'Re-scoped: WHO ICD-10, no CPT/IHACPA; manual sheet until R2.1'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 4 (ICD-10 coding workbench)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-DEN-01
+  group: RCM
+  section: A.10
+  title: Denials
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Rejection/denial queues; resubmission; payer aging
+  kurdistan_note: Inferred R1 (credit flow); denial root-cause queues
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-SCH-01
+  group: RCM
+  section: A.10
+  title: Corporate credit
+  size: M (−3)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Government scheme + corporate credit billing (CGHS/ECHS/corporates)
+  kurdistan_note: Corporate credit stays; scheme part split to P2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-SCH-01
+  part: scheme
+  group: RCM
+  section: A.10
+  title: Scheme billing
+  size: ≈3 ew
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Government-scheme part of RCM-SCH-01
+  kurdistan_note: Activated when national insurance reaches the Region
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the scheme part)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-GRP-01
+  group: RCM
+  section: A.10
+  title: DRG grouper SPI
+  size: M
+  phase: DROPPED-K
+  stance: I
+  domain_level: false
+  scope: AR-DRG shadow billing; IR-DRG (SA;AE)
+  kurdistan_note: 'BP P2→MVP (R3 KSA); K drops: no DRG grouper'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-AI-01
+  group: RCM
+  section: A.10
+  title: AI coding
+  size: M
+  phase: P2
+  stance: P
+  domain_level: false
+  scope: AI coding suggestions with confidence routing
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-CST-01
+  group: RCM
+  section: A.10
+  title: Costing
+  size: L
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: Patient-level costing (TDABC/PLICS)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: RCM-US-01
+  group: RCM
+  section: A.10
+  title: US RCM
+  size: XL
+  phase: DROPPED-K
+  stance: B+I
+  domain_level: false
+  scope: X12; Da Vinci; price transparency (US)
+  kurdistan_note: 'Dropped: US-only (K §14.2)'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-INV-01
+  group: ERP
+  section: A.11
+  title: Stores
+  size: L
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Item master; stores; FEFO; indents; ward stock; consumption-to-charge
+  kurdistan_note: Inferred R1 (OP POS dependency)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-PRC-01
+  group: ERP
+  section: A.11
+  title: Procurement-lite
+  size: M
+  phase: R2.1
+  stance: B
+  domain_level: false
+  scope: PR>PO>GRN>3-way match; vendor master
+  kurdistan_note: K R2.1 says 'breadth'; base release unstated
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 4 (procurement-lite with AP/AR breadth and the consignment bill-only purchase order)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-FIN-01
+  group: ERP
+  section: A.11
+  title: AP/AR + GL export
+  size: M
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: AP/AR; GL journal posting/export
+  kurdistan_note: Daily GL journals R1 (K §9.1); AP/AR breadth R2.1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-FIN-02
+  group: ERP
+  section: A.11
+  title: Lite GL
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Native lite GL (multi-entity, multi-currency); fixed assets
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (lite GL)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-FIN-03
+  group: ERP
+  section: A.11
+  title: ERP connectors
+  size: M
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: SAP S/4; Oracle Fusion; Workday; Dynamics
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-IMP-01
+  group: ERP
+  section: A.11
+  title: Implant/UDI
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Implant/UDI capture; consignment; recall trace
+  kurdistan_note: K §12.2 puts consignment in MVP procurement-lite · Consignment bill-only PO built in R2.1 with ERP-PRC-01
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-HTM-01
+  group: ERP
+  section: A.11
+  title: CMMS
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Biomedical asset register; PM; work orders
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (CMMS)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-HR-01
+  group: ERP
+  section: A.11
+  title: Staff master
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Staff master; credentialing/privileging records
+  kurdistan_note: Medical Syndicate/IMA registration IDs; inferred R1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-HR-02
+  group: ERP
+  section: A.11
+  title: Payroll integration
+  size: M
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: HR/payroll/attendance via local payroll
+  kurdistan_note: Always integrated
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-ROS-01
+  group: ERP
+  section: A.11
+  title: Rostering
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Basic rostering; acuity staffing
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: ERP-SVC-01
+  group: ERP
+  section: A.11
+  title: Support services
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: CSSD; linen; housekeeping/BMW; diet kitchen
+  kurdistan_note: CSSD-lite (K §4.3)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-FLW-01
+  group: OPS
+  section: A.12
+  title: Discharge clearance
+  size: M
+  phase: R2a
+  stance: B
+  domain_level: false
+  scope: Non-blocking clearance; expected discharge date; discharge tasks
+  kurdistan_note: Inferred R2a (discharge billing); SI-12 extended
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-2.1
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-CMD-01
+  group: OPS
+  section: A.12
+  title: Command-centre data
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Command-centre data layer + tiles
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-PRD-01
+  group: OPS
+  section: A.12
+  title: Predictive discharge
+  size: M
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: Predictive discharge/census forecasting
+  kurdistan_note: 'Conflict: K §4.3 P3 vs K §11.2 forecasts P2'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-MIS-01
+  group: OPS
+  section: A.12
+  title: MIS dashboards
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Revenue; collections; payer mix; occupancy/ALOS; TAT
+  kurdistan_note: MIS basics R1, breadth R1.1; owner's dashboard by currency
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-STAT-01
+  group: OPS
+  section: A.12
+  title: Statutory returns
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: HMIS/DHIS2; MoH statistics; notifiable disease
+  kurdistan_note: 'Replaced, same size: KRG Ministry returns; inpatient R2a'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.11
+  - Phase 4 (secondary statutory returns)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-RTL-01
+  group: OPS
+  section: A.12
+  title: RTLS
+  size: M
+  phase: P2
+  stance: I
+  domain_level: false
+  scope: RTLS location events
+  kurdistan_note: 'BP/K §4.3 list RTLS ingestion P2; counts keep P3 · Placed P2: RTLS ingestion is P2 (K §4.3, §9.2); the engine is never built'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: OPS-STAT-02
+  group: OPS
+  section: A.12
+  title: Statutory registers (BP new)
+  size: L
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Locked append-only registers; per-format export
+  kurdistan_note: Kurdistan content; MLC, births/deaths R2a
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.11
+  - WP-2.5 (MLC, births, deaths)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-ENG-01
+  group: INT
+  section: A.13
+  title: HL7 v2 engine
+  size: L
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: MLLP/TLS; ack-state visibility; replay; owned queues
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.1b (base)
+  - WP-1.12 (full)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-FHIR-01
+  group: INT
+  section: A.13
+  title: FHIR façade
+  size: L
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: FHIR R4 façade (IPA; SMART; Bulk; Subscriptions)
+  kurdistan_note: SMART/Bulk/Subscriptions in R1.1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.12 (read)
+  - Phase 1.1 (FHIR SMART, Bulk and Subscriptions)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-DOC-01
+  group: INT
+  section: A.13
+  title: Documents
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: PDF/A + CDA/FHIR documents from one source
+  kurdistan_note: K §4.3 lists PDF/A + FHIR (no CDA)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.12
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-ABDM-01
+  group: INT
+  section: A.13
+  title: ABDM
+  size: L
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: ABDM M1/M2/M3 (IN)
+  kurdistan_note: 'Dropped: India national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-SEHE-01
+  group: INT
+  section: A.13
+  title: SeHE
+  size: M
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: Saudi HIE connectivity (SA)
+  kurdistan_note: 'Dropped: KSA national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-UAE-01
+  group: INT
+  section: A.13
+  title: UAE HIEs
+  size: L
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: Malaffi/NABIDH/Riayati adapters (AE)
+  kurdistan_note: 'Dropped: UAE national rail'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-IPS-01
+  group: INT
+  section: A.13
+  title: IPS $summary
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: IPS $summary generation
+  kurdistan_note: 'Conflict: K §4.3/§9 MVP ''from day one''; §4.1 silent'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.12
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-PH-01
+  group: INT
+  section: A.13
+  title: Public-health reporting
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: IHIP/IDSP; HESN
+  kurdistan_note: Not in K §4.3; notifiable diseases via OPS-STAT (R1)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-OEHR-01
+  group: INT
+  section: A.13
+  title: openEHR adapter
+  size: M
+  phase: P3
+  stance: I
+  domain_level: false
+  scope: openEHR CDR adapter (EHRbase)
+  kurdistan_note: Kept (K §14.2)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-EU-01
+  group: INT
+  section: A.13
+  title: EHDS
+  size: XL
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: EHDS components (EU)
+  kurdistan_note: 'Dropped: EU-only (K §14.2)'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-US-01
+  group: INT
+  section: A.13
+  title: ONC/TEFCA
+  size: XL
+  phase: DROPPED-K
+  stance: B+P
+  domain_level: false
+  scope: ONC + TEFCA via partner (US)
+  kurdistan_note: 'Dropped: US-only (K §14.2)'
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: INT-SEAM-01
+  group: INT
+  section: A.13
+  title: Group seam bridge (BP new)
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Alternate IDs from legacy ADT; REF/ADT/MDM; ORM/OML/ORU with ack state
+  kurdistan_note: Hospital-A seam until its M37 go-live
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.3
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-GW-01
+  group: AI
+  section: A.14
+  title: AI gateway
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: In-country model routing; prompt mgmt; evaluation; kill switch
+  kurdistan_note: MVP→P2 (≈M42); counsel-approved region pinning
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-GOV-01
+  group: AI
+  section: A.14
+  title: AI control plane
+  size: L
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Registry; model cards; provenance; draft states; monitoring
+  kurdistan_note: MVP→P2; K costs gateway + plane at 20 total
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-AMB-01
+  group: AI
+  section: A.14
+  title: Ambient OPD
+  size: M
+  phase: P3
+  stance: P
+  domain_level: false
+  scope: Ambient OPD documentation (EN/AR/HI), ≥2 partners
+  kurdistan_note: MVP→P3; Sorani/Badini only after S8-K
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6 (Sorani and Badini only after S8-K)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-DCS-01
+  group: AI
+  section: A.14
+  title: Discharge draft
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Source-linked discharge summary draft; clinician sign-off
+  kurdistan_note: MVP→P2; English drafts with omission checklist
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-SUM-01
+  group: AI
+  section: A.14
+  title: Chart summary
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Chart summary / pre-visit brief
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-NUR-01
+  group: AI
+  section: A.14
+  title: Nursing ambient
+  size: M
+  phase: P3
+  stance: P
+  domain_level: false
+  scope: Nursing voice/ambient to flowsheets
+  kurdistan_note: 'Conflict: K §4.3 P3 vs §14.2 arithmetic P2'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-RCM-01
+  group: AI
+  section: A.14
+  title: Claim scrubbing
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Pre-submission scrubbing; denial prediction
+  kurdistan_note: K §4.3 marks claim scrubbing (P)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-PAT-01
+  group: AI
+  section: A.14
+  title: Result explanations
+  size: S
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: 'Templated result explanations only (K §11.2): AI may suggest a template, never generate patient text; never used for SI-21-labelled results or pregnancy tests; released only through the §9.30 release rule (control-plane requirement G10, SI-07)'
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-INB-01
+  group: AI
+  section: A.14
+  title: In-basket AI
+  size: M
+  phase: P3
+  stance: B
+  domain_level: false
+  scope: In-basket triage; grounded draft replies
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P3
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-IMG-01
+  group: AI
+  section: A.14
+  title: Imaging AI
+  size: M
+  phase: P3
+  stance: I
+  domain_level: false
+  scope: AIW-I/AIR orchestration; governance ledger (reg Y)
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-DAT-01
+  group: AI
+  section: A.14
+  title: Reporting replica
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Reporting replica ≤60 s; report builder
+  kurdistan_note: On the on-site cell; inferred R1 (MIS basics)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-DAT-02a
+  group: AI
+  section: A.14
+  title: CDC bronze (BP split)
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: CDC bronze landing in object storage
+  kurdistan_note: Central site; migration staging; inferred R1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.11
+  tests: []
+  hazards: []
+  notes: []
+
+- id: AI-DAT-02b
+  group: AI
+  section: A.14
+  title: Silver/OMOP (BP split)
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Silver layer; OMOP; SQL-on-FHIR views
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-MSG-01
+  group: DFD
+  section: A.15
+  title: SMS/WhatsApp
+  size: M
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: Reminders/outreach without an account
+  kurdistan_note: DLT dropped; OTP + knowledge-check release; Viber via KRI-MSG-01
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.10
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-BOK-01
+  group: DFD
+  section: A.15
+  title: Booking link
+  size: M
+  phase: R1.1
+  stance: B
+  domain_level: false
+  scope: Web booking link; rules-based self-scheduling
+  kurdistan_note: 'BP R2.1; K §4.2 silent · Placed R1.1: Ships with wallet payment links'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 1.1 (booking links)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-PAY-01
+  group: DFD
+  section: A.15
+  title: Payment links
+  size: M
+  phase: R1.1
+  stance: B+I
+  domain_level: false
+  scope: Payment links; bill pay (UPI/mada/cards)
+  kurdistan_note: 'Re-scoped: wallet links (FIB, FastPay, ZainCash, Qi Card)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 1.1 (wallet and QR payment links)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-REC-01
+  group: DFD
+  section: A.15
+  title: Report download
+  size: M (−3)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Report download + national PHR push
+  kurdistan_note: Download by OTP/expiring link stays; PHR part dropped
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.10
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-REC-01
+  part: PHR push
+  group: DFD
+  section: A.15
+  title: PHR push
+  size: ≈3 ew
+  phase: DROPPED-K
+  stance: B
+  domain_level: false
+  scope: National PHR push (ABHA app; Sehhaty)
+  kurdistan_note: No national PHR
+  placement_marked: false
+  status: todo
+  work_packages: []
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-APP-01
+  group: DFD
+  section: A.15
+  title: Portal/app
+  size: XL
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Records; messaging; proxy; refills
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5 (the patient app)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-TEL-01
+  group: DFD
+  section: A.15
+  title: Teleconsultation
+  size: M
+  phase: P2
+  stance: B+I
+  domain_level: false
+  scope: Video with booking and billing
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-CRM-01
+  group: DFD
+  section: A.15
+  title: CRM
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: CRM/contact centre; leads; international patient desk
+  kurdistan_note: Not in K §4.3; K §14.2 keeps P2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: DFD-RPM-01
+  group: DFD
+  section: A.15
+  title: RPM
+  size: L
+  phase: P3
+  stance: B+P
+  domain_level: false
+  scope: RPM / hospital-at-home
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 6
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-FND-01
+  group: IMP
+  section: A.16
+  title: Foundation content
+  size: XL
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Order sets, flowsheets, templates, CDS, roles, reports, charge masters
+  kurdistan_note: 'Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.14
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-MIG-01
+  group: IMP
+  section: A.16
+  title: Migration Workbench
+  size: XL (BP L→XL)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: 12-part Migration Workbench; legacy archive viewer
+  kurdistan_note: Paper and local-billing packs; master-data build
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.14
+  - WP-3.13 (inpatient pack)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-RDY-01
+  group: IMP
+  section: A.16
+  title: Readiness tooling
+  size: L (BP M→L)
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits
+  kurdistan_note: RG3 adds WAN-, power-cut, dual-currency drills
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.14
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-TRN-01
+  group: IMP
+  section: A.16
+  title: Training tooling
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Training sandbox; micro-learning; proficiency tracking
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.14
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-TEL-01
+  group: IMP
+  section: A.16
+  title: Clinician telemetry
+  size: M
+  phase: R1
+  stance: B
+  domain_level: false
+  scope: Clinician-time + usability telemetry; micro-surveys
+  kurdistan_note: 'K §4.3 drops ''telemetry'' from BP''s tooling list · Placed R1: Usability telemetry from the first go-live (T-120 baselines)'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.14
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-SUP-01
+  group: IMP
+  section: A.16
+  title: Service desk + status page
+  size: S
+  phase: R1
+  stance: B+I
+  domain_level: false
+  scope: Service-desk integration; ticket telemetry; status page
+  kurdistan_note: Inferred R1 (24×7 support M21); status page (K §13.7)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.14
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-GOV-01
+  group: IMP
+  section: A.16
+  title: Governance intake
+  size: S
+  phase: R2.1
+  stance: B
+  domain_level: false
+  scope: Requests; scoring; 30-day loop closure
+  kurdistan_note: BP P2→MVP; manual path until R2.1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 4 (governance intake)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-MAT-01
+  group: IMP
+  section: A.16
+  title: Maturity + evidence packs
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: EMRAM readiness report; accreditation evidence packs
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: IMP-CRT-01
+  group: IMP
+  section: A.16
+  title: Partner academy
+  size: M
+  phase: P2
+  stance: B
+  domain_level: false
+  scope: Analyst/partner certification academy
+  kurdistan_note: Academy live by M36 (K §13.7)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 5
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-LOC-01
+  group: KRI
+  section: A.17
+  title: Trilingual UI/outputs
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Sorani, Arabic, English UI; trilingual outputs
+  kurdistan_note: Trilingual receipts and reports at R1
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-0.7 (base)
+  - WP-1.10
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-LOC-02
+  group: KRI
+  section: A.17
+  title: Badini templates
+  size: S
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Badini patient templates
+  kurdistan_note: 'Release unstated; Duhok review; Latin-script need via S7-K · Placed R1: Framework in R1; Badini content before the first Duhok go-live'
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.10 (framework)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-ID-01
+  group: KRI
+  section: A.17
+  title: Iraqi identity + cross-script EMPI
+  size: L (+12 net)
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Iraqi name parts; Kurdish/Arabic/Latin transliteration; cross-script matching (K §8)
+  kurdistan_note: +12 net over ACC-ID-02
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.2
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-RCM-01
+  group: KRI
+  section: A.17
+  title: Dual-currency cashiering
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: IQD/USD; per-currency drawers; change in either currency; rounding
+  kurdistan_note: null
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-RCM-02
+  group: KRI
+  section: A.17
+  title: Doctor-fee ledger
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Practitioner fee lines; package shares; payout ledger; statements
+  kurdistan_note: No referral-commission feature
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-PAY-01
+  group: KRI
+  section: A.17
+  title: Card/wallet adapters
+  size: M
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Card-terminal and wallet adapters; K §12.1 pairs them with three-way reconciliation
+  kurdistan_note: Wallet links R1.1; no card PAN in HMS
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.9
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-STAT-02
+  group: KRI
+  section: A.17
+  title: DHIS2 export
+  size: S
+  phase: R1.1
+  stance: B
+  domain_level: true
+  scope: DHIS2 data-value sets via Web API
+  kurdistan_note: Only if the KRG uses DHIS2
+  placement_marked: false
+  status: todo
+  work_packages:
+  - Phase 1.1 (DHIS2 export)
+  tests: []
+  hazards: []
+  notes: []
+
+- id: KRI-MSG-01
+  group: KRI
+  section: A.17
+  title: Viber + SMS gateways
+  size: S
+  phase: R1
+  stance: B
+  domain_level: true
+  scope: Viber; local SMS gateways
+  kurdistan_note: Per-site GSM/SMPP gateway in K §9.1 (R1)
+  placement_marked: false
+  status: todo
+  work_packages:
+  - WP-1.10
+  tests: []
+  hazards: []
+  notes: []

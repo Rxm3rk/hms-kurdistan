@@ -1,0 +1,39 @@
+fix(safety): close the sign-off gate bypasses found verifying 05f159a
+
+The independent verification of the sign-off gate at 05f159a found nine
+defects; this resolves eight and documents the ninth (D5), plus one found
+while fixing them.
+
+- D1: a commit that keeps the version of allowed-signers.yaml in conflict
+  (a routine merge, which --full-history lists) approves nothing; only the
+  merge that opened the conflict and commits that write a version approve.
+- D2: the list, its schema and the records are mapped to repository paths
+  lexically; a symbolic link or junction on the way fails closed, and a
+  committed link is judged as a change of the path itself.
+- D3 and the record-rules grafts finding: git runs with GIT_GRAFT_FILE set
+  to the null device, GIT_NO_REPLACE_OBJECTS=1 and core.commitGraph=false.
+- D4: a merge whose lines already approved its signers on every side
+  settles even when it approves nothing itself (an AI trailer); the
+  conflict error never names an empty list.
+- D6: a settled version records the key approvals it rests on and a
+  conflict line each side's latest key approval; a settled version no
+  longer replaces the sides of a conflict whose line has since withdrawn
+  such an approval, and withdrawn approvals stop counting after a merge.
+  (Narrower than proposed: the proposal regressed case X07.)
+- Records are never removed: a record committed at HEAD must be in the
+  working tree, and every signed version of a record HEAD's history held
+  but HEAD does not (deleted, renamed, dropped by a merge) still withdraws.
+- W11: supersedes needs the same subject and field, and ending a
+  rejection or a return needs the same person or the same role.
+- New: a gpg.program or gpg.<format>.program set in the repository's own
+  git configuration or on the command line leaves no signer trusted (it
+  could report a good signature by any key).
+- D5 kept: counting no keyless side would let an unsigned merge undo a
+  signed removal of every key; README and KA-011 state the consequence.
+
+docs/safety/signoffs/README.md, the module docstrings and KA-011 now
+match the code. 26 regression tests (scripted git, gate, real GPG and
+SSH-capable repositories); each defect test fails on 05f159a. Safety
+tests: 336 OK on Windows and in WSL; safety check PASS; secret scan PASS.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

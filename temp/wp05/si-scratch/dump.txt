@@ -1,0 +1,348 @@
+===== HAZ-0001 ['SI-01'] H1 | Identity service; print templates | modules ['empi', 'platform-docs', 'platform-i18n']
+  clauses: [('a', 'At least two identifiers on every patient-affecting action, label, wri'), ('b', 'never room or bed.'), ('c', "The name prints in the patient's script plus a Latin transliteration."), ('d', 'The second identifier is the MRN (with check digit) plus date of birth')]
+    ACC-ID-01 ['WP-1.2'] EMPI
+    ACC-ID-03 ['WP-1.2'] Aliases, newborn, photo
+    ACC-REG-01 ['WP-1.2'] Registration
+    KRI-ID-01 ['WP-1.2'] Iraqi identity + cross-script EMPI
+    CLN-CHT-01 ['WP-1.4'] Chart + banner
+    PLT-UX-02 ['WP-0.7'] Workstation shell
+    PLT-UX-03 ['WP-0.7 (base)'] i18n / RTL
+    KRI-LOC-01 ['WP-0.7 (base)', 'WP-1.10'] Trilingual UI/outputs
+    INT-DOC-01 ['WP-1.12'] Documents
+    MED-MAR-01 ['WP-3.3'] eMAR
+    MED-BCM-01 ['WP-3.3'] Mobile BCMA
+    DX-LAB-01 ['WP-1.7'] Phlebotomy + accessioning
+    TRU-BCP-02 ['WP-1.13'] Downtime ID blocks
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0001-1 ['preamble'] ['PropertyTest:SI-01-channels-* (the same property through every channel adapter, §18.3)', 'PropertyTest:config-chain-vendor-lock-SI-01 (a tenant setting that loosens SI-01 is refused)']
+   ctl CTRL-0001-2 ['preamble'] ['PropertyTest:SI-01-*']
+   ctl CTRL-0001-3 ['a', 'd'] ['PropertyTest:SI-01-two-identifiers-on-every-patient-affecting-command']
+   ctl CTRL-0001-4 ['b'] ['PropertyTest:SI-01-location-never-an-identifier']
+   ctl CTRL-0001-6 ['c'] ['PropertyTest:SI-01-print-has-script-and-latin-name']
+   ctl CTRL-0001-7 ['d'] ['PropertyTest:SI-01-invalid-mrn-rejected-at-entry-and-scan']
+===== HAZ-0002 ['SI-02'] H2 | MAR aggregate | modules ['medications', 'orders']
+  clauses: [('a', 'No administration without an active verified order or a documented ove'), ('b', 'Override reasons are never defaulted,'), ('c', 'and every override is reportable')]
+    MED-MAR-01 ['WP-3.3'] eMAR
+    MED-BCM-01 ['WP-3.3'] Mobile BCMA
+    MED-PHV-01 ['WP-3.2'] Pharmacist verification
+    CLN-ORD-02 ['WP-1.4 (outpatient)', 'WP-3.1 (inpatient)'] CPOE
+    MED-INF-01 ['WP-3.3'] Infusion model
+    PLT-UX-04 ['WP-3.3'] Mobile app framework
+    DX-ORD-01 ['WP-1.7'] Diagnostic order lifecycle
+    CLN-QI-01 ['WP-1.11 (engine)'] Accreditation KPIs
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0002-1 ['preamble'] ['PropertyTest:SI-02-channels-* (the same property through every channel adapter, §18.3)', 'PropertyTest:config-chain-vendor-lock-SI-02']
+   ctl CTRL-0002-2 ['preamble'] ['PropertyTest:SI-02-*']
+   ctl CTRL-0002-3 ['a'] ['PropertyTest:SI-02-no-administration-without-active-verified-order-or-documented-override', 'PropertyTest:SI-02-override-never-waives-SI-01-SI-12-SI-13-SI-15']
+   ctl CTRL-0002-4 ['b'] ['PropertyTest:SI-02-override-reason-never-defaulted']
+   ctl CTRL-0002-5 ['c'] ['PropertyTest:SI-02-every-override-reportable']
+===== HAZ-0003 ['SI-03'] H5 | Task engine | modules ['platform-tasks', 'orders', 'results', 'scheduling', 'hub']
+  clauses: [('a', 'Every order reaches a terminal state.'), ('b', 'Every task, result, message, letter and referral has an owner and an S'), ('c', 'Unowned work raises `TaskOrphaned` within 5 minutes.'), ('d', 'Seam messages to a hospital still on paper or legacy systems are owned')]
+    PLT-CORE-07 ['WP-0.3'] Task/work-queue engine
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+    CLN-ORD-02 ['WP-1.4 (outpatient)', 'WP-3.1 (inpatient)'] CPOE
+    DX-ORD-01 ['WP-1.7'] Diagnostic order lifecycle
+    CLN-RES-01 ['WP-3.11'] Results inbox
+    ACC-SCH-02 ['WP-1.3'] Referral tracking
+    INT-ENG-01 ['WP-1.1b (base)', 'WP-1.12 (full)'] HL7 v2 engine
+    INT-SEAM-01 ['WP-1.3'] Group seam bridge (BP new)
+    CLN-DOC-03 ['WP-3.11'] Discharge + AVS
+    DFD-MSG-01 ['WP-1.10'] SMS/WhatsApp
+    PLT-OPS-05 ['WP-1.13'] Observability
+   ctl CTRL-0003-1 ['preamble'] ['PropertyTest:SI-03-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-03 (an orphan alarm later than 5 minutes is refused)']
+   ctl CTRL-0003-2 ['preamble'] ['PropertyTest:SI-03-*']
+   ctl CTRL-0003-3 ['a'] ['PropertyTest:SI-03-every-order-reaches-a-terminal-state']
+   ctl CTRL-0003-4 ['b'] ['PropertyTest:SI-03-owner-and-sla-on-every-work-item']
+   ctl CTRL-0003-5 ['c'] ['PropertyTest:SI-03-orphan-alarm-within-5-minutes (simulated clock)']
+===== HAZ-0004 ['SI-04'] H3 | Critical-result service | modules ['results', 'platform-tasks', 'workforce', 'lis', 'ris']
+  clauses: [('a', 'Critical results go to a **named** recipient (chosen from a picker, ne'), ('b', 'with read-back'), ('c', 'and a timed escalation chain.'), ('d', 'This includes **external referring doctors** for outpatient-tier resul')]
+    DX-CRT-01 ['WP-1.7'] Critical results
+    DX-ORD-01 ['WP-1.7'] Diagnostic order lifecycle
+    CLN-RES-01 ['WP-3.11'] Results inbox
+    PLT-CORE-07 ['WP-0.3'] Task/work-queue engine
+    ERP-HR-01 ['WP-1.1'] Staff master
+    PLT-UX-04 ['WP-3.3'] Mobile app framework
+    DX-LAB-03 ['WP-1.7', 'Phase 1.1 (LIS autoverification v1 in `reg-lis-rules`, activated only where the Boundary Register allows)'] Validation + autoverification
+    DX-RIS-02 ['WP-1.8'] Radiology reporting
+   ctl CTRL-0004-1 ['preamble'] ['PropertyTest:SI-04-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-04']
+   ctl CTRL-0004-2 ['preamble'] ['PropertyTest:SI-04-*']
+   ctl CTRL-0004-3 ['a'] ['PropertyTest:SI-04-recipient-always-picked-from-directory']
+   ctl CTRL-0004-4 ['b'] ['PropertyTest:SI-04-phoned-result-needs-read-back']
+===== HAZ-0005 ['SI-05'] H2 | Dose Engine or fallback control set; CI static analysis | modules ['medications', 'reg-dose', 'reg-screening', 'cds', 'record', 'platform-config']
+  clauses: [('a', 'One dated, sourced dosing weight.'), ('b', 'UCUM units; no unit-less doses.'), ('c', '**Dose arithmetic only in the Dose Engine** (static analysis fails the'), ('d', 'Hard stop at 10×/100× deviation.'), ('e', '**The Dose Engine is P2.**'), ('f', 'Until it is active at a site, the **extended fallback control set** ap'), ('g', 'a system-enforced independent pharmacist double check on every weight-'), ('h', 'a drug-KB result ≥10× the maximum dose is a Tier A hard stop with the '), ('i', 'a pharmacist-cover alarm;'), ('j', 'review within 4 h of any dose given before verification.'), ('k', 'Core sites apply the double check at transcription.'), ('l', 'NICU and PICU go live with the rest of the site, never later')]
+    MED-DOSE-01 ['Phase 5 (the Dose Engine first; shadow mode ≥4 weeks, C2 activation)'] Dose Engine (BP new)
+    MED-PHV-01 ['WP-3.2'] Pharmacist verification
+    MED-DSP-01 ['WP-2.4'] IP dispensing
+    MED-MAR-01 ['WP-3.3'] eMAR
+    MED-INF-01 ['WP-3.3'] Infusion model
+    MED-FRM-01 ['WP-1.6'] Formulary
+    CLN-CDS-01 ['WP-1.5'] Drug KB adapter
+    CLN-CDS-02 ['WP-1.5 (outpatient subset)', 'WP-3.1 (full)'] Order checks
+    CLN-ORD-02 ['WP-1.4 (outpatient)', 'WP-3.1 (inpatient)'] CPOE
+    CLN-CHT-01 ['WP-1.4'] Chart + banner
+    PLT-CFG-01 ['WP-0.3'] Config-as-product
+    IMP-RDY-01 ['WP-1.14'] Readiness tooling
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0005-1 ['preamble'] ['PropertyTest:SI-05-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-05']
+   ctl CTRL-0005-2 ['preamble'] ['PropertyTest:SI-05-*']
+   ctl CTRL-0005-3 ['a'] ['PropertyTest:SI-05-one-dated-sourced-dosing-weight', 'PropertyTest:SI-05-no-weight-based-medicine-signed-without-dated-weight']
+   ctl CTRL-0005-4 ['b'] ['PropertyTest:SI-05-no-unitless-dose-on-any-channel']
+   ctl CTRL-0005-6 ['c'] ['PropertyTest:SI-05-no-rounding-or-recalculation-before-dose-engine']
+   ctl CTRL-0005-7 ['d'] ['PropertyTest:SI-05-10x-or-100x-deviation-is-a-hard-stop (Dose Engine active, P2)', 'PropertyTest:SI-05-before-dose-engine-kb-10x-hard-stop-or-pharmacist-review']
+   ctl CTRL-0005-8 ['e', 'f'] ['PropertyTest:SI-05-fallback-set-a-in-force-while-dose-engine-inactive']
+   ctl CTRL-0005-9 ['g'] ['PropertyTest:SI-05-double-check-required-for-weight-bsa-high-alert-infusion-neonatal']
+   ctl CTRL-0005-10 ['h', 'd'] ['PropertyTest:SI-05-kb-10x-maximum-is-tier-a-hard-stop']
+   ctl CTRL-0005-12 ['j'] ['PropertyTest:SI-05-review-task-within-4h-of-dose-before-verification']
+   ctl CTRL-0005-14 ['l'] ['PropertyTest:clinical-tier-has-no-partial-loop (NICU and PICU included)']
+===== HAZ-0006 ['SI-06'] H6 | Clinical journal | modules ['record', 'platform-journal', 'platform-docs']
+  clauses: [('a', 'Signed notes are immutable.'), ('b', 'Amendments are versions,'), ('c', 'addenda are links,'), ('d', 'entered-in-error replaces delete,'), ('e', 'and the signed rendering is hashed')]
+    PLT-CORE-01 ['WP-0.3'] Clinical journal
+    CLN-DOC-01 ['WP-1.4'] Clinical notes
+    CLN-DOC-04 ['WP-3.12', 'Phase 4 (release-of-information workflow automation)'] HIM + legal record
+    INT-DOC-01 ['WP-1.12'] Documents
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0006-1 ['preamble'] ['PropertyTest:SI-06-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-06']
+   ctl CTRL-0006-2 ['preamble'] ['PropertyTest:SI-06-*']
+   ctl CTRL-0006-3 ['a'] ['PropertyTest:SI-06-signed-note-immutable-on-every-channel']
+   ctl CTRL-0006-4 ['b'] ['PropertyTest:SI-06-amendment-is-a-new-version']
+   ctl CTRL-0006-5 ['c'] ['PropertyTest:SI-06-addendum-is-a-link']
+   ctl CTRL-0006-6 ['d'] ['PropertyTest:SI-06-entered-in-error-replaces-delete']
+===== HAZ-0007 ['SI-07'] H10 | AI control plane | modules ['ai-gateway', 'orders', 'results', 'front-door', 'record']
+  clauses: [('a', 'AI output stays `draft-ai` until a human signs it.'), ('b', 'AI never signs orders,'), ('c', 'files results'), ('d', 'or messages patients'), ('e', '(applies from P2)')]
+    AI-GW-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] AI gateway
+    AI-GOV-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] AI control plane
+    AI-DCS-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] Discharge draft
+    AI-SUM-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] Chart summary
+    AI-PAT-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] Result explanations
+    AI-INB-01 ['Phase 6'] In-basket AI
+    AI-AMB-01 ['Phase 6 (Sorani and Badini only after S8-K)'] Ambient OPD
+    AI-NUR-01 ['Phase 6'] Nursing ambient
+   ctl CTRL-0007-1 ['preamble'] ['PropertyTest:SI-07-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-07']
+   ctl CTRL-0007-2 ['preamble'] ['PropertyTest:SI-07-*']
+   ctl CTRL-0007-3 ['a'] ['PropertyTest:SI-07-draft-ai-until-a-human-signs']
+   ctl CTRL-0007-4 ['b', 'c', 'd'] ['PropertyTest:SI-07-ai-never-signs-orders', 'PropertyTest:SI-07-ai-never-files-results', 'PropertyTest:SI-07-ai-never-messages-patients']
+===== HAZ-0008 ['SI-08'] H12 | EMPI | modules ['empi', 'hub', 'quality']
+  clauses: [('a', 'Merges are reversible links'), ('b', 'propagated downstream (HL7 A40 / FHIR `Patient.link`).'), ('c', 'Overlays are safety incidents.'), ('d', 'Auto-merge precision ≥99.9%, measured on a cross-script Kurdish/Arabic')]
+    ACC-ID-01 ['WP-1.2'] EMPI
+    KRI-ID-01 ['WP-1.2'] Iraqi identity + cross-script EMPI
+    ACC-ID-03 ['WP-1.2'] Aliases, newborn, photo
+    INT-ENG-01 ['WP-1.1b (base)', 'WP-1.12 (full)'] HL7 v2 engine
+    INT-FHIR-01 ['WP-1.12 (read)', 'Phase 1.1 (FHIR SMART, Bulk and Subscriptions)'] FHIR façade
+    INT-SEAM-01 ['WP-1.3'] Group seam bridge (BP new)
+    CLN-INC-01 ['WP-1.4'] Incidents + RCA
+   ctl CTRL-0008-1 ['preamble'] ['PropertyTest:SI-08-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-08']
+   ctl CTRL-0008-2 ['preamble'] ['PropertyTest:SI-08-*']
+   ctl CTRL-0008-3 ['a'] ['PropertyTest:SI-08-unmerge-restores-every-re-pointed-record']
+   ctl CTRL-0008-6 ['d'] ['PropertyTest:SI-08-auto-merge-disabled-below-precision-floor']
+===== HAZ-0009 ['SI-09'] H2 | Med-rec aggregate | modules ['medications']
+  clauses: [('a', 'Medication reconciliation cannot complete while any item is undecided')]
+    CLN-MRC-01 ['WP-3.11'] Med rec
+    CLN-DOC-03 ['WP-3.11'] Discharge + AVS
+    ACC-ADT-01 ['WP-2.1'] ADT
+    INT-SEAM-01 ['WP-1.3'] Group seam bridge (BP new)
+    MED-DSP-01 ['WP-2.4'] IP dispensing
+   ctl CTRL-0009-1 ['preamble'] ['PropertyTest:SI-09-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-09']
+   ctl CTRL-0009-2 ['preamble'] ['PropertyTest:SI-09-*']
+   ctl CTRL-0009-3 ['a'] ['PropertyTest:SI-09-cannot-complete-with-an-undecided-item']
+   ctl CTRL-0009-4 ['a'] ['PropertyTest:SI-09-late-input-becomes-undecided-item']
+===== HAZ-0010 ['SI-10'] H6 | Bitemporal journal | modules ['platform-journal', 'record', 'adt', 'trust-audit']
+  clauses: [('a', 'Clinical time is distinct from system time.'), ('b', 'Back-dating is privileged and audited.'), ('c', 'Back-entry keeps the original clinical times and is labelled.'), ('d', 'Back-entry after outages will be frequent, so tooling and audit are si')]
+    PLT-CORE-01 ['WP-0.3'] Clinical journal
+    TRU-BCP-03 ['WP-1.13'] Back-entry
+    TRU-BCP-01 ['WP-1.13'] Read-only continuity
+    TRU-BCP-05 ['WP-1.13'] Code-Dark drills
+    TRU-AUD-01 ['WP-0.4'] BALP audit
+    TRU-IAM-02 ['WP-0.4'] RBAC/ABAC
+    ACC-ADT-01 ['WP-2.1'] ADT
+    CLN-DOC-01 ['WP-1.4'] Clinical notes
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0010-1 ['preamble'] ['PropertyTest:SI-10-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-10']
+   ctl CTRL-0010-2 ['preamble'] ['PropertyTest:SI-10-*']
+   ctl CTRL-0010-3 ['a'] ['PropertyTest:SI-10-clinical-time-distinct-from-system-time']
+   ctl CTRL-0010-4 ['b'] ['PropertyTest:SI-10-back-dating-is-privileged-and-audited']
+   ctl CTRL-0010-5 ['c'] ['PropertyTest:SI-10-back-entry-keeps-clinical-time-and-label']
+===== HAZ-0011 ['SI-11'] H8 | Transfusion verification (T2) or fallback | modules ['transfusion', 'reg-transfusion', 'medications']
+  clauses: [('a', 'Transfusion requires a wristband ↔ unit ↔ order ↔ sample match'), ('b', 'plus a two-person electronic witness;'), ('c', 'a mismatch is a hard stop.'), ('d', 'Units from public blood banks are relabelled at receipt under two-pers'), ('e', 'The original label is never covered;'), ('f', 'the new label prints the unit number and ABO/Rh beside the barcode;'), ('g', 'the bedside witness also confirms the unit number on the original labe'), ('h', 'any mismatch quarantines the unit.'), ('i', 'Until T2 is activated: a scripted two-person check (identifiers scanne')]
+    DX-BB-01 ['WP-3.10'] Bedside transfusion
+    DX-BB-KRI-01 ['WP-3.10'] Unit receipt + relabel (K new)
+    DX-BB-02 ['WP-3.10 (optional)'] Blood bank interface
+    MED-BCM-01 ['WP-3.3'] Mobile BCMA
+    DX-LAB-01 ['WP-1.7'] Phlebotomy + accessioning
+    PLT-UX-02 ['WP-0.7'] Workstation shell
+    TRU-REG-01 ['WP-0.9'] QMS + Boundary Register
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0011-1 ['preamble'] ['PropertyTest:SI-11-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-11']
+   ctl CTRL-0011-2 ['preamble'] ['PropertyTest:SI-11-*']
+   ctl CTRL-0011-3 ['a', 'c'] ['PropertyTest:SI-11-wristband-unit-order-sample-match']
+   ctl CTRL-0011-4 ['a'] ['PropertyTest:SI-11-sample-needs-concordant-second-determination']
+   ctl CTRL-0011-5 ['b'] ['PropertyTest:SI-11-two-different-witnesses-both-signed']
+   ctl CTRL-0011-6 ['d'] ['PropertyTest:SI-11-blind-double-entry']
+   ctl CTRL-0011-9 ['g'] ['PropertyTest:SI-11-witness-confirms-original-unit-number (T2)']
+   ctl CTRL-0011-10 ['h', 'c'] ['PropertyTest:SI-11-any-mismatch-quarantines', 'PropertyTest:SI-11-quarantined-unit-never-issued-or-administered']
+===== HAZ-0012 ['SI-12'] ['H4', 'H2'] | RCM ↔ ADT/MAR boundary | modules ['rcm', 'adt', 'orders', 'medications', 'empi', 'ed']
+  clauses: [('a', 'Bill clearance, deposits and pre-authorisation never block discharge o'), ('b', 'No payment, deposit or counter rule may delay a verified time-critical'), ('c', 'it is charged to the running bill.'), ('d', 'Medicines bought by families are received by pharmacy (identified, exp'), ('e', 'unverified outside medicines cannot be scanned for administration')]
+    OPS-FLW-01 ['WP-2.1'] Discharge clearance
+    RCM-ACC-01 ['WP-1.9'] Patient account + ledger
+    RCM-CHG-01 ['WP-1.9'] Charge router
+    RCM-CSH-01 ['WP-1.9'] Cashiering
+    RCM-INS-01 ['WP-1.9', 'Phase 1.1 (document-pack automation)'] Payer contracts + claims
+    ACC-ADT-01 ['WP-2.1'] ADT
+    ACC-REG-01 ['WP-1.2'] Registration
+    CLN-ED-01 ['WP-3.6'] ED triage + board
+    MED-MAR-01 ['WP-3.3'] eMAR
+    MED-BCM-01 ['WP-3.3'] Mobile BCMA
+    MED-DSP-01 ['WP-2.4'] IP dispensing
+    MED-KRI-01 ['WP-1.6'] Brand master + labels (K new)
+   ctl CTRL-0012-1 ['preamble'] ['PropertyTest:SI-12-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-12']
+   ctl CTRL-0012-2 ['preamble'] ['PropertyTest:SI-12-*']
+   ctl CTRL-0012-3 ['a', 'b'] ['PropertyTest:SI-12-no-rcm-state-blocks-a-clinical-command']
+   ctl CTRL-0012-4 ['a'] ['PropertyTest:SI-12-ed-registration-and-emergency-orders-never-blocked', 'PropertyTest:SI-12-pre-authorisation-never-blocks-discharge-or-emergency-care']
+   ctl CTRL-0012-5 ['b'] ['PropertyTest:SI-12-payment-hold-never-delays-a-time-critical-dose']
+   ctl CTRL-0012-7 ['d'] ['PropertyTest:SI-12-patient-supplied-medicine-lifecycle']
+   ctl CTRL-0012-8 ['e'] ['PropertyTest:SI-12-unverified-outside-medicine-cannot-be-scanned']
+===== HAZ-0013 ['SI-13'] H2 | MAR; formulary | modules ['medications']
+  clauses: [('a', 'High-alert medications require a documented independent double check')]
+    MED-MAR-01 ['WP-3.3'] eMAR
+    MED-FRM-01 ['WP-1.6'] Formulary
+    MED-BCM-01 ['WP-3.3'] Mobile BCMA
+    MED-INF-01 ['WP-3.3'] Infusion model
+    MED-PHV-01 ['WP-3.2'] Pharmacist verification
+    PLT-UX-04 ['WP-3.3'] Mobile app framework
+   ctl CTRL-0013-1 ['preamble'] ['PropertyTest:SI-13-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-13']
+   ctl CTRL-0013-2 ['preamble'] ['PropertyTest:SI-13-*']
+   ctl CTRL-0013-3 ['a'] ['PropertyTest:SI-13-high-alert-administration-needs-documented-independent-double-check']
+   ctl CTRL-0013-4 ['a'] ['PropertyTest:SI-13-double-check-needs-two-different-people']
+===== HAZ-0014 ['SI-14'] H4 | CDS registry | modules ['cds', 'reg-screening', 'content']
+  clauses: [('a', 'Hard stops come only from a governed list.'), ('b', 'Every interruptive rule has an owner, evidence, a measured PPV and a r'), ('c', 'The vendor-validated go-live baseline (Tier A/B) is interruptive from '), ('d', 'New or locally modified rules run silent first.'), ('e', 'Tier A/B rules are never retired on override rate alone')]
+    CLN-CDS-01 ['WP-1.5'] Drug KB adapter
+    CLN-CDS-02 ['WP-1.5 (outpatient subset)', 'WP-3.1 (full)'] Order checks
+    CLN-CDS-03 ['WP-1.5'] CDS telemetry + harness
+    PLT-CORE-06 ['WP-1.1 (non-device rules)'] Rules engine
+    PLT-CFG-01 ['WP-0.3'] Config-as-product
+    IMP-FND-01 ['WP-1.14'] Foundation content
+   ctl CTRL-0014-1 ['preamble'] ['PropertyTest:SI-14-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-14']
+   ctl CTRL-0014-2 ['preamble'] ['PropertyTest:SI-14-*']
+   ctl CTRL-0014-3 ['a'] ['PropertyTest:SI-14-hard-stop-only-from-governed-list']
+   ctl CTRL-0014-4 ['b'] ['PropertyTest:SI-14-rule-without-measured-ppv-never-interruptive', 'PropertyTest:SI-14-baseline-exception-only-from-sign-off-record']
+   ctl CTRL-0014-6 ['d'] ['PropertyTest:SI-14-new-or-modified-rule-starts-silent', 'PropertyTest:SI-14-promotion-to-interruptive-needs-ppv-from-silent-run-or-replay']
+===== HAZ-0015 ['SI-15'] ['H2', 'H6'] | Offline matrix; command handler | modules ['platform-site', 'orders', 'medications', 'adt', 'empi', 'platform-journal']
+  clauses: [('a', 'Offline: no new prescribing without full CDS,'), ('b', 'no bed or OT allocation,'), ('c', 'no identifiers outside pre-allocated blocks,'), ('d', 'no controlled-drug stock movement,'), ('e', 'no identity merges.'), ('f', 'Offline commands are revalidated by the server.'), ('g', 'No last-writer-wins or CRDT merges on clinical state.'), ('h', '**Losing the internet does not make an on-site cell "offline":** this ')]
+    PLT-UX-04 ['WP-3.3'] Mobile app framework
+    MED-BCM-01 ['WP-3.3'] Mobile BCMA
+    TRU-BCP-01 ['WP-1.13'] Read-only continuity
+    TRU-BCP-02 ['WP-1.13'] Downtime ID blocks
+    TRU-BCP-03 ['WP-1.13'] Back-entry
+    PLT-EDGE-01 ['WP-1.13'] Site edge agent (BP new)
+    PLT-SITE-01 ['WP-1.13'] On-site cell (K new)
+    CLN-ORD-02 ['WP-1.4 (outpatient)', 'WP-3.1 (inpatient)'] CPOE
+    CLN-CDS-02 ['WP-1.5 (outpatient subset)', 'WP-3.1 (full)'] Order checks
+    ACC-ADT-02 ['WP-2.1'] Bed board
+    SPC-OT-01 ['WP-2.3'] OT booking
+    MED-CS-01 ['WP-1.6'] Controlled drugs
+    ACC-ID-01 ['WP-1.2'] EMPI
+    ACC-ID-03 ['WP-1.2'] Aliases, newborn, photo
+    PLT-CORE-03 ['WP-0.5'] State machines + invariants
+   ctl CTRL-0015-1 ['preamble'] ['PropertyTest:SI-15-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-15']
+   ctl CTRL-0015-2 ['preamble'] ['PropertyTest:SI-15-*']
+   ctl CTRL-0015-4 ['a'] ['PropertyTest:SI-15-no-new-prescribing-without-full-cds-offline']
+   ctl CTRL-0015-5 ['b'] ['PropertyTest:SI-15-no-bed-or-ot-allocation-offline']
+   ctl CTRL-0015-6 ['c'] ['PropertyTest:SI-15-identifiers-only-from-pre-allocated-blocks']
+   ctl CTRL-0015-7 ['d'] ['PropertyTest:SI-15-no-controlled-drug-stock-movement-offline']
+   ctl CTRL-0015-8 ['e'] ['PropertyTest:SI-15-no-identity-merges-offline']
+   ctl CTRL-0015-9 ['f'] ['PropertyTest:SI-15-offline-commands-revalidated-by-server', 'PropertyTest:SI-15-offline-administration-only-against-orders-verified-before-outage']
+   ctl CTRL-0015-10 ['g'] ['PropertyTest:SI-15-no-last-writer-wins-on-clinical-state']
+===== HAZ-0016 ['SI-16'] H1 | Design-system shell | modules ['record', 'empi', 'platform-docs']
+  clauses: [('a', 'The banner (photo, two identifiers,'), ('b', 'allergies with "NKA" distinct from "not assessed",'), ('c', 'code status, isolation, dated weight, trilingual name display)'), ('d', 'appears on every clinical screen, mobile view and print.'), ('e', 'One patient context per window.'), ('f', 'Identity is re-verified at signing if the context changed within the l')]
+    CLN-CHT-01 ['WP-1.4'] Chart + banner
+    CLN-CHT-02 ['WP-1.4'] Problems/allergies
+    CLN-ACP-01 ['WP-2.5'] Code status + ACP
+    CLN-IPC-01 ['WP-1.4'] Isolation flags
+    ACC-ID-03 ['WP-1.2'] Aliases, newborn, photo
+    PLT-UX-01 ['WP-0.7'] Design system
+    PLT-UX-02 ['WP-0.7'] Workstation shell
+    PLT-UX-03 ['WP-0.7 (base)'] i18n / RTL
+    PLT-UX-04 ['WP-3.3'] Mobile app framework
+    KRI-LOC-01 ['WP-0.7 (base)', 'WP-1.10'] Trilingual UI/outputs
+    INT-DOC-01 ['WP-1.12'] Documents
+   ctl CTRL-0016-1 ['preamble'] ['PropertyTest:SI-16-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-16']
+   ctl CTRL-0016-2 ['preamble'] ['PropertyTest:SI-16-*']
+   ctl CTRL-0016-7 ['f'] ['PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change']
+===== HAZ-0017 ['SI-17'] H3 | Results routing | modules ['results', 'adt', 'platform-tasks', 'record']
+  clauses: [('a', 'Results pending at discharge,'), ('b', 'and results for discharged patients, go to owned queues')]
+    CLN-RES-01 ['WP-3.11'] Results inbox
+    DX-ORD-01 ['WP-1.7'] Diagnostic order lifecycle
+    CLN-DOC-03 ['WP-3.11'] Discharge + AVS
+    ACC-ADT-01 ['WP-2.1'] ADT
+    PLT-CORE-07 ['WP-0.3'] Task/work-queue engine
+   ctl CTRL-0017-1 ['preamble'] ['PropertyTest:SI-17-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-17']
+   ctl CTRL-0017-2 ['preamble'] ['PropertyTest:SI-17-*']
+   ctl CTRL-0017-3 ['a'] ['PropertyTest:SI-17-pending-results-at-discharge-go-to-owned-queue']
+   ctl CTRL-0017-4 ['b'] ['PropertyTest:SI-17-result-for-discharged-patient-goes-to-owned-queue']
+===== HAZ-0018 ['SI-18'] None | Boundary Register service | modules ['safety-registry', 'platform-config']
+  clauses: [('a', 'A Tier 2 function activates for a tenant only where the Regulatory Bou'), ('b', 'backed by a stored written local opinion (scope, intended purpose, ver'), ('c', 'expires after 24 months or on any change).'), ('d', 'Configuration toggles cannot override it')]
+    TRU-REG-01 ['WP-0.9'] QMS + Boundary Register
+    TRU-REG-02 ['WP-0.9'] Safety case + hazard log
+    PLT-CFG-01 ['WP-0.3'] Config-as-product
+    MED-DOSE-01 ['Phase 5 (the Dose Engine first; shadow mode ≥4 weeks, C2 activation)'] Dose Engine (BP new)
+    CLN-CDS-02 ['WP-1.5 (outpatient subset)', 'WP-3.1 (full)'] Order checks
+    CLN-CDS-05 ['WP-3.5 (`reg-ews`) and its fallback'] NEWS2/PEWS/MEOWS
+    CLN-CDS-06 ['Phase 5 (sepsis screen, Regulated Module #2)'] Sepsis screen
+    CLN-CDS-08 ['WP-3.1'] VTE prompts
+    DX-BB-01 ['WP-3.10'] Bedside transfusion
+    DX-LAB-03 ['WP-1.7', 'Phase 1.1 (LIS autoverification v1 in `reg-lis-rules`, activated only where the Boundary Register allows)'] Validation + autoverification
+    DX-PAC-01 ['WP-1.8'] PACS integration
+    NUR-FLW-02 ['WP-3.4'] Risk scores
+   ctl CTRL-0018-1 ['preamble'] ['PropertyTest:SI-18-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-18']
+   ctl CTRL-0018-2 ['preamble'] ['PropertyTest:SI-18-*']
+   ctl CTRL-0018-3 ['a'] ['PropertyTest:SI-18-activation-only-when-cleared-or-not-required']
+   ctl CTRL-0018-5 ['c'] ['PropertyTest:SI-18-opinion-expires-after-24-months (simulated clock)', 'PropertyTest:SI-18-any-change-expires-the-opinion']
+   ctl CTRL-0018-6 ['d'] ['PropertyTest:SI-18-configuration-toggle-cannot-override-register']
+===== HAZ-0019 ['SI-19'] H4 | Flag service | modules ['platform-config', 'cds', 'ai-gateway']
+  clauses: [('a', 'Every CDS rule and clinical-behaviour flag has a kill switch.'), ('b', 'Safety-relevant changes default to off')]
+    PLT-CFG-01 ['WP-0.3'] Config-as-product
+    PLT-CORE-06 ['WP-1.1 (non-device rules)'] Rules engine
+    CLN-CDS-02 ['WP-1.5 (outpatient subset)', 'WP-3.1 (full)'] Order checks
+    CLN-CDS-03 ['WP-1.5'] CDS telemetry + harness
+    AI-GW-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] AI gateway
+   ctl CTRL-0019-1 ['preamble'] ['PropertyTest:SI-19-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-19']
+   ctl CTRL-0019-2 ['preamble'] ['PropertyTest:SI-19-*']
+   ctl CTRL-0019-3 ['a'] ['PropertyTest:SI-19-every-rule-and-flag-has-a-kill-switch']
+   ctl CTRL-0019-5 ['b'] ['PropertyTest:SI-19-safety-relevant-flags-default-off']
+===== HAZ-0020 ['SI-20'] H13 | Trust Plane; AI gateway; egress tests | modules ['trust-keys', 'trust-policy', 'ai-gateway', 'front-door', 'platform-site']
+  clauses: [('a', "Usable PHI stays in the hospital's on-site cell and the Kurdistan DR s"), ('b', 'anything off-site is ciphertext under hospital-held keys.'), ('c', 'The only exception is a per-tenant processor entry approved by the Saf'), ('d', 'Message bodies carry no clinical content.'), ('e', 'No PHI or PHI-derived data in telemetry, logs, prompts or support sess')]
+    TRU-KEY-01 ['WP-0.4 (base)', 'WP-1.13 (full)'] Per-tenant KMS
+    PLT-OPS-01 ['WP-1.13'] Cells
+    PLT-OPS-04 ['WP-1.13'] HA + DR
+    PLT-SITE-01 ['WP-1.13'] On-site cell (K new)
+    TRU-BCP-04 ['WP-1.13'] Immutable backups
+    AI-DAT-02a ['WP-1.11'] CDC bronze (BP split)
+    AI-GW-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] AI gateway
+    PLT-OPS-05 ['WP-1.13'] Observability
+    DFD-MSG-01 ['WP-1.10'] SMS/WhatsApp
+    KRI-MSG-01 ['WP-1.10'] Viber + SMS gateways
+    IMP-SUP-01 ['WP-1.14'] Service desk + status page
+   ctl CTRL-0020-1 ['preamble'] ['PropertyTest:SI-20-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-20']
+   ctl CTRL-0020-2 ['preamble'] ['PropertyTest:SI-20-*']
+   ctl CTRL-0020-5 ['c'] ['PropertyTest:SI-20-processor-egress-needs-approved-entry']
+===== HAZ-0021 ['SI-21'] H14 | Trust Plane PEP; print and export services | modules ['trust-policy', 'trust-audit', 'platform-docs', 'hub', 'front-door', 'analytics', 'ai-gateway']
+  clauses: [('a', 'Sensitivity labels and purpose-of-use are enforced at the policy enfor'), ('b', 'Labels: HIV, mental health, reproductive and sexual health, gender-bas'), ('c', 'Each label has its own hazard entry and property tests.'), ('d', 'Labelled results and pregnancy tests are never released by message')]
+    TRU-PRV-01 ['WP-0.4'] Sensitivity labels
+    TRU-IAM-02 ['WP-0.4'] RBAC/ABAC
+    TRU-IAM-03 ['WP-0.4'] Break-the-glass
+    TRU-PRV-02 ['WP-1.2'] Consent management
+    TRU-AUD-01 ['WP-0.4'] BALP audit
+    INT-DOC-01 ['WP-1.12'] Documents
+    INT-FHIR-01 ['WP-1.12 (read)', 'Phase 1.1 (FHIR SMART, Bulk and Subscriptions)'] FHIR façade
+    INT-ENG-01 ['WP-1.1b (base)', 'WP-1.12 (full)'] HL7 v2 engine
+    DFD-REC-01 [] PHR push
+    DFD-MSG-01 ['WP-1.10'] SMS/WhatsApp
+    AI-GW-01 ['Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)'] AI gateway
+    AI-DAT-01 ['WP-1.11'] Reporting replica
+    CLN-DOC-04 ['WP-3.12', 'Phase 4 (release-of-information workflow automation)'] HIM + legal record
+   ctl CTRL-0021-1 ['preamble'] ['PropertyTest:SI-21-channels-*', 'PropertyTest:config-chain-vendor-lock-SI-21']
+   ctl CTRL-0021-2 ['preamble'] ['PropertyTest:SI-21-*']
+   ctl CTRL-0021-3 ['a'] ['PropertyTest:SI-21-pep-on-every-channel']
+   ctl CTRL-0021-4 ['a'] ['PropertyTest:SI-21-purpose-of-use-required-on-every-access']
+   ctl CTRL-0021-5 ['b'] ['PropertyTest:SI-21-labels-propagate-to-derived-artefacts']
+   ctl CTRL-0021-6 ['c'] ['PropertyTest:SI-21-label-*']
+   ctl CTRL-0021-7 ['d'] ['PropertyTest:SI-21-labelled-results-and-pregnancy-tests-never-released-by-message']

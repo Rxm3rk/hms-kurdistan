@@ -1,0 +1,12 @@
+/*
+ * The design system's stylesheet: import it once at the application root
+ * (`import '@hms/design-system/styles.css'`). Fonts first, then tokens, then the base styles that use them,
+ * then each component's own styles.
+ */
+@import './fonts.css';
+@import './tokens.css';
+@import './base.css';
+@import './banner/banner.css';
+@import './sign/sign.css';
+@import './command-palette/command-palette.css';
+@import './density/density-control.css';

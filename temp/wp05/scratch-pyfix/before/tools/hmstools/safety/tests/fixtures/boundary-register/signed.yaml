@@ -1,0 +1,6 @@
+# Synthetic test fixture (provenance: synthetic): a later safety artefact with a filled signed_by and no record.
+entries:
+  - id: BR-0001
+    function: reg-ews
+    status: not-assessed
+    signed_by: SYN-TEST-SIGNER-A

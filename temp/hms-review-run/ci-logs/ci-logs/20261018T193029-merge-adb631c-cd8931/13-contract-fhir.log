@@ -1,0 +1,6 @@
+# contract-fhir
+# command: (not built: FHIR validator against pinned profiles)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# FHIR validator against pinned profiles: not built yet; WP-1.12 builds it. Counted as a failure (fail closed).
+

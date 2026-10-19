@@ -1,0 +1,31 @@
+Synchronizing state of docker.service with SysV service script with /usr/lib/systemd/systemd-sysv-insta
+==> JDK 25
+
+==> Helm v4.3.1
+
+==> k3d v5.8.3
+
+==> Node.js v24.22.0
+
+==> Tauri 2 Linux prerequisites
+
+==> Rust stable (rustup, as surface)
+
+==> git settings for surface
+
+==> versions
+Ubuntu 24.04.5 LTS
+Docker version 29.9.1, build dfc520d
+Docker Compose version v5.6.0
+Client Version: v1.37.1
+v4.3.1+gc0d08d0
+k3d version v5.8.3
+openjdk version "25.0.4.1" 2026-08-18
+v24.22.0
+0.36.0
+Python 3.12.3
+git version 2.43.0
+rustc 1.99.1 (58cf8f9c3 2026-10-13)
+cargo 1.99.1 (5f94df478 2026-08-27)
+Hello from Docker!
+PROVISION-OK

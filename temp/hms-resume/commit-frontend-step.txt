@@ -1,0 +1,27 @@
+fix(tools): bootstrap installs the frontend packages, caches stay in .tools
+
+A fresh clone had no frontend/node_modules, and neither tools/bootstrap nor
+tools/ci/run installed it, so the documented gate command
+('sh tools/bootstrap && sh tools/ci/run fast') failed at the frontend step
+in the WSL clone.
+
+- tools/bootstrap gains the 'frontend' step (part of 'all'): 'corepack pnpm
+  install --frozen-lockfile' in frontend/. Corepack checks the pinned pnpm
+  against the packageManager hash; pnpm checks every package's sha512.
+- The pnpm store (storeDir in frontend/pnpm-workspace.yaml) and Corepack's
+  cache (COREPACK_HOME, exported by 'tools/bootstrap env' and set by
+  tools/ci/run) are under .tools/, so bootstrap still writes nothing outside
+  the repository.
+- tools/doctor checks pnpm offline in the same project-local Corepack cache
+  and points at 'sh tools/bootstrap frontend' when it is missing.
+- COMMANDS.md documents the step and the variable.
+
+Tests added: 5 bootstrap unit tests (project-local COREPACK_HOME in the env
+and the env script; nothing to install without frontend/package.json; a
+clear error without corepack; the frozen install's argv, directory and
+environment; a failed install reports the pnpm output). Verified on the
+Windows checkout: 'sh tools/bootstrap frontend' reinstalled node_modules in
+20 s into .tools/pnpm-store; 'sh tools/ci/run fast' passes every step
+(389 Python, 66 backend and 514 frontend tests).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

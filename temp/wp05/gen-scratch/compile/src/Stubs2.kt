@@ -1,0 +1,3 @@
+package hms.medications.domain.toywrappingdemonstration
+
+class ToyWrappingDemonstrationFacts

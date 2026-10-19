@@ -1,0 +1,11 @@
+# repo-check
+# command: sh tools/hms repo check --json
+# cwd: .
+# result: PASS (exit code 0)
+
+WARN   crlf: BUILD-PROMPT.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+WARN   crlf: research/09-ai-analytics-digital-front-door.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+WARN   crlf: research/blueprint-drafts/proposal-A-market-business-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+WARN   crlf: research/blueprint-drafts/proposal-C-platform-architecture-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it
+repo: PASS (text_files_checked=341, binary_files_skipped=3, crlf_files=0, crlf_plan_of_record=4, required_files_present=11, adrs_total=28, adrs_valid=28, tenant_files_scanned=132, tenant_matches=0, branches=3, blocking_now_items=2, status_lines=29)
+{"check": "repo", "counts": {"adrs_total": 28, "adrs_valid": 28, "binary_files_skipped": 3, "blocking_now_items": 2, "branches": 3, "crlf_files": 0, "crlf_plan_of_record": 4, "required_files_present": 11, "status_lines": 29, "tenant_files_scanned": 132, "tenant_matches": 0, "text_files_checked": 341}, "errors": [], "ok": true, "warnings": ["crlf: BUILD-PROMPT.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it", "crlf: research/09-ai-analytics-digital-front-door.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it", "crlf: research/blueprint-drafts/proposal-A-market-business-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it", "crlf: research/blueprint-drafts/proposal-C-platform-architecture-first.md has CRLF line endings; it is plan of record (read-only for the build), so a human decides whether to renormalise it"]}

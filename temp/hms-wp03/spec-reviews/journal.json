@@ -1,0 +1,624 @@
+[
+ {
+  "target": "journal",
+  "lens": "correctness",
+  "summary": "Correctness and architecture review (automated review, AI) of platform-journal.md, events/envelope.md and events/catalogue.md, checked against BUILD-PROMPT, R08, R11, BP §7.6, the hazard log, DN-040, the sibling specs and integrator decisions D1-D9. Result: 4 critical, 26 major and 16 minor findings. Two problems run through most of them. First, the journal and envelope were written against time, id and context types that the kernel spec and D1/D4 now define differently. Second, the catalogue disagrees with every platform module spec. Critical: (1) EntryTiming does not match the kernel. The kernel labels a privileged back-dated entry LATE_ENTRY, and the journal stores LATE_ENTRY without the reason or policy-decision check, so CTRL-0010-4 can be bypassed. The kernel's Migrated and LateArrival classifications cannot be stored at all. (2) The journal stores whatever timing classification the caller supplies, and that classification was made on a different clock reading. Nothing re-checks it, so a back-dated row can be stored as CONTEMPORANEOUS. (3) The spec says back-dated appends are refused until WP-0.4, but nothing does this: any non-null UUID satisfies J-6. (4) The migration linter misses statements that switch off the immutability trigger or delete rows: CREATE OR REPLACE FUNCTION refuse_change, DROP FUNCTION CASCADE, DROP SCHEMA CASCADE, policy and owner changes, and dynamic SQL. Its list also contradicts §9.8 on dropping and retyping columns. Major themes: the D1/D4/D6/D7/D8/D2 changes are not applied; the as-was and rebuild algorithms are wrong at the edges (folding by valid_from, recorded_at taken before commit); idempotency keys collide across actors and consumers; the API depends on every caller rolling back correctly; one payload cannot both be minimised for events and be the full source for rebuilds and crypto-shredding; the Debezium router cannot build the headers it is supposed to; and catalogue §4 contradicts the event names in the tenancy, config and tasks specs. The now/waits split matches DN-040. The cited BUILD-PROMPT sections mostly say what the specs claim; one quoted phrase does not exist (minor finding CA-31).",
+  "findings": [
+   {
+    "id": "CA-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.1 entry_timing; §4.4 Classification; §5 NewEntry.timing; §9.1 entry_timing/entry_back_dating_privileged checks (also envelope.md §5 entrytiming)",
+    "finding": "The journal and envelope use a 4-value enum: CONTEMPORANEOUS, LATE_ENTRY, BACK_ENTRY, BACK_DATED. J-6 and the DB check require a reason and a policy decision only for BACK_DATED. The kernel spec (platform-kernel.md §6.2) defines EntryTiming differently. It is a sealed interface: Contemporaneous, BackDated(lag), BackEntry(lag, episodeId), LateArrival(lag), Migrated(lag) and Refused. Its labels are LATE_ENTRY, DOWNTIME_ENTRY, LATE_ARRIVAL and MIGRATED, and a privileged user back-dating gets the label LATE_ENTRY. An adapter that maps kernel labels into entry_timing therefore writes back-dated rows as LATE_ENTRY, and they pass with no reason or policy decision. That bypasses CTRL-0010-4 and SI-10 'back-dating is privileged'. LateArrival and Migrated have no column value, so their labels (CTRL-0010-5) are lost or wrongly coded. The episodeId that back-entry reconciliation needs (CTRL-0010-6) is not stored. Nothing checks Migrated against source='migrated'. §4.4 promises a test that keeps the DB value list equal to 'the EntryTiming enumeration', but no such enumeration exists.",
+    "recommendation": "Use one vocabulary, owned by hms.kernel.time. Store the classification kind (CONTEMPORANEOUS, BACK_DATED, BACK_ENTRY, LATE_ARRIVAL, MIGRATED) and, separately, the label and back_entry_episode_id. Key J-6 and the DB check on the kind BACK_DATED, never on a label. Require source='migrated' if and only if the kind is MIGRATED. Refuse EntryTiming.Refused. Make the envelope's entrytiming values match. Add a property test: every Accepted classification round-trips through the journal row and the envelope."
+   },
+   {
+    "id": "CA-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.4 Classification; J-4; §5 NewEntry.timing; §6 step 3",
+    "finding": "The journal is SI-10's 'enforced in' location, but it takes the caller's timing classification on trust. The caller classifies against a recorded time it read itself. J-4 then has the appender read the clock again. The stored recorded_at and the time used for classification therefore differ, and the journal never checks that the stored timing is consistent with valid_from and recorded_at. A caller can append a valid time from three days ago labelled CONTEMPORANEOUS. That row then needs no privilege, reason or label, so CTRL-0010-4 and CTRL-0010-5 fail silently on that channel (§2.1 preamble: 'for every channel').",
+    "recommendation": "The journal should classify itself, or at least verify. One option: append() takes the inputs (EntryMode, EntryTimePolicy, BackEntryEpisode?), reads RecordedTime.now(clock) once, and calls EntryTimeClassifier itself. The other: the caller passes the single RecordedTime it classified against, and the journal re-classifies and refuses a mismatch with a new JournalViolation.TimingInconsistent. Add a property test that a caller-supplied CONTEMPORANEOUS outside the tolerance is refused."
+   },
+   {
+    "id": "CA-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§2 table 'Back-dating privilege decisions'; §4.4 Back-dating; J-6; §17 KA 'back-dated appends are refused'",
+    "finding": "The spec says 'every back-dated append is refused (fails closed)' until WP-0.4, but nothing refuses it. J-6 and the entry_back_dating_privileged check only require policy_decision_id to be non-null, and the tests use a 'test decision reference'. In production any caller can pass a random UUID and write a back-dated row, so the claimed fail-closed behaviour and the KA are not true as written (§3.5 'no silent stubs').",
+    "recommendation": "Add a PolicyDecisionVerifier port that the appender calls for BACK_DATED rows, returning Verified or Unverified. The production adapter returns Unverified until the WP-0.4 PDP exists, and the journal maps that to Rejected(BackDatingWithoutPolicyDecision). Put the test adapter in a ...testing package (D8). Name a test that the production wiring refuses a back-dated append."
+   },
+   {
+    "id": "CA-04",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.3 item 3 (migration linter statement list); §9.8 'the linter refuses both'",
+    "finding": "The linter list leaves several bypasses open. (1) CREATE OR REPLACE FUNCTION journal.refuse_change() with a body that returns OLD or NEW silently switches off both triggers. (2) DROP FUNCTION refuse_change() CASCADE drops the triggers. (3) DROP SCHEMA … CASCADE drops the table; only DROP TABLE is listed. (4) DROP POLICY, ALTER POLICY and ALTER ROLE … BYPASSRLS weaken row-level security. (5) ALTER TABLE … OWNER TO the runtime role gives it trigger control. (6) UPDATE or DELETE run through dynamic SQL in DO blocks or functions (EXECUTE '…'), or through data-modifying CTEs. Separately, §9.8 says the linter refuses dropping or retyping a journal column, but the §9.3 list has no ALTER TABLE … DROP COLUMN, ALTER COLUMN … TYPE or RENAME. The spec contradicts itself on the CTRL-0006-3 control.",
+    "recommendation": "Add to the refused set: CREATE OR REPLACE or DROP of any function that a fact-table trigger uses; DROP SCHEMA; DROP or ALTER POLICY on a fact table; ALTER TABLE … OWNER, RENAME, DROP COLUMN and ALTER COLUMN TYPE on a fact table; ALTER ROLE … BYPASSRLS; and any DO block, EXECUTE or data-modifying CTE that names a fact table. Better still, refuse DO blocks and dynamic SQL in migrations unless an allowlisted marker is present. Give each statement kind its own planted fixture in StaticAnalysis:no-update-or-delete-on-fact-tables."
+   },
+   {
+    "id": "CA-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.3 item 3 ('knows the fact tables from the -- hms:fact-table marker'); §8.1 last bullet",
+    "finding": "The linter fails open. A table created without the marker is not treated as a fact table, so if a module forgets the marker, UPDATE and DELETE on its bitemporal fact table pass CI. The 'registered as read models' mechanism in §8.1 is mentioned but never defined. Tenancy's planned fact tables depend on this linter.",
+    "recommendation": "Require every CREATE TABLE in any migration to be classified (hms:fact-table, hms:aggregate-table or hms:read-model). An unclassified table fails the build. Define the read-model marker. Add a planted unclassified-table fixture."
+   },
+   {
+    "id": "CA-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§5 (ChangeContext, IdempotencyKey, Reason, TransactionContext, TransactionRunner, UUID ids); §3 dependencies; §17 OQ 'shared kernel types'",
+    "finding": "D1 is not applied. The journal defines its own ChangeContext with plain UUIDs for tenant, facility, actor, on-behalf-of, device and patient. It also defines its own IdempotencyKey and Reason, plain correlation and causation UUIDs, and TransactionContext, TransactionRunner and TxOutcome in hms.kernel.journal. D1 moves these to :platform:context (CommandContext, ChangeReason, ActorRef, DeviceRef, PurposeOfUse, IdempotencyKey, CorrelationId, TransactionContext/TransactionRunner) and to the typed ids in hms.kernel.ids (TenantId, FacilityId, PatientId, UserId). §3 does not list :platform:context, although journal/build.gradle.kts already depends on it. The §17 OQ that asks this question is now answered.",
+    "recommendation": "Rebuild the §5 API on CommandContext and the typed ids, and use ChangeReason for reason. State where the journal-only fields go (producerModule, source, causationId if it is not in CommandContext). Move TxOutcome next to TransactionRunner in hms.kernel.context. Add :platform:context to §3. Remove the OQ."
+   },
+   {
+    "id": "CA-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§5 AsWas, JournalReader.history/patientTimeline, JournalEntry.recordedAt, NewEntry.validTime (ValidTime); §17 assumptions",
+    "finding": "D4 and the kernel types are not applied. AsWas.knownAt, validAt and view, JournalReader.history and patientTimeline take raw Instants instead of hms.kernel.time.AsOf. JournalEntry.recordedAt is an Instant, not RecordedTime, which loses the typed protection of CTRL-0010-3 that the kernel's restore-only-in-persistence rule (D7) exists for. NewEntry.validTime is a 'ValidTime' with offsets on both bounds, but the kernel spec defines no such type: ValidPeriod holds offset-free Instants and ClinicalTime holds a single point. So valid_to_offset_s has no source type.",
+    "recommendation": "Use AsOf for every as-was coordinate, and RecordedTime for recordedAt (read back through RecordedTime.restore in infrastructure). Agree a kernel type for a clinical validity period with offsets, for example ClinicalPeriod(start: ClinicalTime, endExclusive: ClinicalTime?), or drop valid_to_offset_s. Record the agreed names in the kernel spec."
+   },
+   {
+    "id": "CA-08",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§5 partitionkey; §8 Topics; journal §4.1 partition_key, J-9, J-10, J-13, §9.1 entry_partition_key; catalogue.md §1 'Partition key', §4 'Patient key: none'",
+    "finding": "D6 is not applied. Under D6 the events spec owns the rule, and tenancy and config aggregates are keyed per tenant. The envelope says the key is the patient or else the aggregate id. The journal hard-codes partition_key = COALESCE(patient_id, aggregate_id) in a DB check, which would reject tenant keys. The catalogue lists those events with key 'none' and has no 'tenant' value. The tenancy (§8) and config (§10) specs key by tenant, which contradicts all three. Separately, J-9 decides keying per event type while J-13 and D6 decide it per aggregate. An aggregate that has a patient but emits an event type the catalogue marks NEVER would split its events across two keys and lose their order.",
+    "recommendation": "Put the rule only in hms.kernel.events: PartitionKey.of(patientId, aggregateId, scope), with scope PER_TENANT for tenancy and config aggregate types. Declare keying per aggregate type in the catalogue, and check event types against their aggregate. Replace the journal's COALESCE check with a check driven by a partition_scope column, or drop the DB check. Add 'tenant' to the catalogue key vocabulary."
+   },
+   {
+    "id": "CA-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§3 'Test fixtures of :platform:journal'; §9.9; §17 OQ placement",
+    "finding": "D8 is not applied. InMemoryJournal and InMemoryTransactionRunner are placed in Gradle test fixtures or :platform:testing. D8 puts in-memory adapters in main code, in a ...testing or ...inmemory package, documented as test and dev only, and never bound by app-hms. The spec does not say how a module's in-memory repositories join the same in-memory transaction as the journal. TransactionContext is 'opaque' and has no enlistment or rollback hook. Without one, the rebuild-equals-incremental property cannot catch state that was committed without its journal row.",
+    "recommendation": "Put the adapters in hms.kernel.journal.inmemory, with the in-memory runner in hms.kernel.context.inmemory. Add a rule that app-hms never binds a ..inmemory.. or ..testing.. type. Define an enlistment hook (for example TransactionContext.onCompletion(commit/rollback)) that every in-memory adapter uses."
+   },
+   {
+    "id": "CA-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.3 item 3 ('A fast-tier check over every module's db/migration files'); §17 OQ ('it must see every project's migrations')",
+    "finding": "The linter's placement and scope contradict D7. Under D7 it is a reusable class in arch-rules that each project with migrations runs over its own migrations. The spec describes one global check that sees every project.",
+    "recommendation": "Describe the linter as a class in :platform:arch-rules that each project with migrations runs over its own db/migration tree, wired through the test conventions. Remove the OQ."
+   },
+   {
+    "id": "CA-11",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 Configuration; §12 DeadLetterAlarmPolicy; journal §12",
+    "finding": "The dead-letter alarm setting conflicts with D2 and the kernel boundary. The envelope says hms.kernel.events declares platform.events.dead-letter-alarm-after, and platform-tasks.md §7.1 and §8 agree. Under D2, every setting definition lives in tenancy's SettingCatalogue, which a kernel library cannot import. So nobody can declare the setting as written. The envelope also leaves the key name to 'platform-config's naming', but under D2 the naming is tenancy's.",
+    "recommendation": "State that a module registers the definition in tenancy's SettingCatalogue (tenancy's TenancySettings or platform-tasks: VENDOR_FOUNDATION, vendor-locked, tighten-only, max PT5M). DeadLetterAlarmPolicy then receives the resolved Duration. Fix the key name with tenancy's naming rule. Update the tasks spec's 'declared by hms.kernel.events'."
+   },
+   {
+    "id": "CA-12",
+    "severity": "major",
+    "file": "docs/specs/events/catalogue.md",
+    "location": "§4 Platform events of WP-0.3",
+    "finding": "The proposed names contradict every owning spec. Tenancy publishes HierarchyNodeCreated, HierarchyNodeUpdated, HierarchyNodeMoved, HierarchyNodeRetired, SettingValueChanged, SettingLockApplied and SettingLockRemoved; the catalogue has EnterpriseNodeCreated, EnterpriseNodeChanged, EnterpriseNodeRetired and SettingChanged. Config publishes ConfigChangeSetSubmitted, ConfigChangeSetApproved, ConfigChangeSetRejected, ConfigChangeSetApplied, ConfigBundleActivated, ConfigBundleRefused, ConfigMergeCompleted, FlagChanged and KillSwitchEngaged/Released; the catalogue has ChangeSetApplied, BundlePromoted, BundlePromotionRefused and FeatureFlagChanged. Tasks also publishes TaskReleased, TaskSlaBreached and TaskOrphanCleared and uses TaskRequested; the catalogue lacks all four. UnitTest:event-catalogue-matches-document plus journal J-8 would then refuse the module specs' events.",
+    "recommendation": "Replace §4 with the owning specs' names, owners and keys (tenant, per D6). Add TaskReleased, TaskSlaBreached, TaskOrphanCleared and (see CA-14) TaskRequested. Mark the WP-0.3 platform types for 'specified' together with their schemas."
+   },
+   {
+    "id": "CA-13",
+    "severity": "major",
+    "file": "docs/specs/events/catalogue.md",
+    "location": "§2 rows StaffAssignmentChanged, ClaimSubmitted, PaymentReconciled, ChargeCreated, Result*; envelope.md §12 CatalogueEntry/CatalogueStatus",
+    "finding": "The code registry cannot match the document, so the test cannot pass as written. CatalogueEntry needs a non-null ownerModule and keying, but several named rows have owner or key 'to be decided'. Statuses such as 'catalogued (names pending)' and 'proposed' have no CatalogueStatus value. CatalogueEntry also has only ownerModule, while ChargeCreated (written by orders and others, schema owned by rcm), the result events (produced by lis and ris) and TaskRequested have producers that differ from the owner. Journal J-8 checks only that the type exists, so any module can write any catalogued type, for example adt writing ResultFinal.",
+    "recommendation": "Add producers: Set<ModuleId> to CatalogueEntry, and have the journal check producer_module against it (a new JournalViolation). Keep rows with an undecided owner or key out of the registry, with an explicit exclusions list the matching test reads, or add a pending keying state that the journal refuses. Align the status vocabulary."
+   },
+   {
+    "id": "CA-14",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§2 'They are never commands and never requests to another module'",
+    "finding": "This contradicts platform-tasks.md §5.2 'Through the caller's outbox', where non-kernel modules write a TaskRequested journal entry that platform-tasks consumes in order to create the task. One of the two specs must change, and the SI-03 task-creation path for every non-kernel module depends on the outcome.",
+    "recommendation": "Decide with the tasks spec. Either allow a catalogued, past-tense 'requested' fact type with a named consumer contract (and catalogue TaskRequested with owner platform-tasks and producers being all modules), or rename it to a pure fact and let tasks react to the domain facts themselves. Record the decision as the tasks spec's proposed ADR."
+   },
+   {
+    "id": "CA-15",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 'the clock starts at the first failure'; §12 (no task sink port)",
+    "finding": "The dead-letter task flow contradicts the tasks spec. platform-tasks.md §7.1 starts the dead-letter task's SLA at 'the instant the item was dead-lettered'. The envelope starts the 5-minute clock at the first failure, so with retries the task breaches later than the CTRL-0003-5 alarm. The tasks spec also says the events library defines the sink port through which dead-letter items become tasks, and that the port's name belongs to the events spec, but §12 defines no such port.",
+    "recommendation": "Add a port to §12, for example DeadLetterTaskSink.raise(item: DeadLetterItem) with idempotency on the item id, and state that the task's startsAt = DeadLetterItem.firstFailureAt. Ask the tasks spec to align."
+   },
+   {
+    "id": "CA-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§7 As-was queries; §5 AsWas; JournalReader.patientTimeline ValidWindow",
+    "finding": "The as-was algorithm is imprecise and inconsistent with §8.1. (1) view() orders rows by (valid_from, version). For one aggregate, that folds a later version (a back-entry or an amendment carrying an earlier valid_from) before earlier versions, which breaks state-machine projections, and §8.1 itself says projections depend on per-aggregate version order. (2) validAt checks only valid_from ≤ V and ignores valid_to, although valid periods are half-open (R08 §3.7). (3) The spec never says what valid_from an AMENDMENT or ENTERED_IN_ERROR row carries. (4) The ValidWindow semantics (overlap or start-in-window) are undefined. Journal acceptance criterion 7 ('valid-at views') has no named test.",
+    "recommendation": "Define validAt(V) as valid_from ≤ V and (valid_to is null or V < valid_to). Fold each aggregate in version order, after selecting rows by recorded_at ≤ R. Let the projection, not the row order, decide supersession. Define valid_from for corrections (the original's valid time) and the ValidWindow overlap rule. Add PropertyTest:journal-as-was-valid-at with boundary cases at V = valid_from and V = valid_to."
+   },
+   {
+    "id": "CA-17",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§8.2 Rebuild order and procedure; §5 RebuildCursor; §7 'what did the clinician see at 09:12'",
+    "finding": "recorded_at is read from the clock before commit, so rows do not become visible in recorded_at order. A rebuild that pages by a (recorded_at, …) cursor can permanently skip a row that commits after the cursor has passed its recorded_at. The spec also says nothing about appends that happen during a rebuild, or about serving reads from a half-rebuilt store. On the same reasoning, knownAt(09:12) includes rows recorded before 09:12 that committed later, which no screen could have shown at 09:12. The 'Limits, stated honestly' bullet does not mention this.",
+    "recommendation": "Rebuild from a single REPEATABLE READ snapshot (or record its snapshot or LSN), then hand over to live projection from that point. Or order by a commit-ordered sequence. Mark the store as rebuilding and not serving until it has caught up. State the commit-lag limit of knownAt in §7. Add a rebuild test with an append that commits late."
+   },
+   {
+    "id": "CA-18",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.6 Idempotency; §9.2; envelope.md §9 'with the event id as the idempotency key'",
+    "finding": "Idempotency keys can collide in two ways. (1) Client keys are unique only per tenant, and a reused key is detected only by a different first aggregate or event type. If two actors, or one client reusing a key, issue the same kind of command on the same aggregate, the second gets AlreadyApplied with the first actor's rows, and its action is silently not recorded. (2) Under envelope §9, every consumer in the monolith uses the CloudEvents id as its journal idempotency key in the same journal.entry table. Two consumers of one event (for example tasks and results reacting to OrderSigned) collide: the second gets IdempotencyKeyReused or AlreadyApplied, and its effect is never applied.",
+    "recommendation": "Scope the key: unique (tenant_id, actor or consumer namespace, key, command_seq). Store a request fingerprint (a hash of the aggregates, event types and payloads) and return IdempotencyKeyReused on any mismatch. Require client keys to be UUIDs. Have consumers derive the key as consumerId + ':' + eventId. Define the precedence when a version conflict and an idempotency conflict happen together: the idempotency check first."
+   },
+   {
+    "id": "CA-19",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§6 steps 4-5 ('Only Appended commits'); §5 TransactionRunner/TxOutcome",
+    "finding": "Atomicity depends on every caller handling five non-Appended results correctly. ON CONFLICT DO NOTHING may already have inserted some rows of a multi-aggregate command. If a caller returns TxOutcome.Commit after AlreadyApplied or VersionConflict, it commits a partial journal and possibly a re-executed state change with no row, so the change is never published or audited (H6). J-2 and §6 step 1 claim this cannot happen.",
+    "recommendation": "Make it fail safe. Any non-Appended result marks the TransactionContext rollback-only, and the runner rolls back (or throws a programming error) if the block returns Commit. Add UnitTest and IntegrationTest cases for 'Commit after a non-Appended result rolls back'."
+   },
+   {
+    "id": "CA-20",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.1 payload; §8.1 'holds no information that is not in the journal'; §4.2 'Erasure … crypto-shredding'; envelope.md §6 Payloads",
+    "finding": "One jsonb payload is both the journal's rebuild and audit record and the published event body. The envelope forbids free text, document bodies and binaries in payloads, so read models that need those fields (note text, problem descriptions) cannot be rebuilt from the journal, which breaks §2.2 rule 1 and §8.1. The payload is also plaintext. If a module encrypts designated fields in its own tables (§6.4; ADR-008) but its journal payload carries them in plain text, crypto-shredding is defeated, which contradicts §4.2's erasure claim.",
+    "recommendation": "Separate the journal payload (the full change data, with ADR-008 designated fields kept as ciphertext under the tenant key) from the published event data, which the module's events/ mapper or the relay produces from it in minimised form. Or state explicitly that rebuilds read shapes A and B as well. Record whichever you choose in an OQ or ADR."
+   },
+   {
+    "id": "CA-21",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§10 Router table and fallback paragraph; §4.1 ce_type generated column (with envelope.md §3, §4, §17 OQ type prefix)",
+    "finding": "The Debezium outbox event router copies column values into headers unchanged. It cannot build /hms/<module>, <AggregateType>/<id>, urn:hms:schema:…, specversion or datacontenttype, or validfrom with its original offset (valid_from + valid_from_offset_s). Debezium also emits timestamptz in UTC. The transform described as a 'fallback' is therefore required, and §10 is not implementable as written. In addition, putting the 'hms.' prefix into the generated ce_type column of an append-only fact table means changing the prefix later (envelope §17) needs a forbidden ALTER of a fact-table column.",
+    "recommendation": "Specify the single-message transform (or relay mapping) as the primary design, owned by :platform:journal infrastructure and reusing EnvelopeMapper. Drop the ce_type generated column and compute type in the mapper, so the prefix question does not touch the fact table."
+   },
+   {
+    "id": "CA-22",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.8 'The application runs the journal's migrations'; §9.3 item 2 and 'Residual risk'",
+    "finding": "The spec contradicts itself. §9.3 says the table is owned by the migration role, which 'is used only by the migration job'. §9.8 says the application runs the migrations at start-up. If app-hms runs Flyway, the runtime process holds owner credentials (DROP TABLE, DISABLE TRIGGER) and layer 2 (grants) protects nothing.",
+    "recommendation": "Run migrations only in a separate job or init container with the owner role. app-hms connects only as ${appRole} and checks the schema version at start-up. Name an integration test that the runtime role cannot ALTER or DROP the table."
+   },
+   {
+    "id": "CA-23",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§5 JournalReader (history, patientTimeline, byIdempotencyKey, streamForRebuild); §7 Access; §17 KA 'journal reads are not audited'",
+    "finding": "Any module can read any other module's journal rows and payloads, a patient's whole cross-module timeline included, below the policy enforcement point. That cuts across §5.2 ('No module reads another module's tables') and §6.3. The arch rule exempts all of hms.kernel. The KA's 'no production caller in WP-0.3' is also false: §4.6 makes every command handler call byIdempotencyKey in production.",
+    "recommendation": "Scope the reader. Command handlers get a per-module reader limited to their producer_module and their own aggregate types. patientTimeline and streamForRebuild get a privileged as-was or rebuild service, wrapped by the Trust SDK from WP-0.4. Add an ArchTest. Correct the KA wording."
+   },
+   {
+    "id": "CA-24",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§5 Projection<S>, ReadModelStore<S>",
+    "finding": "The projection API cannot be implemented as written. Projection has no key function, so ReadModelStore.apply cannot know which keyed state to load and fold, and snapshot(): Map<String, S> has undefined keys. Is S one global state or per key? The tasks worklist (the reference projection for the exit test) will be built on this API.",
+    "recommendation": "Add key(entry): String? (null means ignore) to Projection, and say S is the state per key. Define reset, apply and snapshot in those terms. Add a version check for the stored projection version."
+   },
+   {
+    "id": "CA-25",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§11 Replay; journal §10 'connectors start without a data snapshot'; HAZ proposal (journal §17)",
+    "finding": "Events can be lost between the journal and the shared topics, and nothing recovers them. With no data snapshot, rows committed before a connector or slot exists, or during a slot loss and re-creation, never reach the shared patient or platform topics. Replay goes only to a per-consumer replay topic, and nothing detects the gap. Replay also interleaves with live consumption of the same keys, so 'A08 never overtakes A01' can break during a journal replay.",
+    "recommendation": "Add a gap detector that compares the journal's committed high-water mark with the last published event, and raise an alarm and owned task. Specify a recovery procedure (replay the gap to every subscribed consumer, with keys parked). Require a consumer to pause or park affected keys while a journal replay runs and to resume at a recorded offset. Add a ChaosTest for slot loss."
+   },
+   {
+    "id": "CA-26",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§9 ProcessedEventLedger; §12 IdempotentConsumer",
+    "finding": "ProcessedEventLedger.contains and record take no TransactionContext, yet §9 requires the ledger insert to be in the same transaction as the effect. The interface also cannot report a concurrent duplicate (record should be insert-if-absent), and there is no port for parked events, which §10 requires. The tasks consumer of TaskRequested is built on this API.",
+    "recommendation": "Use record(tx, consumer, eventId, at): Recorded | AlreadyRecorded, and contains(tx, …). Add ParkedEventStore (park, list by key in order, release) with TransactionContext from hms.kernel.context (D1)."
+   },
+   {
+    "id": "CA-27",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§3 and §5 attribute tables (journal §10 header list)",
+    "finding": "Provenance is dropped from the published event. The journal's source (user, device, ai-draft, migrated, interface, system), actor_id, on_behalf_of_id and purpose_of_use do not appear as attributes, and the payload rules do not require them either. §8.1 P8 asks for 'provenance everywhere', and SI-07 needs an ai-draft label (from P2) to reach the Hub and analytics.",
+    "recommendation": "Add a provenance extension (≤20 characters, for example 'provenance', from the source column) and state whether actor and on-behalf-of (staff UUIDs, not PHI) travel as attributes or in a payload 'meta' block. Add them to the allowlist test."
+   },
+   {
+    "id": "CA-28",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§12 'The package has no domain sub-package'; journal §3 hms.kernel.journal ports and ReadModelRebuilder",
+    "finding": "The purity claims are not enforced. Arch rules (a) framework-free and (d) no system clock apply only to ..domain.. packages, and hms.kernel is exempt from the module rule. hms.kernel.events (DeadLetterAlarmPolicy and IdempotentConsumer take a Clock, and CTRL-0003-5 depends on them) and the journal's port and service package therefore have no check that they stay framework-free and free of now(). D7 also adds io.cloudevents, io.debezium and io.apicurio to FRAMEWORK_PACKAGES, which matters only where rule (a) applies.",
+    "recommendation": "Extend the kernel rule set (as the kernel spec does for ids, time, money and quantity) to hms.kernel.events.. and to hms.kernel.journal.. excluding ..infrastructure... Name the ArchTests."
+   },
+   {
+    "id": "CA-29",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.1 aggregate_type ('PascalCase, for example Encounter'); envelope.md §3 subject",
+    "finding": "The aggregate type naming conflicts with the sibling specs. platform-config §8 uses config.change-set, config.bundle-activation and config.kill-switch, and platform-tenancy §11 uses tenancy.EnterpriseStructure. Those conflict with AggregateType's PascalCase rule and the envelope subject format <AggregateType>/<id>.",
+    "recommendation": "Fix one rule in the journal spec (PascalCase, unique across modules, with an owner registry or catalogue column), validate it in AggregateType, and have the tenancy and config specs adopt it."
+   },
+   {
+    "id": "CA-30",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4 (one row per state change; 'Only Appended commits')",
+    "finding": "platform-config.md §9 says 'every command, accepted or refused, produces an audit record … in WP-0.3 the record is a journal entry', and tenancy routes refused safety-classified writes to TenancyAudit. The journal has no audit-only row: every row bumps the aggregate version, and a refused command rolls back, which takes any journal row with it. The sibling requirement cannot be met.",
+    "recommendation": "State explicitly that refusals are not journal rows. Refusal audit waits for the Trust Plane audit SDK (WP-0.4), with a KA. Or define a separate append-only refusal-audit table with its own rules. Align the config and tenancy specs."
+   },
+   {
+    "id": "CA-31",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§6 step 2",
+    "finding": "The spec quotes '§6.2 \"programming errors may throw\"', but BUILD-PROMPT §6.2 has no such text. The rule is the kernel spec's [P] convention.",
+    "recommendation": "Cite platform-kernel.md §3 (Kotlin rules) as [P] instead of quoting §6.2."
+   },
+   {
+    "id": "CA-32",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§17; envelope.md §17; catalogue.md §6",
+    "finding": "Open items are all written 'OQ (to be numbered)' with no local labels, and the text cross-refers to them only as '§17, OQ'. Under D9 local labels stay until the integrator numbers them, so these references are ambiguous.",
+    "recommendation": "Give local labels (for example OQ-J1…, KA-J1…, HAZ-J1; OQ-E1…; OQ-C1…) and refer to them by label."
+   },
+   {
+    "id": "CA-33",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.5 Indexes ('BRIN on recorded_at serves rebuild')",
+    "finding": "Keyset paging in the order (recorded_at, aggregate_type, aggregate_id, version) needs a sorted index. A BRIN index cannot supply that order, so every page sorts the tenant's whole journal and a rebuild over two years of history becomes quadratic.",
+    "recommendation": "Add a btree index on (tenant_id, recorded_at, aggregate_type, aggregate_id, version), or whatever order CA-17's fix chooses."
+   },
+   {
+    "id": "CA-34",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "J-12; §5 RecordedTimeRegression",
+    "finding": "Clock skew between nodes up to ADR-026's 1 s alarm (5 s block) will produce RecordedTimeRegression for legitimate quick successive commands on one aggregate. The spec does not say what the caller should do.",
+    "recommendation": "State that RecordedTimeRegression is safe to retry, with bounded back-off, because nothing was written. Cite the ADR-026 skew bounds. Add a test with a TestClock stepping backwards."
+   },
+   {
+    "id": "CA-35",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "J-5; §4.3",
+    "finding": "The rules for chained corrections are undefined: retracting an ENTERED_IN_ERROR row, amending an AMENDMENT, superseding a version that is already retracted, or several corrections of one version.",
+    "recommendation": "State the allowed targets, for example that the target must be a non-retracted version, and add cases to UnitTest:journal-append-rejections."
+   },
+   {
+    "id": "CA-36",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§7 Schemas ('allowed: adding an optional property')",
+    "finding": "Under JSON Schema FULL_TRANSITIVE, adding a property is compatible only if earlier schemas allow additional properties. The spec never requires an open content model, so the 'allowed' list may fail the registry check.",
+    "recommendation": "Require every schema to leave additionalProperties unset or true, and test that requirement in ContractTest:event-schemas-full-transitive."
+   },
+   {
+    "id": "CA-37",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§2 vs §7 'Breaking changes and the 12-month window'",
+    "finding": "'Every journal row becomes exactly one CloudEvent' contradicts publishing two majors in parallel from one row.",
+    "recommendation": "Restate §2 as one CloudEvent per row per published major, with the same id rule stated (or a derived id for the down-converted major)."
+   },
+   {
+    "id": "CA-38",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§12 EventType, DeadLetterAlarmPolicy",
+    "finding": "EventType is a data class with an unvalidated Int major, which goes against the kernel rule 'validated types are not data classes'. DeadLetterAlarmPolicy 'refuses' a bad duration but the refusal is not a sealed result, and the spec does not say what a consumer does then. The isAlarming boundary (≥ or > at exactly 5 minutes) is undefined, while §15 tests 'exactly when 5 minutes have passed'.",
+    "recommendation": "Make EventType a validated class with major ≥ 1. Return a sealed result from a factory, falling back to PT5M on refusal. Define alarming as now ≥ firstFailureAt + alarmAfter and test both sides of the boundary."
+   },
+   {
+    "id": "CA-39",
+    "severity": "minor",
+    "file": "docs/specs/events/catalogue.md",
+    "location": "§1 'Canonical names follow R11 §14'; §2 header",
+    "finding": "MedicationOverridden, ResultAcknowledged, CriticalResultEscalated, ImmunizationRecorded, ReferralSent/Accepted, StaffAssignmentChanged, IdentityVerified, PaymentReconciled and TaskOrphaned are not in R11 §14. They come from BUILD-PROMPT §8.5 and BP §7.6.",
+    "recommendation": "Cite §8.5 as the source of names that are absent from R11 §14."
+   },
+   {
+    "id": "CA-40",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§6 Payloads (free text only where the catalogue names the field)",
+    "finding": "Neither catalogue.md nor CatalogueEntry has a field listing named free-text fields, so the rule cannot be checked. SettingChanged, FeatureFlagChanged and the tenancy and config events carry reasons.",
+    "recommendation": "Add freeTextFields: Set<String> with a justification to CatalogueEntry and a column to the catalogue, and validate payload schemas against it."
+   },
+   {
+    "id": "CA-41",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§15 Tests and §16 Acceptance criteria",
+    "finding": "Acceptance criterion 6 (replay delivers the same ids, only to the requester, audited) has no named test. Criterion 4's wording 'cannot be lengthened below the vendor level' is garbled, and no config-chain lock test is named for it. Journal criterion 3 has no fast-tier test on the in-memory adapter.",
+    "recommendation": "Name IntegrationTest:journal-replay-same-ids-own-topic (waits for the cell), PropertyTest:config-chain-vendor-lock-dead-letter-alarm and PropertyTest:journal-append-all-or-none-in-memory. Reword criterion 4 to 'cannot be set above 5 minutes at any level'."
+   },
+   {
+    "id": "CA-42",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§8 Transport; §8 'Why one patient topic'",
+    "finding": "(1) The rules are Kafka-specific, but ADR-009 and §4.1 keep NATS JetStream as the fallback if C9 fails, and the envelope does not say which rules carry over. (2) The rcm satellite has its own topic pair, so 'all of one patient's events in one partition' does not hold for rcm events. (3) Per-key ordering also depends on the Kafka Connect producer settings (idempotence, max.in.flight), which the spec does not state.",
+    "recommendation": "Add a short note on transport independence and the JetStream mapping. Qualify the ordering claim to one journal database. Require an idempotent producer with ordering preserved in the connector configuration."
+   },
+   {
+    "id": "CA-43",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 Dead-letter queues",
+    "finding": "The dead-letter item has states (parked, replayed, resolved without replay, with a reason) but no lifecycle or state-machine spec, and DeadLetterItem has no state field. §3.2 step 2 asks for state machines first.",
+    "recommendation": "Add a small state table (open → replayed | resolved-without-replay, with a never-defaulted reason) and a state field. Name its permission and audit event."
+   },
+   {
+    "id": "CA-44",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.2 J-11, J-13; §4.4 refusal until WP-0.4; §9.4 row-level security in every topology",
+    "finding": "These are tightenings of SI-06, SI-10 and SI-02-style rules (§3.4 item 1: 'tightening … must be recorded'), but nothing records them in the hazard log controls' notes as docs/safety/README.md 'Tightenings' requires.",
+    "recommendation": "List them as proposed tightenings for the integrator to add to CTRL-0006-x and CTRL-0010-x notes."
+   },
+   {
+    "id": "CA-45",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.6, §5 (with platform-tasks.md §5.4)",
+    "finding": "The tasks spec calls the port 'JournalAppend' and keeps its own IdempotencyStore. The journal spec names it JournalAppender and makes journal rows the idempotency source of truth, so there are two idempotency mechanisms with no stated precedence.",
+    "recommendation": "Align the port name. State whether modules keep their own idempotency store (needed for refused commands, which write no journal row) and how it relates to journal idempotency."
+   },
+   {
+    "id": "CA-46",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§5 'the envelope rules refuse any other' extension",
+    "finding": "Refusing every other extension would reject tracestate (part of the Distributed Tracing extension alongside traceparent) and any header that OpenTelemetry instrumentation adds.",
+    "recommendation": "Allow tracestate. Have parse ignore non-ce_ headers, and refuse only unknown ce_ attributes."
+   }
+  ]
+ },
+ {
+  "target": "journal",
+  "lens": "safety",
+  "summary": "Clinical-safety and hazard review (automated review, AI) of platform-journal.md, envelope.md and catalogue.md, checked against BUILD-PROMPT §2.1, §2.2, §5.2, §5.3, §6.x, §7, §8.x, §12.1, §13.4, §16.3, §21 and §22.1, DN-040, hazard-log entries HAZ-0003/0006/0010/0015/0020/0021, the sibling specs (platform-kernel, platform-tasks, platform-tenancy, platform-config) and integrator decisions D1-D9. The cited section numbers mostly say what the specs claim, and every planned_verification name the journal quotes matches the hazard log. No [HUMAN] field is filled and no clinical values or standard codes were invented. The HL7 v2 and FHIR columns in catalogue.md match §8.5. Four critical findings. (1) The journal trusts the entry-time classification the caller passes in. Its value list also contradicts the kernel's EntryTiming: the kernel labels a back-dated entry LATE_ENTRY, the journal treats LATE_ENTRY as unprivileged, and it has no future-time refusal and no downtime-episode check. Together these let SI-10 back-dating bypass the privilege requirement. (2) The 'every back-dated append is refused until WP-0.4' claim rests only on checking that policy_decision_id is non-null. (3) The outbox can lose events silently: connectors start without a snapshot, and nothing reconciles the journal with Kafka after a replication slot is lost. (4) The dead-letter alarm depends on the failing consumer itself, and no stalled-consumer or lag alarm exists. Major findings: atomicity relies on callers rolling back; idempotency-key reuse is weakly detected; J-12 refuses writes under normal multi-pod clock skew; the valid-time as-was semantics are undefined; rebuilding a read model in place leaves worklists empty while it runs; the migration linter fails open and misses several statement kinds; SI-21 label enforcement is delegated to consumers, and the tolerant-reader rule lets labels drop silently; per-key parking blocks a patient's urgent events behind one bad event; journal replay breaks per-patient order and re-fires external side effects; after a merge, one person's events span two partition keys; the dead-letter topic retention is unspecified; ledger and alarm-policy API defects; D1/D4/D6/D8 changes are needed; and several contradictions with sibling specs (event names and keys, TaskRequested, the dead-letter SLA start, the missing dead-letter sink port).",
+  "findings": [
+   {
+    "id": "SAF-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.1 entry_timing; §4.2 J-6/J-7; §4.4 Classification; §5 NewEntry.timing; §9.1 CHECK entry_timing (contradicts docs/specs/modules/platform-kernel.md §6.2)",
+    "finding": "The journal stores whatever EntryTiming the caller passes ('The journal does not compute it') and enforces the privilege rule (J-6) only when the caller chose BACK_DATED. Four problems follow. (a) A module, an interface adapter or a buggy client can pass CONTEMPORANEOUS or LATE_ENTRY with a valid time days in the past, and no privilege or reason is checked. (b) The journal's value list contradicts the kernel spec. In the kernel, a USER entry beyond tolerance is BackDated with the label LATE_ENTRY and needs the back-dating privilege. In the journal, LATE_ENTRY is a separate value that needs nothing. So the kernel's privileged class can be stored under the journal's unprivileged name. The kernel also has BackEntry with an episodeId, LateArrival, Migrated and Refused(CLINICAL_TIME_IN_FUTURE); the journal has none of these and no episode column. (c) The classification depends on the recorded instant, but J-4 forbids the caller from supplying one. The caller therefore classifies against its own clock reading, which differs from the stored recorded_at, so boundary cases are misclassified. (d) Nothing refuses a valid time in the future, and BACK_ENTRY has no downtime-episode check. Any caller can label an arbitrary back-dated write BACK_ENTRY and skip the privilege. This weakens SI-10 clause b ('Back-dating is privileged and audited', CTRL-0010-4) in the very component §2.1 names as SI-10's 'Enforced in' location.",
+    "recommendation": "Have the journal classify every append itself. It should call hms.kernel.time's EntryTimeClassifier with the recorded_at it reads, the declared EntryMode, the vendor-locked EntryTimePolicy and, for BACK_ENTRY, the BackEntryEpisode. It should refuse Refused(...) outcomes and refuse a caller-supplied classification that differs from its own. Align the column with the kernel model: store entry_mode, an entry_label column (LATE_ENTRY, DOWNTIME_ENTRY, LATE_ARRIVAL, MIGRATED) and back_entry_episode_id. Require reason plus decision for every classification that carries BACK_DATING_PRIVILEGE, whatever its label, and add matching DB checks. Add PropertyTest:SI-10-future-clinical-time-refused (journal part) and a property test showing that no caller-supplied timing can avoid J-6. Record this as a tightening [P]."
+   },
+   {
+    "id": "SAF-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§2 table (Back-dating privilege decisions); §4.4 Back-dating; §17 KA back-dated appends are refused; §15 PropertyTest:SI-10-back-dating-is-privileged-and-audited",
+    "finding": "The spec claims 'until then [WP-0.4] every back-dated append is refused (fails closed)'. The only mechanism is J-6, a non-null check on policy_decision_id. Any caller can pass any UUID (the spec itself says 'Tests use a test decision reference') and the append succeeds. This is a silent stub that looks like a control: SI-10 clause b is not enforced, and the known anomaly overstates the protection.",
+    "recommendation": "Add a port, for example PolicyDecisionVerifier.verify(decisionId, actor, aggregate, purpose) returning Verified or NotVerified. The journal calls it for every privileged classification and refuses NotVerified. Until WP-0.4 the production binding must be a refuse-all implementation, and test decision references should be accepted only by a test adapter that app-hms never binds (D8). Add UnitTest:back-dated-append-refused-without-verified-decision, and correct the KA text to name the mechanism."
+   },
+   {
+    "id": "SAF-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§10 Database prerequisites ('connectors start without a data snapshot'); §17 HAZ proposal; also envelope.md §9 ('It never loses one')",
+    "finding": "Connectors start without a snapshot, and older rows reach consumers only through a manually started journal replay. Suppose a logical replication slot is lost: a PostgreSQL failover without failover-synchronised slots (WP-0.2 kills the primary as an exit test), a slot dropped by an operator, or a connector re-created. Rows committed while no slot existed are then never published, and nothing detects it. The proposed control, a slot-lag alarm, cannot fire because a dropped slot has no lag. ResultFinal, ChargeCreated or TaskRequested events would vanish silently (H3, H5, H6). That contradicts §12.1 'Zero silent drops' and §2.2 rule 6. The envelope's statement that at-least-once delivery 'never loses one' is unproven for this path.",
+    "recommendation": "Require failover-enabled logical slots, which PG17+ supports, and slot synchronisation on CloudNativePG. Add a continuous reconciliation: a 'published watermark' check comparing journal ids per recorded-time window with ids seen on the topics, or a per-key sequence gap detector. It must alarm within 5 minutes of a gap and auto-start a journal replay for the missing range. Add the cause 'replication slot lost or re-created without snapshot' to the proposed HAZ, and plan ChaosTest:postgres-failover-no-event-lost."
+   },
+   {
+    "id": "SAF-04",
+    "severity": "critical",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 Dead-letter queues (alarm after 5 minutes; first-failure clock); §12 DeadLetterAlarmPolicy; §13",
+    "finding": "The 5-minute dead-letter alarm is evaluated on dead-letter items that the consumer itself creates, after its retries, with a first-failure time it holds in its own state. In the most likely failure modes no alarm is provable. A consumer in a crash loop, for example killed by OOM or a deserialiser panic on a poison event, never writes a dead-letter item and restarts its retry state, so first-failure is reset or lost. A consumer stopped or partitioned from the broker creates nothing. Retries longer than 5 minutes alarm only if something else watches in-retry items. No stalled-consumer or consumer-lag alarm is specified anywhere. The '5 minutes from first failure' claim (CTRL-0003-5; §6.7) can therefore fail silently.",
+    "recommendation": "Specify an independent monitor that does not run in the consumer's process. It should alarm when a consumer group's oldest unacknowledged event on any partition is older than the dead-letter limit, which covers crash loops, stops and lag. Persist first-failure durably, in the consumer's database or as a header written on the first failure, before any retry. Bound retries so the dead-letter move happens well inside 5 minutes. Add ChaosTest:consumer-crash-loop-alarms-within-5-minutes and add the cause 'consumer stalled or crash-looping, so no dead-letter item is created' to the proposed HAZ."
+   },
+   {
+    "id": "SAF-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§6 steps 1, 5 ('Only Appended commits'); J-2",
+    "finding": "Atomicity depends on every caller returning TxOutcome.Rollback for any result other than Appended. A caller that ignores AlreadyApplied, VersionConflict or Rejected and returns Commit commits its aggregate-table change without journal rows. With ON CONFLICT DO NOTHING it can also commit a partially inserted multi-aggregate command. The result is an unaudited, unpublished clinical state change (H6). Nothing checks that every state change has a journal row at all.",
+    "recommendation": "Make it fail closed. When append returns anything other than Appended, the adapter marks the TransactionContext rollback-only, and TransactionRunner then refuses Commit and rolls back. Insert all rows of one command with all-or-nothing semantics; on any conflict, roll back to a savepoint. Add an integration test that a committed aggregate-table change without a journal row is impossible. A per-module repository wrapper, or a commit-time check that the aggregate version equals the journal version, would do."
+   },
+   {
+    "id": "SAF-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.6 Idempotency",
+    "finding": "A reused key is detected only when the first aggregate or event type differs. A client bug or device reset that reuses a key for a different command on the same aggregate and event type returns AlreadyApplied with the original outcome. An example is a second MedicationAdministered for another dose, or a corrected observation. The clinician is told the action was saved, but it was silently dropped. A dose given and not recorded creates a repeat-dose hazard (H2, H6). Keys are unique per tenant, not per actor or device, so a colliding key can also return another user's command outcome, which may concern another patient.",
+    "recommendation": "Store a canonical fingerprint (a hash) of the command payload, actor and target aggregates with the first row of each command, and return IdempotencyKeyReused whenever the fingerprint differs. Scope keys by actor or device, or verify that the replaying actor matches. Add PropertyTest:journal-idempotency-key-reuse-with-different-payload-refused."
+   },
+   {
+    "id": "SAF-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.2 J-12; §5 RecordedTimeRegression",
+    "finding": "J-12 refuses an append whenever the appending pod's clock reads earlier than the aggregate's last recorded_at. app-hms runs on several nodes, and §6.7 tolerates clock skew up to 1 s before alarming. Two quick successive writes on one aggregate from different pods, such as nurse charting or an order sign followed by a verification, will therefore be refused in normal operation. The same happens after an NTP step. The spec does not say what the caller does with RecordedTimeRegression: retry, wait, or tell the user. This hazard cause (H7, clinical documentation refused or lost) is not recorded.",
+    "recommendation": "Specify the handling. Either allow recorded_at ≥ last recorded_at − skew-bound, with order kept by version (rebuild order is already per-aggregate by version), or have the application layer wait and retry until the clock passes last recorded_at, bounded by the skew alarm threshold, and surface a clear error beyond that. Link this to the platform-site clock-skew write block (§7 item 18). Add the cause to the proposed HAZ and test it with skewed pod clocks."
+   },
+   {
+    "id": "SAF-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§7 As-was queries (valid-at view); §8.1 projection order rule",
+    "finding": "The valid-time view folds rows ordered by (valid_from, version), so within one aggregate rows are applied in a different order from the version order the rebuild uses. §8.1 allows projections to depend on per-aggregate order. A back-entered row (version 5, valid 08:00) is then applied before version 4 (valid 09:00), and state-machine projections see impossible transitions. The valid time carried by AMENDMENT and ENTERED_IN_ERROR rows is undefined. If a retraction carries 'now', a valid-at view before the retraction still shows the erroneous fact as true in the world. valid_to is ignored. Medico-legal and CDS-replay views (§7 item 3) can therefore show a false clinical timeline (HAZ-0010 effects).",
+    "recommendation": "Define the valid time of AMENDMENT and ENTERED_IN_ERROR rows; normally they take the superseded version's valid period. Define the valid-at view as per-version facts with valid periods: select the latest version known at R for each fact whose valid period contains V, rather than re-folding in valid_from order. Alternatively, keep the fold in version order and filter by valid period. Add property tests for back-entry and retraction in the valid-at view."
+   },
+   {
+    "id": "SAF-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§8.2 Rebuild procedure; §5 ReadModelStore.reset; §13 Read-model rebuild",
+    "finding": "ReadModelRebuilder.rebuild resets the live store and then refills it, and a projection whose version changed 'is rebuilt before it serves reads'. During a rebuild a worklist read model (open tasks, §8.2) is empty or partial. A clinician sees 'no work' rather than 'unavailable', so tasks are missed (H5; SI-03), which is a silent failure. This cause is not recorded.",
+    "recommendation": "Rebuild into a shadow store and swap atomically when it has caught up. Until then serve the old version, or an explicit 'rebuilding, unavailable, manual check required' state, never an empty result. Add the cause to the proposed HAZ and test that no read during a rebuild returns a partial worklist as complete."
+   },
+   {
+    "id": "SAF-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.3 item 3 Migration linter; §9.8; residual risk",
+    "finding": "The linter fails open. A fact table is protected only if its creating migration carries the '-- hms:fact-table' marker, so a module that forgets the marker gets no checks. The statement list also misses ways to defeat the trigger or the data: CREATE OR REPLACE FUNCTION refuse_change() with a no-op body, DROP FUNCTION ... CASCADE, ALTER TRIGGER / ALTER TABLE ... ENABLE REPLICA|ALWAYS TRIGGER, CREATE RULE, DROP POLICY / ALTER POLICY, ALTER TABLE ... SET UNLOGGED (a crash truncates the table, and it is neither replicated nor decoded), ALTER COLUMN TYPE / DROP COLUMN (§9.8 claims the linter refuses both, but §9.3's list omits them), RENAME, OWNER TO the runtime role, and dynamic SQL in DO blocks or EXECUTE. The residual-risk text names only a superuser, but the owning migration role can also DISABLE TRIGGER. Under D7 the linter must be a reusable arch-rules class that each project with migrations runs.",
+    "recommendation": "Make classification mandatory: every CREATE TABLE must carry a fact-table, aggregate or read-model marker, and an unmarked table fails the build. Add the statements above, including any statement against the trigger function. Refuse DO blocks or EXECUTE in migrations of modules that own fact tables. Name the owner role in the residual risk. Restate the placement per D7, with planted fixtures for each new statement kind."
+   },
+   {
+    "id": "SAF-11",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§6 Payloads (meta.security); §7 compatibility (tolerant readers, optional properties); §17 OQ sensitivity labels",
+    "finding": "SI-21 requires labels and purpose-of-use to be 'enforced at the policy enforcement point for every channel … interfaces … analytics'. The envelope delegates enforcement to each consumer ('every consumer must read the payload to honour labels'), and Kafka consumers bypass the PEP. That is a reinterpretation of SI-21 clause a (CTRL-0021-3), which falls under §3.4 item 1. The OQ is phrased as a confirmation, not flagged as an SI reading. The design also fails open: meta.security is described as present 'when the record has any', and consumers are tolerant readers that ignore unknown properties. A schema or consumer that lacks the property therefore drops labels silently, and the front door or analytics could release a labelled result (SI-21 clause d).",
+    "recommendation": "Record this as an SI-21 reading for the CSO and privacy officer (§3.4 item 1). Make meta.security required in every patient-event schema from v1, as an empty array when there are no labels. Require consumers that disclose outside the clinical core (hub, front-door, analytics) to evaluate labels through the Trust Plane SDK's PEP. They must fail closed, by dead-lettering, on a missing property or an unknown label code. Add a contract test per disclosing consumer."
+   },
+   {
+    "id": "SAF-12",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 'Order is kept by parking the key'",
+    "finding": "Parking per partition key means one poison event (for example a malformed SpecimenReceived) holds back every later event for that patient in that consumer until a human resolves it. For the task-engine consumer (TaskRequested) or a results consumer, a critical-result task or a medication verification task for the same patient waits an unbounded time. The 5-minute alarm covers only the head item. This head-of-line-blocking hazard cause (H3, H4, H5) is not recorded, and parked events have no age alarm or visibility of their own.",
+    "recommendation": "Require each consumer's spec to state its parking scope (patient key or aggregate) and justify it against clinical latency. The Hub needs per-patient parking; the task engine probably needs only per-aggregate. Count parked events in the dead-letter alarm and task, with count and age. Escalate when a parked event is safety-relevant. Add the cause to the proposed HAZ, with a test showing that a critical-result task for the same patient is not delayed by an unrelated poison event, or is alarmed if it is."
+   },
+   {
+    "id": "SAF-13",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§11 Replay (journal replay order; rebuild a consumer)",
+    "finding": "Journal replay reads rows 'in the journal's per-aggregate order', which is recorded_at order. Live delivery is commit (WAL) order. Across aggregates of one patient the two differ when pods' clocks are skewed or transactions commit out of recorded_at order; journal §8.1 itself says they disagree. A Hub replay can therefore send A08 (PatientUpdated) before A01 (EncounterAdmitted), breaking §12.1 'A08 never overtakes A01'. Replay 'to rebuild a consumer' also runs with an empty ledger and re-executes external side effects: HL7 orders re-sent to a lab, reports re-released by message, tasks and charges duplicated. Old critical results could reach clinicians again.",
+    "recommendation": "Store a commit-consistent per-partition-key sequence in the journal, for example a per-patient counter row locked in the append transaction, and replay by it. Define replay modes: 'rebuild state' suppresses external effects and marks events replayed=true; 'redeliver' respects the ledger. Forbid ledger resets for consumers with external side effects unless the effects are suppressed. Test both behaviours."
+   },
+   {
+    "id": "SAF-14",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§9 'One patient, one aggregate key for life'; catalogue.md §3 note 1; journal J-13",
+    "finding": "J-13 fixes an aggregate's key at creation, and merges are links (SI-08). After a PatientMerged, which is keyed by the survivor, the replaced patient's open aggregates keep emitting under the old patient key while new aggregates use the survivor's. One person's events then span two partitions, and per-patient ordering at the Hub, including A08 versus A01 and the A40 itself, is no longer guaranteed. An unmerge has the same problem. This hazard cause (H12, H15) is not recorded.",
+    "recommendation": "Add the cause to the proposed HAZ. Specify that the Hub and every per-patient-ordered consumer resolve the merge link and order across both keys, for example by holding post-merge events for the replaced key until the merge event is applied. Alternatively, have empi close the replaced patient's open aggregates and continue them under the survivor through the audited move workflow. Hand the details to empi (WP-1.2) as an OQ, and test merge-then-update ordering."
+   },
+   {
+    "id": "SAF-15",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§8 Retention; §10 Every consumer has its own dead-letter queue (a topic); Resolution",
+    "finding": "Dead-letter queues are Kafka topics, but their retention is not specified. With default time-based retention, which §8 sets to at least 7 days for the main topics, an unresolved item is deleted by the broker. The rule that 'an item is never deleted silently' is then unenforced, and the replay of §11 ('replayed from its queue together with the events parked behind it') fails. 'Resolved without replay' for a patient event, where a result never reached an external system, is a clinically significant decision, but the spec does not say where it is recorded or how it is reported.",
+    "recommendation": "Set infinite retention on dead-letter topics, or keep dead-letter item state and parked events in the consumer's database, and alarm before any retention boundary. Record every resolution in a journal (owned aggregate, reason never defaulted, actor) and make 'resolved without replay' reportable on the safety dashboard."
+   },
+   {
+    "id": "SAF-16",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§12 DeadLetterAlarmPolicy ('refuses alarmAfter > PT5M or <= 0'); §10 Configuration",
+    "finding": "If 'refuses' means the constructor throws, a corrupted or out-of-range resolved setting stops the alarm evaluator, and every dead-letter alarm goes silent. That fails open for an alarm. platform-tasks handles the same situation by clamping and raising OrphanSettingsInconsistent.",
+    "recommendation": "Specify that an invalid resolved value is replaced by the vendor maximum (PT5M) and raises an operational alarm (DeadLetterSettingsInconsistent). Only writes are refused. Add a unit test."
+   },
+   {
+    "id": "SAF-17",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§12 ProcessedEventLedger; §9 steps 1-3",
+    "finding": "§9 requires the ledger insert in the same transaction as the effect, but the port (contains/record) takes no TransactionContext. An implementation that records outside the effect's transaction can apply an effect twice after a crash, such as a duplicate charge, task or HL7 message, or lose it. ADR-009 names exactly that consequence. Separately, the rule that a consumer's commands use 'the event id as the idempotency key' collides when one event drives two commands: the second gets IdempotencyKeyReused, rolls back and is dead-lettered.",
+    "recommendation": "Give the ledger port the D1 kernel TransactionContext (hms.kernel.context), and add a property test that the effect and the ledger record commit together. Derive per-effect idempotency keys deterministically, for example eventId plus effect index, or a UUIDv5 of eventId and effect name."
+   },
+   {
+    "id": "SAF-18",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 'Every dead-letter item is owned work'; §12; §14; §15 (contradicts docs/specs/modules/platform-tasks.md §4.3, §7.1)",
+    "finding": "Four problems. (1) The envelope says the alarm clock starts at the first failure. platform-tasks §7.1 starts the dead-letter task's SLA at 'the instant the item was dead-lettered', so the two specs give different alarm times; the envelope's start is the stricter. (2) The envelope says 'an item nobody picks up becomes TaskOrphaned'. Under tasks §4.3, TaskOrphaned fires only when the holder is unroutable; an unclaimed task in a routable queue breaches its SLA (TaskSlaBreached, DeadLetterItemAged). The envelope misstates how CTRL-0003-5 is met. (3) platform-tasks says the dead-letter sink port 'belongs to the events specification', but §12 defines none. (4) The envelope claims CTRL-0003-5, CTRL-0003-1, CTRL-0020-7 and CTRL-0021-5, but its tests (UnitTest:dead-letter-alarm-due-after-5-minutes, ChaosTest:dead-letter-alarm-within-5-minutes, UnitTest:envelope-carries-no-phi-attributes) are not in those controls' planned_verification. The hazard-log names (PropertyTest:SI-03-orphan-alarm-within-5-minutes, PropertyTest:config-chain-vendor-lock-SI-03, CanaryScan:phi-in-logs-traces-metrics, PropertyTest:SI-21-labels-propagate-to-derived-artefacts) are not listed. The CI gate cannot trace verification of the dead-letter part of these controls.",
+    "recommendation": "Use one rule: SLA start = first failure, and correct platform-tasks §7.1 to match. Rewrite the TaskOrphaned sentence to match tasks §4.3. Define the sink port in §12, for example DeadLetterSink.raise(DeadLetterItem) returning Raised or Unavailable, where Unavailable leads to the operational alarm. Either propose adding the new test names to the hazard log's planned_verification for CTRL-0003-5 (recorded, not self-approved) or map them to the existing names."
+   },
+   {
+    "id": "SAF-19",
+    "severity": "major",
+    "file": "docs/specs/events/catalogue.md",
+    "location": "§4 Platform events of WP-0.3 (contradicts platform-tasks.md §6, platform-tenancy.md §8, platform-config.md §10, journal J-10)",
+    "finding": "The platform event names and keys contradict the sibling specs. Tenancy publishes HierarchyNodeCreated/Updated/Moved/Retired, SettingValueChanged and SettingLockApplied/Removed; the catalogue has EnterpriseNode* and SettingChanged. Config publishes ConfigChangeSetSubmitted/Approved/Rejected/Applied, ConfigBundleActivated/Refused, ConfigMergeCompleted and FlagChanged; the catalogue has ChangeSetApplied, BundlePromoted, BundlePromotionRefused and FeatureFlagChanged. Tasks adds TaskReleased, TaskSlaBreached and TaskOrphanCleared (the alarm-clear event) and relies on TaskRequested; the catalogue lists none of them. Tenancy and config key by tenant id, while the catalogue says 'none' (aggregate key) and journal J-10's CHECK (partition_key = COALESCE(patient_id, aggregate_id)) would reject a tenant key. Under D6 'tenancy and config aggregates are per tenant', but neither the envelope, which owns the rule, nor the catalogue states it. If kill-switch, flag and lock events sit on different aggregates with separate keys, consumers can apply KillSwitchEngaged and a later FlagChanged out of order (SI-19).",
+    "recommendation": "Correct §4 to the owning specs' names, since the catalogue says the module specs win. Add TaskReleased, TaskSlaBreached and TaskOrphanCleared (TaskRequested is covered in SAF-20). State the D6 rule in envelope.md §5 and journal J-10: the patient id when the aggregate has one, else the aggregate id, with tenancy and config aggregates per tenant, meaning aggregate id = the tenant-scoped aggregate. Make the CHECK constraint and PartitionKey.of match, and add a test that one tenant's configuration events share a key."
+   },
+   {
+    "id": "SAF-20",
+    "severity": "major",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§2 'Events … are never commands and never requests to another module' (contradicts platform-tasks.md §5.1 TaskRequested)",
+    "finding": "platform-tasks routes every non-kernel module's task creation through a TaskRequested journal event, which is a request to another module. The envelope forbids requests as events, and the catalogue does not list TaskRequested. Task creation is the SI-03 path ('every task … has an owner'), so this contradiction affects whether work reaches the task engine at all.",
+    "recommendation": "Resolve it in one place. Either allow 'request' events as a named exception in envelope §2, with their own delivery guarantees (owned dead-letter queue, alarm), and catalogue TaskRequested with owner and key, or change the tasks ADR to a past-tense fact such as WorkItemRaised. Record it as the ADR platform-tasks already proposes."
+   },
+   {
+    "id": "SAF-21",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§5 Public API (ChangeContext, Reason, IdempotencyKey, UUID ids, TransactionContext/TransactionRunner, AsWas, recordedAt: Instant); §17 OQ shared kernel types",
+    "finding": "The spec does not yet follow D1 and D4, and other streams code against this API. ChangeContext duplicates D1's CommandContext and omits purpose-of-use and causation typing. Reason duplicates ChangeReason, which is 'never defaulted'. Tenant, facility, patient and actor are plain UUIDs rather than TenantId, FacilityId, PatientId and ActorRef. TransactionContext and TransactionRunner sit in hms.kernel.journal instead of hms.kernel.context. AsWas takes separate Instants instead of hms.kernel.time.AsOf. recordedAt is an Instant, not RecordedTime. Plain Instant and UUID types let callers pass a clinical instant as knownAt, or a facility id as a patient id, which is the time and identity confusion SI-10 and SI-01 guard against.",
+    "recommendation": "Rewrite §5 to D1 and D4: CommandContext from hms.kernel.context, ChangeReason, kernel IdempotencyKey and CorrelationId, typed ids, ActorRef and DeviceRef, PurposeOfUse, AsOf(validAt, knownAt: RecordedTime?), and recordedAt: RecordedTime restored only in hms.kernel.journal.infrastructure. Close the §17 OQ as answered by D1."
+   },
+   {
+    "id": "SAF-22",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§2 (In-memory journal adapter); §3 Test fixtures; §9.9; §17 OQ placement",
+    "finding": "The spec places InMemoryJournal in Gradle test fixtures or :platform:testing, which contradicts D8: main code, in a package named ...testing or ...inmemory. It also has no guard that production never binds the in-memory adapter. A production binding would silently lose every clinical write, audit row and outbox event on restart (H6), a silent stub that §3.5 forbids.",
+    "recommendation": "Move the adapters to hms.kernel.journal.inmemory (D8), documented as test/dev only. Add an ArchTest or startup check that app-hms production wiring never binds any ...inmemory or ...testing adapter; platform-tasks already proposes a startup refusal outside the dev and test profiles."
+   },
+   {
+    "id": "SAF-23",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§5 entrytiming ('Consumers show the back-entry and back-dating labels')",
+    "finding": "CTRL-0010-5 requires entries to be labelled as 'late or downtime entry on screen, in print and in exports'. The envelope narrows the consumer duty to back-entry and back-dating labels, and its value list lacks the kernel labels (DOWNTIME_ENTRY, LATE_ARRIVAL, MIGRATED). HmsEnvelope carries entryTiming and changeKind as Strings, so an unknown value could be treated as CONTEMPORANEOUS or CHANGE.",
+    "recommendation": "Carry the kernel EntryLabel, aligned with SAF-01, and require consumers to show every non-null label. Type the fields as enums, and have EnvelopeRules.parse reject unknown values so the consumer dead-letters rather than defaulting."
+   },
+   {
+    "id": "SAF-24",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§14 Hazards and controls",
+    "finding": "The journal is SI-10's 'Enforced in' location, but §14 omits CTRL-0010-1 (every channel; vendor-locked tolerances) and CTRL-0010-2 (property tests with clock skew and out-of-order events). It also omits CTRL-0006-1 and CTRL-0006-2 for its part of SI-06. Its planned tests PropertyTest:SI-10-channels-* and PropertyTest:SI-10-* (clock skew) are not mentioned.",
+    "recommendation": "Add the journal parts of CTRL-0010-1/-2 and CTRL-0006-1/-2: append validation runs below every channel adapter; property runs include clock skew and out-of-order delivery; the tolerances come only from vendor-locked settings. Name the planned tests."
+   },
+   {
+    "id": "SAF-25",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§4.1 purpose_of_use (text NOT NULL); §5 ChangeContext.purposeOfUse: String",
+    "finding": "WP-0.3 has no Trust Plane vocabulary, yet every row needs a purpose-of-use. Without a rule, callers will hard-code a default such as 'TREATMENT'. A defaulted purpose-of-use weakens SI-21's later enforcement and the audit's 'why'.",
+    "recommendation": "Use D1's PurposeOfUse type, forbid defaults in code (no constant in callers; an ArchTest or detekt rule), and record a KA for the interim placeholder vocabulary, with a test that a command without a purpose is refused."
+   },
+   {
+    "id": "SAF-26",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§8.2 journal-rebuild exit test (reference set includes the platform-tasks worklist); §3 dependencies",
+    "finding": "Using platform-tasks' projection in :platform:journal's tests makes a kernel library depend on an application module. That contradicts §3 ('No dependency on any application module') and D5's direction, where platform-tasks depends on :platform:journal.",
+    "recommendation": "Keep the journal's own test synthetic, and have platform-tasks run the rebuild-equals-incremental property on its worklist in its own module, using the journal's in-memory adapter."
+   },
+   {
+    "id": "SAF-27",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§10 Configuration (platform.events.dead-letter-alarm-after)",
+    "finding": "Under D2, setting definitions live in tenancy's SettingCatalogue. The envelope defers the key name to 'platform-config's naming', and hms.kernel.events, a kernel library, cannot register into a module's catalogue. platform-tasks reads this setting 'declared by hms.kernel.events', so nothing yet declares it in the one store.",
+    "recommendation": "State that the definition, vendor-locked and tighten-only with maximum PT5M, is registered in tenancy's SettingCatalogue, by app-hms wiring or by tenancy's TenancySettings on the kernel's behalf. Fix the key name, and cover it in PropertyTest:config-chain-vendor-lock-SI-03."
+   },
+   {
+    "id": "SAF-28",
+    "severity": "minor",
+    "file": "docs/specs/events/catalogue.md",
+    "location": "§2 BreakTheGlassAccess (trust-policy, keyed by patient)",
+    "finding": "Publishing break-the-glass access events on the shared patient topic, with the patient key in a header, exposes to every consumer (hub, analytics, rcm) which patients' records were emergency-accessed. This works as a VIP/sensitivity signal, which envelope §4 and §6 try to avoid (SI-21; H14).",
+    "recommendation": "Route BreakTheGlassAccess to a trust-plane stream that only trust-audit and the privacy-office consumers read, or confirm the routing in the sensitivity-labels OQ."
+   },
+   {
+    "id": "SAF-29",
+    "severity": "minor",
+    "file": "docs/specs/events/envelope.md",
+    "location": "§3 'time' is the recorded time",
+    "finding": "CloudEvents defines time as the occurrence time. The catalogue is a published product surface, so a third-party or Hub mapping that uses 'time' as the clinical time would show back-entered events at entry time, which is the HAZ-0010 failure.",
+    "recommendation": "State the rule in the AsyncAPI documents and in Hub conformance tests: clinical times in HL7 and FHIR come only from validfrom and validto. Add a contract test that fails when a consumer maps ce_time to a clinical field."
+   },
+   {
+    "id": "SAF-30",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-journal.md",
+    "location": "§9.3 Residual risk; D7 RecordedTime.restore rule (platform-kernel.md ArchTest:recorded-time-restore-only-in-persistence allows hms.kernel.journal..)",
+    "finding": "The kernel's arch rule allows RecordedTime.restore anywhere under hms.kernel.journal.., including the domain and the reader. That lets journal code fabricate recorded times outside persistence, against D7's 'persistence-only'.",
+    "recommendation": "Restrict restore to hms.kernel.journal.infrastructure (and ..inmemory for the D8 adapter) in both specs."
+   }
+  ]
+ }
+]

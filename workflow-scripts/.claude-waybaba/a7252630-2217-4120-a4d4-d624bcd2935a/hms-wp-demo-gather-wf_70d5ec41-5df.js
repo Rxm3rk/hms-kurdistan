@@ -1,0 +1,65 @@
+export const meta = {
+  name: 'hms-wp-demo-gather',
+  description: 'Gather read-only demonstration material for each HMS work package (facts, numbers, visuals) for a showcase page',
+  phases: [{ title: 'Gather', detail: 'one read-only agent per work package' }],
+}
+
+const RULES = `HARD RULES (read-only job):
+- Do NOT edit, create or delete ANY file inside any repository or worktree under C:\\Users\\Surface\\.t3\\. Do not run any git command that writes (no add, commit, checkout, switch, stash, reset, fetch, merge). Read with cat/sed/grep/git log/git show/git status/git diff only.
+- Do NOT run Gradle, the fast tier, pnpm, vitest, Docker, kubectl, wsl or any build or test. The host is overloaded; reading files only.
+- NEVER run "find /" or any search over a whole drive. Search only inside the paths given.
+- If you need to write a scratch file (for example an SVG), write it ONLY under C:\\Users\\Surface\\AppData\\Local\\Temp\\hms-demo\\<your-wp>\\ (create it).
+- Everything you report must be true and checkable: cite file paths or commit SHAs. Say "uncommitted" for work that exists only as files. Never invent numbers; if a number is unknown, leave it out.
+- Plain language for "purpose_plain" and captions: the reader is the hospital-system owner, not a programmer. No plan codes in purpose_plain (say "the core libraries", not "WP-0.3").
+- Synthetic data only; never include secrets or key material.`
+
+const SHOWCASE = {
+  type: 'object',
+  properties: {
+    kind: { type: 'string', enum: ['svg', 'image', 'code', 'table'] },
+    title: { type: 'string' },
+    caption: { type: 'string' },
+    svg: { type: 'string', description: 'complete inline <svg> markup, max ~25 KB, using fill/stroke colours that read on both light and dark backgrounds (use currentColor for text/lines, and a few mid-tone accent colours)' },
+    image_path: { type: 'string', description: 'absolute Windows path to an existing PNG/JPG/SVG file (under 400 KB)' },
+    code: { type: 'string', description: 'a short excerpt (max ~30 lines) copied verbatim from a real file' },
+    code_source: { type: 'string', description: 'file path the excerpt came from' },
+    language: { type: 'string' },
+    table: { type: 'object', properties: { headers: { type: 'array', items: { type: 'string' } }, rows: { type: 'array', items: { type: 'array', items: { type: 'string' } } } }, required: ['headers', 'rows'] },
+  },
+  required: ['kind', 'title', 'caption'],
+}
+
+const SCHEMA = {
+  type: 'object',
+  properties: {
+    wp: { type: 'string' },
+    title_plain: { type: 'string', description: 'short plain name, e.g. "Patient banner and design system"' },
+    purpose_plain: { type: 'string', description: '2-3 plain sentences: what this is and why a hospital needs it' },
+    status_line: { type: 'string', description: 'one plain sentence on where it stands right now' },
+    progress_items: { type: 'array', items: { type: 'object', properties: {
+      label: { type: 'string' }, state: { type: 'string', enum: ['done', 'in-progress', 'waiting', 'not-started'] }, evidence: { type: 'string' } }, required: ['label', 'state', 'evidence'] } },
+    numbers: { type: 'array', items: { type: 'object', properties: { label: { type: 'string' }, value: { type: 'string' } }, required: ['label', 'value'] } },
+    showcases: { type: 'array', items: SHOWCASE, description: '1 to 3 showcases, the most convincing first' },
+    next_steps: { type: 'array', items: { type: 'string' } },
+    needs_human: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['wp', 'title_plain', 'purpose_plain', 'status_line', 'progress_items', 'numbers', 'showcases', 'next_steps', 'needs_human'],
+}
+
+const ROOT = 'C:\\Users\\Surface\\.t3\\projects\\hospitalmanagementsystem'
+const WT = 'C:\\Users\\Surface\\.t3\\worktrees\\hospitalmanagementsystem'
+
+const TASKS = [
+  { wp: 'WP-0.1', label: 'wp01', prompt: `Work package WP-0.1 "Programme bootstrap" (DONE, branch wp/0.1-programme-bootstrap, checkout ${ROOT}). Read docs/program/work-packages/WP-0.1.md, docs/program/STATUS.md, docs/program/reviews/WP-0.1.md and the evidence under docs/program/evidence/ (ci/*.json fast/merge/nightly records at 05f159a and a9d5725, gates-bite *.md, doctor, licence). Explain in plain words what the programme foundation gives the project: the four CI tiers, the safety gates (sign-off gate, hazard log, backlog checks, secret scan, licence check), and the "gates bite" test (defects deliberately planted to prove each gate catches them). Showcases: (1) a table of the fast-tier steps from the WSL record of record at a9d5725 with result and seconds; (2) a table summarising the gates-bite result (how many planted defects, how many caught, and the ones not caught with why, read from the gates-bite record); (3) optionally a short excerpt of the sign-off gate rule or hazard log entry format. Numbers: tests in the fast tier, features in the backlog (count "- id:" in docs/program/backlog.yaml), hazards in the hazard log, review findings resolved (R-01..R-21).` },
+  { wp: 'WP-0.2', label: 'wp02', prompt: `Work package WP-0.2 "Environments / the server cell" (IN PROGRESS, branch wp/0.2-environments, worktree ${WT}\\wp02). Read docs/program/work-packages/WP-0.2.md, the worktree's docs/program/STATUS.md, its git log since 09afa41 and git status (uncommitted files), and the plan at C:\\Users\\Surface\\AppData\\Local\\Temp\\hms-wp02\\plan.md (slices S0-S11). Explain in plain words: what the "cell" is (the small server cluster each hospital runs on site so it keeps working without internet), what the dev cell / lite cell is on this laptop, why the first prototype died (WSL idle shutdown -> k3d nodes restarted with swapped IPs -> etcd lost quorum) and the fix (fixed IPs, restart test, keeper). Showcases: (1) an SVG diagram of the cell: three k3d nodes with their fixed IPs (read them from the worktree files, e.g. deploy/ or tools/cell config), the main services that will run on it (PostgreSQL via CloudNativePG, Kafka via Strimzi, Keycloak, Temporal, OpenFGA, Valkey) and the signed local image registry/mirror; label what is built vs planned; (2) a table of pinned images/tools (name, version, digest prefix 12 chars, source) from the pin files in the worktree, only real entries; (3) optionally the slice list S0-S11 with state. Be exact about what is committed vs uncommitted.` },
+  { wp: 'WP-0.3', label: 'wp03', prompt: `Work package WP-0.3 "Platform kernel / core libraries" (IN PROGRESS, branch wp/0.3-platform-kernel, worktree ${WT}\\t3-4f6f2a03; nothing committed yet, all work is uncommitted files; the newest auto-save is git ref refs/wip/wp/0.3-platform-kernel which you may read with git show/ls-tree). Read docs/program/work-packages/WP-0.3.md, the worktree's docs/program/STATUS.md, the specs docs/specs/modules/platform-*.md, and the code under backend/platform/ (ids, time, money, quantity, etc.). Explain plainly: why a hospital system needs these (identifiers that never collide, a clock the tests control, clinical time vs recorded time so late documentation is honest, money in two currencies IQD/USD without rounding errors, doses that cannot exist without a unit, settings that a hospital cannot override where the vendor locked them for safety, tasks that can never be orphaned). Showcases: (1) a short real code excerpt that best shows a safety idea (e.g. Quantity refusing a unit-less value, Money with explicit rounding, ClinicalTime vs RecordedTime) with its test; (2) an SVG of the configuration chain vendor -> Kurdistan pack -> tenant -> legal entity -> facility -> department -> unit -> user with a lock symbol showing that a locked setting cannot be overridden below the lock (based on the spec text); (3) a table of the specs (file, size in lines, what it covers, reviewed or not). Numbers: specs count, spec lines, Kotlin files written, test files.` },
+  { wp: 'WP-0.5', label: 'wp05', prompt: `Work package WP-0.5 "Clinical state machines and safety invariants" (IN PROGRESS, branch wp/0.5-state-machines, worktree ${WT}\\t3-5dcdaa39; nothing committed yet, uncommitted files; newest auto-save ref refs/wip/wp/0.5-state-machines). Read docs/program/work-packages/WP-0.5.md, the worktree's STATUS.md, docs/specs/state-machines/*.yaml and *.md, docs/specs/modules/state-machines-and-invariants.md, the generator under tools/ and the generated Kotlin under backend/modules/*/src/main/kotlin/hms/*/domain/*/*Machine.kt. Explain plainly: a state machine is the strict set of allowed steps for a clinical object (an order, a medication dose, a specimen, a result, a bed, an encounter, an appointment, an insurance claim); the software cannot skip a safety step because the step does not exist; each guard is a named rule; the generator turns the YAML into code and property tests that try ~1,000 random sequences per machine. Showcases: (1) an SVG state diagram of the MEDICATION ADMINISTRATION machine drawn from its YAML: every state as a rounded box, every transition as an arrow labelled with the event name, proposed transitions dashed, terminal states marked; lay it out by hand cleanly (left-to-right), max ~1100x600 viewBox, text using currentColor; (2) the same for the SPECIMEN machine OR a table of all 8 machines (machine, states, transitions, proposed transitions, guards/predicates, which safety invariants SI-xx it enforces); (3) a short real excerpt of one guard predicate with its YAML description. Numbers: machines, transitions, predicates, proposed transitions, generated files and lines (from the generator output or by counting), SI tests scaffolded.` },
+  { wp: 'WP-0.7', label: 'wp07', prompt: `Work package WP-0.7 "Design system and client shells" (IN PROGRESS, branch wp/0.7-design-system, worktree ${WT}\\wp07). Read docs/program/work-packages/WP-0.7.md, the worktree's docs/program/STATUS.md, git log 09afa41..HEAD (or since 6ca3e3a) with subjects, git status, docs/specs/modules/design-system.md and docs/specs/state-machines/patient-context.yaml. Explain plainly: the design system is the look-and-behaviour toolkit every screen uses; the patient banner is the strip at the top that always shows WHO the patient is (two identifiers, name in Kurdish/Arabic/Latin script, photo, allergies, code status, isolation, weight) because wrong-patient errors kill; it re-verifies the patient at signing; three languages with right-to-left; density modes; command palette; sign/co-sign; the label-printer simulator and device layer (HAL). Do NOT take screenshots (the lead does that). Showcases: (1) a table of the slices S0..S12 with state and commit SHA (from git log and STATUS.md); (2) an SVG of the patient-context state machine from patient-context.yaml (states and transitions, readable, currentColor text); (3) a short real excerpt that shows a safety rule in the banner code (e.g. names never truncated, two identifiers always shown, re-verification at signing) with its file path. Numbers: commits on the branch, tests in the last Windows fast tier run (from STATUS.md), languages, components.` },
+  { wp: 'WP-0.8', label: 'wp08', prompt: `Work package WP-0.8 "Documents and printing" (IN PROGRESS, branch wp/0.8-documents-printing, worktree ${WT}\\t3-406132fc; nothing committed yet, specs staged, code untracked; newest auto-save ref refs/wip/wp/0.8-documents-printing). Read docs/program/work-packages/WP-0.8.md, the worktree's STATUS.md, docs/specs/modules/platform-docs.md, content/print-templates/, backend/modules/platform-docs/ (domain, zpl, escpos, html, raster, fonts, src/test goldens/fixtures), backend/satellites/document-renderer/, backend/satellites/pdfa-verify/ and tools/s7k/. Explain plainly: wristbands, specimen labels and receipts must show two identifiers, the name in the patient's script plus Latin, never truncate a newborn's name, a DataMatrix barcode with MRN and encounter; Sorani/Arabic text must be shaped correctly or names print garbled; Zebra printers get ZPL; receipt printers ESC/POS; PDF/A for documents; every print is audited and watermarked; the S7-K kit lets a human test real printers. Showcases: (1) if golden images exist (PNG files under src/test/resources or similar: rendered wristband/label/receipt), give the absolute path of the best wristband or label golden (under 400 KB) as an image showcase — check file size with ls -l; if none, a real ZPL fixture excerpt (byte-for-byte text) of a wristband; (2) a second golden image or the trilingual sample (en/ckb/ar) template excerpt; (3) a table of the layout/content rules (rule, why, where enforced: file/test). Numbers: Kotlin files, test files, golden images, fixtures, Sorani letters covered by the font test.` },
+]
+
+phase('Gather')
+const results = await parallel(TASKS.map(t => () =>
+  agent(`${RULES}\n\nTASK: ${t.prompt}\n\nReturn the structured result. Keep svg markup self-contained (no external refs, no scripts), with a viewBox and width="100%".`, { label: `demo:${t.label}`, phase: 'Gather', schema: SCHEMA })
+))
+return results.map((r, i) => r || { wp: TASKS[i].wp, failed: true })

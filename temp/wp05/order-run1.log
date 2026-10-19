@@ -1,0 +1,173 @@
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=107013 since=2026-10-19T10:49:16+03:00 args=:modules:lis:ktlintFormat --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=118075 since=2026-10-19T11:41:08+03:00 args=:modules:scheduling:ktlintFormat :satellites:rcm:ktlintFormat --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=150520 since=2026-10-19T11:43:56+03:00 args=:modules:scheduling:test :modules:scheduling:propertyTest :modules:scheduling:detekt :modules:scheduling:ktlintCheck :modules:scheduling:verifyArchitectureTest :satellites:rcm:test :satellites:rcm:propertyTest :satellites:rcm:detekt :satellites:rcm:ktlintCheck :satellites:rcm:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=150520 since=2026-10-19T11:43:56+03:00 args=:modules:scheduling:test :modules:scheduling:propertyTest :modules:scheduling:detekt :modules:scheduling:ktlintCheck :modules:scheduling:verifyArchitectureTest :satellites:rcm:test :satellites:rcm:propertyTest :satellites:rcm:detekt :satellites:rcm:ktlintCheck :satellites:rcm:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+heavy.sh: waiting for a slot (wp08 pid=147120 since=2026-10-19T11:47:01+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;)
+heavy.sh: wp05 got slot2.lock after 390s
+Calculating task graph as no cached configuration is available for tasks: :modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :platform:state-machine:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :modules:orders:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:state-machine:processResources NO-SOURCE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :modules:orders:processTestFixturesResources NO-SOURCE
+> Task :modules:orders:loadKtlintReporters UP-TO-DATE
+> Task :modules:orders:processTestResources NO-SOURCE
+> Task :modules:orders:processResources NO-SOURCE
+> Task :modules:orders:processPropertyTestResources NO-SOURCE
+> Task :platform:testing:processResources NO-SOURCE
+> Task :modules:orders:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:orders:runKtlintFormatOverKotlinScripts UP-TO-DATE
+> Task :modules:orders:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:orders:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :modules:orders:ktlintKotlinScriptFormat UP-TO-DATE
+> Task :platform:state-machine:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+
+> Task :modules:orders:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :modules:orders:runKtlintFormatOverTestFixturesSourceSet
+> Task :modules:orders:ktlintTestFixturesSourceSetFormat
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :modules:orders:detekt
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\orders\src\test\kotlin\hms\orders\domain\order\OrderGuardsTest.kt:51:7: Class OrderGuardsTest is too large. Consider splitting it into smaller pieces. [LargeClass]
+
+Analysis failed with 1 weighted issues.
+
+> Task :modules:orders:detekt FAILED
+> Task :platform:state-machine:compileJava NO-SOURCE
+> Task :platform:state-machine:classes UP-TO-DATE
+> Task :platform:state-machine:jar UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :modules:orders:runKtlintFormatOverTestSourceSet
+> Task :modules:orders:ktlintTestSourceSetFormat
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :modules:orders:runKtlintCheckOverKotlinScripts
+> Task :modules:orders:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :platform:testing:compileKotlin UP-TO-DATE
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar UP-TO-DATE
+> Task :modules:orders:ktlintKotlinScriptCheck
+> Task :modules:orders:runKtlintCheckOverTestSourceSet
+> Task :modules:orders:ktlintTestSourceSetCheck
+> Task :modules:orders:runKtlintCheckOverMainSourceSet
+> Task :modules:orders:runKtlintCheckOverPropertyTestSourceSet
+> Task :modules:orders:runKtlintCheckOverTestFixturesSourceSet
+> Task :modules:orders:runKtlintFormatOverMainSourceSet
+> Task :modules:orders:runKtlintFormatOverPropertyTestSourceSet
+> Task :modules:orders:ktlintMainSourceSetFormat
+> Task :modules:orders:ktlintPropertyTestSourceSetFormat
+> Task :modules:orders:ktlintFormat
+> Task :modules:orders:ktlintPropertyTestSourceSetCheck
+> Task :modules:orders:ktlintTestFixturesSourceSetCheck
+> Task :modules:orders:ktlintMainSourceSetCheck
+> Task :modules:orders:ktlintCheck
+
+> Task :modules:orders:compileKotlin
+e: warnings found and -Werror specified
+w: file:///C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/t3-5dcdaa39/backend/modules/orders/src/main/kotlin/hms/orders/domain/order/OrderGuards.kt:148:34 Unnecessary safe call on a non-null receiver of type 'KbAnswer'.
+
+> Task :modules:orders:compileKotlin FAILED
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:orders:detekt' (registered by plugin 'hms.quality-conventions').
+> Process 'command 'C:\Users\Surface\.t3\projects\hospitalmanagementsystem\.tools\jdk-25.0.4.1+1\bin\java.exe'' finished with non-zero exit value 2
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':modules:orders:compileKotlin' (registered by plugin 'org.jetbrains.kotlin.jvm').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 59s
+39 actionable tasks: 20 executed, 19 up-to-date
+Configuration cache entry stored.

@@ -1,0 +1,127 @@
+## files
+Worktree C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02 (branch wp/0.2-environments).
+
+COMMITTED (the only commit I made): 889beec "merge: wp/0.1-programme-bootstrap at 09afa41 into wp/0.2-environments". It is a --no-ff merge with parents 051d083 and 09afa41, so the three WP-0.2 commits keep their SHAs. It ends with the Co-Authored-By trailer. There was one conflict, in docs/program/OPEN-QUESTIONS.md. I kept both sides: WP-0.1's OQ-121 now ends section (f), and WP-0.2's section (g) with OQ-106 and OQ-107 follows it. docs/adr/README.md merged without a conflict. No other file conflicted: STATUS.md and COMMANDS.md were changed only on the WP-0.1 side.
+
+UNCOMMITTED (for the checkpoint integrator):
+- docs/program/STATUS.md: rewritten for this branch (B.5 format, 40 lines; keeps the ID-range line and lists the IDs used).
+- docs/program/DECISIONS-NEEDED.md: DN-005 update (§2.4 wording, option 4 is now the default in use, Blocking-now item reworded); DN-013 measured update; new DN-015 and DN-016.
+- docs/program/OPEN-QUESTIONS.md: OQ-122…OQ-134 in section (g); updates to OQ-084, OQ-094 and OQ-104.
+- docs/program/KNOWN-ANOMALIES.md: KA-014…KA-023; KA-003, KA-006 and KA-008 updated.
+- docs/safety/hazard-log.yaml: HAZ-0028 and HAZ-0029 plus a header comment.
+- docs/safety/README.md: the "What is here" row and open question 6 (H7 now has an entry).
+- docs/program/backlog.yaml and BACKLOG.md: regenerated with `sh tools/hms backlog render` (hazard links for 4 rows).
+- docs/adr/ADR-030-signature-enforcement-kyverno.md (new, Status: proposed) and docs/adr/README.md (index row; next free number is now ADR-031).
+- docs/program/work-packages/WP-0.2.md: lite design, test names and evidence names.
+- docs/program/WORK-PACKAGES.md: WP-0.2 set to in-progress.
+- docs/program/evidence/README.md: a `cell/` row, a compose row in the label table, the lite-row note (three PostgreSQL instances under DN-005) and the qualifier rule.
+- tools/hmstools/safety/tests/test_hazard_log_rules.py and test_seeded_content.py: two WP-0.1 tests that assumed only the 27 seeded entries.
+
+Scratch scripts, outside the repository: C:\Users\Surface\AppData\Local\Temp\hms-wp02\s0\{hazards.yaml,dn.py,oq.py,ka.py,fast3.txt}.
+
+tools/hmstools/cell/evidence.py and test_evidence.py are unchanged; see problems.
+## runs
+All Windows-host runs are labelled "Windows host" and are not evidence of record. All runs used --no-evidence or wrote no record.
+
+- Windows host, merge tree before the commit, `sh tools/ci/run fast --no-evidence`, first attempt: FAIL. 7 steps passed; frontend-fast failed in 0.3 s with ERR_PNPM_VERIFY_DEPS_BEFORE_RUN because the worktree had no frontend/node_modules.
+- Windows host: `sh tools/bootstrap frontend` ran "corepack pnpm install --frozen-lockfile (in frontend/)", output "Done in 4.4s using pnpm v12.12.1".
+- Windows host, merge tree, `sh tools/ci/run fast --no-evidence`: "tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=1294, failures=0, errors=0, skipped=0; 345 s)". That is 714 Python, 66 backend and 514 frontend tests. I then committed 889beec.
+- Windows host, S0 tree, first fast run: FAIL. python-unit-tests had failures=2: test_real_repository_passes ("29 != 27") and test_every_entry_has_a_nightly_property_control_with_both_section_18_3_counts (HAZ-0028 and HAZ-0029 missing). Both tests assumed the log holds only the 27 seeded entries.
+- I changed the two tests:
+  - the count is now 29, with a comment;
+  - the §18.3 rule (10⁶ and at least 10⁴ sequences) is now asked of every entry that lists an SI, which is what §18.3 says ("For every SI"), and a new assertion requires exactly 27 such entries.
+- Windows host: the safety tests then ran OK (336 tests).
+- Windows host, final S0 tree, `sh tools/ci/run fast --no-evidence`: "tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=1294, failures=0, errors=0, skipped=0; 399 s)".
+- Windows host, final tree:
+  - `sh tools/hms repo check`: "repo: PASS (… adrs_total=30, adrs_valid=30, … blocking_now_items=2, status_lines=40, …)", with 4 CRLF warnings on plan-of-record files that existed before.
+  - `sh tools/hms safety check`: "safety: PASS (hazards=29, controls=200, controls_planned=200, controls_implemented=0, controls_verified=0, sis_covered=21, …)", with warnings that H9, H11 and H15 and 22 SACs have no entry, and that the signer list is empty.
+  - `sh tools/hms backlog check`: "backlog: PASS (hazard_log_entries=29, features_with_hazards=101, hazard_links=243, rows=236, …)".
+  - Cell unit tests (`python -B -I -m unittest discover -s tools/hmstools/cell/tests -t tools`): "Ran 14 tests … OK". tools/hmstools/tests: "Ran 1 test … OK".
+- WSL build host, before clearing (05:16:53 +03:00):
+  - free -m: available 8617 MiB.
+  - docker system df: Images 9, 2.533GB (reclaimable 2.142GB); Containers 3; Local Volumes 13, 3.766GB.
+  - df -h /mnt/c: Size 238G, Used 208G, Avail 30G, 88%.
+  - k3d cluster list: hms-proto 3/3.
+- WSL build host, clearing:
+  - `k3d cluster delete hms-proto`: "Successfully deleted cluster hms-proto!" (exit 0).
+  - I checked each name with `docker images` first, then removed with docker rmi: rustfs/rustfs:1.0.3, ghcr.io/versity/versitygw:v1.4.1, ghcr.io/cloudnative-pg/cloudnative-pg:1.27.1, quay.io/strimzi/operator:0.48.0 and valkey/valkey:8.1-alpine. Each printed Untagged/Deleted.
+- WSL build host, after clearing (05:17:26):
+  - docker system df: Images 4, 1.134GB; Containers 0; Local Volumes 0.
+  - df -h /mnt/c: Avail 30G, 88%.
+  - Kept: chrislusf/seaweedfs:4.48, ghcr.io/k3d-io/k3d-tools:5.8.3, hello-world:latest, rancher/k3s:v1.37.1-k3s1.
+  - No containers, no non-default networks.
+- WSL build host, further readings:
+  - df -B1 /mnt/c: 31488036864 bytes available.
+  - sysctl: fs.inotify.max_user_instances = 128, max_user_watches = 524288.
+  - Docker 29.9.1, overlayfs.
+  - Later: k3d cluster list is empty; free -m shows 8863 MiB available.
+- Windows host:
+  - Get-PSDrive C: 29.33 GiB free.
+  - ext4.vhdx (C:\Users\Surface\AppData\Local\wsl\{88ae526e-…}\ext4.vhdx): 22191013888 bytes, 20.67 GiB.
+## entries
+DN (DECISIONS-NEEDED.md):
+- DN-005 update of 19 October:
+  - The default in use is now option 4: three small PostgreSQL instances in the lite cell, with every result labelled "lite".
+  - It includes the §2.4 "Why", criterion status, options and what the lite evidence cannot show. The memory figure is given only as the plan's estimate (about 5.4 GiB for the cell, 5.9 GiB for the VM), explicitly not a measurement, until a perf record exists.
+  - Option 1 is relabelled "default until 19 October" and option 4 is marked as the default in use. The Blocking-now item 1 is reworded.
+- DN-013 measured update:
+  - C: had 29.33 GiB free and ext4.vhdx was 20.67 GiB.
+  - The prototype clearing reduced images from 2.533 to 1.134 GB and volumes from 3.766 GB to 0, while df -h /mnt/c showed 30G before and after (the VHDX does not shrink).
+  - The 15 GiB stop line is stated as to be enforced in S1/S7, not built yet.
+- DN-015 [HUMAN], WSL idle termination: the default is the keeper process plus fixed addresses. The options use Microsoft's current key names, checked on learn.microsoft.com/windows/wsl/wsl-config (updated 2026-10-16): [general] instanceIdleTimeout (default 15000, -1 disables) and [wsl2] vmIdleTimeout (default 60000).
+- DN-016 [HUMAN], fs.inotify.max_user_instances=128: option 1 is sysctl to 512, persisted in /etc/sysctl.d/90-hms-inotify.conf; the default is to continue and stop on "too many open files".
+- The "Next to block" line names DN-015 and DN-016.
+
+OQ (section (g)), all status open:
+- OQ-122: topology (fixed subnet 172.28.0.0/16, load balancer kept, --servers-memory 3g).
+- OQ-123: Kyverno, offline, kube-system checked, registry-only rule.
+- OQ-124: crane mirroring by digest; HMS_CELL_HOME.
+- OQ-125: how pins are read.
+- OQ-126: meaning of "acknowledged"; write classes; RTO 300 s citing §16.2.
+- OQ-127: chaos split and owners.
+- OQ-128: parking the cell in the nightly tier.
+- OQ-129: cell/ directory and the qualifier inside <test>.
+- OQ-130: HMS_COSIGN_PASSWORD (tool fails closed; the cell owner may generate a random passphrase into a mode-600 file in HMS_CELL_HOME and says so).
+- OQ-131: OpenTelemetry collector and allowlist.
+- OQ-132: egress test in WP-0.2.
+- OQ-133: UBI base images.
+- OQ-134: deploy/compose/.
+- Update bullets on OQ-084, OQ-094 and OQ-104.
+
+KA:
+- New rows KA-014 to KA-023, as listed in the plan.
+- KA-003 description extended with the steps WP-0.2 plans, all marked not built yet.
+- KA-006 and KA-008 updated: H7 now has HAZ-0028.
+
+Hazards (all controls state: planned; human fields null):
+- HAZ-0028 "Committed data lost, or writes accepted unsafely, after losing cell nodes":
+  - seeded_hazard [H6, H7]; owner platform-site-squad; features PLT-OPS-01, PLT-OPS-04, PLT-SITE-01; initial risk major/occasional/high (proposal).
+  - CTRL-0028-1, quorum sync replication: ChaosTest:node-kill-primary, -standby, -each, primary-pod-kill, primary-partition.
+  - CTRL-0028-2, never async: standbys-fenced-writes-block, two-node-loss-writes-stop.
+  - CTRL-0028-3, fixed addresses and restart: cell-restart-any-order.
+  - CTRL-0028-4, no commit-cancel in the access layer, WP-0.3: IntegrationTest:commit-wait-cancel-is-failure. Its note says it is a mechanism this build proposes [P], not an SI tightening.
+  - CTRL-0028-5, nightly chaos suite.
+  - The notes say that lite evidence takes controls no further than `implemented` until DN-005 is answered.
+- HAZ-0029 "A locked object deleted, or its retention shortened, before the retention expires":
+  - seeded_hazard [H6, H14]; owner platform-files-squad; features TRU-AUD-01, PLT-OPS-04, PLT-SITE-01; initial risk major/remote/medium.
+  - CTRL-0029-1: ContractTest:worm-W01-W11.
+  - CTRL-0029-2: ChaosTest:worm-recheck-after-restart.
+
+ADR-030 "Signature enforcement in the cell: Kyverno admission control verifies locally signed images offline":
+- Status: proposed, Date 2026-10-19, in B.1 form.
+- Alternatives (policy-controller; verification outside admission only) are marked as compared on paper only.
+- The guard is SIG-01 to SIG-07, with a "State on 2026-10-19: nothing is built" line.
+- It is indexed in the ADR README; the next free number is ADR-031, and the numbering has no gap.
+
+IDs used: DN-015, DN-016; OQ-122 to OQ-134; KA-014 to KA-023; HAZ-0028, HAZ-0029; ADR-030. All are inside WP-0.2's reserved ranges.
+## problems
+1. The merge step "make cell/evidence.py use the runner's helper" could not be done as written. The runner at 09afa41 has no such helper: tools/hmstools/ci/runner.py:git_info still counts every untracked file. Commit c1c2ea9's message expected WP-0.1 to fix this, but it did not, and review observation O-5 is still open. I left evidence.py and test_evidence.py unchanged (both pass) and said so in the merge commit and in STATUS. A shared helper would change the CI runner's -dirty naming rule for ci/ records, so the lead should decide; I did not change it on my own.
+2. The plan lists KA rows only up to KA-023, so I added KA-014 to KA-023 and KA-024 stays reserved and unused.
+3. Two WP-0.1 tests (test_hazard_log_rules.py and test_seeded_content.py) hard-coded the 27 seeded entries and failed once HAZ-0028 and HAZ-0029 were added. Section 18.3 asks for property tests "for every SI", so I scoped that rule to entries that list an SI. A new assertion still requires exactly 27 such entries, so the rule is not weakened. The integrator should check these edits.
+4. The first fast run failed only because the new worktree had no frontend/node_modules. I fixed it with `sh tools/bootstrap frontend`, which installed from the frozen lockfile into the git-ignored node_modules.
+5. Every run here is on the Windows host. There is no fast record of record on this branch yet; it is owed in the WSL clone at the checkpoint SHA.
+6. The DN-015 context (five terminations on 18 October, boots of 27 s and 25 s) comes from the planning session's journal inspection, attributed as such. I did not re-read the journal.
+7. I did not start the keeper process: it was not in this slice's task text, though the plan's S0 mentions it. The cell owner starts it at the first cell session.
+8. Deleting the images freed nothing that `df -h /mnt/c` shows, because ext4.vhdx does not shrink; I did not record the exact free bytes before clearing. C: is at 29.3 GiB free, above the 15 GiB stop line.
+9. I left CHANGELOG.md and COMMANDS.md unchanged: the plan does them in S11 and S7.
+10. The 15 GiB disk check and the 6.5 GiB memory check exist only as documented rules. No cell tooling enforces them yet (S1 and S7).

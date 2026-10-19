@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 740" width="100%" role="img" aria-label="Patient-context state machine of one window: seven states and their transitions" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <defs>
+    <marker id="pc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor" fill-opacity="0.8"/>
+    </marker>
+    <marker id="pc-arrow-o" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/>
+    </marker>
+  </defs>
+
+  <!-- States -->
+  <g font-size="12" font-weight="700" text-anchor="middle" fill="currentColor">
+    <rect x="30" y="70" width="170" height="56" rx="10" fill="#8a8f98" fill-opacity="0.16" stroke="#8a8f98" stroke-width="1.8"/>
+    <text x="115" y="94">no-patient</text>
+    <rect x="380" y="70" width="240" height="56" rx="10" fill="#3b82f6" fill-opacity="0.16" stroke="#3b82f6" stroke-width="1.8"/>
+    <text x="500" y="94">patient-selected</text>
+    <rect x="770" y="70" width="220" height="56" rx="10" fill="#d97706" fill-opacity="0.16" stroke="#d97706" stroke-width="1.8"/>
+    <text x="880" y="94">switch-pending-confirmation</text>
+    <rect x="30" y="300" width="240" height="56" rx="10" fill="#ea580c" fill-opacity="0.16" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="150" y="324">re-verification-required</text>
+    <rect x="420" y="300" width="160" height="56" rx="10" fill="#16a34a" fill-opacity="0.16" stroke="#16a34a" stroke-width="1.8"/>
+    <text x="500" y="324">signing</text>
+    <rect x="420" y="520" width="160" height="56" rx="10" fill="#0d9488" fill-opacity="0.16" stroke="#0d9488" stroke-width="1.8"/>
+    <text x="500" y="544">submitting</text>
+    <rect x="770" y="616" width="220" height="56" rx="10" fill="#8a8f98" fill-opacity="0.16" stroke="#8a8f98" stroke-width="1.8"/>
+    <rect x="775" y="621" width="210" height="46" rx="7" fill="none" stroke="#8a8f98" stroke-width="1.2"/>
+    <text x="880" y="640">window-closed</text>
+  </g>
+  <g font-size="10.5" text-anchor="middle" fill="currentColor" fill-opacity="0.8">
+    <text x="115" y="111">empty window</text>
+    <text x="500" y="111">the banner shows one patient</text>
+    <text x="880" y="111">both patients shown side by side</text>
+    <text x="150" y="341">“Is this the right patient?”</text>
+    <text x="500" y="341">authenticate and sign</text>
+    <text x="500" y="561">sent to the server</text>
+    <text x="880" y="657">end state</text>
+  </g>
+
+  <!-- Ordinary transitions (grey) -->
+  <g fill="none" stroke="currentColor" stroke-opacity="0.7" stroke-width="1.4" marker-end="url(#pc-arrow)">
+    <path d="M478 70 C468 30, 532 30, 522 70"/>
+    <line x1="200" y1="88" x2="378" y2="88"/>
+    <line x1="380" y1="110" x2="202" y2="110"/>
+    <line x1="620" y1="88" x2="768" y2="88"/>
+    <line x1="770" y1="110" x2="622" y2="110"/>
+    <line x1="165" y1="300" x2="428" y2="128"/>
+    <line x1="488" y1="126" x2="488" y2="298"/>
+    <line x1="512" y1="300" x2="512" y2="128"/>
+    <line x1="270" y1="318" x2="418" y2="318"/>
+    <line x1="488" y1="356" x2="488" y2="518"/>
+    <line x1="512" y1="520" x2="512" y2="358"/>
+    <path d="M580 548 H720 V168 H600 V128"/>
+    <line x1="660" y1="644" x2="768" y2="644"/>
+  </g>
+  <!-- UserChanged: dashed, from every state except no-patient -->
+  <path d="M30 643 H14 V98 H28" fill="none" stroke="currentColor" stroke-opacity="0.7" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#pc-arrow)"/>
+
+  <!-- Transitions that lead to re-verification (orange) -->
+  <g fill="none" stroke="#ea580c" stroke-width="2.2" marker-end="url(#pc-arrow-o)">
+    <line x1="400" y1="126" x2="137" y2="298"/>
+    <line x1="420" y1="340" x2="272" y2="340"/>
+    <path d="M420 548 H150 V358"/>
+  </g>
+
+  <!-- Transition labels -->
+  <g font-size="11" fill="currentColor">
+    <g text-anchor="middle">
+      <text x="500" y="16">SelectPatient (same patient): nothing changes</text>
+      <text x="500" y="30">OpenSign refused: banner identity invalid</text>
+    </g>
+    <g text-anchor="middle">
+      <text x="290" y="66" font-weight="700">SelectPatient</text>
+      <text x="290" y="80">(first patient)</text>
+      <text x="290" y="128" font-weight="700">ClosePatient</text>
+    </g>
+    <g text-anchor="middle">
+      <text x="695" y="66" font-weight="700">SelectPatient</text>
+      <text x="695" y="80">(another patient)</text>
+      <text x="695" y="128" font-weight="700">ConfirmSwitch</text>
+      <text x="695" y="142">or CancelSwitch</text>
+    </g>
+    <g text-anchor="end">
+      <text x="305" y="150" font-weight="700">OpenSign: patient changed</text>
+      <text x="305" y="164">≤ 60 s ago and not yet</text>
+      <text x="305" y="178">re-verified, or disputed</text>
+    </g>
+    <g text-anchor="end">
+      <text x="478" y="196" font-weight="700">OpenSign: changed</text>
+      <text x="478" y="210">&gt; 60 s ago, or already</text>
+      <text x="478" y="224">re-verified, not disputed</text>
+    </g>
+    <g text-anchor="start">
+      <text x="526" y="196" font-weight="700">CancelSign, or SubmitSign</text>
+      <text x="526" y="210">after a patient change or</text>
+      <text x="526" y="224">on an invalid banner</text>
+    </g>
+    <g text-anchor="start">
+      <text x="250" y="254" font-weight="700">RejectPatient (“Not this patient”)</text>
+      <text x="250" y="268">or CancelSign</text>
+    </g>
+    <g text-anchor="middle">
+      <text x="345" y="296" font-weight="700">Reverify: the signer</text>
+      <text x="345" y="310">confirms the patient</text>
+      <text x="345" y="358" font-weight="700">SubmitSign, but</text>
+      <text x="345" y="372">another user re-verified</text>
+    </g>
+    <g text-anchor="end">
+      <text x="478" y="425" font-weight="700">SubmitSign:</text>
+      <text x="478" y="439">authenticated and</text>
+      <text x="478" y="453">re-verified by signer</text>
+    </g>
+    <g text-anchor="start">
+      <text x="526" y="425" font-weight="700">SignRejected or</text>
+      <text x="526" y="439">SignOutcomeUnknown:</text>
+      <text x="526" y="453">retry with the same key</text>
+    </g>
+    <g text-anchor="start">
+      <text x="732" y="360" font-weight="700">SignAccepted</text>
+      <text x="732" y="374">(signature recorded)</text>
+    </g>
+    <g text-anchor="start">
+      <text x="166" y="520" font-weight="700">SignRefused: the server</text>
+      <text x="166" y="534">requires re-verification</text>
+    </g>
+    <rect x="560" y="628" width="100" height="32" rx="16" fill="none" stroke="currentColor" stroke-opacity="0.6" stroke-dasharray="4 3"/>
+    <text x="610" y="648" text-anchor="middle">any state</text>
+    <text x="714" y="636" text-anchor="middle" font-weight="700">WindowClosed</text>
+    <rect x="30" y="612" width="390" height="62" rx="10" fill="none" stroke="currentColor" stroke-opacity="0.6" stroke-dasharray="5 4"/>
+    <text x="44" y="631" font-weight="700">UserChanged → no-patient</text>
+    <text x="44" y="647">from every state except no-patient: a badge tap or</text>
+    <text x="44" y="663">sign-in changes the user; an open dialog closes unsigned</text>
+  </g>
+
+  <!-- Footer -->
+  <g font-size="11" fill="currentColor" fill-opacity="0.85">
+    <line x1="30" y1="694" x2="58" y2="694" stroke="#ea580c" stroke-width="2.2"/>
+    <text x="66" y="698">Orange: paths that send the user back to confirm the patient’s identity before a signature counts</text>
+    <text x="30" y="722">Source: docs/specs/state-machines/patient-context.yaml, version 1. Every transition is proposed; approval is requested (OQ-149).</text>
+  </g>
+</svg>

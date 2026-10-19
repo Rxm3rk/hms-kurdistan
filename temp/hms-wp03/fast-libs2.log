@@ -1,0 +1,35 @@
+commitclone: HEAD 1b00abe; staged: 74 files; branches: wp/0.3-platform-kernel 
+heavy.sh: waiting for a slot (wp08 pid=171827 since=2026-10-19T12:26:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=171827 since=2026-10-19T12:26:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=171827 since=2026-10-19T12:26:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=171827 since=2026-10-19T12:26:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=171827 since=2026-10-19T12:26:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=171827 since=2026-10-19T12:26:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp07-s6 pid=172559 since=2026-10-19T12:42:54+03:00;wp05 pid=162414 since=2026-10-19T12:05:42+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=181166 since=2026-10-19T12:59:43+03:00;)
+heavy.sh: wp03 got slot1.lock after 1785s
+tools/ci/run fast: 8 step(s); logs in build/ci-logs/20261019T130258-fast-1b00abe-96382a
+[1/8] doctor-fast ...
+[1/8] doctor-fast: PASS (5.4 s)
+[2/8] repo-check ...
+[2/8] repo-check: PASS (6.1 s)
+[3/8] python-unit-tests ...
+[3/8] python-unit-tests: PASS (635.3 s) tests=699, failures=0, errors=0, skipped=0
+[4/8] safety-check ...
+[4/8] safety-check: PASS (1.6 s)
+[5/8] backlog-check ...
+[5/8] backlog-check: PASS (0.7 s)
+[6/8] backend-fast ...
+[6/8] backend-fast: PASS (210.9 s) tests=277, failures=0, errors=0, skipped=0
+[7/8] frontend-fast ...
+[7/8] frontend-fast: PASS (165.1 s) tests=514, failures=0, errors=0, skipped=0
+[8/8] secret-scan ...
+[8/8] secret-scan: PASS (102.1 s) history_findings=0, working_tree_findings=0
+tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=1490, failures=0, errors=0, skipped=0; 1128 s)

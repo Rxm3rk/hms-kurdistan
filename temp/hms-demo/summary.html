@@ -1,0 +1,132 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+.wrap{font-family:var(--font-sans, system-ui, 'Segoe UI', 'Noto Sans', 'Noto Sans Arabic', sans-serif);color:var(--foreground, #0f172a);line-height:1.45;font-size:14px}
+h1{font-size:19px;margin:0 0 4px}
+.sub{color:var(--muted-foreground, #64748b);margin:0 0 14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:0 0 16px}
+.stat{background:var(--card, #f8fafc);border:1px solid var(--border, #e2e8f0);border-radius:var(--radius, 10px);padding:10px 12px}
+.stat .v{font-size:20px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted-foreground, #64748b)}
+.map{background:var(--card, #f8fafc);border:1px solid var(--border, #e2e8f0);border-radius:var(--radius, 10px);padding:16px;margin:0 0 6px;color:var(--card-foreground, #0f172a)}
+.legend{font-size:12px;color:var(--muted-foreground, #64748b);margin:0 0 18px}
+details.wp{border:1px solid var(--border, #e2e8f0);border-radius:var(--radius, 10px);margin:0 0 10px;background:var(--card, #f8fafc);color:var(--card-foreground, #0f172a)}
+details.wp>summary{cursor:pointer;list-style:none;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details.wp>summary::-webkit-details-marker{display:none}
+details.wp>summary::before{content:'▸';color:var(--muted-foreground, #64748b);width:10px}
+details.wp[open]>summary::before{content:'▾'}
+.wpid{font-family:var(--font-mono, ui-monospace, Consolas, monospace);font-size:12px;background:var(--secondary, #e2e8f0);color:var(--secondary-foreground, #0f172a);border-radius:6px;padding:1px 6px}
+.wpt{font-weight:700;font-size:15px}
+.where{font-size:12px;color:var(--muted-foreground, #64748b);margin-inline-start:auto}
+.body{padding:0 16px 16px}
+.purpose{margin:4px 0 6px}
+.statusline{margin:0 0 12px;color:var(--muted-foreground, #64748b)}
+.chip{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;white-space:nowrap;display:inline-block}
+.s-done{background:var(--success, #15803d);color:var(--success-foreground, #ffffff)}
+.s-in-progress{background:var(--info, #1d4ed8);color:var(--info-foreground, #ffffff)}
+.s-waiting{background:var(--warning, #b45309);color:var(--warning-foreground, #ffffff)}
+.s-not-started{background:var(--secondary, #e2e8f0);color:var(--secondary-foreground, #0f172a)}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+h4{margin:14px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted-foreground, #64748b)}
+ul.items{list-style:none;padding:0;margin:0}
+ul.items li{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border, #e2e8f0)}
+ul.items li .chip{margin-top:2px;min-width:74px;text-align:center}
+.ev{font-size:12px;color:var(--muted-foreground, #64748b)}
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.num{background:var(--background, #ffffff);border:1px solid var(--border, #e2e8f0);border-radius:calc(var(--radius, 10px) - 2px);padding:8px 10px}
+.num .v{font-weight:700;font-size:13.5px}
+.num .l{font-size:11.5px;color:var(--muted-foreground, #64748b)}
+figure.show{margin:0 0 16px;padding:12px;border:1px solid var(--border, #e2e8f0);border-radius:var(--radius, 10px);background:var(--background, #ffffff)}
+figure.show figcaption{margin:0 0 8px}
+.cap{font-size:12.5px;color:var(--muted-foreground, #64748b);margin:8px 0 0}
+.svgbox{color:var(--foreground, #0f172a);overflow-x:auto}
+.svgbox svg{max-width:100%;height:auto;display:block;margin:0 auto}
+.imgbox{text-align:center;background:#fff;border-radius:6px;padding:10px}
+.imgbox img{max-width:100%;height:auto}
+pre{background:var(--code-background, #0f172a);color:var(--code-foreground, #e2e8f0);border-radius:6px;padding:10px 12px;overflow-x:auto;font-size:12px;margin:0}
+.src{font-family:var(--font-mono, ui-monospace, Consolas, monospace);font-size:11px;color:var(--muted-foreground, #64748b);margin-top:4px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border-bottom:1px solid var(--border, #e2e8f0);padding:5px 8px;text-align:start;vertical-align:top}
+th{color:var(--muted-foreground, #64748b);font-weight:600}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 4px}
+@media (max-width:640px){.gallery{grid-template-columns:1fr}}
+.shot{margin:0}
+.shot img{width:100%;border:1px solid var(--border, #e2e8f0);border-radius:6px;display:block}
+.shot figcaption{font-size:12px;color:var(--muted-foreground, #64748b);margin-top:4px}
+.small ul{margin:0;padding-inline-start:18px;font-size:13px}
+.ns{border:1px dashed var(--border, #e2e8f0);border-radius:var(--radius, 10px);padding:12px 14px;margin:0 0 10px}
+.nsh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ns p{margin:6px 0 0}
+.foot{font-size:12px;color:var(--muted-foreground, #64748b);margin-top:16px;border-top:1px solid var(--border, #e2e8f0);padding-top:10px}
+
+.card{border:1px solid var(--border, #e2e8f0);border-radius:var(--radius, 10px);background:var(--card, #f8fafc);color:var(--card-foreground, #0f172a);padding:12px 14px;margin:0 0 10px}
+.ch{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nums3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+@media (max-width:560px){.nums3{grid-template-columns:1fr}}
+.gallery3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.gallery3 img{width:100%;border:1px solid var(--border, #e2e8f0);border-radius:6px}
+.labels{display:flex;gap:10px;align-items:flex-start;background:#fff;border-radius:6px;padding:10px;margin:8px 0;overflow-x:auto}
+.labels img{max-height:170px}
+</style></head><body><div class="wrap">
+<div class="stats">
+<div class="stat"><div class="v">1</div><div class="l">package done</div></div>
+<div class="stat"><div class="v">5</div><div class="l">being built at once</div></div>
+<div class="stat"><div class="v">3</div><div class="l">not started yet</div></div>
+<div class="stat"><div class="v">1,279</div><div class="l">official tests, 0 failing</div></div>
+<div class="stat"><div class="v">73 / 78</div><div class="l">planted defects caught</div></div>
+</div>
+<div class="map"><svg viewBox="0 0 1000 230" width="100%" role="img" aria-label="Foundation work packages and their order"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="currentColor" opacity="0.5"/></marker></defs>
+<path d="M156,93.0 C161.0,93.0 161.0,93.0 164,93.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M316,93.0 C321.0,93.0 321.0,93.0 324,93.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M476,93.0 C485.0,93.0 485.0,33.0 492,33.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M476,93.0 C485.0,93.0 485.0,93.0 492,93.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M476,93.0 C485.0,93.0 485.0,153.0 492,153.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M644,33.0 C656.0,33.0 656.0,63.0 666,63.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M644,93.0 C656.0,93.0 656.0,63.0 666,63.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M818,63.0 C830.0,63.0 830.0,93.0 840,93.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M644,153.0 C743.0,153.0 743.0,93.0 840,93.0" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M81.0,116 V193.0 H324" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<path d="M476,193.0 H917.0 V118" fill="none" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" marker-end="url(#ar)"/>
+<g><rect x="6" y="70" width="150" height="46" rx="8" fill="var(--success, #15803d)" fill-opacity="0.12" stroke="var(--success, #15803d)" stroke-width="1.6"/><text x="16" y="89" font-size="12" font-weight="700" fill="currentColor">0.1 · done</text><text x="16" y="106" font-size="11.5" fill="currentColor" opacity="0.85">Foundation &amp; safety gates</text></g>
+<g><rect x="166" y="70" width="150" height="46" rx="8" fill="var(--info, #1d4ed8)" fill-opacity="0.12" stroke="var(--info, #1d4ed8)" stroke-width="1.6"/><text x="176" y="89" font-size="12" font-weight="700" fill="currentColor">0.2 · building</text><text x="176" y="106" font-size="11.5" fill="currentColor" opacity="0.85">Server cell</text></g>
+<g><rect x="326" y="70" width="150" height="46" rx="8" fill="var(--info, #1d4ed8)" fill-opacity="0.12" stroke="var(--info, #1d4ed8)" stroke-width="1.6"/><text x="336" y="89" font-size="12" font-weight="700" fill="currentColor">0.3 · building</text><text x="336" y="106" font-size="11.5" fill="currentColor" opacity="0.85">Core libraries</text><text x="468" y="89" font-size="10" text-anchor="end" fill="var(--info, #1d4ed8)">early</text></g>
+<g><rect x="494" y="10" width="150" height="46" rx="8" fill="var(--muted-foreground, #64748b)" fill-opacity="0.12" stroke="var(--muted-foreground, #64748b)" stroke-width="1.6" stroke-dasharray="4 3"/><text x="504" y="29" font-size="12" font-weight="700" fill="currentColor">0.4 · not started</text><text x="504" y="46" font-size="11.5" fill="currentColor" opacity="0.85">Login, permissions, audit</text></g>
+<g><rect x="494" y="70" width="150" height="46" rx="8" fill="var(--info, #1d4ed8)" fill-opacity="0.12" stroke="var(--info, #1d4ed8)" stroke-width="1.6"/><text x="504" y="89" font-size="12" font-weight="700" fill="currentColor">0.5 · building</text><text x="504" y="106" font-size="11.5" fill="currentColor" opacity="0.85">Clinical state machines</text><text x="636" y="89" font-size="10" text-anchor="end" fill="var(--info, #1d4ed8)">early</text></g>
+<g><rect x="494" y="130" width="150" height="46" rx="8" fill="var(--info, #1d4ed8)" fill-opacity="0.12" stroke="var(--info, #1d4ed8)" stroke-width="1.6"/><text x="504" y="149" font-size="12" font-weight="700" fill="currentColor">0.8 · building</text><text x="504" y="166" font-size="11.5" fill="currentColor" opacity="0.85">Printing &amp; documents</text><text x="636" y="149" font-size="10" text-anchor="end" fill="var(--info, #1d4ed8)">early</text></g>
+<g><rect x="668" y="40" width="150" height="46" rx="8" fill="var(--muted-foreground, #64748b)" fill-opacity="0.12" stroke="var(--muted-foreground, #64748b)" stroke-width="1.6" stroke-dasharray="4 3"/><text x="678" y="59" font-size="12" font-weight="700" fill="currentColor">0.6 · not started</text><text x="678" y="76" font-size="11.5" fill="currentColor" opacity="0.85">Test data &amp; benchmarks</text></g>
+<g><rect x="842" y="70" width="150" height="46" rx="8" fill="var(--muted-foreground, #64748b)" fill-opacity="0.12" stroke="var(--muted-foreground, #64748b)" stroke-width="1.6" stroke-dasharray="4 3"/><text x="852" y="89" font-size="12" font-weight="700" fill="currentColor">0.9 · not started</text><text x="852" y="106" font-size="11.5" fill="currentColor" opacity="0.85">Safety registry &amp; release</text></g>
+<g><rect x="326" y="170" width="150" height="46" rx="8" fill="var(--info, #1d4ed8)" fill-opacity="0.12" stroke="var(--info, #1d4ed8)" stroke-width="1.6"/><text x="336" y="189" font-size="12" font-weight="700" fill="currentColor">0.7 · building</text><text x="336" y="206" font-size="11.5" fill="currentColor" opacity="0.85">Design system &amp; banner</text></g></svg></div>
+<p class="legend">Arrows show what each package needs first. "early" = started before the server cell is finished, on the parts that don't need it. Green = done, blue = building, dashed = not started.</p>
+<div class="card">
+<div class="ch"><span class="wpid">WP-0.7</span><b>Design system, patient banner and client shells</b><span class="chip s-in-progress">In progress</span><span class="where">Windows laptop</span></div>
+<p class="statusline">8 of the 15 planned build slices are committed (the specification, core logic, the banner, sign and co-sign, the palette and the device client). The web frame and demo page exist only as uncommitted files, and there are no end-to-end tests, desktop shell or mobile app yet.</p>
+<div class="gallery3"><img src="C:/Users/Surface/AppData/Local/Temp/hms-demo/img/ds-banner-en.png" alt=""><img src="C:/Users/Surface/AppData/Local/Temp/hms-demo/img/ds-banner-ckb.png" alt=""><img src="C:/Users/Surface/AppData/Local/Temp/hms-demo/img/ds-banner-ar.png" alt=""></div>
+<div class="nums3"><div class="num"><div class="v">11 (8 slice commits + 3 status records)</div><div class="l">Commits on the branch (since the WP-0.1 base 05f159a)</div></div><div class="num"><div class="v">2054: Python 688, backend 66, frontend 1300 (281 of them in the design system). 8 of 8 steps passed. Not a run of record</div><div class="l">Tests in the last Windows fast-tier run (slice S5b, 9756d2c)</div></div><div class="num"><div class="v">3: English, Sorani Kurdish, Arabic (plus 2 test-only pseudo-languages)</div><div class="l">UI languages</div></div></div>
+</div><div class="card">
+<div class="ch"><span class="wpid">WP-0.8</span><b>Documents and printing (wristbands, labels, receipts, PDFs)</b><span class="chip s-in-progress">In progress</span><span class="where">Windows laptop</span></div>
+<p class="statusline">The specification is written and reviewed but only staged, not committed. Most of the print engine, the PDF renderer, the PDF/A checker and the printer test kit exist as uncommitted work that is being finished and reviewed piece by piece. The real templates, the print service and approved reference images have not been started, and nothing has been printed on a physical printer.</p>
+<div class="labels"><img src="C:/Users/Surface/AppData/Local/Temp/hms-demo/img/selftest-wristband-datamatrix-p1.png" alt=""><img src="C:/Users/Surface/AppData/Local/Temp/hms-demo/img/selftest-receipt-code128-p1.png" alt=""></div>
+<div class="nums3"><div class="num"><div class="v">88: print module 44 main + 35 test + 3 property-test; PDF/A checker 2 main + 4 test</div><div class="l">Kotlin files (all uncommitted)</div></div><div class="num"><div class="v">32 (26 unit and 3 property tests in the print module, 3 in the PDF/A checker), plus 9 test helper files</div><div class="l">Kotlin test classes</div></div><div class="num"><div class="v">7 (6 renderer, 1 S7-K kit)</div><div class="l">Python test files</div></div></div>
+</div><div class="card">
+<div class="ch"><span class="wpid">WP-0.5</span><b>Clinical state machines and safety rules</b><span class="chip s-in-progress">In progress</span><span class="where">Windows now → MacBook</span></div>
+<p class="statusline">All eight machines, the generator and the generated code exist only as uncommitted files in the worktree; the newest auto-save is refs/wip/wp/0.5-state-machines at dc444ee, 11:07 on 19 Oct. The second review and the verification runs are still going, and nothing has been approved yet.</p>
+
+<div class="nums3"><div class="num"><div class="v">8 (6 of them are needed for the first company gate, G1)</div><div class="l">Clinical state machines specified</div></div><div class="num"><div class="v">76</div><div class="l">States (all machines)</div></div><div class="num"><div class="v">228</div><div class="l">Allowed transitions (all machines)</div></div></div>
+</div><div class="card">
+<div class="ch"><span class="wpid">WP-0.3</span><b>Core libraries: IDs, clocks, clinical time, money, doses and safe settings</b><span class="chip s-in-progress">In progress</span><span class="where">Windows now → MacBook</span></div>
+<p class="statusline">The nine specifications are written and have been through automated review. Code and tests for four of the six core libraries (identifiers, test clock, clinical and recorded time, money) are written, but nothing is committed and none of their tests has run yet: the builds are still queued on the overloaded build machine.</p>
+
+<div class="nums3"><div class="num"><div class="v">9 (6 module specs, event envelope, event catalogue, task state machine)</div><div class="l">Specifications written (uncommitted)</div></div><div class="num"><div class="v">6,171 (the 6 module specs alone: 5,510)</div><div class="l">Specification lines</div></div><div class="num"><div class="v">49 (24 code, 25 test)</div><div class="l">Kotlin files written (uncommitted)</div></div></div>
+</div><div class="card">
+<div class="ch"><span class="wpid">WP-0.2</span><b>The on-site server cell, and its copy on the development laptop</b><span class="chip s-in-progress">In progress</span><span class="where">Windows laptop (Linux copy)</span></div>
+<p class="statusline">In progress, and the cluster itself is not built yet. Only the file-store lock test is committed. The planning entries are staged, and the pin file, registry and signing code are new files, none of it committed. The pin check fails on two licences until the owner decides.</p>
+
+<div class="nums3"><div class="num"><div class="v">4 (3 WP-0.2 commits + 1 merge)</div><div class="l">Commits on the branch since 09afa41</div></div><div class="num"><div class="v">19 files, +516 / -114 lines</div><div class="l">Staged, not committed (S0)</div></div><div class="num"><div class="v">11 files, +320 / -13 lines</div><div class="l">Modified, not staged</div></div></div>
+</div><div class="card">
+<div class="ch"><span class="wpid">WP-0.1</span><b>Programme foundation: automatic checks and safety gates</b><span class="chip s-done">Done</span><span class="where">Windows laptop (lead)</span></div>
+<p class="statusline">Done. The review's 21 findings are all fixed, and the everyday check run passed on the final code (commit a9d5725: 1,279 tests, 0 failures). The branch has not been merged into main yet because that waits on a human decision (DN-011).</p>
+
+<div class="nums3"><div class="num"><div class="v">1,279 (699 tool tests, 66 backend, 514 frontend), 0 failures, 0 skipped</div><div class="l">Tests in the fast tier (a9d5725)</div></div><div class="num"><div class="v">8 of 8 (149.7 s wall clock)</div><div class="l">Fast-tier steps passed</div></div><div class="num"><div class="v">73 of 78; the other 5 passed by design</div><div class="l">Planted defects caught (gates bite)</div></div></div>
+</div>
+</div></body></html>

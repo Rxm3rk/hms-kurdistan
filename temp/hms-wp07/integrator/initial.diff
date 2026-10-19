@@ -1,0 +1,1564 @@
+diff --git a/docs/program/KNOWN-ANOMALIES.md b/docs/program/KNOWN-ANOMALIES.md
+index 3c0117e..269fb52 100644
+--- a/docs/program/KNOWN-ANOMALIES.md
++++ b/docs/program/KNOWN-ANOMALIES.md
+@@ -32,3 +32,8 @@ Statuses: `open`, `mitigated` (a compensating control is in place and named), `c
+ | KA-035 | Simulated devices only: no physical printer, scanner, badge reader, signature pad or camera has been tested. Sorani and Arabic shaping on printers is S7-K | H1 (SI-01 wristband and label printing) | `PLT-UX-02` | 2026-10-19 | open | S7-K [HUMAN: printers]; WP-0.8 |
+ | KA-036 | CTRL-0005-17 is only partly built. `ClinicalNumber` applies the ISMP rules (leading zero, no trailing zero, no naked decimal, grouping per DN-031) with Western digits on screens. The unit display map is a synthetic sample (OQ-152). Tall-man lettering needs the governed LASA list (§3.4 item 3), and number display on prints is WP-0.8 | H2; SI-05 (CTRL-0005-17) | `PLT-UX-01` | 2026-10-19 | open | WP-0.8 (prints); the work package that builds the formulary (`MED-FRM-01`) for tall-man lettering and the unit map |
+ | KA-037 | The shipped-scope licence check fails. Since WP-0.7 slice S1 added the web client's dependencies, `sh tools/hms licence check` on the shipped packages' `pnpm licenses list --prod` output (`COMMANDS.md` §3) reports isbot 5.2.2, a dependency of TanStack Router, as unmapped: it declares `Unlicense`, which is not on the shipped allowlist. Only TanStack Router's server-side rendering entry imports isbot, so it is not expected in the client-only web bundle, but no bundle analysis has shown that yet. Every other shipped component passes, and the build-only scope passes | None directly; licence policy §4.3 | `PLT-UX-01` | 2026-10-19 | open | DN-033 [HUMAN] |
++| KA-038 | No bundled font draws U+202F NARROW NO-BREAK SPACE, the separator `ClinicalNumber` puts between digit groups of integer parts of 1000 and above (DN-031). Noto Sans's `latin` subset declares U+202F in its `unicode-range` but has no glyph for it (checked with fontkit on the Windows host, 19 October 2026; no other Fontsource subset of either family has it), so the browser draws that one space with a system font; the digits themselves come from the bundled font. `UnitTest:font-coverage` pins the gap and fails once a bundled face gains the glyph. `E2E:glyph-render` (slice S7) may report the system font on a node that shows a grouped number | H2 (grouping of large numbers, DN-031) | `PLT-UX-01` | 2026-10-19 | open | DN-031 [HUMAN: CSO] decides the separator; then a bundled face with the glyph, or a separator the bundled fonts draw |
++| KA-039 | A message key missing at run time is shown in plain text, not "in a visible error style" as `docs/specs/modules/design-system.md` §2.9 asks, wherever the text is a string rather than an element: an `aria-label`, a `title`, or any other `intl.formatMessage` result, which cannot carry a style. JSX text rendered through the design system's `Message` component (which `ClinicalNumber` and the modal stack's announcement use) does show a missing key in the error style (`hms-message-missing`, isolated left to right); text rendered with react-intl's `FormattedMessage` directly does not, and no lint requires `Message` yet. A missing key is never empty: it shows as the key, and `LocaleProvider` reports it through `onMessageError` with the error code and the key only (no message values, so no patient data), by default to the console; no reporting service exists yet. At build time a missing key already fails: `messageKey`, `Message`'s typed `id` and the `Catalogue` type fail type checking for a key absent from `en`, and the localisation lint fails for a key absent from `ckb` or `ar` | H1, H2 (a clinical label shown as a key) | `PLT-UX-03` | 2026-10-19 | open | The lead accepts plain text for string-only paths, or a later slice adds a visible marker beside the control that carries the string; a lint that requires `Message` for JSX text in the design system and `apps/web` |
++| KA-040 | A HAL failure that only `hal-client` sees has no audit record of its own. When `hal-client` refuses a request outside the contract before sending it, when the IPC call to the shell is rejected, when the shell does not reply within the client deadline, or when the shell's reply cannot be used, `hal-client` returns an error result (OQ-157) with a new UUIDv7 that names no record: contract v1's audit record allows `writtenBy: hal-client` only for the `no-shell` refusal (`docs/specs/hal/README.md`, "Audit"). The shell records each call it received, so a call the shell never received is audited nowhere; and for a call whose reply the client could not use, the shell's record (which may say `ok`) is not linked from the result and can be found only by workstation and time | None directly; §13.5 ("every call is audited"); H13 (the HAL audit log) | `PLT-UX-02` | 2026-10-19 | open | A contract v1 addition (a `writtenBy: hal-client` rule or a reason for a client-detected failure) under OQ-157, or WP-0.4 (`TRU-AUD-01`, the audit store) [P] |
++| KA-041 | The banner model checks a date of birth's form and calendar only. `parseBannerData` (`frontend/packages/ui-core`) accepts a date written at exactly its recorded precision (`YYYY-MM-DD`, `YYYY-MM` or `YYYY`) that exists in the Gregorian calendar; it does not reject a date in the future or an implausible age, because it has no trusted "today" (the server-side banner model, KA-025, will). It also cannot tell a placeholder day or month from a recorded one: an estimate sent at day precision on 1 January or 1 July (§18.10) is shown with its day, beside the approximate-DOB flag, so it is never read as exact, but design-system §2.1 asks that the placeholder never be shown. An estimate recorded at year or month precision shows no placeholder | H1; SI-01 (CTRL-0001-7) | `PLT-UX-01` | 2026-10-19 | open | WP-1.2 (registration records an estimated date at the precision known, with its precision flag, §11.2); WP-0.4 or WP-1.4 [P] (the server-side banner model, KA-025) |
++| KA-042 | The modal stack guard can still be bypassed by code that does not use the design system's `Modal`. `apps/web` depends on `react-aria-components` directly, and no lint rule forbids importing its `Modal`, `ModalOverlay`, `Dialog` or `AlertDialog` outside `frontend/packages/design-system/src/modal`, so a dialog opened that way holds no guard and can stack over a `Modal` or a HAL capture, and the patient-context check `patientContext.switch.blockedByModal` would not see it. Within the design system the guard is now closed: the package entry point exports only the window's guard; a `ModalStackProvider` nested in a provider of another guard throws; only the holder's own token releases the guard (the snapshot exposes no token); a modal shows only while it holds the guard under its own owner object; and the test entry point `@hms/design-system/testing`, the only way to create another guard, throws in production builds (in a development build it still works, and no lint confines it to test files) | H1 (a second dialog over a sign or switch confirmation; §6.5 "No stacked modals") | `PLT-UX-01` | 2026-10-19 | open | A lint rule in `eslint.config.js` or `@hms/eslint-plugin` (slice S1 or the integrator, who own them) that bans those `react-aria-components` imports outside `packages/design-system/src/modal` and `@hms/design-system/testing` outside test files |
+diff --git a/docs/program/OPEN-QUESTIONS.md b/docs/program/OPEN-QUESTIONS.md
+index 5a33bd7..3399698 100644
+--- a/docs/program/OPEN-QUESTIONS.md
++++ b/docs/program/OPEN-QUESTIONS.md
+@@ -408,6 +408,13 @@ Content requests are logged here when a slice needs clinical content that only e
+ ### OQ-151: Clinician review of the ckb and ar UI text
+ - **Content needed:** a clinician review [HUMAN] of every `ckb` and `ar` message the agent drafted (DN-021), starting with the `banner.*`, `clinical.*` and `sign.*` keys; and a translation memory owned by the content team (§11.1).
+ - **In use:** agent-drafted text, marked `unreviewed` per key (KA-031).
++- **Points the build agent raised for the reviewer** (WP-0.7 slice S2; the review covers every message, not only these):
++  - `ar` `banner.weight.source.stated`, drafted as "حسب الإفادة": it must read as reported by the patient or family, the least reliable weight source, and never as authorised or approved (an earlier draft, "مصرح به", could be read that way).
++  - `ar` `sign.outcomeUnknown`: it must say that the outcome is not known, never "not signed" and never "he does not know" (an earlier draft began "لا يعرف").
++  - `ar` `hal.capture.discardedAfterContextChange`: it must say that the capture is gone and nothing was saved for the new patient (an earlier draft said "ignored", "تم تجاهل").
++  - `ar` plurals: the `two` branches use "# ثانية", "# حساسية" and "# نتيجة" rather than the dual form, and `commandPalette.resultCount` has `zero {# نتيجة}`.
++  - `ar` `sign.intent.*`: written to be gender-neutral; it also needs the HIM review.
++  - `ckb` wording: `banner.isolation.label` "جیاکردنەوە", `banner.mrn.label` "ژمارەی تۆماری پزیشکی", and the letter for /h/ (ه against ھ).
+ - **Needed by:** before any hospital use; it is part of the release translation gate (§11.1, §18.9; Phase 1 exit).
+ - **Status:** open
+ 
+@@ -567,3 +574,55 @@ Choices WP-0.7 made where the plan of record sets no value, and readings of the
+ - **Choice:** Noto Sans Arabic and Noto Sans (OFL-1.1) are installed from the npm packages `@fontsource/noto-sans-arabic` and `@fontsource/noto-sans` 5.2.10, pinned in the lockfile like any other dependency, not downloaded from Google's font repository. Each package ships woff2 subsets with `unicode-range` declarations. Checked with fontkit on 19 October 2026 (Windows host): the `arabic` subset of Noto Sans Arabic (weights 400 and 700) has glyphs for all ten Sorani letters (ڕ ڵ ۆ ێ ە ڤ گ چ پ ژ) and for ی, ک, ه, ي and ك, but no Western digits; the digits are in the `latin` subsets of both families. So the `font-coverage` test must read the subsets the design system bundles together, not one file. Slice S4 still chooses the family by the `font-coverage` and `glyph-render` tests (OQ-148).
+ - **Sources:** §4.1 "Fonts" [P]; §3.7 (registry downloads only).
+ - **Status:** open
++
++### OQ-157: The HAL's Tauri IPC binding, and replies the client cannot use
++- **Choice:** in `frontend/packages/hal-client` (WP-0.7 slice S8):
++  - the shell exposes three Tauri commands, and its capabilities allow no other: `hal_call` with `{contractVersion, call, request}` for the ten request and reply calls; `hal_subscribe` with `{contractVersion, call, request, onEvent}` for `hal.scan.onBarcode` and `hal.auth.onBadge`, where `onEvent` is a Tauri channel that carries that one window's events; and `hal_release_blob` with `{blobRef}`, which releases the bytes of a discarded capture. `hal_release_blob` is a session-resource release, not one of the twelve calls; it is best effort, and the shell still deletes every blob when the session ends. Slice S9 implements the shell side;
++  - the client checks every reply, event and request with Zod schemas that repeat `docs/specs/hal/hal-v1.schema.json`, because Ajv is a build-only dependency (OQ-155). The `hal-contract-fixtures` test keeps the two in step: both must accept every fixture and every error the contract allows, and reject the same changes;
++  - a request that does not match the contract is refused in the client and never sent: `invalid-request` / `invalid-request`, or for the two subscriptions (which have no such kind) `not-permitted` / `capability-not-granted`, and for `hal.capabilities` `unavailable` / `not-implemented`. The simulated shell refuses such a request the same way, and copies nothing of it into its audit record;
++  - a reply the client cannot use (a rejected invoke, a reply that does not match the call's result schema, a reply with the reason `no-shell`, which only hal-client gives, or in WP-0.7 a success reply to `hal.pay.request`, KA-027) becomes `device-error` / `device-fault` with the call's flags, so after a print or a payment the screen reports an unknown outcome and nothing repeats the call. `hal.kiosk.lock` and `hal.capabilities` have no `device-error` kind, so for them it becomes `unavailable` / `not-implemented`. A success reply to `hal.id.read` becomes `unavailable` / `not-implemented` (not retryable: the call cannot succeed with this shell). Every error result the client makes itself carries a new UUIDv7 that names no audit record (KA-040), never the reply's own audit ID, because the shell's record of that reply may say `ok` or another kind and would not agree with the result;
++  - the client waits at most 180 seconds (`DEFAULT_CALL_DEADLINE_MS`, configurable) for the shell's reply to an invoke. The shell's own time limit for every call, a signature included, must be shorter (slice S9), so the client's deadline only ends a call that the shell never answers; the call then returns `timeout` / `device-timeout` where its kinds allow it (outcome unknown for a print), otherwise the unusable-reply error, and a capture gives the window's modal guard back. A reply after the deadline is not used, and a blob it names is released; a subscription the shell opens after the deadline delivers no events;
++  - events that do not match the contract or name another subscription are dropped; at most 64 events that arrive before the subscribe reply are held for it;
++  - a capture is bound to the window's patient id, its context-change counter (ui-core's `lastChange.version`) and its change time; with a patient open and neither the counter nor the time known, the result is discarded.
++- **Sources:** §12.8 ("a typed result and an audit ID"), §13.5 (no arbitrary native code reachable from the web layer; every call audited); `docs/specs/hal/README.md` ("calls never throw across the bridge", "the blob is released", "writtenBy … hal-client for its own no-shell refusal only"). The README names no IPC commands, no path for releasing a blob and no audit ID for a failure that only the client sees.
++- **Who confirms:** the human lead; the security owner for the command allowlist.
++- **Status:** open
++
++### OQ-157: The design-system foundation of slice S4
++- **Choice:** slice S4 (`frontend/packages/design-system`) made these engineering choices where `docs/specs/modules/design-system.md` sets no value:
++  - **Fonts (the family choice of OQ-148):** Noto Sans with Noto Sans Arabic, in the order `'Noto Sans', 'Noto Sans Arabic', sans-serif`, so Latin text and the Western digits come from Noto Sans in every locale and Arabic-script text from Noto Sans Arabic. `src/fonts.css` bundles only the woff2 of Noto Sans `latin` and `latin-ext` and Noto Sans Arabic `arabic`, at weights 400 and 700, with Fontsource's `unicode-range` and `font-display: swap`. `UnitTest:font-coverage` passes on the Windows host; `E2E:glyph-render` (slice S7) has not run, so the choice is not yet confirmed by both tests. The gap at U+202F is KA-038.
++  - **Colour tokens:** the roles `--hms-color-bg*` (neutral surfaces), `--hms-color-text*` (neutral text), `--hms-color-<role>-bg`/`-text`/`-border` for `accent`, `info`, `success`, `warning` and `danger`, `--hms-color-border*`, and `--hms-color-focus` with `--hms-color-focus-inner`, written as `#rrggbb`. The status surfaces (`info`, `success`, `warning`, `danger`) are light, and neutral text and borders may sit on them; the `accent` surface is a filled action colour that carries only `--hms-color-accent-text`. `UnitTest:tokens-contrast` checks, beyond the specification's text pairs: neutral text on the status surfaces (4.5:1); borders on the neutral and status surfaces (3:1, WCAG 2.2 1.4.11); and that every stylesheet of the package puts only the accent text on the accent surface. It fails on a colour token that fits no role. No dark theme.
++  - **Focus indicator:** two rings, a dark outline (`--hms-color-focus`) and a light inner ring (`--hms-color-focus-inner`, a `box-shadow` that fills the outline offset), because no single colour reaches 3:1 both on the light surfaces and on the filled accent surface. The test requires one of the two rings to reach 3:1 on every surface, the accent one included, and the rings 3:1 against each other (the two-colour technique of WCAG's C40). A component's own `box-shadow` is replaced while it has focus.
++  - **Density:** comfortable spacing and type, with a minimum target size of 44 CSS px; compact with 24 CSS px, the §6.5 minimum. The choice is stored in `localStorage` under `hms.density.<userKey>`, where the application passes a staff identifier; without one it is kept in memory only.
++  - **Modal stack guard:** one module-level guard per window. The package entry point exports only that guard; `createModalStackGuard` and a provider for another guard are in the test entry point `@hms/design-system/testing`, which throws in production builds; a `ModalStackProvider` nested in a provider of another guard throws. `Modal` fails at once without a `ModalStackProvider`. A hold is an opaque token that only the holder receives and only it can release; the snapshot shows the holder's kind and owner, and owners are compared by object identity, never by label. A HAL capture holds the guard with `acquire('hal-capture', owner)`, passing an owner object of its own. In production a refused modal calls `onOpenChange(false)` and `onRefused`, and a `role="status"` region marked `data-live-announcer` (so React Aria's `ariaHideOutside` leaves it exposed while a modal hides the page) announces `modal.blocked`, once per refusal, and shows it as a status line above the modal layer until the holder releases the guard. Raw `react-aria-components` dialogs outside the design system can still bypass the guard (KA-042).
++  - **Messages in JSX:** the design system renders its catalogue text through a `Message` component, which shows a key missing at run time as the key, isolated left to right, in a visible error style (danger colours, dashed border); string-only paths stay plain (KA-039).
++  - **Locale:** `<html lang>` gets the plain tag (`en`, `ckb`, `ar`), while react-intl and React Aria's `I18nProvider` get the `ui-intl` tag (`ckb-u-ca-gregory-nu-latn` and the like). `LocaleProvider` takes an optional `messages` override for the in-memory pseudo-locales of development and test builds.
++- **Sources:** §4.1 "Fonts" [P]; §6.5 (design tokens, density modes, contrast, targets, no stacked modals); `docs/specs/modules/design-system.md` §2.5, §2.7 to §2.9, §3.
++- **Who confirms:** the human lead.
++- **Status:** open
++
++### OQ-158: Input formats and machine details in ui-core
++- **Choice:** in `frontend/packages/ui-core` (WP-0.7 slice S3), where the specification sets no value:
++  - **Identifier formats.** A patient id or a governed content code is 1 to 128 ASCII letters, digits, `.`, `_`, `:` or `-`, starting with a letter or digit; an MRN is 1 to 64 ASCII letters, digits and inner hyphens, stored with its check digit, which is not validated (KA-033). Anything else is invalid, which puts the banner in its error state (patient id, MRN) or makes the code's field unavailable. WP-1.2 sets the real formats.
++  - **Same-origin photo sources.** A root-relative path (`/…`, never `//`) or an inline `data:image/png`, `jpeg` or `webp` base64 URL. Any other source makes the photo unavailable, shown as "No photo".
++  - **Name forms.** A form is trimmed, put in Unicode normalisation form C (so a decomposed accented letter is checked and shown as the letter it is canonically equal to), and is invalid when it is empty or holds a control, format (bidi control), other default-ignorable (combining grapheme joiner, variation selector, filler), surrogate, private-use or line or paragraph separator character, or U+FFFD. Every other character must be one the form's script shows visibly (Unicode Script_Extensions; the Kurdish and Arabic forms Arabic, the Latin form Latin): a letter of the script, so a look-alike letter of another script (a Cyrillic "е" in a Latin name) makes the form invalid; a non-spacing or spacing combining mark of the script directly after a letter or another mark, so an Arabic shadda on a Latin name, a Latin accent on a Kurdish name or a mark on a space is invalid, and an enclosing mark is never allowed; an ASCII digit or a decimal digit of the script; punctuation of the Common script or of the script; U+0020 SPACE, never two in a row (HTML collapses them, so two would look like one); and ZWNJ or ZWJ in the Kurdish and Arabic forms only, directly after a letter or mark. Any other character (U+00A0, U+3000 or another space, a symbol such as U+2800 BRAILLE PATTERN BLANK) makes the form invalid, so two names that look the same cannot differ by a hidden or blank character. At least one letter is required, and digits and punctuation are allowed for alias names. A name object with an unknown key makes every form invalid, and an unknown `ownScript` counts as identity incomplete. No length limit is set, so a long name is never refused. Governed labels are held to the same control, format and default-ignorable rules, but not to a script.
++  - **Untrusted input.** Before any schema runs, the banner data is copied into plain data, as JSON would hold it: only own enumerable data properties, into objects with no prototype, at every depth. An object whose prototype is not `Object.prototype` or null (a class instance), a getter (never called), an array hole, a function, a symbol, a bigint, anything nested deeper than 16 levels (a cycle) and a proxy that throws read as unreadable, which no schema accepts, so that field shows its unavailable or invalid state. Optional keys of the parsed values are read as own properties only. A polluted `Object.prototype` therefore cannot supply a status, an allergy item, a label or a name form, and missing allergy data never yields NKA (CTRL-0016-4).
++  - **Platform.** `src` assumes ECMAScript (ES2024) and its own imports (Zod) only: no DOM and no Node.js or Web API, so it runs unchanged in the browser and in React Native. `tsconfig.src.json` type-checks `src` with no ambient types and the package's `typecheck` script runs it after `tsconfig.json` (tests, Node types). The idempotency key of a sign command is therefore always injected (`PatientContextDeps.newIdempotencyKey`): the web app supplies Web Crypto's `randomUUID`, the mobile app its platform's source; ui-core has no default. The monotonic clock reads `globalThis.performance` when present and reads as unreadable (within the window) when it is missing.
++  - **Governed labels.** A label missing in the user's locale falls back to the first available label in the order `en`, `ckb`, `ar`, then to the recorded code (language `zxx`), each marked "Not translated" (design-system §2.1 rule 6 names no order).
++  - **Weight.** The field is `{status: none-recorded}` ("No dated weight") or `{status: recorded, value, unit: kg, measuredOn, source}`; a missing field is invalid ("Weight unavailable"), as the data model makes every missing field invalid.
++  - **Patient-context events.** `ConfirmSwitch` names the requested patient the dialog showed and `Reverify` names the patient the step showed and the confirming user; a mismatch is refused. `SignRefused` carries the server's refusal code and has a transition only for `reverification-required`; any other refusal is sent as `SignRejected`. A sign or co-sign dialog keeps the idempotency key it was given when it opened for every submission, after a rejection too (design-system §2.3 names the key's creation and its reuse after an unknown outcome only). A co-signature is accepted as authenticated only with badge tap plus PIN (§12.8). If guards ever enabled transitions to different states at once, the event is refused (a test checks that no combination of predicate values allows it).
++  - **Change times.** Re-verification counts against a change counter (`lastChange.version`), not a time, so a re-verification confirmed inside a dialog still counts for that signature when the change time is unknown; the sign command carries wall-clock times as epoch milliseconds, or null when the wall clock cannot be read.
++- **Sources:** `docs/specs/modules/design-system.md` §2.1 "Data model", §2.3; `docs/specs/state-machines/patient-context.yaml`. None of them sets these values.
++- **Who confirms:** the human lead; the CSO for the name-form and photo rules, which decide when the banner flags a name or shows "No photo".
++- **Status:** open
++
++### OQ-159: The localisation choices of slice S2
++- **Choice:** in `frontend/packages/i18n` (WP-0.7 slice S2), where the specification sets no value:
++  - **Review marking (DN-021).** The catalogue format has no room for metadata, so the status of each translated message lives in `src/messages/review/<locale>.json` for `ckb` and `ar`: a flat JSON object from every key of that locale's catalogue to its status. The localisation lint fails on a missing review file, a message with no status, a status for a key the catalogue lacks, a review file for any other locale, and any status other than `unreviewed`. A reviewed status, and what it records (who reviewed which text and when, and whether a later change to the text lapses it), is decided with the clinician review (OQ-151); until then no message can be marked reviewed without changing the lint. `reviewStatus(locale, key)` gives the status to screens and evidence.
++  - **`#` in plurals.** The clinical-keys rule requires `#` in every branch of a `ckb` or `ar` plural under `banner.*` and `clinical.*` (design-system §9), and also under any other key whose English message keeps `#` in every branch of the same argument (today `sign.reverify.reason` and `commandPalette.resultCount`), as the §10 notes ask of translators. Equality with the English text is checked on the parsed messages, so the spacing of ICU syntax and the order of branches do not count; in literal text the check applies NFC and removes white space, format characters (general category Cf, which holds RLM, LRM, ALM, the bidi embeddings and isolates, ZWSP, ZWNJ, ZWJ, the BOM and the soft hyphen) and other default-ignorable code points. A message that does not parse is compared on its text, normalised the same way. A message that is only partly English is not caught.
++  - **Pseudo-locales.** `en-XA`, expanded: ASCII letters accented, each message in `[` and `]`, and 40% padding in breakable groups of `~`; `ar-XB`, mirrored: each run of literal text wrapped in U+202E RIGHT-TO-LEFT OVERRIDE and U+202C POP DIRECTIONAL FORMATTING, with direction `rtl`. These are the tags Android and Chromium use. Both format with the `en` Intl tag, because their plural branches are the English ones.
++  - **Letter pairs.** `sorani-letters.json` records, as `arabicFormInSorani`, that ي and ك never occur in Sorani text, while ه is itself a Sorani letter (it writes /h/), so ه and ە can never be swapped mechanically. WP-0.8's input normalisation should follow it.
++  - **Intl tags.** `en` also gets `en-u-ca-gregory-nu-latn`, so every UI locale states its calendar and digits explicitly (OQ-141).
++- **Sources:** DN-021; `docs/specs/modules/design-system.md` §2.9, §9 (`UnitTest:clinical-keys-lint`), §10 (notes for translators); §14.7, §18.9.
++- **Who confirms:** the human lead; the format of a reviewed status together with the clinician review (OQ-151).
++- **Status:** open
+diff --git a/frontend/packages/design-system/README.md b/frontend/packages/design-system/README.md
+index fba676f..e510602 100644
+--- a/frontend/packages/design-system/README.md
++++ b/frontend/packages/design-system/README.md
+@@ -1,7 +1,64 @@
+-# packages/design-system (placeholder)
++# @hms/design-system
+ 
+-The one design system, built on React Aria Components, lands here in WP-0.7 (`PLT-UX-01`; BUILD-PROMPT.md
+-§6.5, §14.2). It holds design tokens and logical CSS only; the patient banner (SI-16) with patient-context
+-management and re-verification at signing; the sign and co-sign pattern; the command palette; density modes;
+-and `ClinicalNumber`, which renders clinical numerals in Western digits in every locale. Its strings come
+-from `@hms/i18n`.
++The one design system, built on React Aria Components (`PLT-UX-01`; BUILD-PROMPT.md §6.5, §14.2, §14.7). The
++specification is `docs/specs/modules/design-system.md`. Its strings come only from `@hms/i18n`
++(`hms/no-jsx-literals`), its CSS uses logical properties only (`hms/no-physical-css` and the stylesheet
++check), and its DOM-free logic (number display, the banner model, the patient context) lives in
++`@hms/ui-core`.
++
++## Foundation (WP-0.7 slice S4)
++
++| Export                                          | What it does                                                                                                                                                  | Spec                       |
++| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
++| `styles.css`                                    | Import once at the application root: `fonts.css`, `tokens.css`, `base.css`                                                                                    | §3                         |
++| `fonts.css`                                     | Noto Sans (`latin`, `latin-ext`) and Noto Sans Arabic (`arabic`), weights 400 and 700, woff2 from the Fontsource packages, bundled by Vite (no network)       | §3, OQ-148, OQ-156, OQ-157 |
++| `tokens.css`                                    | Colour, type, spacing and target tokens; spacing, type and targets change under `[data-density]` on `<html>`                                                  | §2.5                       |
++| `LocaleProvider`                                | Sets `lang` and `dir` on `<html>`; supplies react-intl and React Aria with the `ui-intl` locale (Western digits, Gregorian calendar) and the catalogue        | §2.9                       |
++| `DensityProvider`, `useDensity`                 | Sets `data-density` (`comfortable` or `compact`) on `<html>`; stores it per user on the device                                                                | §2.5                       |
++| `Bdi`                                           | `<bdi>` with `unicode-bidi: isolate`, an explicit `dir` and the value's `lang`                                                                                | §2.7                       |
++| `ClinicalNumber`                                | A clinical numeral, and its unit, in `<bdi dir="ltr">`, from ui-core's display form; "Invalid value" and "Not recorded" otherwise                             | §2.6                       |
++| `Modal`, `ModalStackProvider`, `useIsModalOpen` | The React Aria modal behind the window's stack guard: a second modal is refused (it throws in development and tests; in production it is announced and shown) | §2.8                       |
++| `windowModalStackGuard`                         | The window's one guard, without React; a HAL capture holds it as a modal does, with an owner object of its own; only the holder's token releases it           | §2.8                       |
++| `Message`                                       | A catalogue message in JSX; a key missing at run time shows as the key in a visible error style                                                               | §2.9                       |
++| `messageKey`                                    | Types a message id as a key of the `en` catalogue                                                                                                             | §2.9                       |
++
++An application wraps its tree as `LocaleProvider` → `DensityProvider` → `ModalStackProvider` (the
++provider's live region needs the catalogue).
++
++Tests import `@hms/design-system/testing` for a guard of their own (`createModalStackGuard`, in either refusal
++mode) and `ModalStackTestProvider`. Both throw in production builds, so an application has one guard per
++window.
++
++The banner, the sign and co-sign pattern, the command palette and the density control arrive with slices
++S5a and S5b.
++
++## Tests
++
++`pnpm --filter @hms/design-system test` (Vitest; jsdom for components, Node for the font and token files):
++
++- `UnitTest:tokens-contrast`: every text and background token pair of `tokens.css` reaches 4.5:1 in both
++  densities, neutral text on the status surfaces included, and borders 3:1; one of the two focus rings reaches
++  3:1 on every surface, the accent one included; only the accent text sits on the accent surface in any
++  stylesheet of the package; a colour token without a role fails.
++- `UnitTest:font-coverage`: for every Sorani letter, the ي/ی, ك/ک and ه/ە forms, the Western digits, the Sorani
++  and Arabic alphabets and the Kurdish Latin letters, the woff2 the browser would choose from `fonts.css` has
++  the glyph in its cmap; every Sorani letter takes its joined forms. It also pins KA-038 (U+202F).
++- `UnitTest:modal-no-stacking`: a second modal is refused while one is open, in development and in production
++  mode, never queued, and while a HAL capture holds the guard; the refusal is exposed to assistive technology
++  while the modal hides the page, and shown on screen; the guard cannot be split, released by another holder
++  or matched by label.
++- `UnitTest:locale-sets-dir-and-lang`: `<html>` gets `lang` and `dir` for `en`, `ckb` and `ar` and updates on
++  change.
++- `clinical-number.test.tsx`, `density-provider.test.tsx` and `message.test.tsx` cover `ClinicalNumber`, `Bdi`,
++  `DensityProvider` and `Message` in the DOM.
++
++Rendering in a real browser (computed direction, the fonts actually used, axe, screenshots) is tested with
++Playwright in `apps/web` (slice S7), not here.
++
++## Known limits
++
++- U+202F, the group separator of `ClinicalNumber`, is drawn with a system font (KA-038).
++- A message key missing at run time shows in the error style only through `Message`; in string-only text (an
++  `aria-label`, say) it shows as plain text (KA-039).
++- A dialog built on `react-aria-components` directly, outside this package, bypasses the stack guard; no lint
++  forbids it yet (KA-042).
+diff --git a/frontend/packages/design-system/package.json b/frontend/packages/design-system/package.json
+index c332549..ae81a36 100644
+--- a/frontend/packages/design-system/package.json
++++ b/frontend/packages/design-system/package.json
+@@ -5,7 +5,11 @@
+   "description": "HMS Kurdistan design system on React Aria Components: tokens and logical CSS, fonts, locale and density providers, ClinicalNumber, the patient banner, the sign and co-sign pattern and the command palette (BUILD-PROMPT.md §6.5, §14.2, §14.7).",
+   "type": "module",
+   "exports": {
+-    ".": "./src/index.ts"
++    ".": "./src/index.ts",
++    "./testing": "./src/testing.tsx",
++    "./styles.css": "./src/styles.css",
++    "./fonts.css": "./src/fonts.css",
++    "./tokens.css": "./src/tokens.css"
+   },
+   "scripts": {
+     "typecheck": "tsc --noEmit -p tsconfig.json",
+diff --git a/frontend/packages/design-system/src/index.ts b/frontend/packages/design-system/src/index.ts
+index eed7b35..9066b9b 100644
+--- a/frontend/packages/design-system/src/index.ts
++++ b/frontend/packages/design-system/src/index.ts
+@@ -1,6 +1,50 @@
+ /**
+  * @hms/design-system: the one design system (BUILD-PROMPT.md §6.5, §14.2; docs/specs/modules/design-system.md
+- * §2). Slices S4, S5a and S5b add the tokens, fonts, providers, ClinicalNumber, the banner, the sign and
+- * co-sign pattern and the command palette, and export them here.
++ * §2). The stylesheet (fonts, tokens and base styles) is imported separately, once, at the application root:
++ * `import '@hms/design-system/styles.css'`.
++ *
++ * Slice S4 (the foundation): LocaleProvider, DensityProvider, Bdi, ClinicalNumber, Message, Modal and its
++ * stack guard. Slices S5a and S5b add the banner, the sign and co-sign pattern, the command palette and the
++ * density control, and export them here.
+  */
+-export {};
++export { Bdi, type BdiDirection, type BdiProps } from './bdi/bdi.tsx';
++export { ClinicalNumber, type ClinicalNumberProps } from './clinical-number/clinical-number.tsx';
++export { Message, type MessageProps, type MessageValues } from './message/message.tsx';
++export { messageKey } from './message-key.ts';
++export { Modal, type ModalProps } from './modal/modal.tsx';
++// createModalStackGuard is deliberately not exported here: a window has one guard. Tests import it from
++// '@hms/design-system/testing', which fails in production builds.
++export {
++  ModalStackError,
++  windowModalStackGuard,
++  type ModalHold,
++  type ModalHolder,
++  type ModalHolderKind,
++  type ModalOwner,
++  type ModalRefusalMode,
++  type ModalStackGuard,
++  type ModalStackSnapshot,
++} from './modal/modal-stack.ts';
++export {
++  ModalStackProvider,
++  useIsModalOpen,
++  useModalStackGuard,
++  type ModalStackProviderProps,
++} from './modal/modal-stack-provider.tsx';
++export {
++  DEFAULT_DENSITY,
++  DENSITIES,
++  DensityProvider,
++  densityStorageKey,
++  isDensity,
++  loadDensity,
++  useDensity,
++  type Density,
++  type DensityContextValue,
++  type DensityProviderProps,
++} from './providers/density-provider.tsx';
++export {
++  LocaleProvider,
++  type LocaleProviderProps,
++  type MessageErrorReport,
++} from './providers/locale-provider.tsx';
+diff --git a/frontend/packages/design-system/test/smoke.test.tsx b/frontend/packages/design-system/test/smoke.test.tsx
+index 171a73e..0256656 100644
+--- a/frontend/packages/design-system/test/smoke.test.tsx
++++ b/frontend/packages/design-system/test/smoke.test.tsx
+@@ -13,7 +13,9 @@ const require = createRequire(import.meta.url);
+ 
+ describe('design-system workspace wiring', () => {
+   // A dynamic import inside the test, so that an entry point that throws while loading fails this test.
+-  it('imports the package entry point without error', async () => {
++  // The entry point loads React Aria Components, which can take more than Vitest's default 5 s to
++  // transform on a cold run while other test files run in parallel.
++  it('imports the package entry point without error', { timeout: 30_000 }, async () => {
+     await expect(import('../src/index.ts')).resolves.toBeTypeOf('object');
+   });
+ 
+diff --git a/frontend/packages/hal-client/README.md b/frontend/packages/hal-client/README.md
+index 1ad25ea..9d08242 100644
+--- a/frontend/packages/hal-client/README.md
++++ b/frontend/packages/hal-client/README.md
+@@ -1,10 +1,33 @@
+ # packages/hal-client
+ 
+-The typed client for the workstation shell's hardware abstraction layer, HAL contract v1 (WP-0.7, open questions
+-OQ-140 and OQ-150; BUILD-PROMPT.md §12.8). The contract is `docs/specs/hal/`: every call returns
+-`{ok, value | error, auditId}`. Slice S8 builds `contract.ts` and three transports: Tauri (the shell, through
+-`@tauri-apps/api`), none (no shell: every call returns `unavailable` / `no-shell`) and a simulator for tests.
+-Slice S1 created the package with a smoke test.
+-
+-Tests run with Vitest: `corepack pnpm --filter @hms/hal-client test`. Ajv validates the fixtures in
+-`docs/specs/hal/fixtures/` against `hal-v1.schema.json` itself.
++The typed client for the workstation shell's hardware abstraction layer, HAL contract v1 (WP-0.7 slice S8;
++open questions OQ-140, OQ-150 and OQ-157; BUILD-PROMPT.md §12.8, §13.5). The contract is `docs/specs/hal/`:
++every call returns `{ok, value | error, auditId}` and nothing else, and no call throws across the bridge.
++
++| File                     | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
++| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
++| `src/contract.ts`        | The contract as TypeScript types and Zod schemas: the twelve calls, their requests, values and events, the error vocabulary (`halError` builds the one error the contract allows for a call, kind and reason, with its `retryable` and `outcomeUnknown` flags), the message keys, and the closed audit record. Every object is strict                                                                                                                                                                                                                                                                                                           |
++| `src/transport.ts`       | The `HalTransport` interface and the errors the client makes itself: `unusableReply` (a reply the client cannot use, or none), `refusedRequest` (a request outside the contract, never sent) and `deadlinePassed` (no reply by the client deadline). Their audit IDs are fresh and name no record (KA-040)                                                                                                                                                                                                                                                                                                                                      |
++| `src/transport-tauri.ts` | The shell, over Tauri IPC (`hal_call`, `hal_subscribe` with a channel per subscription, `hal_release_blob`; OQ-157). Every request is checked against the contract before it is sent; every reply is checked too. A malformed reply, a rejected invoke, a `no-shell` reason from the shell, no reply within the client deadline (180 s by default), or a success reply to `hal.id.read` (becomes `unavailable` / `not-implemented`) or `hal.pay.request` (outcome unknown) becomes an error result (`hal.id.read` and `hal.pay.request` are not implemented in WP-0.7, KA-027). Malformed events and events of another subscription are dropped |
++| `src/transport-none.ts`  | No shell (a plain browser): every call returns `unavailable` / `no-shell`, and hal-client writes its own audit record (`writtenBy: hal-client`) with nothing from the request                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
++| `src/transport-sim.ts`   | A simulated shell for tests and the demo, with the devices of fixture `hal.capabilities.ok`; `hal.id.read` and `hal.pay.request` return `unavailable` / `not-implemented`; barcode reads reach only the focused window; a malformed request is refused like the shell refuses it, and nothing of it reaches the audit record                                                                                                                                                                                                                                                                                                                    |
++| `src/capture.ts`         | Binds `hal.camera.photo`, `hal.scan.document`, `hal.id.read` and `hal.sign.capture` to the window's patient: a result that arrives after the window's patient context changed is discarded with `hal.capture.discardedAfterContextChange` and its blob released; the capture holds the window's modal guard while it waits                                                                                                                                                                                                                                                                                                                      |
++| `src/client.ts`          | `createHalClient`: the Tauri transport inside the shell, otherwise no shell. The simulator is only ever passed in explicitly                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
++
++Screens show `errorMessageKeys(error)`: the kind's `hal.error.*` key, or `hal.error.outcomeUnknown` after a
++print or payment that may already have happened, and the reason's `hal.reason.*` key. They never repeat a
++call whose outcome is unknown; a reprint is a new request with `reprintOf`.
++
++## Tests
++
++`corepack pnpm --filter @hms/hal-client test` (Vitest):
++
++- `hal-contract-fixtures`: every fixture in `docs/specs/hal/fixtures/` validates against
++  `hal-v1.schema.json` with Ajv and round-trips through the Zod schemas unchanged, with the README's
++  cross-checks 1 to 5; the Zod schemas and the JSON Schema agree on every error each call allows, and both
++  reject wrong flags and fields outside the contract;
++- `no-shell-fails-closed`: with no shell every call returns `unavailable` / `no-shell` with an audit ID and
++  a valid audit record;
++- `hal-capture-discarded-after-context-change`;
++- `transport-tauri` and `transport-sim` (the shell transport against a fake IPC, and the simulator's
++  exchanges against the schema of record).
+diff --git a/frontend/packages/hal-client/src/index.ts b/frontend/packages/hal-client/src/index.ts
+index 224a665..5906859 100644
+--- a/frontend/packages/hal-client/src/index.ts
++++ b/frontend/packages/hal-client/src/index.ts
+@@ -1,6 +1,13 @@
+ /**
+  * @hms/hal-client: the typed client for the workstation shell's hardware abstraction layer, HAL contract
+- * v1 (docs/specs/hal/; OQ-140, OQ-150). Slice S8 adds contract.ts and the Tauri, no-shell and simulator
+- * transports and exports them here.
++ * v1 (docs/specs/hal/; OQ-140, OQ-150, OQ-157). Every call returns {ok, value | error, auditId}; with no
++ * shell every call returns unavailable / no-shell.
+  */
+-export {};
++export * from './contract.ts';
++export * from './transport.ts';
++export * from './transport-none.ts';
++export * from './transport-tauri.ts';
++export * from './transport-sim.ts';
++export * from './capture.ts';
++export * from './client.ts';
++export { uuid7 } from './uuid7.ts';
+diff --git a/frontend/packages/i18n/README.md b/frontend/packages/i18n/README.md
+index 645c53e..fa1d430 100644
+--- a/frontend/packages/i18n/README.md
++++ b/frontend/packages/i18n/README.md
+@@ -15,6 +15,37 @@ UI locales, their text direction, the ICU MessageFormat catalogues and the local
+ `ku-Latn` is added only if open question Q-K17 says Latin-script Kurmanji output is needed. The document's
+ `dir` comes from `textDirection(locale)`.
+ 
++### Intl tags and digits
++
++Formatting (react-intl and every `Intl` formatter) uses `uiIntlLocale(locale)`: `en-u-ca-gregory-nu-latn`,
++`ckb-u-ca-gregory-nu-latn` and `ar-u-ca-gregory-nu-latn` (`src/ui-intl.ts`), the canonical BCP 47 form. Every
++number in the staff UI has Western digits and every date the Gregorian calendar (OQ-141); without the
++extension, `ckb` would format Arabic-Indic digits. `hasNonWesternArabicDigits(text)` finds a U+0660–U+0669 or
++U+06F0–U+06F9 digit, for tests and checks. `<html lang>` keeps the plain tag.
++
++### Sorani letters
++
++`src/sorani-letters.json` (typed as `SORANI_LETTERS`) lists the ten letters Sorani adds to the Arabic
++alphabet (پ چ ژ گ ڤ ڕ ڵ ۆ ێ ە) and the Arabic and Kurdish letter pairs ي/ی, ك/ک and ه/ە, with code points and
++Unicode names. ي and ك never occur in Sorani text (`ARABIC_FORMS_NOT_IN_SORANI`); ه does (it writes /h/), so
++ه and ە are never swapped mechanically. The design system's font-coverage test and WP-0.8's print fonts and
++input normalisation read the same file (OQ-148).
++
++### Pseudo-locales
++
++`pseudoCatalogue(locale)` builds a pseudo-locale in memory from the `en` catalogue, for development and test
++builds only; the lint rejects catalogue files outside the UI locales, so they are never files
++(`src/pseudo.ts`):
++
++| Locale  | Direction | Text                                                                                            |
++| ------- | --------- | ----------------------------------------------------------------------------------------------- |
++| `en-XA` | ltr       | `[Áççéñťéď ťéxť ~~~~~ ~]` for "Accented text": ASCII letters accented, bracketed, padded by 40% |
++| `ar-XB` | rtl       | each run of literal text wrapped in RIGHT-TO-LEFT OVERRIDE … POP DIRECTIONAL FORMATTING         |
++
++Only literal text changes; every placeholder, plural and select branch, `#` and tag stays as it is
++(`PropertyTest:pseudo-locale-preserves-placeholders`). Both format with the `en` Intl tag, since their
++plural branches are English.
++
+ ## Catalogues
+ 
+ `src/messages/<locale>.json` holds one flat JSON object per UI locale, mapping a message key to an ICU
+@@ -22,14 +53,31 @@ MessageFormat message. Keys are dot-separated lower-camel segments (`app.name`,
+ `CATALOGUES` exposes them typed by the keys of `en.json`, so type checking also fails if `ckb.json` or
+ `ar.json` lacks a key.
+ 
+-WP-0.1 holds only non-clinical shell keys: `app.name`, the product name, kept in Latin script in every
++WP-0.1 added the non-clinical shell keys: `app.name`, the product name, kept in Latin script in every
+ catalogue, and `language.<locale>.endonym`, each UI language's name for itself (English, کوردی, العربية), which
+-a language picker shows the same in every locale.
++a language picker shows the same in every locale. WP-0.7 added every key of
++`docs/specs/modules/design-system.md` §10, whose English text is the specification's; read §10's notes for
++translators before changing one.
++
++### Agent-drafted translations, marked unreviewed (DN-021)
++
++**Deviation, recorded.** The rule below forbids invented or machine translation. For WP-0.7 the human lead
++decided otherwise (DN-021, 18 October 2026): the build agent, which is an LLM, drafted every `ckb` and `ar`
++message in its own session; no text went to any other translation or LLM service. Each draft is marked
++`unreviewed`. A clinician
++review of every draft stays a gate before any hospital use [HUMAN] (OQ-151; KA-031). The rule still applies
++to every other change.
++
++The status of each translated message lives beside its catalogue, in `src/messages/review/<locale>.json`
++for `ckb` and `ar`: a flat JSON object from every key of the catalogue to `"unreviewed"`. The lint keeps it
++complete (see below), and `reviewStatus(locale, key)` and `TRANSLATION_REVIEW` give it to screens and
++evidence. `unreviewed` is the only status: the format of a reviewed status (who reviewed which text, when)
++comes with the clinician review, so no message can be marked reviewed until the lint learns it (OQ-159).
+ 
+-Adding a message: add the key to all three catalogues in the same change, with the same placeholders. Never
+-machine-translate, and never invent clinical wording or translations: until reviewed text exists, log a
+-content request in `docs/program/OPEN-QUESTIONS.md` (§3.3). Translations need clinician review before release
+-[HUMAN] (§11.1, §18.9).
++Adding a message: add the key to all three catalogues in the same change, with the same placeholders, and
++mark it `unreviewed` in both review files. Never machine-translate, and never invent clinical wording or
++translations: until reviewed text exists, log a content request in `docs/program/OPEN-QUESTIONS.md` (§3.3).
++Translations need clinician review before release [HUMAN] (§11.1, §18.9).
+ 
+ ## Localisation lint
+ 
+@@ -48,12 +96,32 @@ node packages/i18n/src/lint/cli.ts [--json] [--dir <catalogue directory>]
+   select need an `other` clause);
+ - a message's placeholder arguments differ from the same message in `en`: names and kinds (`{name}`,
+   `{n, number}`, `{n, plural}`, `{d, date}`, rich-text tags such as `<b>`), nested ones included. Plural and
+-  select branches may differ between locales.
++  select branches may differ between locales;
++- a clinical-keys rule fails (`src/lint/clinical-keys.ts`; `UnitTest:clinical-keys-lint`):
++  - under `banner.*` and `clinical.*`, a `ckb` or `ar` message is the same as the `en` one. The parsed
++    messages are compared, so the spacing of ICU syntax and the order of branches do not count; in literal
++    text, NFC is applied and white space, format characters (RLM, LRM, ALM, bidi embeddings and isolates,
++    ZWSP, ZWNJ, ZWJ, the BOM, the soft hyphen) and other default-ignorable characters are removed. A message
++    that does not parse is compared on its text, normalised the same way;
++  - a `ckb` or `ar` plural or selectordinal drops `#` in a branch, when the key is under `banner.*` or
++    `clinical.*`, or when the `en` message keeps `#` in every branch of the same argument. A `#` inside a
++    rich-text tag counts; one inside a nested plural belongs to that plural;
++- the review marking is wrong (`src/lint/review-marking.ts`): `review/ckb.json` or `review/ar.json` is
++  missing; a review file exists for another locale; a review file is not a flat JSON object (the same file
++  checks as a catalogue); a message has no status; a status names a key the catalogue lacks; or a status is
++  not `unreviewed`.
+ 
+-It does not judge wording or translation quality. Exit codes follow the programme check contract: 0 pass,
+-1 findings, 2 usage error; with `--json` the last stdout line is `{check, ok, counts, errors, warnings}`.
++It does not judge wording or translation quality, and it does not check that an Arabic plural gives every
++CLDR category it can reach: the reviewer does. Exit codes follow the programme check contract: 0 pass,
++1 findings, 2 usage error; with `--json` the last stdout line is `{check, ok, counts, errors, warnings}`, and
++`counts.unreviewed` is the number of messages marked `unreviewed`.
+ 
+ ## Tests
+ 
+-`test/` covers the locale metadata, the shipped catalogues, every lint failure class (in memory) and the CLI
+-against `test/fixtures/valid` and `test/fixtures/invalid`, whose messages are synthetic `SYN-` placeholders.
++`test/` covers the locale metadata, the shipped catalogues (every §10 key with its English text; Kurdish
++letter forms in `ckb`, Arabic ones in `ar`; Western digits only), every lint failure class (in memory), the
++review marking (`UnitTest:ckb-ar-drafts-marked-unreviewed`), the clinical-keys rules
++(`UnitTest:clinical-keys-lint`), the Intl tags (`UnitTest:ui-intl-western-digits`), the letter list
++(`UnitTest:sorani-letters`), the pseudo-locales (`PropertyTest:pseudo-locale-preserves-placeholders`,
++fast-check) and the CLI against `test/fixtures/valid` and `test/fixtures/invalid`, whose messages are
++synthetic `SYN-` placeholders.
+diff --git a/frontend/packages/i18n/src/catalogues.ts b/frontend/packages/i18n/src/catalogues.ts
+index 3c95ff2..4840dfe 100644
+--- a/frontend/packages/i18n/src/catalogues.ts
++++ b/frontend/packages/i18n/src/catalogues.ts
+@@ -2,10 +2,12 @@
+  * The UI message catalogues: flat maps from a message key to an ICU MessageFormat string (BUILD-PROMPT.md
+  * §6.5). Every user-facing string comes from here; hms/no-jsx-literals bans string literals in JSX.
+  *
+- * WP-0.1 holds only non-clinical shell keys: the product name, kept in Latin script in every catalogue, and
++ * WP-0.1 added the non-clinical shell keys: the product name, kept in Latin script in every catalogue, and
+  * each UI language's name for itself (its endonym), which a language picker shows unchanged in every
+- * locale. Translated and clinical strings arrive with the screens that need them and need clinician review
+- * before release [HUMAN] (§11.1, §18.9).
++ * locale. WP-0.7 added the keys of docs/specs/modules/design-system.md §10 (banner, patient context, sign,
++ * command palette, density, HAL messages). The ckb and ar texts are drafts by the build agent (DN-021),
++ * each marked `unreviewed` (review-status.ts); they need clinician review before hospital use [HUMAN]
++ * (§11.1, §18.9; OQ-151, KA-031).
+  */
+ import ar from './messages/ar.json' with { type: 'json' };
+ import ckb from './messages/ckb.json' with { type: 'json' };
+diff --git a/frontend/packages/i18n/src/index.ts b/frontend/packages/i18n/src/index.ts
+index 90bef6c..bc1f831 100644
+--- a/frontend/packages/i18n/src/index.ts
++++ b/frontend/packages/i18n/src/index.ts
+@@ -1,4 +1,7 @@
+-/** @hms/i18n: UI locales, their text direction and the ICU MessageFormat catalogues (BUILD-PROMPT.md §6.5). */
++/**
++ * @hms/i18n: UI locales, their text direction and Intl tags, the ICU MessageFormat catalogues with the
++ * review status of their translations, the pseudo-locales and the Sorani letter list (BUILD-PROMPT.md §6.5).
++ */
+ export {
+   isPatientTemplateLocale,
+   isUiLocale,
+@@ -15,3 +18,36 @@ export {
+   type UiLocale,
+ } from './locales.ts';
+ export { CATALOGUES, type Catalogue, type MessageKey } from './catalogues.ts';
++export {
++  hasNonWesternArabicDigits,
++  NON_WESTERN_ARABIC_DIGITS,
++  UI_CALENDAR,
++  UI_INTL_LOCALES,
++  UI_NUMBERING_SYSTEM,
++  uiIntlLocale,
++  type UiIntlLocale,
++} from './ui-intl.ts';
++export {
++  REVIEW_STATUSES,
++  reviewStatus,
++  TRANSLATION_REVIEW,
++  type ReviewStatus,
++  type TranslatedLocale,
++} from './review-status.ts';
++export {
++  isPseudoLocale,
++  PSEUDO_EXPANSION,
++  PSEUDO_LOCALES,
++  pseudoCatalogue,
++  pseudoLocalise,
++  type PseudoLocale,
++  type PseudoLocaleInfo,
++  type PseudoTransform,
++} from './pseudo.ts';
++export {
++  ARABIC_FORMS_NOT_IN_SORANI,
++  SORANI_LETTERS,
++  type SoraniLetter,
++  type SoraniLetterPair,
++  type SoraniLetters,
++} from './sorani-letters.ts';
+diff --git a/frontend/packages/i18n/src/lint/catalogue-lint.ts b/frontend/packages/i18n/src/lint/catalogue-lint.ts
+index 512025d..5e3d8f3 100644
+--- a/frontend/packages/i18n/src/lint/catalogue-lint.ts
++++ b/frontend/packages/i18n/src/lint/catalogue-lint.ts
+@@ -8,22 +8,22 @@
+  * - a message is not valid ICU MessageFormat (@formatjs/icu-messageformat-parser, with the `other` clause
+  *   required in plural and select);
+  * - a message's placeholder arguments (names and kinds, including rich-text tags) differ from the same
+- *   message in the source locale.
++ *   message in the source locale;
++ * - a clinical-keys rule fails (clinical-keys.ts): a `banner.*` or `clinical.*` message left in English, or
++ *   a plural that drops `#` where it must keep it;
++ * - a translated message has no review status, or an unknown one (review-marking.ts; DN-021).
+  *
+  * It never judges the wording or the translation itself: that is clinician and linguist review [HUMAN].
+  */
+-import { readdirSync, readFileSync } from 'node:fs';
++import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+ import path from 'node:path';
+ import { parse, TYPE, type MessageFormatElement } from '@formatjs/icu-messageformat-parser';
+ import { SOURCE_LOCALE, TEMPLATE_ONLY_LOCALES, UI_LOCALES } from '../locales.ts';
+-import { findDuplicateKeys } from './duplicate-keys.ts';
++import { CLINICAL_KEY_PREFIXES, lintClinicalKeys, type ParsedMessage } from './clinical-keys.ts';
++import { readJsonObject, type CatalogueSource } from './json-object.ts';
++import { lintReviewMarking, REVIEW_DIRECTORY, type CatalogueKeys } from './review-marking.ts';
+ 
+-/** One catalogue to check: its locale, the file name used in messages, and its text. */
+-export interface CatalogueSource {
+-  readonly locale: string;
+-  readonly file: string;
+-  readonly text: string;
+-}
++export type { CatalogueSource } from './json-object.ts';
+ 
+ export interface LintOptions {
+   /** The locales that must each have exactly one catalogue. */
+@@ -32,19 +32,43 @@ export interface LintOptions {
+   readonly sourceLocale: string;
+   /** Locales that have no UI catalogue on purpose, named in the error for a stray catalogue. */
+   readonly templateOnlyLocales?: readonly string[];
++  /** The clinical-keys rules (clinical-keys.ts) for these translated locales; omitted, they do not run. */
++  readonly clinicalKeys?: {
++    readonly translatedLocales: readonly string[];
++    readonly prefixes: readonly string[];
++  };
++  /**
++   * Locales whose every message carries a review status in `review/<locale>.json` (review-marking.ts);
++   * omitted, review files are not read.
++   */
++  readonly reviewMarkedLocales?: readonly string[];
+ }
+ 
+-/** The options for the UI catalogues of BUILD-PROMPT.md §4.1: en, ckb and ar, with en as the source. */
++/** The locales translated from the source locale: ckb and ar. */
++const TRANSLATED_LOCALES: readonly string[] = UI_LOCALES.filter((locale) => locale !== SOURCE_LOCALE);
++
++/**
++ * The options for the UI catalogues of BUILD-PROMPT.md §4.1: en, ckb and ar, with en as the source. The
++ * clinical-keys rules and the review marking (DN-021) apply to ckb and ar.
++ */
+ export const UI_CATALOGUE_LINT_OPTIONS: LintOptions = {
+   uiLocales: UI_LOCALES,
+   sourceLocale: SOURCE_LOCALE,
+   templateOnlyLocales: TEMPLATE_ONLY_LOCALES,
++  clinicalKeys: { translatedLocales: TRANSLATED_LOCALES, prefixes: CLINICAL_KEY_PREFIXES },
++  reviewMarkedLocales: TRANSLATED_LOCALES,
+ };
+ 
+ export interface LintResult {
+   readonly errors: readonly string[];
+   readonly warnings: readonly string[];
+-  readonly counts: { readonly catalogues: number; readonly keys: number; readonly messages: number };
++  readonly counts: {
++    readonly catalogues: number;
++    readonly keys: number;
++    readonly messages: number;
++    /** Messages marked `unreviewed`; present when the options name review-marked locales. */
++    readonly unreviewed?: number;
++  };
+ }
+ 
+ /** Message keys: dot-separated segments, each starting with a lower-case letter, at least two segments. */
+@@ -54,6 +78,8 @@ interface ParsedCatalogue {
+   readonly source: CatalogueSource;
+   /** Placeholder signature per key; null when the message did not parse. */
+   readonly signatures: Map<string, string[] | null>;
++  /** The string messages, with their elements (null when the message did not parse). */
++  readonly messages: Map<string, ParsedMessage>;
+ }
+ 
+ /** The placeholder arguments of a message, as sorted display strings such as `{count, plural}` or `<b>`. */
+@@ -120,28 +146,17 @@ function syntaxErrorText(error: unknown): string {
+ }
+ 
+ function parseCatalogue(source: CatalogueSource, errors: string[]): ParsedCatalogue | undefined {
+-  const { file, text } = source;
+-  if (text.startsWith('﻿')) {
+-    errors.push(`${file}: starts with a byte order mark: save it as UTF-8 without a BOM`);
+-    return undefined;
+-  }
+-  let data: unknown;
+-  try {
+-    data = JSON.parse(text);
+-  } catch (error) {
+-    errors.push(`${file}: not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+-    return undefined;
+-  }
+-  for (const duplicate of findDuplicateKeys(text)) {
+-    errors.push(
+-      `${file}:${String(duplicate.line)}: key "${duplicate.key}" appears more than once; JSON keeps only the last value`,
+-    );
+-  }
+-  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+-    errors.push(`${file}: a catalogue must be a JSON object of message keys to ICU messages`);
++  const { file } = source;
++  const data = readJsonObject(
++    source,
++    'a catalogue must be a JSON object of message keys to ICU messages',
++    errors,
++  );
++  if (data === undefined) {
+     return undefined;
+   }
+   const signatures = new Map<string, string[] | null>();
++  const messages = new Map<string, ParsedMessage>();
+   for (const [key, value] of Object.entries(data)) {
+     if (!MESSAGE_KEY_PATTERN.test(key)) {
+       errors.push(
+@@ -161,23 +176,28 @@ function parseCatalogue(source: CatalogueSource, errors: string[]): ParsedCatalo
+       continue;
+     }
+     try {
+-      signatures.set(
+-        key,
+-        placeholderSignature(parse(value, { requiresOtherClause: true, shouldParseSkeletons: true })),
+-      );
++      const elements = parse(value, { requiresOtherClause: true, shouldParseSkeletons: true });
++      signatures.set(key, placeholderSignature(elements));
++      messages.set(key, { text: value, elements });
+     } catch (error) {
+       errors.push(`${file}: key "${key}": ICU MessageFormat syntax error ${syntaxErrorText(error)}`);
+       signatures.set(key, null);
++      messages.set(key, { text: value, elements: null });
+     }
+   }
+-  return { source, signatures };
++  return { source, signatures, messages };
+ }
+ 
+-/** Lints catalogue texts already in memory. `initialErrors` are file-level problems found while reading. */
++/**
++ * Lints catalogue texts already in memory. `initialErrors` are file-level problems found while reading.
++ * `reviewSources` are the review files (`review/<locale>.json`), checked when the options name
++ * review-marked locales.
++ */
+ export function lintCatalogueSources(
+   sources: readonly CatalogueSource[],
+   options: LintOptions,
+   initialErrors: readonly string[] = [],
++  reviewSources: readonly CatalogueSource[] = [],
+ ): LintResult {
+   const errors: string[] = [...initialErrors];
+   const parsed: ParsedCatalogue[] = [];
+@@ -247,25 +267,46 @@ export function lintCatalogueSources(
+     }
+   }
+ 
+-  return {
+-    errors,
+-    warnings: [],
+-    counts: {
+-      catalogues: parsed.length,
+-      keys: allKeys.length,
+-      messages: parsed.reduce((total, catalogue) => total + catalogue.signatures.size, 0),
+-    },
++  if (options.clinicalKeys !== undefined) {
++    errors.push(
++      ...lintClinicalKeys(
++        parsed.map((catalogue) => ({
++          locale: catalogue.source.locale,
++          file: catalogue.source.file,
++          messages: catalogue.messages,
++        })),
++        { sourceLocale: options.sourceLocale, ...options.clinicalKeys },
++      ),
++    );
++  }
++
++  const counts = {
++    catalogues: parsed.length,
++    keys: allKeys.length,
++    messages: parsed.reduce((total, catalogue) => total + catalogue.signatures.size, 0),
+   };
++  if (options.reviewMarkedLocales === undefined) {
++    return { errors, warnings: [], counts };
++  }
++  const catalogueKeys = new Map<string, CatalogueKeys>(
++    parsed.map((catalogue) => [
++      catalogue.source.locale,
++      { file: catalogue.source.file, keys: new Set(catalogue.signatures.keys()) },
++    ]),
++  );
++  const review = lintReviewMarking(reviewSources, catalogueKeys, options.reviewMarkedLocales);
++  errors.push(...review.errors);
++  return { errors, warnings: [], counts: { ...counts, unreviewed: review.unreviewed } };
+ }
+ 
+-/**
+- * Lints the catalogue directory: `<locale>.json` for each UI locale. Any other .json file there is reported
+- * as unexpected; other files are ignored.
+- */
+-export function lintCatalogueDirectory(directory: string, options: LintOptions): LintResult {
+-  const readErrors: string[] = [];
++/** Reads the .json files of one directory, sorted by name, reporting a file that is not valid UTF-8. */
++function readJsonFiles(
++  directory: string,
++  fileName: (name: string) => string,
++  readErrors: string[],
++): CatalogueSource[] {
+   const strictUtf8 = new TextDecoder('utf-8', { fatal: true });
+-  const sources = readdirSync(directory, { withFileTypes: true })
++  return readdirSync(directory, { withFileTypes: true })
+     .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.json'))
+     .map((entry) => entry.name)
+     .sort()
+@@ -275,10 +316,27 @@ export function lintCatalogueDirectory(directory: string, options: LintOptions):
+       try {
+         text = strictUtf8.decode(bytes);
+       } catch {
+-        readErrors.push(`${name}: not valid UTF-8`);
++        readErrors.push(`${fileName(name)}: not valid UTF-8`);
+         text = new TextDecoder('utf-8').decode(bytes);
+       }
+-      return { locale: name.slice(0, -'.json'.length), file: name, text };
++      return { locale: name.slice(0, -'.json'.length), file: fileName(name), text };
+     });
+-  return lintCatalogueSources(sources, options, readErrors);
++}
++
++/**
++ * Lints the catalogue directory: `<locale>.json` for each UI locale and, when the options name
++ * review-marked locales, `review/<locale>.json` for each of them. Any other .json file in either directory
++ * is reported as unexpected; other files are ignored.
++ */
++export function lintCatalogueDirectory(directory: string, options: LintOptions): LintResult {
++  const readErrors: string[] = [];
++  const sources = readJsonFiles(directory, (name) => name, readErrors);
++  const reviewDirectory = path.join(directory, REVIEW_DIRECTORY);
++  const reviewSources =
++    options.reviewMarkedLocales !== undefined &&
++    existsSync(reviewDirectory) &&
++    statSync(reviewDirectory).isDirectory()
++      ? readJsonFiles(reviewDirectory, (name) => `${REVIEW_DIRECTORY}/${name}`, readErrors)
++      : [];
++  return lintCatalogueSources(sources, options, readErrors, reviewSources);
+ }
+diff --git a/frontend/packages/i18n/src/messages/ar.json b/frontend/packages/i18n/src/messages/ar.json
+index 15440a4..84875b0 100644
+--- a/frontend/packages/i18n/src/messages/ar.json
++++ b/frontend/packages/i18n/src/messages/ar.json
+@@ -1,6 +1,127 @@
+ {
++  "app.mainNav.label": "التنقل الرئيسي",
+   "app.name": "HMS Kurdistan",
++  "app.skipToContent": "الانتقال إلى المحتوى الرئيسي",
++  "banner.allergies.count": "{count, plural, one {# حساسية} two {# حساسية} few {# حساسيات} many {# حساسية} other {# حساسية}}",
++  "banner.allergies.label": "الحساسية",
++  "banner.allergies.nka": "لا توجد حساسية معروفة (NKA)",
++  "banner.allergies.notAssessed": "لم يتم تقييم الحساسية بعد",
++  "banner.allergies.unavailable": "حالة الحساسية غير متاحة",
++  "banner.codeStatus.label": "حالة الإنعاش",
++  "banner.codeStatus.notDocumented": "حالة الإنعاش غير موثقة",
++  "banner.codeStatus.recordedOn": "{status}، تاريخ التسجيل {date}",
++  "banner.codeStatus.unavailable": "حالة الإنعاش غير متاحة",
++  "banner.dataUnavailable": "بيانات شريط المريض غير متاحة",
++  "banner.dob.approximateFlag": "تاريخ ميلاد تقريبي",
++  "banner.dob.label": "تاريخ الميلاد",
++  "banner.dob.missing": "تاريخ الميلاد غير مسجل",
++  "banner.dob.unavailable": "تاريخ الميلاد غير متاح",
++  "banner.identity.incomplete": "الهوية غير مكتملة",
++  "banner.isolation.label": "العزل",
++  "banner.isolation.noneRecorded": "لا يوجد عزل مسجل",
++  "banner.isolation.unavailable": "حالة العزل غير متاحة",
++  "banner.label.untranslated": "غير مترجم",
++  "banner.mrn.label": "رقم السجل الطبي",
++  "banner.name.arabic.label": "الاسم (بالعربية)",
++  "banner.name.arabicMissing": "الاسم العربي غير مسجل",
++  "banner.name.kurdish.label": "الاسم (بالكردية)",
++  "banner.name.kurdishMissing": "الاسم الكردي غير مسجل",
++  "banner.name.latin.label": "الاسم (بالحروف اللاتينية)",
++  "banner.name.latinMissing": "الاسم اللاتيني غير مسجل",
++  "banner.photo.alt": "صورة المريض",
++  "banner.photo.missing": "لا توجد صورة مسجلة",
++  "banner.region.label": "شريط بيانات المريض",
++  "banner.weight.label": "الوزن",
++  "banner.weight.missing": "لا يوجد وزن مؤرخ",
++  "banner.weight.source.estimated": "تقديري",
++  "banner.weight.source.measured": "مقيس",
++  "banner.weight.source.stated": "حسب الإفادة",
++  "banner.weight.unavailable": "الوزن غير متاح",
++  "banner.weight.value": "{weight} ({source}، {date})",
++  "clinical.number.invalid": "قيمة غير صالحة",
++  "clinical.value.missing": "غير مسجل",
++  "commandPalette.command.changeDensity": "تغيير كثافة العرض",
++  "commandPalette.command.changeLanguage": "تغيير اللغة",
++  "commandPalette.dialog.label": "لوحة الأوامر",
++  "commandPalette.group.navigation": "الانتقال إلى",
++  "commandPalette.group.patients": "المرضى",
++  "commandPalette.group.settings": "الإعدادات",
++  "commandPalette.hint": "مفاتيح الأسهم للاختيار، وEnter للتنفيذ، وEscape للإغلاق.",
++  "commandPalette.noResults": "لا توجد أوامر مطابقة",
++  "commandPalette.open.label": "فتح لوحة الأوامر",
++  "commandPalette.resultCount": "{count, plural, zero {# نتيجة} one {# نتيجة} two {# نتيجة} few {# نتائج} many {# نتيجة} other {# نتيجة}}",
++  "commandPalette.search.label": "البحث في الأوامر",
++  "commandPalette.search.placeholder": "أمر أو عبارة بحث",
++  "demo.banner.title": "عرض توضيحي لشريط المريض (مرضى اصطناعيون)",
++  "demo.fixture.label": "مريض اصطناعي",
++  "demo.syntheticNotice": "جميع المرضى في هذه الصفحة اصطناعيون.",
++  "demo.watermark": "ليس للاستخدام السريري",
++  "density.comfortable": "مريح",
++  "density.compact": "مضغوط",
++  "density.label": "كثافة العرض",
++  "hal.capture.discardedAfterContextChange": "تم حذف ما تم التقاطه لأن المريض في هذه النافذة تغير. لم يتم حفظ أي شيء.",
++  "hal.error.cancelled": "تم الإلغاء.",
++  "hal.error.deviceError": "أبلغ الجهاز عن مشكلة.",
++  "hal.error.invalidRequest": "تعذر على الجهاز قبول هذا الطلب.",
++  "hal.error.notPermitted": "لا يسمح لمحطة العمل هذه أو لدور المستخدم باستخدام هذا الجهاز.",
++  "hal.error.outcomeUnknown": "ربما نفذ الجهاز هذه العملية بالفعل. يجب التحقق من الطابعة أو جهاز الدفع قبل المحاولة مرة أخرى.",
++  "hal.error.timeout": "لم يستجب الجهاز في الوقت المحدد.",
++  "hal.error.unavailable": "وظيفة الجهاز هذه غير متاحة.",
++  "hal.reason.capabilityNotGranted": "عند الحاجة إلى هذا الجهاز هنا، يرجى التواصل مع مسؤول النظام.",
++  "hal.reason.deviceFault": "أبلغ الجهاز عن عطل.",
++  "hal.reason.deviceOffline": "الجهاز غير متصل.",
++  "hal.reason.deviceTimeout": "لم يرد الجهاز.",
++  "hal.reason.invalidRequest": "الطلب لا يطابق ما يتوقعه الجهاز.",
++  "hal.reason.mediaOut": "نفد الورق أو الملصقات من الجهاز.",
++  "hal.reason.noDevice": "لا يوجد جهاز متصل من هذا النوع.",
++  "hal.reason.noShell": "لاستخدام الأجهزة، يجب فتح مساحة العمل هذه في تطبيق محطة عمل HMS.",
++  "hal.reason.notImplemented": "وظيفة الجهاز هذه غير متوفرة في هذا الإصدار.",
++  "hal.reason.stepUpRefused": "لم يتم قبول البطاقة.",
++  "hal.reason.unknownDevice": "الجهاز المحدد غير معروف لمحطة العمل هذه.",
++  "hal.reason.unsupportedFormat": "لا يدعم الجهاز هذا التنسيق.",
++  "hal.reason.userCancelled": "تم الإلغاء من الجهاز.",
++  "hal.reason.userTimeout": "لم يتم استلام أي شيء في الوقت المحدد.",
++  "hal.sign.prompt.consent": "لتأكيد الموافقة، يرجى التوقيع أدناه.",
++  "hal.sign.prompt.document": "يرجى التوقيع أدناه.",
++  "hal.sign.prompt.receipt": "لتأكيد الاستلام، يرجى التوقيع أدناه.",
+   "language.ar.endonym": "العربية",
+   "language.ckb.endonym": "کوردی",
+-  "language.en.endonym": "English"
++  "language.en.endonym": "English",
++  "language.picker.label": "اللغة",
++  "modal.blocked": "يجب أولا إنهاء مربع الحوار المفتوح أو إلغاؤه.",
++  "modal.close": "إغلاق",
++  "patientContext.clearedByUserChange": "تم إغلاق المريض بسبب تغيير المستخدم.",
++  "patientContext.close": "إغلاق سجل المريض",
++  "patientContext.none": "لم يتم اختيار مريض",
++  "patientContext.switch.blockedByModal": "يجب إنهاء مربع الحوار المفتوح أو إلغاؤه قبل تغيير المريض.",
++  "patientContext.switch.body": "تعرض هذه النافذة مريضا واحدا فقط. فتح مريض آخر يحل محل المريض الحالي.",
++  "patientContext.switch.cancel": "الإبقاء على المريض الحالي",
++  "patientContext.switch.confirm": "الانتقال إلى المريض المطلوب",
++  "patientContext.switch.current": "المريض الحالي",
++  "patientContext.switch.requested": "المريض المطلوب",
++  "patientContext.switch.requestedInvalid": "بيانات هوية المريض المطلوب غير متاحة، لذا لا يمكن تأكيد هذا التغيير.",
++  "patientContext.switch.title": "تغيير المريض؟",
++  "sign.action": "توقيع",
++  "sign.authenticate.cosignPin": "يتطلب التوقيع المشترك لمس البطاقة على القارئ وإدخال الرمز الشخصي (PIN).",
++  "sign.authenticate.heading": "تأكيد هوية المستخدم",
++  "sign.authenticate.simulated": "تسجيل دخول محاكى (للعرض التوضيحي فقط)",
++  "sign.blockedByBanner": "لا يمكن التوقيع: بيانات هوية المريض غير مكتملة أو غير متاحة.",
++  "sign.cancel": "إلغاء",
++  "sign.contextChanged": "لم يتم التوقيع: تغير المريض في هذه النافذة. لم يتم حفظ أي شيء.",
++  "sign.cosign.action": "توقيع مشترك",
++  "sign.cosign.title": "التوقيع المشترك",
++  "sign.done": "تم التوقيع",
++  "sign.failed": "لم يتم التوقيع. لم يتم حفظ أي شيء.",
++  "sign.intent.author": "أقر بأنني من حرر هذا القيد، وأوقع عليه.",
++  "sign.intent.cosign": "أقر بأنني راجعت هذا القيد، وأوقع عليه توقيعا مشتركا.",
++  "sign.outcomeUnknown": "من غير المعروف ما إذا كان قد تم التوقيع. يجب التحقق من السجل قبل التوقيع مرة أخرى.",
++  "sign.refused.reverify": "تم رفض التوقيع. يلزم تأكيد المريض مرة أخرى.",
++  "sign.reverify.confirm": "هذا هو المريض الصحيح",
++  "sign.reverify.reason": "{windowSeconds, plural, zero {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} one {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} two {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} few {تغير المريض في هذه النافذة خلال آخر # ثوان. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} many {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.} other {تغير المريض في هذه النافذة خلال آخر # ثانية. يجب التحقق من أنه المريض الصحيح قبل التوقيع.}}",
++  "sign.reverify.reject": "ليس هذا المريض",
++  "sign.reverify.rejected": "هذا ليس المريض الصحيح. لم يتم توقيع أي شيء. يجب إغلاق المريض أو تغييره.",
++  "sign.reverify.signerDiffers": "يجب أن يؤكد الشخص الذي يوقع هوية المريض بنفسه. يلزم تأكيد المريض مرة أخرى.",
++  "sign.reverify.title": "تأكيد هوية المريض",
++  "sign.review.heading": "المراجعة قبل التوقيع",
++  "sign.title": "التوقيع"
+ }
+diff --git a/frontend/packages/i18n/src/messages/ckb.json b/frontend/packages/i18n/src/messages/ckb.json
+index 15440a4..68c684f 100644
+--- a/frontend/packages/i18n/src/messages/ckb.json
++++ b/frontend/packages/i18n/src/messages/ckb.json
+@@ -1,6 +1,127 @@
+ {
++  "app.mainNav.label": "ڕێنیشاندەری سەرەکی",
+   "app.name": "HMS Kurdistan",
++  "app.skipToContent": "بازدان بۆ ناوەڕۆکی سەرەکی",
++  "banner.allergies.count": "{count, plural, one {# هەستیاری} other {# هەستیاری}}",
++  "banner.allergies.label": "هەستیارییەکان",
++  "banner.allergies.nka": "هیچ هەستیارییەکی زانراو نییە (NKA)",
++  "banner.allergies.notAssessed": "هەستیاری هێشتا هەڵنەسەنگێنراوە",
++  "banner.allergies.unavailable": "باری هەستیاری بەردەست نییە",
++  "banner.codeStatus.label": "باری بووژاندنەوە",
++  "banner.codeStatus.notDocumented": "باری بووژاندنەوە تۆمار نەکراوە",
++  "banner.codeStatus.recordedOn": "{status}، ڕێکەوتی تۆمارکردن {date}",
++  "banner.codeStatus.unavailable": "باری بووژاندنەوە بەردەست نییە",
++  "banner.dataUnavailable": "زانیاریی شریتی نەخۆش بەردەست نییە",
++  "banner.dob.approximateFlag": "ڕێکەوتی لەدایکبوونی نزیکەیی",
++  "banner.dob.label": "ڕێکەوتی لەدایکبوون",
++  "banner.dob.missing": "ڕێکەوتی لەدایکبوون تۆمار نەکراوە",
++  "banner.dob.unavailable": "ڕێکەوتی لەدایکبوون بەردەست نییە",
++  "banner.identity.incomplete": "ناسنامە ناتەواوە",
++  "banner.isolation.label": "جیاکردنەوە",
++  "banner.isolation.noneRecorded": "هیچ جیاکردنەوەیەک تۆمار نەکراوە",
++  "banner.isolation.unavailable": "باری جیاکردنەوە بەردەست نییە",
++  "banner.label.untranslated": "وەرنەگێڕدراوە",
++  "banner.mrn.label": "ژمارەی تۆماری پزیشکی",
++  "banner.name.arabic.label": "ناو (عەرەبی)",
++  "banner.name.arabicMissing": "ناوی عەرەبی تۆمار نەکراوە",
++  "banner.name.kurdish.label": "ناو (کوردی)",
++  "banner.name.kurdishMissing": "ناوی کوردی تۆمار نەکراوە",
++  "banner.name.latin.label": "ناو (لاتینی)",
++  "banner.name.latinMissing": "ناوی لاتینی تۆمار نەکراوە",
++  "banner.photo.alt": "وێنەی نەخۆش",
++  "banner.photo.missing": "وێنە تۆمار نەکراوە",
++  "banner.region.label": "شریتی زانیاریی نەخۆش",
++  "banner.weight.label": "کێش",
++  "banner.weight.missing": "هیچ کێشێکی بەرواردار تۆمار نەکراوە",
++  "banner.weight.source.estimated": "خەمڵێنراو",
++  "banner.weight.source.measured": "پێوراو",
++  "banner.weight.source.stated": "ڕاگەیەندراو",
++  "banner.weight.unavailable": "کێش بەردەست نییە",
++  "banner.weight.value": "{weight} ({source}، {date})",
++  "clinical.number.invalid": "بەهای نادروست",
++  "clinical.value.missing": "تۆمار نەکراوە",
++  "commandPalette.command.changeDensity": "گۆڕینی چڕیی پیشاندان",
++  "commandPalette.command.changeLanguage": "گۆڕینی زمان",
++  "commandPalette.dialog.label": "لیستی فەرمانەکان",
++  "commandPalette.group.navigation": "چوون بۆ",
++  "commandPalette.group.patients": "نەخۆشەکان",
++  "commandPalette.group.settings": "ڕێکخستنەکان",
++  "commandPalette.hint": "دوگمەکانی تیر بۆ هەڵبژاردن، Enter بۆ جێبەجێکردن، Escape بۆ داخستن.",
++  "commandPalette.noResults": "هیچ فەرمانێکی گونجاو نییە",
++  "commandPalette.open.label": "کردنەوەی لیستی فەرمانەکان",
++  "commandPalette.resultCount": "{count, plural, one {# ئەنجام} other {# ئەنجام}}",
++  "commandPalette.search.label": "گەڕان لە فەرمانەکان",
++  "commandPalette.search.placeholder": "فەرمانێک بنووسە یان بگەڕێ",
++  "demo.banner.title": "نمایشی شریتی نەخۆش (نەخۆشی دەستکرد)",
++  "demo.fixture.label": "نەخۆشی دەستکرد",
++  "demo.syntheticNotice": "هەموو نەخۆشەکانی ئەم پەڕەیە دەستکردن.",
++  "demo.watermark": "بۆ بەکارهێنانی کلینیکی نییە",
++  "density.comfortable": "ئاسوودە",
++  "density.compact": "چڕ",
++  "density.label": "چڕیی پیشاندان",
++  "hal.capture.discardedAfterContextChange": "ئەوەی وەرگیرا فڕێدرا چونکە نەخۆشی ئەم پەنجەرەیە گۆڕدرا. هیچ شتێک پاشەکەوت نەکرا.",
++  "hal.error.cancelled": "هەڵوەشێنرایەوە.",
++  "hal.error.deviceError": "ئامێرەکە کێشەیەکی ڕاگەیاند.",
++  "hal.error.invalidRequest": "ئامێرەکە نەیتوانی ئەم داواکارییە وەربگرێت.",
++  "hal.error.notPermitted": "ئەم وێستگەی کارە یان ڕۆڵەکەت ڕێگەی بەکارهێنانی ئەم ئامێرەی نییە.",
++  "hal.error.outcomeUnknown": "لەوانەیە ئامێرەکە پێشتر ئەمەی کردبێت. پێش هەوڵدانەوە، چاپکەر یان ئامێری پارەدان بپشکنە.",
++  "hal.error.timeout": "ئامێرەکە لە کاتی خۆیدا وەڵامی نەدایەوە.",
++  "hal.error.unavailable": "ئەم کارەی ئامێرەکە بەردەست نییە.",
++  "hal.reason.capabilityNotGranted": "ئەگەر لێرە پێویستت بەم ئامێرە هەیە، پرسیار لە بەڕێوەبەری سیستەم بکە.",
++  "hal.reason.deviceFault": "ئامێرەکە تێکچوونێکی ڕاگەیاند.",
++  "hal.reason.deviceOffline": "ئامێرەکە پەیوەست نییە.",
++  "hal.reason.deviceTimeout": "ئامێرەکە وەڵامی نەدایەوە.",
++  "hal.reason.invalidRequest": "داواکارییەکە لەگەڵ ئەوەی ئامێرەکە چاوەڕێی دەکات ناگونجێت.",
++  "hal.reason.mediaOut": "کاغەز یان لیبڵی ئامێرەکە تەواو بووە.",
++  "hal.reason.noDevice": "هیچ ئامێرێکی لەم جۆرە پەیوەست نەکراوە.",
++  "hal.reason.noShell": "بۆ بەکارهێنانی ئامێرەکان، ئەم شوێنی کارە لە بەرنامەی وێستگەی کاری HMS بکەرەوە.",
++  "hal.reason.notImplemented": "ئەم کارەی ئامێر لەم وەشانەدا بەردەست نییە.",
++  "hal.reason.stepUpRefused": "کارتەکە قبووڵ نەکرا.",
++  "hal.reason.unknownDevice": "ئەم وێستگەی کارە ئامێرە هەڵبژێردراوەکە ناناسێت.",
++  "hal.reason.unsupportedFormat": "ئامێرەکە ناتوانێت ئەم فۆرماتە بەکاربهێنێت.",
++  "hal.reason.userCancelled": "لەسەر ئامێرەکە هەڵوەشێنرایەوە.",
++  "hal.reason.userTimeout": "هیچ شتێک لە کاتی خۆیدا وەرنەگیرا.",
++  "hal.sign.prompt.consent": "بۆ پشتڕاستکردنەوەی ڕەزامەندییەکەت، لە خوارەوە واژۆ بکە.",
++  "hal.sign.prompt.document": "لە خوارەوە واژۆ بکە.",
++  "hal.sign.prompt.receipt": "بۆ پشتڕاستکردنەوەی وەرگرتن، لە خوارەوە واژۆ بکە.",
+   "language.ar.endonym": "العربية",
+   "language.ckb.endonym": "کوردی",
+-  "language.en.endonym": "English"
++  "language.en.endonym": "English",
++  "language.picker.label": "زمان",
++  "modal.blocked": "سەرەتا پەنجەرەی کراوە تەواو بکە یان هەڵیبوەشێنەوە.",
++  "modal.close": "داخستن",
++  "patientContext.clearedByUserChange": "نەخۆشەکە داخرا چونکە بەکارهێنەر گۆڕدرا.",
++  "patientContext.close": "داخستنی تۆماری نەخۆش",
++  "patientContext.none": "هیچ نەخۆشێک هەڵنەبژێردراوە",
++  "patientContext.switch.blockedByModal": "پێش گۆڕینی نەخۆش، پەنجەرەی کراوە تەواو بکە یان هەڵیبوەشێنەوە.",
++  "patientContext.switch.body": "ئەم پەنجەرەیە تەنها یەک نەخۆش لەخۆ دەگرێت. کردنەوەی نەخۆشێکی تر جێگەی نەخۆشی ئێستا دەگرێتەوە.",
++  "patientContext.switch.cancel": "مانەوە لەسەر نەخۆشی ئێستا",
++  "patientContext.switch.confirm": "گۆڕین بۆ نەخۆشی داواکراو",
++  "patientContext.switch.current": "نەخۆشی ئێستا",
++  "patientContext.switch.requested": "نەخۆشی داواکراو",
++  "patientContext.switch.requestedInvalid": "زانیاریی ناسنامەی نەخۆشی داواکراو بەردەست نییە، بۆیە ئەم گۆڕینە پشتڕاست ناکرێتەوە.",
++  "patientContext.switch.title": "گۆڕینی نەخۆش؟",
++  "sign.action": "واژۆکردن",
++  "sign.authenticate.cosignPin": "واژۆی هاوبەش پێویستی بە نزیککردنەوەی کارت لە خوێنەرەوە و ژمارەی نهێنی (PIN) هەیە.",
++  "sign.authenticate.heading": "پشتڕاستکردنەوەی ناسنامەی بەکارهێنەر",
++  "sign.authenticate.simulated": "چوونەژوورەوەی لاسایی (تەنها بۆ نمایش)",
++  "sign.blockedByBanner": "واژۆکردن ناکرێت: زانیاریی ناسنامەی نەخۆش ناتەواوە یان بەردەست نییە.",
++  "sign.cancel": "هەڵوەشاندنەوە",
++  "sign.contextChanged": "واژۆ نەکرا: نەخۆشی ئەم پەنجەرەیە گۆڕدرا. هیچ شتێک پاشەکەوت نەکرا.",
++  "sign.cosign.action": "واژۆی هاوبەش",
++  "sign.cosign.title": "واژۆی هاوبەش",
++  "sign.done": "واژۆکرا",
++  "sign.failed": "واژۆ نەکرا. هیچ شتێک پاشەکەوت نەکرا.",
++  "sign.intent.author": "من نووسەری ئەم تۆمارەم و واژۆی دەکەم.",
++  "sign.intent.cosign": "من پێداچوونەوەم بەم تۆمارەدا کردووە و واژۆی هاوبەشی دەکەم.",
++  "sign.outcomeUnknown": "نازانرێت ئایا ئەمە واژۆکراوە یان نا. پێش دووبارە واژۆکردن، تۆمارەکە بپشکنە.",
++  "sign.refused.reverify": "واژۆکردن ڕەتکرایەوە. نەخۆشەکە دووبارە پشتڕاست بکەرەوە.",
++  "sign.reverify.confirm": "ئەمە نەخۆشی دروستە",
++  "sign.reverify.reason": "{windowSeconds, plural, one {نەخۆشی ئەم پەنجەرەیە لە # چرکەی ڕابردوودا گۆڕدرا. پێش واژۆکردن، دڵنیابوونەوە پێویستە کە ئەمە نەخۆشی دروستە.} other {نەخۆشی ئەم پەنجەرەیە لە # چرکەی ڕابردوودا گۆڕدرا. پێش واژۆکردن، دڵنیابوونەوە پێویستە کە ئەمە نەخۆشی دروستە.}}",
++  "sign.reverify.reject": "ئەمە نەخۆشەکە نییە",
++  "sign.reverify.rejected": "ئەمە نەخۆشی دروست نییە. هیچ شتێک واژۆ نەکرا. نەخۆشەکە دابخە یان بیگۆڕە.",
++  "sign.reverify.signerDiffers": "ئەو کەسەی واژۆ دەکات دەبێت خۆی نەخۆشەکە پشتڕاست بکاتەوە. نەخۆشەکە دووبارە پشتڕاست بکەرەوە.",
++  "sign.reverify.title": "پشتڕاستکردنەوەی نەخۆش",
++  "sign.review.heading": "پێداچوونەوە پێش واژۆکردن",
++  "sign.title": "واژۆکردن"
+ }
+diff --git a/frontend/packages/i18n/src/messages/en.json b/frontend/packages/i18n/src/messages/en.json
+index 15440a4..9a445e5 100644
+--- a/frontend/packages/i18n/src/messages/en.json
++++ b/frontend/packages/i18n/src/messages/en.json
+@@ -1,6 +1,127 @@
+ {
++  "app.mainNav.label": "Main navigation",
+   "app.name": "HMS Kurdistan",
++  "app.skipToContent": "Skip to main content",
++  "banner.allergies.count": "{count, plural, one {# allergy} other {# allergies}}",
++  "banner.allergies.label": "Allergies",
++  "banner.allergies.nka": "No known allergies (NKA)",
++  "banner.allergies.notAssessed": "Allergies not assessed",
++  "banner.allergies.unavailable": "Allergy status unavailable",
++  "banner.codeStatus.label": "Code status",
++  "banner.codeStatus.notDocumented": "Code status not documented",
++  "banner.codeStatus.recordedOn": "{status}, recorded {date}",
++  "banner.codeStatus.unavailable": "Code status unavailable",
++  "banner.dataUnavailable": "Patient banner data unavailable",
++  "banner.dob.approximateFlag": "Approximate date of birth",
++  "banner.dob.label": "Date of birth",
++  "banner.dob.missing": "Date of birth missing",
++  "banner.dob.unavailable": "Date of birth unavailable",
++  "banner.identity.incomplete": "Identity incomplete",
++  "banner.isolation.label": "Isolation",
++  "banner.isolation.noneRecorded": "No isolation recorded",
++  "banner.isolation.unavailable": "Isolation status unavailable",
++  "banner.label.untranslated": "Not translated",
++  "banner.mrn.label": "MRN",
++  "banner.name.arabic.label": "Name (Arabic)",
++  "banner.name.arabicMissing": "Arabic name missing",
++  "banner.name.kurdish.label": "Name (Kurdish)",
++  "banner.name.kurdishMissing": "Kurdish name missing",
++  "banner.name.latin.label": "Name (Latin)",
++  "banner.name.latinMissing": "Latin name missing",
++  "banner.photo.alt": "Patient photo",
++  "banner.photo.missing": "No photo",
++  "banner.region.label": "Patient banner",
++  "banner.weight.label": "Weight",
++  "banner.weight.missing": "No dated weight",
++  "banner.weight.source.estimated": "estimated",
++  "banner.weight.source.measured": "measured",
++  "banner.weight.source.stated": "stated",
++  "banner.weight.unavailable": "Weight unavailable",
++  "banner.weight.value": "{weight} ({source}, {date})",
++  "clinical.number.invalid": "Invalid value",
++  "clinical.value.missing": "Not recorded",
++  "commandPalette.command.changeDensity": "Change density",
++  "commandPalette.command.changeLanguage": "Change language",
++  "commandPalette.dialog.label": "Command palette",
++  "commandPalette.group.navigation": "Go to",
++  "commandPalette.group.patients": "Patients",
++  "commandPalette.group.settings": "Settings",
++  "commandPalette.hint": "Arrow keys to choose, Enter to run, Escape to close.",
++  "commandPalette.noResults": "No matching commands",
++  "commandPalette.open.label": "Open command palette",
++  "commandPalette.resultCount": "{count, plural, one {# result} other {# results}}",
++  "commandPalette.search.label": "Search commands",
++  "commandPalette.search.placeholder": "Type a command or search",
++  "demo.banner.title": "Banner demonstration (synthetic patients)",
++  "demo.fixture.label": "Synthetic patient",
++  "demo.syntheticNotice": "Every patient on this page is synthetic.",
++  "demo.watermark": "NOT FOR CLINICAL USE",
++  "density.comfortable": "Comfortable",
++  "density.compact": "Compact",
++  "density.label": "Density",
++  "hal.capture.discardedAfterContextChange": "The capture was discarded because the patient in this window changed. Nothing was saved.",
++  "hal.error.cancelled": "Cancelled.",
++  "hal.error.deviceError": "The device reported a problem.",
++  "hal.error.invalidRequest": "The device could not accept this request.",
++  "hal.error.notPermitted": "This workstation or your role may not use this device.",
++  "hal.error.outcomeUnknown": "The device may already have done this. Check the printer or terminal before trying again.",
++  "hal.error.timeout": "The device did not respond in time.",
++  "hal.error.unavailable": "This device function is unavailable.",
++  "hal.reason.capabilityNotGranted": "Ask your administrator if you need this device here.",
++  "hal.reason.deviceFault": "The device reported a fault.",
++  "hal.reason.deviceOffline": "The device is offline.",
++  "hal.reason.deviceTimeout": "The device did not answer.",
++  "hal.reason.invalidRequest": "The request did not match what the device expects.",
++  "hal.reason.mediaOut": "The device is out of paper or labels.",
++  "hal.reason.noDevice": "No device of this kind is connected.",
++  "hal.reason.noShell": "Open this workspace in the HMS workstation app to use devices.",
++  "hal.reason.notImplemented": "This device function is not available in this version.",
++  "hal.reason.stepUpRefused": "The badge was not accepted.",
++  "hal.reason.unknownDevice": "The selected device is not known to this workstation.",
++  "hal.reason.unsupportedFormat": "The device cannot handle this format.",
++  "hal.reason.userCancelled": "Cancelled at the device.",
++  "hal.reason.userTimeout": "Nothing was received in time.",
++  "hal.sign.prompt.consent": "Sign below to confirm your consent.",
++  "hal.sign.prompt.document": "Sign below.",
++  "hal.sign.prompt.receipt": "Sign below to confirm receipt.",
+   "language.ar.endonym": "العربية",
+   "language.ckb.endonym": "کوردی",
+-  "language.en.endonym": "English"
++  "language.en.endonym": "English",
++  "language.picker.label": "Language",
++  "modal.blocked": "Finish or cancel the open dialog first.",
++  "modal.close": "Close",
++  "patientContext.clearedByUserChange": "The patient was closed because the user changed.",
++  "patientContext.close": "Close patient record",
++  "patientContext.none": "No patient selected",
++  "patientContext.switch.blockedByModal": "Finish or cancel the open dialog before changing patient.",
++  "patientContext.switch.body": "This window holds one patient. Opening another patient replaces the current one.",
++  "patientContext.switch.cancel": "Keep current patient",
++  "patientContext.switch.confirm": "Switch to requested patient",
++  "patientContext.switch.current": "Current patient",
++  "patientContext.switch.requested": "Requested patient",
++  "patientContext.switch.requestedInvalid": "The requested patient's identity data is unavailable, so this switch cannot be confirmed.",
++  "patientContext.switch.title": "Change patient?",
++  "sign.action": "Sign",
++  "sign.authenticate.cosignPin": "Co-signing needs a badge tap and a PIN.",
++  "sign.authenticate.heading": "Confirm it is you",
++  "sign.authenticate.simulated": "Simulated sign-in (demonstration only)",
++  "sign.blockedByBanner": "Signing is not possible: the patient's identity data is incomplete or unavailable.",
++  "sign.cancel": "Cancel",
++  "sign.contextChanged": "Not signed: the patient in this window changed. Nothing was saved.",
++  "sign.cosign.action": "Co-sign",
++  "sign.cosign.title": "Co-sign",
++  "sign.done": "Signed",
++  "sign.failed": "Not signed. Nothing was saved.",
++  "sign.intent.author": "I am the author of this entry and I sign it.",
++  "sign.intent.cosign": "I have reviewed this entry and I co-sign it.",
++  "sign.outcomeUnknown": "It is not known whether this was signed. Check the record before signing again.",
++  "sign.refused.reverify": "Signing was refused. Confirm the patient again.",
++  "sign.reverify.confirm": "This is the right patient",
++  "sign.reverify.reason": "{windowSeconds, plural, one {The patient in this window changed in the last # second. Check that this is the right patient before signing.} other {The patient in this window changed in the last # seconds. Check that this is the right patient before signing.}}",
++  "sign.reverify.reject": "Not this patient",
++  "sign.reverify.rejected": "This is not the right patient. Nothing was signed. Close or change the patient.",
++  "sign.reverify.signerDiffers": "The person signing must confirm the patient. Confirm the patient again.",
++  "sign.reverify.title": "Confirm the patient",
++  "sign.review.heading": "Review before signing",
++  "sign.title": "Sign"
+ }
+diff --git a/frontend/packages/i18n/test/catalogues.test.ts b/frontend/packages/i18n/test/catalogues.test.ts
+index 890a555..20da945 100644
+--- a/frontend/packages/i18n/test/catalogues.test.ts
++++ b/frontend/packages/i18n/test/catalogues.test.ts
+@@ -1,10 +1,19 @@
++import { readFileSync } from 'node:fs';
+ import path from 'node:path';
+ import { fileURLToPath } from 'node:url';
+ import { describe, expect, it } from 'vitest';
+-import { CATALOGUES, UI_LOCALES } from '../src/index.ts';
++import {
++  ARABIC_FORMS_NOT_IN_SORANI,
++  CATALOGUES,
++  hasNonWesternArabicDigits,
++  SORANI_LETTERS,
++  UI_LOCALES,
++  type MessageKey,
++} from '../src/index.ts';
+ import { lintCatalogueDirectory, UI_CATALOGUE_LINT_OPTIONS } from '../src/lint/catalogue-lint.ts';
+ 
+-const messages = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'messages');
++const here = path.dirname(fileURLToPath(import.meta.url));
++const messages = path.join(here, '..', 'src', 'messages');
+ 
+ describe('the shipped UI catalogues', () => {
+   it('pass the localisation lint', () => {
+@@ -34,14 +43,86 @@ describe('the shipped UI catalogues', () => {
+     expect(sorani).not.toMatch(/[كي]/);
+   });
+ 
+-  it('hold only the shell keys of WP-0.1', () => {
++  it('hold the shell keys of WP-0.1 and every key of design-system §10, in English as §10 gives it', () => {
++    const specified = specifiedMessages();
++    expect(specified.size).toBeGreaterThan(100);
++    const expectedKeys = [
++      'app.name',
++      'language.ar.endonym',
++      'language.ckb.endonym',
++      'language.en.endonym',
++      ...specified.keys(),
++    ].sort();
+     for (const locale of UI_LOCALES) {
+-      expect(Object.keys(CATALOGUES[locale]).sort()).toEqual([
+-        'app.name',
+-        'language.ar.endonym',
+-        'language.ckb.endonym',
+-        'language.en.endonym',
+-      ]);
++      expect(Object.keys(CATALOGUES[locale]).sort(), locale).toEqual(expectedKeys);
++    }
++    for (const [key, english] of specified) {
++      expect(CATALOGUES.en[key as MessageKey], key).toBe(english);
++    }
++  });
++
++  it('write Sorani with the Kurdish letter forms: no ي or ك outside the language names', () => {
++    expect(ARABIC_FORMS_NOT_IN_SORANI).toEqual(['ي', 'ك']);
++    for (const [key, message] of Object.entries(CATALOGUES.ckb)) {
++      if (isLanguageName(key)) {
++        continue;
++      }
++      for (const letter of ARABIC_FORMS_NOT_IN_SORANI) {
++        expect(message.includes(letter), `${key} contains ${letter}`).toBe(false);
++      }
++    }
++  });
++
++  it('write Arabic with the Arabic letter forms: no ی, ک or ە outside the language names', () => {
++    const kurdishForms = SORANI_LETTERS.pairs.map((pair) => pair.kurdish.char);
++    for (const [key, message] of Object.entries(CATALOGUES.ar)) {
++      if (isLanguageName(key)) {
++        continue;
++      }
++      for (const letter of kurdishForms) {
++        expect(message.includes(letter), `${key} contains ${letter}`).toBe(false);
++      }
++    }
++  });
++
++  it('use Western digits only (OQ-141)', () => {
++    for (const locale of UI_LOCALES) {
++      for (const [key, message] of Object.entries(CATALOGUES[locale])) {
++        expect(hasNonWesternArabicDigits(message), `${locale} ${key}`).toBe(false);
++      }
++    }
++  });
++
++  it('separate the parts of composed banner values with the Arabic comma in ckb and ar (§10)', () => {
++    for (const locale of ['ckb', 'ar'] as const) {
++      for (const key of ['banner.weight.value', 'banner.codeStatus.recordedOn'] as const) {
++        expect(CATALOGUES[locale][key], `${locale} ${key}`).toContain('،');
++        expect(CATALOGUES[locale][key], `${locale} ${key}`).not.toContain(',');
++      }
+     }
+   });
+ });
++
++/** A language's name for itself, shown the same in every catalogue and so in its own script. */
++function isLanguageName(key: string): boolean {
++  return /^language\.[a-z-]+\.endonym$/i.test(key);
++}
++
++/** The message keys of docs/specs/modules/design-system.md §10 with their English text. */
++function specifiedMessages(): Map<string, string> {
++  const spec = readFileSync(
++    path.join(here, '..', '..', '..', '..', 'docs', 'specs', 'modules', 'design-system.md'),
++    'utf8',
++  );
++  const lines = spec.split(/\r?\n/);
++  const start = lines.findIndex((line) => line.startsWith('## 10. '));
++  const end = lines.findIndex((line, index) => index > start && line.startsWith('## '));
++  const messages = new Map<string, string>();
++  for (const line of lines.slice(start, end)) {
++    const match = /^\| `([a-zA-Z0-9.-]+)` \| (.+?) \| .* \|$/.exec(line);
++    if (match?.[1] !== undefined && match[2] !== undefined) {
++      messages.set(match[1], match[2]);
++    }
++  }
++  return messages;
++}
+diff --git a/frontend/packages/i18n/test/cli.test.ts b/frontend/packages/i18n/test/cli.test.ts
+index da047bd..5b01578 100644
+--- a/frontend/packages/i18n/test/cli.test.ts
++++ b/frontend/packages/i18n/test/cli.test.ts
+@@ -31,7 +31,7 @@ describe('localisation lint CLI', { timeout: 60_000 }, () => {
+     expect(result).toEqual({
+       check: 'frontend-i18n-catalogues',
+       ok: true,
+-      counts: { catalogues: 3, keys: 4, messages: 12 },
++      counts: { catalogues: 3, keys: 125, messages: 375, unreviewed: 250 },
+       errors: [],
+       warnings: [],
+     });
+@@ -54,6 +54,12 @@ describe('localisation lint CLI', { timeout: 60_000 }, () => {
+       'ku-Arab.json: unexpected catalogue: the UI locales are en, ckb, ar; ku-Arab is used only for patient-facing templates',
+       'ckb.json: key "fixture.missingInCkb" is missing (present in ar.json, en.json)',
+       'ar.json: key "fixture.placeholders": placeholders ({count}, {nam}) differ from en.json ({count, number}, {name})',
++      'ar.json: key "banner.fixture": the message is the same as in en.json; a clinical message (banner.*, clinical.*) must be translated',
++      'ar.json: key "clinical.fixtureCount": plural "count" has no # in "one"; a clinical count, so every branch must show the number',
++      'review/ar.json: key "fixture.gone" is not in ar.json',
++      'review/ar.json: key "fixture.ok" of ar.json has no review status: mark it "unreviewed" (DN-021)',
++      'review/ckb.json: key "fixture.ok": unknown review status "reviewed"; the only status is "unreviewed" until the clinician review records its own (DN-021, OQ-151)',
++      'review/en.json: unexpected review file: the review-marked locales are ckb, ar',
+     ]);
+   });
+ 
+diff --git a/frontend/packages/i18n/test/fixtures/README.md b/frontend/packages/i18n/test/fixtures/README.md
+index c88b534..5b38711 100644
+--- a/frontend/packages/i18n/test/fixtures/README.md
++++ b/frontend/packages/i18n/test/fixtures/README.md
+@@ -2,7 +2,11 @@
+ 
+ Synthetic catalogues for the lint tests. Every message is a `SYN-` placeholder, never a translation.
+ 
+-- `valid/`: three catalogues the lint accepts (different plural branches per locale are allowed).
++- `valid/`: three catalogues the lint accepts (different plural branches per locale are allowed; the
++  clinical key `clinical.fixtureCount` keeps `#` in every branch), and `review/` marking every `ckb` and `ar`
++  message `unreviewed`.
+ - `invalid/`: one catalogue per problem class: a duplicate key (`en.json`), an ICU syntax error and a
+-  missing key (`ckb.json`), an empty message and a placeholder mismatch (`ar.json`), and a stray
+-  catalogue for a template-only locale (`ku-Arab.json`).
++  missing key (`ckb.json`), an empty message, a placeholder mismatch, a clinical message left equal to the
++  English one and a clinical plural branch without `#` (`ar.json`), and a stray catalogue for a template-only
++  locale (`ku-Arab.json`). In `review/`: an unknown review status (`ckb.json`), a key with no status and a
++  status for a key the catalogue lacks (`ar.json`), and a review file for the source locale (`en.json`).
+diff --git a/frontend/packages/i18n/test/fixtures/invalid/ar.json b/frontend/packages/i18n/test/fixtures/invalid/ar.json
+index 239a4df..aacb2ec 100644
+--- a/frontend/packages/i18n/test/fixtures/invalid/ar.json
++++ b/frontend/packages/i18n/test/fixtures/invalid/ar.json
+@@ -3,5 +3,7 @@
+   "fixture.missingInCkb": "SYN-ar",
+   "fixture.empty": "   ",
+   "fixture.broken": "SYN-ar {name}",
+-  "fixture.placeholders": "SYN-ar {nam} {count}"
++  "fixture.placeholders": "SYN-ar {nam} {count}",
++  "banner.fixture": "SYN-en",
++  "clinical.fixtureCount": "{count, plural, one {SYN-ar} other {SYN-ar #}}"
+ }
+diff --git a/frontend/packages/i18n/test/fixtures/invalid/ckb.json b/frontend/packages/i18n/test/fixtures/invalid/ckb.json
+index 2bf488d..8f8f853 100644
+--- a/frontend/packages/i18n/test/fixtures/invalid/ckb.json
++++ b/frontend/packages/i18n/test/fixtures/invalid/ckb.json
+@@ -2,5 +2,7 @@
+   "fixture.ok": "SYN-ckb",
+   "fixture.empty": "SYN-ckb",
+   "fixture.broken": "SYN-ckb {name",
+-  "fixture.placeholders": "SYN-ckb {name} {count, number}"
++  "fixture.placeholders": "SYN-ckb {name} {count, number}",
++  "banner.fixture": "SYN-ckb",
++  "clinical.fixtureCount": "{count, plural, other {SYN-ckb #}}"
+ }
+diff --git a/frontend/packages/i18n/test/fixtures/invalid/en.json b/frontend/packages/i18n/test/fixtures/invalid/en.json
+index cdee504..1ca9f0f 100644
+--- a/frontend/packages/i18n/test/fixtures/invalid/en.json
++++ b/frontend/packages/i18n/test/fixtures/invalid/en.json
+@@ -4,5 +4,7 @@
+   "fixture.empty": "SYN-en",
+   "fixture.broken": "SYN-en {name}",
+   "fixture.placeholders": "SYN-en {name} {count, number}",
+-  "fixture.ok": "SYN-en duplicate"
++  "fixture.ok": "SYN-en duplicate",
++  "banner.fixture": "SYN-en",
++  "clinical.fixtureCount": "{count, plural, one {SYN-en #} other {SYN-en #}}"
+ }
+diff --git a/frontend/packages/i18n/test/fixtures/valid/ar.json b/frontend/packages/i18n/test/fixtures/valid/ar.json
+index c037308..418c973 100644
+--- a/frontend/packages/i18n/test/fixtures/valid/ar.json
++++ b/frontend/packages/i18n/test/fixtures/valid/ar.json
+@@ -1,4 +1,5 @@
+ {
++  "clinical.fixtureCount": "{count, plural, one {SYN-ar #} two {SYN-ar #} few {SYN-ar #} many {SYN-ar #} other {SYN-ar #}}",
+   "fixture.greeting": "SYN-ar {name}",
+   "fixture.items": "{count, plural, zero {SYN-ar #} one {SYN-ar #} two {SYN-ar #} few {SYN-ar #} many {SYN-ar #} other {SYN-ar #}}",
+   "fixture.rich": "SYN-ar <b>SYN</b> {when, date, short}"
+diff --git a/frontend/packages/i18n/test/fixtures/valid/ckb.json b/frontend/packages/i18n/test/fixtures/valid/ckb.json
+index 731ce70..6c74019 100644
+--- a/frontend/packages/i18n/test/fixtures/valid/ckb.json
++++ b/frontend/packages/i18n/test/fixtures/valid/ckb.json
+@@ -1,4 +1,5 @@
+ {
++  "clinical.fixtureCount": "{count, plural, one {SYN-ckb #} other {SYN-ckb #}}",
+   "fixture.greeting": "SYN-ckb {name}",
+   "fixture.items": "{count, plural, other {SYN-ckb #}}",
+   "fixture.rich": "SYN-ckb <b>SYN</b> {when, date, short}"
+diff --git a/frontend/packages/i18n/test/fixtures/valid/en.json b/frontend/packages/i18n/test/fixtures/valid/en.json
+index e212d94..e5a526a 100644
+--- a/frontend/packages/i18n/test/fixtures/valid/en.json
++++ b/frontend/packages/i18n/test/fixtures/valid/en.json
+@@ -1,4 +1,5 @@
+ {
++  "clinical.fixtureCount": "{count, plural, one {SYN-en # item} other {SYN-en # items}}",
+   "fixture.greeting": "SYN-en {name}",
+   "fixture.items": "{count, plural, one {SYN-en # item} other {SYN-en # items}}",
+   "fixture.rich": "SYN-en <b>SYN</b> {when, date, short}"
+diff --git a/frontend/packages/ui-core/README.md b/frontend/packages/ui-core/README.md
+index e36a812..ff8735c 100644
+--- a/frontend/packages/ui-core/README.md
++++ b/frontend/packages/ui-core/README.md
+@@ -1,10 +1,41 @@
+ # packages/ui-core
+ 
+ DOM-free client logic that the web app and the mobile app share (WP-0.7, open question OQ-140;
+-`docs/specs/modules/design-system.md` §1): `clinical-number.ts` (number display, SI-05), `banner-model.ts` (Zod
+-schemas for the banner data, SI-16 and SI-01), `patient-context.ts` (the machine in
+-`docs/specs/state-machines/patient-context.yaml`) and `clock.ts` (a monotonic clock that tests replace). Slice S3
+-builds them; slice S1 created the package with a smoke test.
++`docs/specs/modules/design-system.md` §1). `src` may use ECMAScript and its own imports only: `tsconfig.src.json`
++type-checks it with no ambient types (no DOM library, no Node.js types), so code that touches the DOM, Node.js or a
++Web API such as `crypto` fails to type-check. `tsconfig.json` adds the tests, which run in Node.js, with Node types;
++`corepack pnpm --filter @hms/ui-core typecheck` runs both (OQ-158). Slice S1 created the package; slice S3 built:
+ 
+-It extends `tsconfig.base.json`, which has no DOM library, so code that touches the DOM fails to type-check here.
+-Tests run with Vitest in the node environment: `corepack pnpm --filter @hms/ui-core test`.
++- `src/clinical-number.ts` (SI-05; design-system §2.6; CTRL-0005-17): `formatClinicalNumber` and
++  `formatClinicalQuantity` normalise a decimal string for display (a leading zero, no trailing zero, one form of
++  zero, U+202F grouping per DN-031) and work on characters only: no conversion to a number, no arithmetic, no
++  rounding. Units go through a display map; `SYNTHETIC_UNIT_DISPLAY_MAP` is a synthetic sample, NOT FOR CLINICAL
++  USE (OQ-152, KA-036).
++- `src/banner-model.ts` (SI-16, SI-01; design-system §2.1): `parseBannerData` parses untrusted banner data field by
++  field with strict Zod schemas into a `BannerModel` whose fields each carry their own missing or unavailable
++  state. It first copies the input into plain data (own data properties only, objects with no prototype), so an
++  inherited or polluted property never supplies a value at any depth. Allergy status is `nka`, `not-assessed`, `list` or `unavailable`, and bad data never gives `nka`. The
++  model has no location field. `errorState` and `signingBlocked` feed the patient-context predicates (DN-032).
++  `SYNTHETIC_BANNER_VOCABULARIES` holds synthetic code-status and isolation codes, NOT FOR CLINICAL USE (OQ-143).
++- `src/patient-context.ts` (SI-16 clauses e and f; CTRL-0016-6, CTRL-0016-7 client part): the machine of
++  `docs/specs/state-machines/patient-context.yaml`. `TRANSITIONS` restates the YAML's transitions one for one and
++  `PREDICATES` implements each named predicate once; `transition(snapshot, event, deps)` is pure apart from reading
++  the injected clock and the window's modal state. The app injects the idempotency key source; ui-core has no
++  default. The server-side context and sign refusal are not built (KA-025).
++- `src/clock.ts`: the injectable `Clock` (monotonic time for the 60 s window, wall time only to stamp the sign
++  command), `systemClock` and `FakeClock`. An unreadable clock reads as `undefined`, which the machine treats as
++  within the window (fail closed, DN-026).
++
++Engineering choices made here are open question OQ-158; known limitations are in `docs/program/KNOWN-ANOMALIES.md`.
++
++## Tests
++
++Vitest in the node environment: `corepack pnpm --filter @hms/ui-core test`. The test names follow
++design-system §9: `UnitTest:clinical-number-ismp-display-rules`, `PropertyTest:clinical-number-*`,
++`StaticAnalysis:clinical-number-no-arithmetic`, `UnitTest:allergy-status-nka-distinct-from-not-assessed`,
++`PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change` and
++`UnitTest:context-switch-requires-confirmation`. `test/patient-context.test.ts` also reads the YAML and fails when
++the states, predicates or transitions differ from it, or when two transitions to different states can be enabled
++together. The SI-16 property drives random event sequences against a hand-written model that predicts every
++result (state, patient, context change, re-verifier, sign command) from the events and the fake clock alone; it is
++written by hand until WP-0.5's generator exists, and the generated model must pass the same tests. Test data is synthetic (`test/fixtures.ts`).
+diff --git a/frontend/packages/ui-core/package.json b/frontend/packages/ui-core/package.json
+index 24edb22..993bbc9 100644
+--- a/frontend/packages/ui-core/package.json
++++ b/frontend/packages/ui-core/package.json
+@@ -8,7 +8,7 @@
+     ".": "./src/index.ts"
+   },
+   "scripts": {
+-    "typecheck": "tsc --noEmit -p tsconfig.json",
++    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.src.json",
+     "test": "vitest run"
+   },
+   "dependencies": {
+diff --git a/frontend/packages/ui-core/src/index.ts b/frontend/packages/ui-core/src/index.ts
+index 03372d7..9bfd3fc 100644
+--- a/frontend/packages/ui-core/src/index.ts
++++ b/frontend/packages/ui-core/src/index.ts
+@@ -1,6 +1,80 @@
+ /**
+  * @hms/ui-core: DOM-free client logic shared by the web and mobile apps (OQ-140;
+- * docs/specs/modules/design-system.md §1). Slice S3 adds clinical-number.ts, banner-model.ts,
+- * patient-context.ts and clock.ts and exports them here.
++ * docs/specs/modules/design-system.md §1): clinical number display (§2.6), the banner model (§2.1), the
++ * patient-context machine (§2.2, §2.3) and its clock.
+  */
+-export {};
++export {
++  formatClinicalNumber,
++  formatClinicalQuantity,
++  GROUP_SEPARATOR,
++  NUMBER_UNIT_SEPARATOR,
++  SYNTHETIC_UNIT_DISPLAY_MAP,
++  type ClinicalNumberDisplay,
++  type ClinicalQuantityDisplay,
++  type UnitDisplayMap,
++} from './clinical-number.ts';
++export {
++  allergiesSchema,
++  codeStatusSchema,
++  dobSchema,
++  isDateAtPrecision,
++  isolationSchema,
++  NAME_FORM_TEXT,
++  NAME_FORMS,
++  parseBannerData,
++  photoSchema,
++  resolveGovernedLabel,
++  SYNTHETIC_BANNER_VOCABULARIES,
++  weightSchema,
++  type AllergiesField,
++  type AllergyItem,
++  type BannerLocale,
++  type BannerModel,
++  type BannerName,
++  type BannerVocabularies,
++  type CodeStatusField,
++  type DatePrecision,
++  type DobField,
++  type GovernedConcept,
++  type GovernedLabels,
++  type IdentifierField,
++  type IsolationField,
++  type NameForm,
++  type NameFormField,
++  type PhotoField,
++  type ResolvedLabel,
++  type WeightField,
++  type WeightSource,
++} from './banner-model.ts';
++export { FakeClock, readMonotonicMs, readWallTimeMs, systemClock, type Clock } from './clock.ts';
++export {
++  contextUserMismatch,
++  effectiveReverificationWindowMs,
++  enabledTransitions,
++  initialPatientContext,
++  PATIENT_CONTEXT_STATES,
++  PREDICATES,
++  REVERIFICATION_WINDOW_MS,
++  TERMINAL_STATES,
++  transition,
++  TRANSITIONS,
++  updateBannerData,
++  type ContextChange,
++  type PatientCandidate,
++  type PatientContextDeps,
++  type PatientContextEvent,
++  type PatientContextEventType,
++  type PatientContextMessageKey,
++  type PatientContextSnapshot,
++  type PatientContextState,
++  type PredicateName,
++  type Reverification,
++  type SignCommand,
++  type SignerAuthentication,
++  type SignKind,
++  type SignSession,
++  type TransitionDefinition,
++  type TransitionResult,
++  type UserId,
++  type WindowFacts,
++} from './patient-context.ts';
+diff --git a/tools/README.md b/tools/README.md
+index b60b385..9dcd7b3 100644
+--- a/tools/README.md
++++ b/tools/README.md
+@@ -15,6 +15,10 @@ the last stdout line is one JSON object `{check, ok, counts, errors, warnings}`.
+ | `sh tools/hms licence check --sbom F \| --pnpm F` | The licence policy (see `tools/licence/README.md`) |
+ | `sh tools/hms backlog check`, `sh tools/hms safety check` | Backlog and hazard-log checks (their own packages) |
+ 
++Simulators of external parties and devices live under `tools/simulators/<party>/` (BUILD-PROMPT.md §3.7,
++ADR-014), standard library only, each with its own README and tests: `label_printer` is the raw port-9100
++label-printer capture endpoint (`python -I tools/simulators/label_printer/capture.py --out <directory>`).
++
+ Unit tests: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools -t tools -p "test_*.py"`
+ (on Linux `.tools/venv/bin/python`). Configuration data lives in `tools/config/` (tenant identifiers) and
+ `tools/licence/` (licence policy). Python dependencies are pinned with hashes in `tools/requirements.txt`,

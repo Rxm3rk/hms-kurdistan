@@ -1,0 +1,18 @@
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp03 pid=71547 since=2026-10-19T07:46:52+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=70531 since=2026-10-19T08:08:45+03:00;)
+heavy.sh: waiting for a slot (wp08 pid=73443 since=2026-10-19T08:11:49+03:00;)
+heavy.sh: wp05 got slot1.lock after 1305s
+
+ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation.
+

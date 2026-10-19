@@ -1,0 +1,31 @@
+{
+  "letters": [
+    { "char": "پ", "codePoint": "U+067E", "name": "ARABIC LETTER PEH" },
+    { "char": "چ", "codePoint": "U+0686", "name": "ARABIC LETTER TCHEH" },
+    { "char": "ژ", "codePoint": "U+0698", "name": "ARABIC LETTER JEH" },
+    { "char": "گ", "codePoint": "U+06AF", "name": "ARABIC LETTER GAF" },
+    { "char": "ڤ", "codePoint": "U+06A4", "name": "ARABIC LETTER VEH" },
+    { "char": "ڕ", "codePoint": "U+0695", "name": "ARABIC LETTER REH WITH SMALL V BELOW" },
+    { "char": "ڵ", "codePoint": "U+06B5", "name": "ARABIC LETTER LAM WITH SMALL V" },
+    { "char": "ۆ", "codePoint": "U+06C6", "name": "ARABIC LETTER OE" },
+    { "char": "ێ", "codePoint": "U+06CE", "name": "ARABIC LETTER YEH WITH SMALL V" },
+    { "char": "ە", "codePoint": "U+06D5", "name": "ARABIC LETTER AE" }
+  ],
+  "pairs": [
+    {
+      "arabic": { "char": "ي", "codePoint": "U+064A", "name": "ARABIC LETTER YEH" },
+      "kurdish": { "char": "ی", "codePoint": "U+06CC", "name": "ARABIC LETTER FARSI YEH" },
+      "arabicFormInSorani": false
+    },
+    {
+      "arabic": { "char": "ك", "codePoint": "U+0643", "name": "ARABIC LETTER KAF" },
+      "kurdish": { "char": "ک", "codePoint": "U+06A9", "name": "ARABIC LETTER KEHEH" },
+      "arabicFormInSorani": false
+    },
+    {
+      "arabic": { "char": "ه", "codePoint": "U+0647", "name": "ARABIC LETTER HEH" },
+      "kurdish": { "char": "ە", "codePoint": "U+06D5", "name": "ARABIC LETTER AE" },
+      "arabicFormInSorani": true
+    }
+  ]
+}

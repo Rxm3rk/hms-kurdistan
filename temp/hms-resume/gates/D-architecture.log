@@ -1,0 +1,129 @@
+Reusing configuration cache.
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :verifyProjectConventions
+> Task :detekt NO-SOURCE
+> Task :build-logic:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:detekt UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:arch-rules:processIntegrationTestResources NO-SOURCE
+> Task :platform:arch-rules:processTestResources NO-SOURCE
+> Task :platform:arch-rules:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:arch-rules:runKtlintCheckOverTestSourceSet UP-TO-DATE
+> Task :platform:arch-rules:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverPropertyTestSourceSet NO-SOURCE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :platform:arch-rules:runKtlintCheckOverMainSourceSet UP-TO-DATE
+> Task :platform:arch-rules:ktlintPropertyTestSourceSetCheck SKIPPED
+> Task :platform:arch-rules:processPropertyTestResources NO-SOURCE
+> Task :platform:testing:processIntegrationTestResources NO-SOURCE
+> Task :platform:arch-rules:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:testing:loadKtlintReporters UP-TO-DATE
+> Task :build-logic:ktlintKotlinScriptCheck UP-TO-DATE
+> Task :platform:arch-rules:compileIntegrationTestJava NO-SOURCE
+> Task :platform:testing:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:testing:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :build-logic:runKtlintCheckOverMainSourceSet UP-TO-DATE
+> Task :platform:arch-rules:integrationTestClasses UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverKotlinScripts NO-SOURCE
+> Task :platform:testing:ktlintKotlinScriptCheck SKIPPED
+> Task :platform:arch-rules:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:arch-rules:ktlintCheck UP-TO-DATE
+> Task :build-logic:ktlintMainSourceSetCheck UP-TO-DATE
+> Task :platform:testing:runKtlintCheckOverTestSourceSet UP-TO-DATE
+> Task :build-logic:runKtlintCheckOverTestSourceSet NO-SOURCE
+> Task :build-logic:ktlintTestSourceSetCheck SKIPPED
+> Task :build-logic:ktlintCheck UP-TO-DATE
+> Task :runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :platform:testing:processTestResources NO-SOURCE
+> Task :platform:testing:ktlintTestSourceSetCheck UP-TO-DATE
+> Task :platform:testing:processPropertyTestResources NO-SOURCE
+> Task :ktlintKotlinScriptCheck UP-TO-DATE
+> Task :platform:arch-rules:compileTestKotlin UP-TO-DATE
+> Task :ktlintCheck UP-TO-DATE
+> Task :platform:arch-rules:compileTestJava NO-SOURCE
+> Task :platform:arch-rules:testClasses UP-TO-DATE
+> Task :platform:arch-rules:test UP-TO-DATE
+
+> Task :platform:arch-rules:verifyArchitectureTest
+:platform:arch-rules: ArchitectureTest ran 4 rule checks
+
+> Task :platform:testing:runKtlintCheckOverPropertyTestSourceSet FROM-CACHE
+> Task :platform:testing:ktlintPropertyTestSourceSetCheck FROM-CACHE
+> Task :platform:testing:compileKotlin
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar
+> Task :platform:testing:compileIntegrationTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compilePropertyTestKotlin NO-SOURCE
+> Task :platform:arch-rules:compilePropertyTestJava NO-SOURCE
+> Task :platform:arch-rules:propertyTestClasses UP-TO-DATE
+> Task :platform:testing:compileIntegrationTestJava NO-SOURCE
+> Task :platform:testing:integrationTestClasses UP-TO-DATE
+> Task :platform:arch-rules:propertyTest NO-SOURCE
+
+> Task :platform:testing:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :platform:testing:compileTestKotlin
+> Task :platform:testing:compileTestJava NO-SOURCE
+> Task :platform:testing:testClasses UP-TO-DATE
+> Task :platform:testing:compilePropertyTestKotlin
+> Task :platform:testing:compilePropertyTestJava NO-SOURCE
+> Task :platform:testing:propertyTestClasses UP-TO-DATE
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :platform:testing:runKtlintCheckOverMainSourceSet
+> Task :platform:testing:ktlintMainSourceSetCheck
+> Task :platform:testing:ktlintCheck
+> Task :platform:testing:propertyTest
+
+> Task :platform:testing:test
+
+ArchitectureTest > no classes that reside in a package 'hms..domain..' should call code unit where read the system clock or should depend on classes that are system time sources [kotlin.time.Clock$System, kotlin.time.TimeSource$Monotonic, kotlinx.datetime.Clock$System], because domain code takes an injected Clock and never calls now() itself (BUILD-PROMPT §6.2) FAILED
+    java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in a package 'hms..domain..' should call code unit where read the system clock or should depend on classes that are system time sources [kotlin.time.Clock$System, kotlin.time.TimeSource$Monotonic, kotlinx.datetime.Clock$System], because domain code takes an injected Clock and never calls now() itself (BUILD-PROMPT §6.2)' was violated (1 times):
+    Method <hms.kernel.testing.domain.ScratchClock.current()> calls method <java.time.Instant.now()> in (ScratchClock.kt:6)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+        at com.tngtech.archunit.lang.ArchRule$Assertions.check(ArchRule.java:86)
+        at com.tngtech.archunit.lang.ArchRule$Factory$SimpleArchRule.check(ArchRule.java:165)
+        at hms.kernel.testing.ArchitectureTest$1$1$1.invokeSuspend(ArchitectureTest.kt:13)
+        at hms.kernel.testing.ArchitectureTest$1$1$1.invoke(ArchitectureTest.kt)
+        at hms.kernel.testing.ArchitectureTest$1$1$1.invoke(ArchitectureTest.kt)
+
+        Caused by:
+        java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'no classes that reside in a package 'hms..domain..' should call code unit where read the system clock or should depend on classes that are system time sources [kotlin.time.Clock$System, kotlin.time.TimeSource$Monotonic, kotlinx.datetime.Clock$System], because domain code takes an injected Clock and never calls now() itself (BUILD-PROMPT §6.2)' was violated (1 times):
+        Method <hms.kernel.testing.domain.ScratchClock.current()> calls method <java.time.Instant.now()> in (ScratchClock.kt:6)
+            at com.tngtech.archunit.lang.ArchRule$Assertions.assertNoViolation(ArchRule.java:94)
+            ... 5 more
+
+14 tests completed, 1 failed
+
+> Task :platform:testing:test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':platform:testing:test'.
+> There were failing tests. See the report at: file:///C:/Users/Surface/.t3/projects/hospitalmanagementsystem/backend/platform/testing/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 21s
+34 actionable tasks: 11 executed, 2 from cache, 21 up-to-date
+Configuration cache entry reused.

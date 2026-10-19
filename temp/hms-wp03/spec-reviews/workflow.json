@@ -1,0 +1,209 @@
+[
+ {
+  "target": "workflow",
+  "lens": "combined",
+  "summary": "I reviewed docs/specs/modules/platform-workflow.md through both lenses: correctness and architecture, and clinical safety and hazards. I checked it against BUILD-PROMPT, ADR-010, DN-040, HAZ-0003 and HAZ-0012, the sibling specs, and integrator decisions D1 to D9. The section citations are mostly accurate: §7 item 6, §9.18 \"never blocked by money\", §9.23 and §9.32 \"a WorkflowPort workflow/runbook\", the ADR-010 quotes, and CTRL-0003-4 and CTRL-0003-5. The now/waits split matches DN-040. There are no critical findings: no SI is weakened, no Safety Kernel path depends on the port, and every path in WP-0.3 is fail-closed.\n\nI found 15 major and 8 minor findings.\n\n- **Integrator decisions:** the spec does not yet follow two of them. Under D8 the in-memory double belongs in main sources, inside a layer package, which the spec forbids. Under D1 the kernel already provides the context, reason and key types that the spec still defines for itself.\n- **API defects:** StatusResult has no Rejected case. It is unclear whether invalid values throw at construction or return Rejected. AlreadyDelivered and the \"one instance per ref, ever\" rule cannot be built on Temporal as written. Several state-machine edge cases are left open.\n- **Architecture:** the spec does not say how the rcm satellite and migration reach WorkflowPort or platform-tasks. The premise of OQ-W5 option 1 is false under §5.2. The \"human steps are tasks\" wiring does not match platform-tasks' TaskRequested and TaskCompleted path.\n- **Safety:** a stalled or lost workflow is not reliably surfaced: there is no mechanism outside the engine and no time limit. A signal can be lost when a task closes. \"Outcome unknown\" plus \"run it by hand\" risks running a process twice. The rule that a workflow outcome is never a guard has no named test, and it is mapped to CTRL-0012-3 rather than CTRL-0012-4. Free-text reasons, clinical codes and patient-linked identifiers can reach Temporal's history and logs. The production audit adapter is unspecified, which risks a silent stub. Instants are used for clinical times and business dates alike.\n\nContradictions with sibling specs: platform-tasks.md names the rule-(e) test differently. platform-tasks.md also takes TenantId and FacilityId from tenancy's API instead of the kernel (D1). The way human steps become tasks differs from platform-tasks.md §5.1.",
+  "findings": [
+   {
+    "id": "WF-CA-1",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§2 table (in-memory row), §3 package table and closing paragraph, §12 note under 'Now', §13 AC3",
+    "finding": "The spec puts the in-memory engine double in src/test only ('Never in main sources'). That contradicts integrator decision D8: in-memory adapters live in main code, in a package named ...testing or ...inmemory, documented as test/dev only, and production wiring never binds them. A related problem: ModuleLayout (backend/platform/arch-rules/.../ModuleLayout.kt) maps a package with no layer segment, such as hms.platform.workflow.testing, to a separate module 'platform.workflow.testing'. The double must implement the application-layer WorkflowEngine SPI, so rule (b) modulesUseOtherModulesOnlyThroughApi would flag it. AC3 ('exists only in test sources') then becomes wrong as well. Finally, no test checks that app-hms never binds the double.",
+    "recommendation": "Move InMemoryWorkflowEngine to main code in hms.platform.workflow.infrastructure.inmemory, under a layer so that rule (b) passes, with KDoc marking it test/dev only. Rewrite §2, §3, §12 and AC3 to match D8. Keep 'chosen in code at assembly, never by configuration'. Add a named check that production wiring never references ..workflow..inmemory.. (an ArchTest over app-hms, for example ArchTest:production-wiring-never-binds-inmemory-adapters) and cite it in AC2 and AC3."
+   },
+   {
+    "id": "WF-CA-2",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 (WorkflowCallContext, CancelReason, WorkflowSignal.signalKey); §14 OQ-W2",
+    "finding": "Integrator decision D1 resolves OQ-W2: TenantId belongs in hms.kernel.ids, and ActorRef, CorrelationId, IdempotencyKey, ChangeReason and CommandContext belong in hms.kernel.context. The spec still says 'placement: OQ-W2' and defines its own WorkflowCallContext with only tenant, actor and correlation id. It also defines its own CancelReason, which duplicates ChangeReason ('non-blank, never defaulted'), and uses a raw UUID signalKey instead of IdempotencyKey. The reduced context drops fields that §6.2 says every command carries (on-behalf-of, device, purpose-of-use, idempotency key) plus the causation id. The §7 audit and the WP-0.4 policy enforcement point will need them, so the port signature would have to change later. That breaks the stated aim of not changing the port.",
+    "recommendation": "Close OQ-W2 by citing D1. Make WorkflowPort take hms.kernel.context.CommandContext, or a documented projection of it that keeps purpose-of-use, on-behalf-of, device, correlation and causation. Use hms.kernel.ids.TenantId, the kernel ActorRef and CorrelationId, ChangeReason for cancel (see WF-CS-5 on keeping its text out of the engine) and IdempotencyKey for signalKey. Change the §4 code comment to match."
+   },
+   {
+    "id": "WF-CA-3",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 StatusResult; §5 W7 and 'Validation order'; §6 table",
+    "finding": "W7 says a WorkflowRef whose tenant differs from the context's tenant returns Rejected(TENANT_MISMATCH). The 'Validation order' paragraph applies the type registry (UNKNOWN_TYPE) to every operation. But StatusResult has only Found, NotFound and WorkflowEngineUnavailable, so status() cannot express either outcome. The contract suite and UnitTest:workflow-gateway-validation therefore cannot state the expected result of status() for a cross-tenant ref or an unregistered type.",
+    "recommendation": "Either add StatusResult.Rejected(problem), or state explicitly that status() answers NotFound for a tenant mismatch or an unknown type, which also avoids revealing that the ref exists. Then add both cases to the validation test and to the §6 table."
+   },
+   {
+    "id": "WF-CA-4",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 (CancelReason, ArgumentValue.Code, WorkflowArguments, BusinessKey) and the paragraph after the code block; §5 W2/W3",
+    "finding": "The spec does not say where value rules are checked. 'A programming error may throw at construction' (attempt = 0), yet W2 and W3 expect Rejected(REASON_MISSING) and Rejected(INVALID_ARGUMENTS). Several cases are therefore open. If CancelReason's init rejects blank text, REASON_MISSING can never be returned. The reason parameter is non-nullable, so a 'missing' reason cannot occur. It is undecided whether a Code with a forbidden character, or more than 32 argument entries, throws or is rejected. BusinessKey.aggregateType has no rule at all. Two implementers would build different behaviour, and the validation test has no oracle.",
+    "recommendation": "Pick one model and write it down. Either (a) value classes are lenient and the gateway validates everything, returning Rejected with a named problem for each rule, or (b) a factory returns a sealed result and the constructor is private. List each rule with its WorkflowProblem: blank or over-500 reason, Code pattern and length, more than 32 entries, argument-name pattern, aggregateType pattern and length, attempt ≥ 1. Rename REASON_MISSING to REASON_BLANK if (a) is chosen."
+   },
+   {
+    "id": "WF-CA-5",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 SignalResult.AlreadyDelivered; §5 W1, W5; §9 'Workflow id'",
+    "finding": "Two port promises cannot be built on Temporal as specified. (1) W5 and AlreadyDelivered: a Temporal signal is fire-and-forget. The client call returns when the server accepts the signal, before the worker reads its workflow state, so the adapter cannot tell Delivered from AlreadyDelivered by keeping seen keys in workflow state. (2) W1 'one instance per ref, ever', with id-reuse policy 'reject duplicate': Temporal deletes closed executions after the namespace retention period. After that, the same workflow id starts a second instance, so 'ever' fails once retention expires. Keeping seen keys in workflow state also grows without bound and must survive continue-as-new.",
+    "recommendation": "For signals, either specify Temporal Workflow Update with the signalKey as the update id (deduplicated, with a synchronous answer), or merge Delivered and AlreadyDelivered into one Accepted result and keep deduplication inside the workflow. For W1, either keep a durable record of started refs outside Temporal (for example in the owning module or a gateway table), or limit W1 to 'within the engine's retention' and record the retention value as a cell setting. State that the seen-key set is bounded and carried across continue-as-new."
+   },
+   {
+    "id": "WF-CA-6",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§5 state table and invariants",
+    "finding": "The state machine leaves edge cases that tests need undefined: (a) a start with an existing ref but different arguments (AlreadyExists, or a conflict?); (b) a second cancel while Running(cancelRequested = true) (CancelRequested again, or AlreadyClosed?), and which reason is kept if the second cancel gives a different one; (c) a signal while cancelRequested = true (Delivered or NotRunning?); (d) whether Failed can follow a cancel request, for example when cleanup fails; (e) cancel has no idempotency key, so a retried cancel cannot be told apart from a new one. The property test 'never leaves a terminal state' does not cover these.",
+    "recommendation": "Add rows for (a) to (d) to the §5 table with exact results, for example: start with a different argument set returns AlreadyExists with no change; a second cancel returns CancelRequested and keeps the first reason; a signal after a cancel request is Delivered, or NotRunning, stated explicitly; Running(cancelRequested) can end in Cancelled or Failed. Give cancel an idempotency key from CommandContext. Extend the property test and the contract suite to cover these rows."
+   },
+   {
+    "id": "WF-CA-7",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§1 example table (rcm.pre-approval, rcm.claim, migration.*); §9 'Task queues'; §14 OQ-W5 option 1, DN-W1",
+    "finding": "§5.2 makes rcm a satellite that may call only 'Trust (SDK); its own journal and outbox from the platform libraries', and makes migration 'via public APIs only'. platform-workflow is a Spring Modulith application module in app-hms, not a kernel library, so the spec never says how the rcm process calls WorkflowPort or hosts its own workers ('the rcm satellite runs its own workers in its own process'). OQ-W5 option 1 also says the owning module 'already may call platform-tasks'. Under §5.2 that is true for adt (empi, tasks) but false for rcm and migration, so the recommended option rests on a wrong premise for two of the three first users.",
+    "recommendation": "Add an open question, or extend DN-W1: does platform-workflow become a kernel library (as the journal became :platform:journal), a client library with a remote port, or does the rcm satellite reach it through events? Correct OQ-W5 option 1. Non-kernel owners request tasks through platform-tasks' TaskRequested outbox path (platform-tasks.md §5.1), not by calling it directly, and rcm and migration need that path."
+   },
+   {
+    "id": "WF-CA-8",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§1 'Human steps are tasks'",
+    "finding": "This contradicts the sibling spec platform-tasks.md §5.1. There, only Safety Kernel modules create tasks in their own transaction. Every other module writes a TaskRequested journal entry, which platform-tasks consumes at least once. So an activity of adt, rcm or migration cannot synchronously 'create a task in platform-tasks' and receive its id. The spec also does not say how the owning module learns that the task has closed: the catalogue's TaskCompleted and TaskCancelled events are not mentioned. Without that, nothing sends the signal.",
+    "recommendation": "Rewrite the paragraph. The owning module's activity writes TaskRequested through its outbox with a correlation to the workflow ref. The owning module consumes TaskCompleted and TaskCancelled (catalogue.md) and signals the workflow; see WF-CS-2 for how that signal is delivered. Cite platform-tasks.md §5.1 and the catalogue rows."
+   },
+   {
+    "id": "WF-CA-9",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§5 'Validation order'; §13 AC2; §14 KA text",
+    "finding": "The KA text says UnavailableWorkflowEngine 'answers every start, signal, status and cancel with WorkflowEngineUnavailable'. But the gateway checks the type registry before calling the engine, and no workflow type is registered in WP-0.3. So every production start returns Rejected(UNKNOWN_TYPE) and never reaches the engine. Because §3.5 requires KNOWN-ANOMALIES entries to be accurate, this mismatch matters. AC2 also requires that 'app-hms wires WorkflowGateway with UnavailableWorkflowEngine'. But backend/app-hms/build.gradle.kts and its README say the Spring Boot application does not exist yet, and no test checks the wiring.",
+    "recommendation": "Correct the KA text: production answers Rejected(UNKNOWN_TYPE) for every type until one is registered, and WorkflowEngineUnavailable for registered types. Alternatively, state that the engine check comes first; either way, pick one. For AC2, either name a test that builds the production assembly and checks which engine it binds, or defer the wiring part of AC2 to the slice that creates the app-hms application and record it as waiting."
+   },
+   {
+    "id": "WF-CS-1",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§1 'Human steps are tasks'; §8; §11 proposed HAZ-0003 control; §14 OQ-W5",
+    "finding": "Some failures are not surfaced in a provable way, contrary to §2.2 rule 6 ('Chaos tests assert alarms within 5 minutes') and HAZ-0003. (1) 'A stalled workflow still surfaces as an orphaned or overdue task' holds only while a task is open. Between steps (task closed, next task not yet requested) no task exists, so nothing is overdue. (2) Every mechanism in §8 and OQ-W5 runs inside the engine: failure activities, or adapter detection of 'no progress for its type's declared maximum idle time'. When Temporal is lost, or restored to an earlier point, running workflows stop and nothing in the engine can raise a task. (3) §8 gives no time bound for the failure task or the engine-down alarm. The proposed control claims 'a workflow that fails or stalls raises an owned task and an alarm', but no design makes that claim true.",
+    "recommendation": "Require detection outside the engine, owned by the task engine. While a workflow runs, the owning module keeps one owned 'process' task, or a progress deadline in platform-tasks, with an SLA. The workflow pushes that deadline forward at each step; if it lapses, the task engine escalates and raises TaskOrphaned on its own Clock, independent of Temporal. Add an engine-unreachable operational alarm with a stated bound (≤5 minutes, §6.7 style). Make the per-type maximum idle time a setting read through hms.platform.tenancy.api (D5); its value is not clinical content. Name a test that kills the engine mid-workflow and asserts the owned task or alarm within the bound. Narrow the wording of the proposed control until then."
+   },
+   {
+    "id": "WF-CS-2",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§1 'Human steps are tasks'; §4 signal(); §8",
+    "finding": "The task-close signal can be lost silently. The owning module sends it when the task closes. If the engine is unavailable at that moment, signal() returns WorkflowEngineUnavailable, and nothing requires a retry or a durable record. The task is closed, so it can never become overdue or orphaned, while the workflow waits for ever. This is HAZ-0003's cause 'work ... loses its owner without an alarm' in a form the spec does not cover.",
+    "recommendation": "Specify that owning modules deliver workflow signals at least once through their outbox: the signal intent is written as a journal entry in the transaction that closes the task, and a consumer calls signal() idempotently on signalKey. A signal that fails beyond the retry policy becomes a dead-letter item that turns into an owned task with the 5-minute alarm (platform-tasks' dead-letter path). Add this cause to the proposed HAZ-0003 cause list and add a test (for example ChaosTest:workflow-signal-survives-engine-outage) to the 'later' table."
+   },
+   {
+    "id": "WF-CS-3",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 paragraph 'WorkflowEngineUnavailable on start means outcome unknown'; §8 third bullet; KA text",
+    "finding": "Two instructions conflict. On WorkflowEngineUnavailable from start the outcome is unknown: the workflow may have started. Yet §8 and the KA tell callers to 'run the process by hand' when they receive WorkflowEngineUnavailable. If the start did reach the engine, the process runs twice, once by hand and once in the engine: a duplicate claim submission, a duplicate pre-approval request, or a cutover step executed twice. For cutover this is a patient-safety-relevant operational hazard.",
+    "recommendation": "Define the reconcile rule. After WorkflowEngineUnavailable on start, the caller records the ref as 'start outcome unknown' and raises one owned task. Manual execution may begin only after status() returns NotFound, or after the person deliberately cancels the engine instance once it is reachable. Every manual fallback task carries the workflow ref so the two paths can be reconciled. Add this case to the contract suite and to the KA text."
+   },
+   {
+    "id": "WF-CS-4",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§1 'A guard'; §11 HAZ-0012 row",
+    "finding": "The [P] rule 'a workflow's status or outcome is never a guard predicate of an ADT, order, MAR or discharge command' is what keeps SI-12 clause a (pre-authorisation never blocks discharge or emergency care) true for rcm.pre-approval and adt.discharge. But no test, arch rule or acceptance criterion verifies it. Rule (e) does not cover adt or ed, which may legally import WorkflowPort and call status(). §11 also maps the support to CTRL-0012-3, which concerns synchronous calls into rcm. The control that matches is CTRL-0012-4 ('pre-authorisation never blocks discharge or emergency care'), whose planned_verification already names PropertyTest:SI-12-pre-authorisation-never-blocks-discharge-or-emergency-care.",
+    "recommendation": "Map the HAZ-0012 row to CTRL-0012-4 as well as CTRL-0012-3 and cite its planned_verification. Record the guard rule as a requirement on every workflow-type spec and on the §8.4 guard predicates. Propose a verification: an ArchTest that no class in ..domain.. of adt, ed or orders depends on hms.platform.workflow.api, so guards, which live in the domain, cannot read workflow status. Also add a PropertyTest that discharge succeeds with every pre-approval workflow status, including WorkflowEngineUnavailable."
+   },
+   {
+    "id": "WF-CS-5",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 (CancelReason, WorkflowStatus.Cancelled.reason, ArgumentValue.Code); §5 W3; §9 'Workflow id', 'Payloads'",
+    "finding": "W3 promises 'no clinical content in workflow state', but the API lets clinical content into the engine in three ways. (1) CancelReason is free text of up to 500 characters, returned in Cancelled status, so the engine must store it in workflow state, history or memo, where Temporal's tools and logs show it (§6.2 PHI-safe logging). (2) ArgumentValue.Code accepts any [A-Za-z0-9._:-] string, which includes ICD-10 diagnosis codes. Pre-approval requests carry them (§9.23), and they can reveal sensitivity-labelled conditions (SI-21) outside the policy enforcement point. (3) The workflow id is built from tenant, type and aggregate id, and Id arguments can be patient UUIDs. Temporal's server logs and visibility store show workflow ids, while §6.2 and envelope.md say identifiers are never logged and are kept out of telemetry (CTRL-0020-7).",
+    "recommendation": "Keep the cancel reason (ChangeReason) only in the owning module's journal and in the audit record. The engine receives and status returns a reason code at most. Restrict Code to non-clinical process codes from a per-type registered list. Clinical codes are read by activities through the owning module's API, never passed as arguments. Derive the workflow id opaquely, for example a UUIDv5 hash of tenant, type, aggregateType, aggregateId and attempt, with the mapping held by the owner. State that Temporal server logs, metrics and visibility stay on the cell and are excluded from off-site telemetry export. Add these to OQ-W3 and to W3's test."
+   },
+   {
+    "id": "WF-CS-6",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§7 'Audit'",
+    "finding": "The spec does not say what app-hms binds to WorkflowAuditPort in production in WP-0.3 or later before WP-0.4. 'No production code calls the port except through the fail-closed engine' does not answer it: calls still pass the gateway, and Rejected outcomes are audited. If a no-op adapter is wired, that is a silent stub (§3.5). If nothing is wired, the gateway cannot be built. The spec also does not say whether the audit write happens before or after the engine call, or what happens when it fails: does the operation proceed without audit? No named test checks the audit record's content (actor, ref, outcome, reason).",
+    "recommendation": "Specify a production audit adapter that fails closed: the operation is refused, or the gateway answers WorkflowEngineUnavailable when audit is unavailable. Record it in the KA. Define the order (audit after the outcome, in the same call) and the failure semantics. Add UnitTest:workflow-gateway-audits-every-command, covering start, signal and cancel, including Rejected and Unavailable outcomes, with the recorded fields asserted."
+   },
+   {
+    "id": "WF-CS-7",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 ArgumentValue.At, WorkflowStatus times",
+    "finding": "ArgumentValue.At(Instant) is the only time argument, so clinical (valid) times, recorded times and business dates all travel as untyped instants. That goes against §6.2 ('Clinical time and recorded time are separate fields everywhere') and §5.3 ('instants stored in UTC with the original offset'). Pre-approval validity dates (§9.23) and discharge dates are calendar dates in the tenant's time zone (Asia/Baghdad default, §4.1). Encoding them as instants invites off-by-one-day errors at the SLA and weekend boundaries that the calendar-aware SLA must respect. The status times (startedAt, at) are engine and recorded times, but they are typed as plain Instant.",
+    "recommendation": "Replace At with typed variants that use the kernel time types (hms.kernel.time): ClinicalAt(ClinicalTime) for valid time, RecordedAt(RecordedTime), and Date(LocalDate plus a tenant zone reference) for business dates. Type the status times as the kernel RecordedTime. Add an INVALID_ARGUMENTS rule and a test for each."
+   },
+   {
+    "id": "WF-CS-8",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "Header 'Risk class of this work'",
+    "finding": "The spec calls itself low-risk scaffolding under DN-040 decision 2. Yet it proposes a new HAZ-0003 control, a new cause and arch rule (e) to guard SI-03, and it claims support for HAZ-0012 controls. DN-040 lists 'the task engine and SI-03' as patient-safety-relevant work needing at least two review lenses with every major finding fixed before commit.",
+    "recommendation": "Reclassify the HAZ-0003 and HAZ-0012 parts (§1 rules, §8, §10 rule (e), §11, the proposed control) as safety-relevant under DN-040. Alternatively, state that this review applies both lenses and that major findings block commit."
+   },
+   {
+    "id": "WF-CA-10",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§10 rule (e) row; §12 ArchTest:safety-kernel-never-uses-workflow (sibling contradiction)",
+    "finding": "The sibling spec platform-tasks.md (Tests paragraph, line ~435) names the same check 'ArchitectureTest:safety-kernel-does-not-use-workflow-port'. This spec and D7 use 'safetyKernelNeverUsesWorkflow' and 'ArchTest:safety-kernel-never-uses-workflow'. The proposed HAZ-0003 control's planned_verification would then match only one of the two names.",
+    "recommendation": "Use one name in both specs, ArchTest:safety-kernel-never-uses-workflow (matching D7's rule name), and correct platform-tasks.md."
+   },
+   {
+    "id": "WF-CA-11",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 WorkflowRef comment ('WorkflowRef.workflowId()'); BusinessKey",
+    "finding": "workflowId() is referred to but missing from the API block, and its format is not given: separator, escaping, maximum length. aggregateType is an unconstrained String, so two different keys can produce the same id if aggregateType contains the separator, and a long value can exceed engine id limits.",
+    "recommendation": "Add workflowId() to the API, together with an exact, collision-free derivation, preferably the opaque UUIDv5 from WF-CS-5. Constrain aggregateType to the same lower-case kebab rule as the module names, with a maximum length."
+   },
+   {
+    "id": "WF-CA-12",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§5 W2",
+    "finding": "W2 cites 'the never defaulted rule of SI-02 and SI-19's audit'. SI-19 says nothing about audit or reasons ('Every CDS rule and clinical-behaviour flag has a kill switch. Safety-relevant changes default to off'). Flag-change audit comes from §6.6 and §7 item 8.",
+    "recommendation": "Cite SI-02's 'never defaulted' rule and §6.6 ('Flag changes are audited'), or the kernel ChangeReason (D1), and drop 'SI-19's audit'."
+   },
+   {
+    "id": "WF-CA-13",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§4 WorkflowStatus.Failed.reasonCode, WorkflowEngineUnavailable.detail",
+    "finding": "reasonCode and detail are unconstrained Strings. An adapter could copy engine exception messages into them, and those messages may hold argument values or stack traces. Callers may log them, which conflicts with the PHI-safe logging allowlist (§6.2).",
+    "recommendation": "Make reasonCode an enum or a closed code set (ENGINE_FAILURE, TIMED_OUT, TERMINATED_BY_OPERATOR, ...). Restrict detail to a fixed, non-PHI message key."
+   },
+   {
+    "id": "WF-CA-14",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§1 'Safety Kernel timers [P]'; §10 rule (e) explanation",
+    "finding": "The spec extends ADR-010 from 'never order or MAR state' to all Safety Kernel timers and dependencies. That is a tightening, which §3.4 item 1 allows but says must be recorded. The spec labels it [P], but it is not recorded against ADR-010, and it does not say that D7 has now adopted rule (e).",
+    "recommendation": "Cite D7 as the adoption of rule (e). Record the tightening as a proposed ADR-010 note or decision entry, numbered by the integrator under D9, so ADR-010's 'Fitness test' section lists rule (e) as well as rule (c)."
+   },
+   {
+    "id": "WF-CA-15",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§5 state table",
+    "finding": "Under §3.2 step 2 every state machine is specified first. Here the workflow-instance state machine exists only as a prose table. Unlike task.yaml, it has no Appendix B.3 file in docs/specs/state-machines/, so the property-test generator cannot use it.",
+    "recommendation": "Either add docs/specs/state-machines/workflow-instance.yaml in B.3 form, with terminal states and guards as named predicates, or record why a port-level machine is exempt."
+   },
+   {
+    "id": "WF-CS-9",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§7 'Configuration chain'",
+    "finding": "A workflow type that changes clinical behaviour ships behind a flag with a kill switch (SI-19), but the spec does not say what happens to running workflows when the kill switch turns off. They could keep creating tasks or acting after the switch is off.",
+    "recommendation": "Add the requirement that every flagged workflow type defines its kill-switch behaviour (for example: refuse new starts; running instances raise an owned task and stop at the next step). The owning work package then specifies it, and it is tested there."
+   },
+   {
+    "id": "WF-CS-10",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-workflow.md",
+    "location": "§9 'Persistence' and 'Namespaces'; §14 OQ-W3",
+    "finding": "Temporal's databases are per cell and shared by all tenants, even with one namespace per tenant. That departs from §6.4 'one database per tenant' and ADR-006 for the pooled tier, and crypto-shredding a tenant (ADR-008) cannot remove its workflow history unless payloads are encrypted per tenant. OQ-W3 mentions encryption but not that the store is shared.",
+    "recommendation": "Add to OQ-W3: the shared Temporal store against §6.4 and ADR-006 (pooled tier), plus tenant offboarding and shredding of workflow history. Record it as a deviation to decide before the adapter is built."
+   }
+  ]
+ }
+]

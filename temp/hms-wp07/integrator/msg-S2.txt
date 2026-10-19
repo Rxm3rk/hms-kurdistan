@@ -1,0 +1,61 @@
+feat(i18n): WP-0.7 S2 catalogues, pseudo-locales and clinical-keys lint
+
+Slice S2 of WP-0.7 (design system and client shells) fills
+frontend/packages/i18n with the message keys of the design-system
+specification and the localisation tools the later slices use.
+
+What S2 adds:
+- The catalogues: all 121 keys of docs/specs/modules/design-system.md
+  §10 in en, ckb and ar. The English is the specification's, word for
+  word (a test checks it against the §10 table). Every ckb and ar text is
+  an agent draft (DN-021): the build agent, an LLM, wrote it in its own
+  session and no text went to any other translation or LLM service.
+  Each draft is marked unreviewed in src/messages/review/<locale>.json,
+  and the clinician review stays a gate before hospital use (OQ-151,
+  KA-031).
+- src/pseudo.ts: the in-memory pseudo-locales en-XA (accented,
+  bracketed, padded by 40%) and ar-XB (literal runs wrapped in
+  U+202E…U+202C, direction rtl); only literal text changes, so every
+  ICU placeholder is kept.
+- src/ui-intl.ts: the Intl tags en-, ckb- and ar-u-ca-gregory-nu-latn,
+  uiIntlLocale() and hasNonWesternArabicDigits().
+- src/sorani-letters.json and .ts: the ten Sorani letters and the pairs
+  ي/ی, ك/ک and ه/ە, with code points, Unicode names and whether the
+  Arabic form is itself a Sorani letter (so ه and ە are never swapped
+  mechanically).
+- src/lint/clinical-keys.ts: under banner.* and clinical.*, a ckb or ar
+  message equal to the English fails. Equality is decided on the parsed
+  messages, with literals normalised (NFC; white space, format and other
+  default-ignorable characters removed), so RLM, ALM, ZWSP or ICU
+  spacing cannot hide an English text; a plural keeps # in every branch
+  where the key is clinical or the English keeps it.
+- src/lint/review-marking.ts and src/review-status.ts: the per-key
+  unreviewed marking, its lint and reviewStatus(); src/lint/json-object.ts
+  holds the shared JSON file checks taken out of catalogue-lint.
+- Arabic redrafts after review: banner.weight.source.stated ("حسب
+  الإفادة", reported, never "authorised"), sign.outcomeUnknown ("من غير
+  المعروف ...") and hal.capture.discardedAfterContextChange ("تم حذف
+  ..."); these and the other drafting points are listed for the reviewer
+  in OQ-151.
+- OQ-159 (open): the review marking format, the # rule, the
+  pseudo-locale tags, the letter-pair flag and en's Intl tag.
+
+Tests (spec §9 names): PropertyTest:pseudo-locale-preserves-placeholders,
+UnitTest:ui-intl-western-digits, UnitTest:sorani-letters,
+UnitTest:clinical-keys-lint; also UnitTest:ckb-ar-drafts-marked-unreviewed,
+which §9 does not list yet (S12 may add it). @hms/i18n 89 tests in 10
+files.
+
+Checks on the Windows host (not evidence of record), this commit's tree
+alone: `sh tools/ci/run fast --no-evidence` PASS, 8 of 8 steps,
+tests=1314, failures=0: python-unit-tests 674, backend-fast 66,
+frontend-fast 574 (i18n 89); catalogue lint catalogues=3, keys=125,
+messages=375, unreviewed=250; repo, safety and backlog checks and the
+secret scan PASS. Not run: the WSL build host.
+
+Hazards: none named. The hazard log names none of S2's tests in a
+control's planned_verification. Spec §9 relates
+UnitTest:ui-intl-western-digits to CTRL-0005-17 (HAZ-0005), not named
+there yet. No control changes state.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,177 @@
+# The cell's pins: the single source of every version, digest and checksum the dev and lite cells use
+# (BUILD-PROMPT.md §4.1, §4.3, §5.1; WP-0.2 plan, slice S1; OQ-124, OQ-125, OQ-135, OQ-136).
+#
+# - images: each pinned by the digest of its linux/amd64 manifest, the digest the publisher's registry served
+#   for the tag on 'resolved_on' (index_digest is the multi-platform index it came from). 'tools/hms cell images
+#   mirror' copies exactly that manifest into the local registry under 'local' (crane copy --platform
+#   linux/amd64 keeps the digest); 'sign' signs it with the cell key; 'verify' checks the signature offline.
+#   Pods reference <registry host>/<local>@<digest>.
+# - tools: build-only images the cell tooling runs as containers, pulled by digest from the publisher.
+# - charts: each pinned by version and the SHA-256 of its .tgz, which equals the digest in the publisher's
+#   Helm repository index.
+# - manifests: release manifests that have no chart, pinned by commit and SHA-256 (no checksum is published).
+# 'tools/hms cell lint' (fast tier) checks this file: every digest and checksum present and well formed, every
+# licence against tools/licence/policy.yaml and the licence register, no image or chart from the vendor whose
+# free images §4.1 excludes, one local path per image, and each profile's memory budget.
+# Changing a pin is a phase-boundary change (§4.1): change this file, ADR-002's pinned set and the dependency
+# scorecard in one commit.
+schema_version: 1
+resolved_on: "2026-10-19"
+platform: linux/amd64
+
+# Kubernetes: k3s v1.35.9+k3s1, the newest k3s line every operator supports (§4.1 "supported by the
+# components that depend on it"; OQ-136): Kyverno 1.19 supports Kubernetes 1.33-1.35, Strimzi 1.0.1 is tested
+# on 1.30-1.36 and CloudNativePG 1.30 supports 1.34-1.36. The image is 'k3s' below.
+kubernetes:
+  distribution: k3s
+  version: v1.35.9+k3s1
+  image: k3s
+
+registry:
+  k3d_name: hms-registry.localhost         # 'k3d registry create' name; the container is k3d-<name>
+  container: k3d-hms-registry.localhost
+  host: k3d-hms-registry.localhost:5000    # the registry's name on the Docker networks below
+  host_port: "127.0.0.1:5000"              # published on loopback only: the registry speaks HTTP (KA-020)
+  image: registry                          # the entry in images
+  storage: registry                        # directory under HMS_CELL_HOME, mounted at /var/lib/registry
+  # Address ranges outside Docker's default pools and outside the WSL NAT network (172.28.192.0/20 on this
+  # host on 2026-10-19), so no network Docker creates later collides with them.
+  network: {name: hms-registry, subnet: 10.213.0.0/24}
+  # --internal: no route out. It holds only the registry; signing and verification run here, so they are
+  # offline by construction (§4.3; SIG-07).
+  offline_network: {name: hms-cell-offline, subnet: 10.213.1.0/24}
+
+guards:
+  disk_path: /mnt/c              # the WSL VM's disk image, and with it Docker's data, live on C: (DN-013)
+  disk_min_free_gib: 15          # stop pulling below this (DN-013)
+  cell_min_available_gib: 6.5    # 'cell up' needs this much available memory before it starts [P]
+
+signing:
+  tool: cosign
+  key_dir: keys                          # under HMS_CELL_HOME: cosign.key (mode 600) and cosign.pub
+  signing_config: signing-config.json    # under HMS_CELL_HOME: no Fulcio, Rekor, OIDC or timestamp service
+  passphrase_env: HMS_COSIGN_PASSWORD    # OQ-130
+  passphrase_file: cosign.password       # under HMS_CELL_HOME, mode 600, only if generated (OQ-130)
+  # cosign 3 writes a Sigstore bundle under the OCI referrers tag scheme. Kyverno 1.19's ImageValidatingPolicy
+  # verifies it offline; its deprecated ClusterPolicy verifyImages finds no signature in it (OQ-135).
+  format: cosign-3-bundle
+
+# Memory budgets per profile, in MiB [P] (WP-0.2 plan §2.2). 'expected_mib' is the steady-state estimate that
+# the footprint test (S7) measures; 'limit_mib' is the sum of the container or pod limits. 'cell lint' fails when
+# the expected figures add up to more than the profile budget, or one exceeds its limit.
+profiles:
+  lite:
+    description: three k3s servers in a 10 GB WSL VM; one Kafka broker, three PostgreSQL instances, no Argo CD (§5.1; DN-005)
+    budget_mib: 6144
+    components:
+      k3s-servers: {count: 3, limit_mib: 9216, expected_mib: 1800, note: "k3s, etcd, containerd, kubelet, flannel; CoreDNS and local-path on one node; 3072 per node, covering its pods"}
+      k3d-lb-registry: {count: 2, limit_mib: 192, expected_mib: 60, note: "load balancer 64, registry 128"}
+      kyverno: {count: 1, limit_mib: 384, expected_mib: 200}
+      cnpg-operator: {count: 2, limit_mib: 512, expected_mib: 200}
+      postgresql: {count: 3, limit_mib: 1536, expected_mib: 600}
+      strimzi-operators: {count: 2, limit_mib: 640, expected_mib: 500, note: "cluster operator 384, topic operator 256"}
+      kafka: {count: 1, limit_mib: 768, expected_mib: 550}
+      temporal: {count: 4, limit_mib: 768, expected_mib: 480}
+      keycloak: {count: 2, limit_mib: 1152, expected_mib: 800, note: "operator 384, Keycloak 768"}
+      small-services: {count: 4, limit_mib: 768, expected_mib: 270, note: "OpenFGA 128, Valkey 128, SeaweedFS 256, OpenTelemetry collector 256"}
+  dev:
+    description: the three-node dev cell on a 32 GB host; three Kafka brokers and Argo CD; never run on this host (KA-015)
+    components:
+      k3s-servers: null
+      k3d-lb-registry: null
+      kyverno: null
+      cnpg-operator: null
+      postgresql: null
+      strimzi-operators: null
+      kafka: null
+      temporal: null
+      keycloak: null
+      small-services: null
+      argocd: null
+
+charts:
+  - name: cloudnative-pg
+    repository: https://cloudnative-pg.github.io/charts
+    version: 0.29.1
+    app_version: 1.30.1
+    url: https://github.com/cloudnative-pg/charts/releases/download/cloudnative-pg-v0.29.1/cloudnative-pg-0.29.1.tgz
+    sha256: b53d3991fe84bcf38767e7702cae78666265427a127a26fff168ab4207d2b1df
+    published: "2026-09-23"
+    profiles: [lite, dev]
+    images: [cloudnative-pg, postgresql]
+  - name: strimzi-kafka-operator
+    repository: https://strimzi.io/charts/
+    version: 1.0.1
+    app_version: 1.0.1
+    url: https://github.com/strimzi/strimzi-kafka-operator/releases/download/1.0.1/strimzi-kafka-operator-helm-3-chart-1.0.1.tgz
+    sha256: 94ed329041426d9044616efd006dbcac8a94e3258a41ac5c849d37adb1e42cf5
+    published: "2026-06-17"
+    profiles: [lite, dev]
+    images: [strimzi-operator, kafka]
+    note: "Strimzi 1.1 to 1.3 have no patch release (OQ-125). Kafka 4.2.0, the newest Kafka that Strimzi 1.0.1 supports; 4.2.1 is the 4.2 patch release, and ADR-002's clients are 4.2.1 (OQ-136)"
+  - name: temporal
+    repository: https://go.temporal.io/helm-charts
+    version: 1.7.0
+    app_version: 1.32.0
+    url: https://github.com/temporalio/helm-charts/releases/download/temporal-1.7.0/temporal-1.7.0.tgz
+    sha256: f7b443f637b71fcbddd12900e5be9fe4c18cf741495d7b2cb247670681bf57d4
+    published: "2026-09-12"
+    profiles: [lite, dev]
+    images: [temporal-server, temporal-admin-tools, temporal-ui]
+    note: "server and admin-tools 1.32.1, the 1.32 patch release (2026-10-08), set through the chart's image tags; the chart ships 1.32.0 (OQ-136)"
+  - name: openfga
+    repository: https://openfga.github.io/helm-charts
+    version: 0.3.12
+    app_version: v1.18.3
+    url: https://github.com/openfga/helm-charts/releases/download/openfga-0.3.12/openfga-0.3.12.tgz
+    sha256: f4a029a7b65b3e00a603a1b3f1be2b07b8ff1d00eab84639734aa775e3db6e59
+    published: "2026-08-06"
+    profiles: [lite, dev]
+    images: [openfga]
+    note: "OpenFGA 1.19 to 1.22 have no patch release (OQ-125). The chart packages third-party subcharts; whether it may be used is OQ-137"
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.176.0
+    app_version: 0.162.0
+    url: https://github.com/open-telemetry/opentelemetry-helm-charts/releases/download/opentelemetry-collector-0.176.0/opentelemetry-collector-0.176.0.tgz
+    sha256: 8d3f0c6efd2ae33a8c843b189b86d9f93f52422bccbb5be35c5ac24154e24868
+    published: "2026-10-13"
+    profiles: [lite, dev]
+    images: [otel-collector]
+    note: "collector 0.162.0 (2026-09-29), the newest release at least 14 days old (OQ-107, OQ-136); the k8s distribution holds the redaction (allowlist), attributes, filter and transform processors and the debug exporter (OQ-131)"
+  - name: kyverno
+    repository: https://kyverno.github.io/kyverno/
+    version: 3.9.1
+    app_version: v1.19.1
+    url: https://kyverno.github.io/kyverno/kyverno-3.9.1.tgz
+    sha256: 7b7fe51a431b5b133b0ce7eb9dcb222b6a37fb967c163223cf480054ad14d752
+    published: "2026-09-10"
+    profiles: [lite, dev]
+    images: [kyverno, kyverno-pre, kyverno-cli, kyverno-readiness-checker]
+    note: "ADR-030. The chart packages third-party subcharts; whether it may be used is OQ-137"
+  - name: argo-cd
+    repository: https://argoproj.github.io/argo-helm
+    version: 10.10.5
+    app_version: v3.5.5
+    url: https://github.com/argoproj/argo-helm/releases/download/argo-cd-10.10.5/argo-cd-10.10.5.tgz
+    sha256: ba6447eeed42bc41d1f0527721047b236304e97669a7b6286d02be4a1644ba7a
+    published: "2026-10-15"
+    profiles: [dev]
+    images: [argocd]
+    note: "dev profile only (§5.1); its Redis image is not pinned yet (OQ-138)"
+
+manifests:
+  - name: keycloak-operator
+    version: 26.8.1
+    source: https://github.com/keycloak/keycloak-k8s-resources
+    commit: 999a1d4e23b74eab7704426058b535a9e2a416e3   # tag 26.8.1
+    profiles: [lite, dev]
+    images: [keycloak-operator, keycloak]
+    files:
+      - url: https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/999a1d4e23b74eab7704426058b535a9e2a416e3/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
+        sha256: 20c51247cb6cbc6158098caabeaf6b429dc8c016e35829f5ddd9c468b7582667
+      - url: https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/999a1d4e23b74eab7704426058b535a9e2a416e3/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
+        sha256: 8d552e1864d78117a07e535479ddb36e16a42b2695726c875f44828e1323edd4
+      - url: https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/999a1d4e23b74eab7704426058b535a9e2a416e3/kubernetes/kubernetes.yml
+        sha256: a6927644c271d4d392bf24aecdd8bf605fe5ee7c2810b6512969c4943f107ca2
+

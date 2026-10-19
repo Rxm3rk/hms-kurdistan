@@ -1,0 +1,64 @@
+Files this group changed in this pass: docs/safety/hazard-log.yaml (CTRL-0005-7 description, sources and new `notes`; CTRL-0005-16 description; CTRL-0016-5 new `notes`), docs/safety/README.md (only the hazard-log sections, "Tightenings" and "Open questions"; the sign-off paragraphs were not touched), docs/safety/hazard-log.schema.json (`$defs/text`), tools/hmstools/safety/tests/test_seeded_content.py and tools/hmstools/safety/tests/test_template_b2.py. Both test files are new and untracked; they now hold 10 and 12 tests. DECISIONS-NEEDED.md, check.py, harness.py and every sign-off file were not changed in this pass.
+
+Record numbers: only DN-014, from the earlier pass. No OQ number was used. The new SI-05 gap is README open question 9 (CSO triage list), not an OQ- entry, because no OQ number was assigned to this group. If you want it in docs/program/OPEN-QUESTIONS.md as well, assign the next free number (OQ-108 or later) and add, in that file's format: "SI-05 clause d before the Dose Engine: until reg-dose is active at a site, the KB ≥10× Tier A rule (§10.3 A.2) stops only a KB result ≥10× the maximum dose. A 10× or 100× error below that threshold, a tenfold or hundredfold underdose, or an order with no KB ratio, flag or maximum gets no automated hard stop and is left to pharmacists (double check where CTRL-0005-9 applies; otherwise verification without independent calculation; after the fact for override doses). For the CSO [HUMAN]: is this gap of control set A acceptable until P2, what must the seeded 10× errors (§9.10 acceptance 2, §10.3 A.3) include, and does control set A need a further control within the §2.1 allowed comparisons? Recorded in docs/safety/README.md open question 9 and CTRL-0005-7." It blocks nothing now; it matters before R2b go-live (RG3 validation of control set A, CTRL-0005-15).
+
+STATUS.md and KNOWN-ANOMALIES.md: no change needed. Nothing is built or stubbed, and every control is still `planned`.
+
+Heading change: the README heading "Tightenings [P]" is now "Tightenings", because one row (CTRL-0021-5, §13.1 AZ-3) comes from the plan. Every reference I found uses "Tightenings" and still resolves: hazard-log notes, README rows, and DN-014 in DECISIONS-NEEDED.md line ~296. The "**Tightenings [P].**" paragraph in docs/safety/signoffs/README.md is the sign-off group's own paragraph, not a link to this heading.
+
+Suggested Resolution fields (add the commit SHA):
+- R-04: "resolved in <sha>: CTRL-0014-4 gates on owner, evidence, a measured PPV and a review-by date, with the strict interim reading (no measured PPV, not interruptive; the day-0 baseline needs a human-approved exception); CTRL-0014-5/6 aligned (go-live promotion blocked while a baseline rule has neither); DN-014 filed for the CSO, blocks WP-1.5; README note replaced by a pointer."
+- R-19: "resolved in <sha>: CTRL-0005-7 no longer overclaims (the pre-Dose-Engine KB rule stops only results ≥10× the KB maximum; errors below that threshold and underdoses are left to pharmacists, recorded for the CSO as README open question 9 and not counted as covered); CTRL-0011-9 separates the T2 comparison from the §10.3 D scripted check; §18.3 10⁴ count on all 27 nightly property controls; template linter, registrar confirmation, context confirmation and the CTRL-0016-5 banner checks recorded as tightenings [P], the AZ-3 label marked as coming from the plan; README and CTRL-0009-2/0018-2 corrected on §18.5 #10 and #8."
+- R-21: "resolved in <sha>: README lists the four fields required beyond B.2 and why, and marks `type` as this build's [P] vocabulary; risk_control_option made required; text fields may not be whitespace only; test_template_b2.py proves the B.2 example fails on exactly those four fields and passes the whole check with them."
+
+Commit-message points: no existing test was weakened. In test_seeded_content.py, one assertion was added to the overclaim test and CTRL-0016-5 was added to the tightening-notes list. No verified_by entry and no control state changed. No approval, acceptance or triage field was filled (approval_fields_filled=0). The schema change only rejects whitespace-only text; schema_version stays 1.
+
+Evidence for your WSL-clone runs after the commit: `sh tools/hms safety check` should report hazards=27, controls=193, controls_planned=193, sis_covered=21, sensitivity_label_entries=6, sacs_referenced=31, approval_fields_filled=0. The live full safety suite printed "Ran 226 tests" on both hosts. That total includes the sign-off group's uncommitted tests (test_signed_commits.py and others), so the committed count depends on what they commit. All runs here were on the Windows host or in WSL against the /mnt/c checkout; none is evidence of record.
+
+Follow-up still worth scheduling: a full check of all 193 controls against their cited sources for further unrecorded mechanisms. The README says the Tightenings list does not come from such a check.
+
+---- VERIFIER OTHER PROBLEMS ----
+1. A wrong claim in the new README text. docs/safety/README.md, "Tightenings [P]", says "Each one below is a proposal of this build". Its own CTRL-0021-5 row then says that §13.1 AZ-3 adds the employee-as-patient label ("SI-21 labels, plus employee-as-patient"), so that row comes from the plan, not from the build. Fix: reword the intro or the row, for example "a tightening the plan itself adds (AZ-3), recorded here".
+
+2. The same kind of unrecorded mechanism is still in the log (follow-up; the README says the list does not come from a full sweep). CTRL-0016-5 (hazard-log.yaml, about lines 2803-2817) says a fitness function fails the build when a print template lacks the banner, and plans "TemplateLint:banner-on-every-clinical-print". Its source §6.8 item 6 names clinical routes only. The new CTRL-0001-5 note says "the plan's only template linter checks message bodies, §9.30", which makes CTRL-0016-5 an unrecorded tightening by the log's own reasoning. Unless §9.4 acceptance covers prints, it needs the same "Tightening [P]" note and a row in the README table.
+
+3. Minor, existed before this change. The schema's text type accepts a description made only of whitespace (a scratch check accepted "   "), so the newly "mandatory" description can be blank in effect.
+
+4. No problems with ownership or the rules. STATUS.md, the review report and docs/program/evidence/** were not touched by this group. The README's sign-off paragraphs and the DN-001 to DN-006 hunks in DECISIONS-NEEDED.md belong to other sessions. No approval or triage field was filled (approval_fields_filled=0). DN-014 is the only new record number, and OQ-108 onward was not used by this group. All my scratch files were in %TEMP% and have been removed.
+
+5. Every run above was on the Windows host or in WSL against the /mnt/c checkout. None is evidence of record.
+
+---- FINAL FINDINGS ----
+
+[R-04] resolved
+NOTE: CTRL-0014-4 gates on owner, evidence, a measured PPV and a review-by date, with the strict interim reading (no measured PPV, not interruptive; the day-0 baseline needs a human-approved exception). CTRL-0014-5/6 aligned. DN-014 filed for the CSO (blocks WP-1.5). README note replaced by a pointer.
+RESIDUAL: Go-live depends on the CSO answering DN-014: under the interim reading, no baseline rule can be interruptive without a measured PPV or a human-approved exception. This is recorded as a tightening, not decided by the agent. The departure from the Direction stands: the CTRL-0014-5 promotion block is extra, and it is recorded as a tightening [P] for the CSO to confirm or remove.
+FILES: docs/safety/hazard-log.yaml, docs/program/DECISIONS-NEEDED.md, docs/safety/README.md, tools/hmstools/safety/tests/test_seeded_content.py
+TESTS: Windows host, live checkout: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools/hmstools/safety/tests -t tools` -> "Ran 226 tests in 189.193s OK". WSL Ubuntu-24.04 against /mnt/c/... with ~/src/hospitalmanagementsystem/.tools/venv/bin/python, same command -> "Ran 226 tests in 130.985s OK". The SI-14 guards are test_si14_registry_gate_keeps_all_four_requirements and test_si14_day0_baseline_needs_a_measured_ppv_or_a_human_approved_exception, both in test_seeded_content.py. They pass in both runs. `sh tools/hms safety check` (Windows) -> PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_ids_known=234, feature_source_backlog_yaml=1, signoff_records=0, allowed_signers=0, state_machine_specs=0, approval_fields_filled=0). `sh tools/hms repo check` -> PASS (blocking_now_items=2, status_lines=37). None of these runs is evidence of record.
+
+[R-19] resolved
+NOTE: CTRL-0005-7 overclaim corrected against CTRL-0005-10 and §2.1 (c): before the Dose Engine the KB rule stops only results ≥10× the KB maximum, so errors below that threshold and underdoses are left to pharmacists; recorded as a gap for the CSO (README open question 9) and not counted as covered. CTRL-0011-9 mode split; §18.3 10⁴ count on all 27 nightly property controls; template linter, registrar confirmation, context confirmation and banner checks (CTRL-0016-5) recorded as tightenings [P], with the AZ-3 row marked as coming from the plan; §18.5 #8/#10 corrected.
+RESIDUAL: Departures from the verifier's suggested fix:
+(a) The verifier wrote that such an order 'reaches a person only through the CTRL-0005-9 double check'. The text instead also names ordinary pharmacist verification (§9.10, part of the R2b closed loop), which requires no independent calculation, and the after-the-fact 4 h review for override doses (CTRL-0005-12). Leaving these out would understate the plan, and saying they close the gap would overstate it.
+(b) CTRL-0005-7 keeps `covers: [d]`. It is the Dose Engine's hard stop, which covers clause d from P2, and the check requires every clause to be covered. Its notes say it does not count clause d as covered for these errors before the Dose Engine.
+(c) The gap is recorded as README open question 9, not as an OQ- entry, because no OQ number was assigned to this group.
+
+Open work: the gap itself is a CSO decision [HUMAN]. The Tightenings list still does not come from a re-check of all 193 controls against their sources, and the README says so.
+FILES: docs/safety/hazard-log.yaml, docs/safety/README.md, tools/hmstools/safety/tests/test_seeded_content.py
+TESTS: Windows host: test_seeded_content.py and test_template_b2.py -> "Ran 22 tests in 11.045s OK". Full safety suite, Windows host, live checkout -> "Ran 226 tests in 189.193s OK". WSL Ubuntu-24.04 against the /mnt/c checkout -> "Ran 226 tests in 130.985s OK". The total includes the sign-off group's uncommitted tests.
+
+Bite check (Windows host; a scratch runner in %TEMP%, since removed; it patched harness.REAL_SAFETY to a mutated copy of docs/safety): each mutation made the targeted new tests fail.
+- Restoring the previous fixer's CTRL-0005-7 text without the notes -> ran 2, failures 2.
+- Removing the CTRL-0016-5 notes -> ran 2, failures 2.
+- Restoring the old Tightenings intro and AZ-3 row -> ran 1, failures 1.
+- Removing the CTRL-0016-5 README row -> ran 1, failures 1.
+- Removing open question 9 -> ran 2, failures 2.
+- Unmutated copy -> ran 19, failures 0.
+
+`sh tools/hms safety check` -> PASS (counts as under R-04). `sh tools/hms repo check` -> PASS. `sh tools/hms backlog check` -> PASS (hazard_log_entries=27). None of these runs is evidence of record.
+
+[R-21] resolved
+NOTE: The schema stays stricter than B.2 and says so: the README lists the four mandatory fields and why, and marks `type` as this build's [P] vocabulary. risk_control_option (§10.1 typing) is required, and text fields can no longer be whitespace only. Tests prove B.2 fails on exactly those four fields and passes with them.
+RESIDUAL: `schema_version` and `$id` stay at 1. The blank-text rule only rejects content no entry has, and the log has no versioning rule. The `type` vocabulary and its mapping to `risk_control_option` stay [P] for the CSO (README open question 1). check.py was not changed by this group.
+FILES: docs/safety/hazard-log.schema.json, docs/safety/README.md, tools/hmstools/safety/tests/test_template_b2.py
+TESTS: Windows host: test_template_b2.py with test_seeded_content.py -> "Ran 22 tests in 11.045s OK". Full safety suite, Windows host -> "Ran 226 tests in 189.193s OK". WSL Ubuntu-24.04 against /mnt/c -> "Ran 226 tests in 130.985s OK". Bite check (Windows host, scratch runner, since removed): with the old `text` definition (minLength 1 only) in a copy of the schema, test_a_mandatory_text_field_cannot_be_blank -> ran 1, failures 4 (all four subtests). The schema loads through check.py's check_schema on every run. `sh tools/hms safety check` -> PASS (hazards=27, controls=193, approval_fields_filled=0). None of these runs is evidence of record.

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "tool": "tools/ci/run",
+  "run_id": "20261018T185734-merge-adb631c-053e94",
+  "tier": "merge",
+  "started_at": "2026-10-18T18:57:34+03:00",
+  "finished_at": "2026-10-18T18:57:34+03:00",
+  "duration_s": 0.01,
+  "git": {
+    "sha": "adb631c96f4c30fdd27cedda3c5d209cc3514fdb",
+    "short_sha": "adb631c",
+    "branch": "HEAD",
+    "dirty": true,
+    "dirty_files": [
+      "docs/program/evidence/ci/2026-10-18-fast-adb631c.json",
+      "docs/program/evidence/ci/2026-10-18-merge-adb631c-dirty.json"
+    ],
+    "dirty_files_total": 2
+  },
+  "host": {
+    "os": "Linux",
+    "os_version": "Ubuntu 24.04.5 LTS, kernel 6.6.87.2-microsoft-standard-WSL2 (WSL2)",
+    "arch": "x86_64",
+    "cpu_count": 8,
+    "ram_gb": 9.7,
+    "python": "3.12.3",
+    "java": "openjdk version \"25.0.4.1\" 2026-08-18 LTS",
+    "node": "v24.22.0"
+  },
+  "cell": "none",
+  "partial": true,
+  "only": [
+    "integration-tests"
+  ],
+  "steps": [
+    {
+      "name": "integration-tests",
+      "command": "(not built: Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA))",
+      "cwd": ".",
+      "started_at": "2026-10-18T18:57:34+03:00",
+      "duration_s": 0.0,
+      "exit_code": null,
+      "result": "NOT-BUILT",
+      "counts": {},
+      "log": "build/ci-logs/20261018T185734-merge-adb631c-053e94/01-integration-tests.log",
+      "work_package": "WP-0.3 (needs the container engine and dev stack of WP-0.2)",
+      "message": "Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA): not built yet; WP-0.3 (needs the container engine and dev stack of WP-0.2) builds it. Counted as a failure (fail closed).",
+      "log_tail": "Integration tests with Testcontainers (PostgreSQL, Kafka, Keycloak, OpenFGA): not built yet; WP-0.3 (needs the container engine and dev stack of WP-0.2) builds it. Counted as a failure (fail closed)."
+    }
+  ],
+  "totals": {
+    "steps": 1,
+    "passed": 0,
+    "failed": 0,
+    "not_built": 1,
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "result": "PARTIAL",
+  "logs": "build/ci-logs/20261018T185734-merge-adb631c-053e94"
+}

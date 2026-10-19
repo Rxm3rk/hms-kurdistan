@@ -1,0 +1,213 @@
+Spot check: seed 20261018, 10 of 236 Appendix A rows (Python random.Random(seed).sample over the rows in source order); records read from docs/program/backlog.yaml.
+
+[1/10] IMP-FND-01  BUILD-PROMPT.md line 2736, A.16 IMP
+  raw row: | `IMP-FND-01` | Foundation content | XL | R1 | B | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)* |
+  ID                     | `IMP-FND-01`
+                         |   -> id: "IMP-FND-01"
+  Feature                | Foundation content
+                         |   -> title: "Foundation content"
+  Size                   | XL
+                         |   -> size: "XL"
+                         |   (counts 50 engineer-weeks: XL = 50)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)*
+                         |   -> scope: "Order sets, flowsheets, templates, CDS, roles, reports, charge masters"
+                         |   -> kurdistan_note: "Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.14"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[2/10] AI-DCS-01  BUILD-PROMPT.md line 2707, A.14 AI
+  raw row: | `AI-DCS-01` | Discharge draft | M | P2 | B | Source-linked discharge summary draft; clinician sign-off · *MVP→P2; English drafts with omission checklist* |
+  ID                     | `AI-DCS-01`
+                         |   -> id: "AI-DCS-01"
+  Feature                | Discharge draft
+                         |   -> title: "Discharge draft"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Source-linked discharge summary draft; clinician sign-off · *MVP→P2; English drafts with omission checklist*
+                         |   -> scope: "Source-linked discharge summary draft; clinician sign-off"
+                         |   -> kurdistan_note: "MVP→P2; English drafts with omission checklist"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5 (the AI platform and products; none of this starts before company gate G3, ≈M40, K-23)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[3/10] ACC-OPD-01  BUILD-PROMPT.md line 2503, A.3 ACC
+  raw row: | `ACC-OPD-01` | OPD token journey | M | R1 | B | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1* |
+  ID                     | `ACC-OPD-01`
+                         |   -> id: "ACC-OPD-01"
+  Feature                | OPD token journey
+                         |   -> title: "OPD token journey"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1*
+                         |   -> scope: "Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards"
+                         |   -> kurdistan_note: "Display boards in R1.1"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.3", "Phase 1.1 (queue display boards)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[4/10] CLN-QI-01  BUILD-PROMPT.md line 2541, A.4 CLN
+  raw row: | `CLN-QI-01` | Accreditation KPIs | M | R1 | B | NABH/CBAHI/JAWDA/JCI indicator capture · *Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b* |
+  ID                     | `CLN-QI-01`
+                         |   -> id: "CLN-QI-01"
+  Feature                | Accreditation KPIs
+                         |   -> title: "Accreditation KPIs"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | NABH/CBAHI/JAWDA/JCI indicator capture · *Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b*
+                         |   -> scope: "NABH/CBAHI/JAWDA/JCI indicator capture"
+                         |   -> kurdistan_note: "Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.11 (engine)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[5/10] AI-AMB-01  BUILD-PROMPT.md line 2706, A.14 AI
+  raw row: | `AI-AMB-01` | Ambient OPD | M | P3 | P | Ambient OPD documentation (EN/AR/HI), ≥2 partners · *MVP→P3; Sorani/Badini only after S8-K* |
+  ID                     | `AI-AMB-01`
+                         |   -> id: "AI-AMB-01"
+  Feature                | Ambient OPD
+                         |   -> title: "Ambient OPD"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P3
+                         |   -> phase: "P3"
+  Stance                 | P
+                         |   -> stance: "P"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Ambient OPD documentation (EN/AR/HI), ≥2 partners · *MVP→P3; Sorani/Badini only after S8-K*
+                         |   -> scope: "Ambient OPD documentation (EN/AR/HI), ≥2 partners"
+                         |   -> kurdistan_note: "MVP→P3; Sorani/Badini only after S8-K"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 6 (Sorani and Badini only after S8-K)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[6/10] PLT-OPS-02  BUILD-PROMPT.md line 2458, A.1 PLT
+  raw row: | `PLT-OPS-02` | On-prem install | L | R1 | B | On-prem/state-DC install from same signed artefacts · *P2→MVP inside PLT-SITE-01; cell at hospital A by M18* |
+  ID                     | `PLT-OPS-02`
+                         |   -> id: "PLT-OPS-02"
+  Feature                | On-prem install
+                         |   -> title: "On-prem install"
+  Size                   | L
+                         |   -> size: "L"
+                         |   (counts 20 engineer-weeks: L = 20)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | On-prem/state-DC install from same signed artefacts · *P2→MVP inside PLT-SITE-01; cell at hospital A by M18*
+                         |   -> scope: "On-prem/state-DC install from same signed artefacts"
+                         |   -> kurdistan_note: "P2→MVP inside PLT-SITE-01; cell at hospital A by M18"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.13"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[7/10] IMP-RDY-01  BUILD-PROMPT.md line 2738, A.16 IMP
+  raw row: | `IMP-RDY-01` | Readiness tooling | L (BP M→L) | R1 | B | Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits · *RG3 adds WAN-, power-cut, dual-currency drills* |
+  ID                     | `IMP-RDY-01`
+                         |   -> id: "IMP-RDY-01"
+  Feature                | Readiness tooling
+                         |   -> title: "Readiness tooling"
+  Size                   | L (BP M→L)
+                         |   -> size: "L (BP M→L)"
+                         |   (counts 20 engineer-weeks: L = 20; (BP M→L) is BP's size history)
+  Phase                  | R1
+                         |   -> phase: "R1"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits · *RG3 adds WAN-, power-cut, dual-currency drills*
+                         |   -> scope: "Readiness scorecard; cutover/rehearsal; rollback; model-ward/UAT kits"
+                         |   -> kurdistan_note: "RG3 adds WAN-, power-cut, dual-currency drills"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["WP-1.14"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[8/10] DX-POC-01  BUILD-PROMPT.md line 2589, A.7 DX
+  raw row: | `DX-POC-01` | POCT | M | P2 | I | POCT data-manager integration |
+  ID                     | `DX-POC-01`
+                         |   -> id: "DX-POC-01"
+  Feature                | POCT
+                         |   -> title: "POCT"
+  Size                   | M
+                         |   -> size: "M"
+                         |   (counts 8 engineer-weeks: M = 8)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | I
+                         |   -> stance: "I"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | POCT data-manager integration
+                         |   -> scope: "POCT data-manager integration"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[9/10] DEV-GW-01  BUILD-PROMPT.md line 2605, A.8 DEV
+  raw row: | `DEV-GW-01` | Device gateway | L | R2.1 | B+I | Middleware PCD-01/DEC; device–patient association · *Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1* |
+  ID                     | `DEV-GW-01`
+                         |   -> id: "DEV-GW-01"
+  Feature                | Device gateway
+                         |   -> title: "Device gateway"
+  Size                   | L
+                         |   -> size: "L"
+                         |   (counts 20 engineer-weeks: L = 20)
+  Phase                  | R2.1
+                         |   -> phase: "R2.1"
+  Stance                 | B+I
+                         |   -> stance: "B+I"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | Middleware PCD-01/DEC; device–patient association · *Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1*
+                         |   -> scope: "Middleware PCD-01/DEC; device–patient association"
+                         |   -> kurdistan_note: "Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1"
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 4 (the validated ICU monitor feed)"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+[10/10] SPC-ICU-02  BUILD-PROMPT.md line 2621, A.9 SPC
+  raw row: | `SPC-ICU-02` | ICU severity scores | S | P2 | B | APACHE II/SOFA (reg C) |
+  ID                     | `SPC-ICU-02`
+                         |   -> id: "SPC-ICU-02"
+  Feature                | ICU severity scores
+                         |   -> title: "ICU severity scores"
+  Size                   | S
+                         |   -> size: "S"
+                         |   (counts 3 engineer-weeks: S = 3)
+  Phase                  | P2
+                         |   -> phase: "P2"
+  Stance                 | B
+                         |   -> stance: "B"
+                         |   -> domain_level: false
+  Scope · Kurdistan note | APACHE II/SOFA (reg C)
+                         |   -> scope: "APACHE II/SOFA (reg C)"
+                         |   -> kurdistan_note: null
+                         |   -> placement_marked: false
+  §21                    |   -> work_packages: ["Phase 5"]
+  hand-edited            |   -> status: "todo"; tests: []; hazards: []; notes: []
+
+Sampled rows: IMP-FND-01, AI-DCS-01, ACC-OPD-01, CLN-QI-01, AI-AMB-01, PLT-OPS-02, IMP-RDY-01, DX-POC-01, DEV-GW-01, SPC-ICU-02

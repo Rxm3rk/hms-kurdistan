@@ -1,0 +1,72 @@
+=== HEAD adb631c96f4c30fdd27cedda3c5d209cc3514fdb ===
+[restored: HEAD=adb631c dirty=0]
+##### D1' status: built on KRI-ID-01 with tests empty #####
+edited KRI-ID-01 status
+4163:- id: KRI-ID-01
+4164-  group: KRI
+4165-  section: A.17
+4166-  title: Iraqi identity + cross-script EMPI
+ERROR  KRI-ID-01: status 'built' needs at least one test in 'tests' (§3.1, §3.5)
+ERROR  docs/program/BACKLOG.md is not up to date with backlog.yaml (first difference at line 17); run 'tools/hms backlog render'
+WARN   §21 WP-2.2 (line 2336) names the wildcard RCM-* (inpatient scope (§9.20–§9.21)); it is not attached to any feature
+backlog: FAIL (rows=236, features=234, part_rows=2, phase_R1=110, phase_R1.1=3, phase_R2a=9, phase_R2b=25, phase_R2.1=6, phase_P2=48, phase_P3=19, phase_DROPPED-K=14, status_todo=233, status_spec=0, status_in-progress=0, status_built=1, status_verified=0, features_without_work_package=14, features_without_work_package_not_dropped=0, wp_references_not_mapped=1)
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### D1'' status: verified on KRI-ID-01 with tests empty #####
+ERROR  KRI-ID-01: status 'verified' needs at least one test in 'tests' (§3.1, §3.5)
+ERROR  docs/program/BACKLOG.md is not up to date with backlog.yaml (first difference at line 17); run 'tools/hms backlog render'
+WARN   §21 WP-2.2 (line 2336) names the wildcard RCM-* (inpatient scope (§9.20–§9.21)); it is not attached to any feature
+backlog: FAIL (rows=236, features=234, part_rows=2, phase_R1=110, phase_R1.1=3, phase_R2a=9, phase_R2b=25, phase_R2.1=6, phase_P2=48, phase_P3=19, phase_DROPPED-K=14, status_todo=233, status_spec=0, status_in-progress=0, status_built=0, status_verified=1, features_without_work_package=14, features_without_work_package_not_dropped=0, wp_references_not_mapped=1)
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### D1''' status: built on KRI-ID-01 with a test named but no evidence #####
+ERROR  docs/program/BACKLOG.md is not up to date with backlog.yaml (first difference at line 17); run 'tools/hms backlog render'
+WARN   §21 WP-2.2 (line 2336) names the wildcard RCM-* (inpatient scope (§9.20–§9.21)); it is not attached to any feature
+backlog: FAIL (rows=236, features=234, part_rows=2, phase_R1=110, phase_R1.1=3, phase_R2a=9, phase_R2b=25, phase_R2.1=6, phase_P2=48, phase_P3=19, phase_DROPPED-K=14, status_todo=233, status_spec=0, status_in-progress=0, status_built=1, status_verified=0, features_without_work_package=14, features_without_work_package_not_dropped=0, wp_references_not_mapped=1)
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### D3' delete the whole KRI-ID-01 record #####
+deleted record, bytes removed: 397
+ERROR  backlog.yaml has 233 unique feature IDs; expected exactly 234
+ERROR  KRI-ID-01 (BUILD-PROMPT.md line 2752) is missing from backlog.yaml
+ERROR  docs/program/BACKLOG.md is not up to date with backlog.yaml (first difference at line 11); run 'tools/hms backlog render'
+ERROR  A.18 R1: 110 feature IDs in A.18, 109 in backlog.yaml (difference -1)
+ERROR  A.18 R1: 1606 engineer-weeks in A.18, 1594 in backlog.yaml (difference -12); not explained by A.18's note
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### E1' module boundary plant, full failure text #####
+ArchitectureTest > classes that reside in a package 'hms..' should use other modules only through their api package, because a module imports only another module's api package (BUILD-PROMPT §5.2, §6.1) FAILED
+    java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'classes that reside in a package 'hms..' should use other modules only through their api package, because a module imports only another module's api package (BUILD-PROMPT §5.2, §6.1)' was violated (2 times):
+    Method <hms.scratchbeta.application.BetaUser.read(hms.scratchalpha.domain.AlphaThing)> calls method <hms.scratchalpha.domain.AlphaThing.getValue()> in (BetaUser.kt:6) uses module 'scratchalpha' outside its api package (from module 'scratchbeta')
+    Method <hms.scratchbeta.application.BetaUser.read(hms.scratchalpha.domain.AlphaThing)> has parameter of type <hms.scratchalpha.domain.AlphaThing> in (BetaUser.kt:0) uses module 'scratchalpha' outside its api package (from module 'scratchbeta')
+        at hms.kernel.testing.ArchitectureTest$1$1$1.invokeSuspend(ArchitectureTest.kt:13)
+        at hms.kernel.testing.ArchitectureTest$1$1$1.invoke(ArchitectureTest.kt)
+        at hms.kernel.testing.ArchitectureTest$1$1$1.invoke(ArchitectureTest.kt)
+        java.lang.AssertionError: Architecture Violation [Priority: MEDIUM] - Rule 'classes that reside in a package 'hms..' should use other modules only through their api package, because a module imports only another module's api package (BUILD-PROMPT §5.2, §6.1)' was violated (2 times):
+        Method <hms.scratchbeta.application.BetaUser.read(hms.scratchalpha.domain.AlphaThing)> calls method <hms.scratchalpha.domain.AlphaThing.getValue()> in (BetaUser.kt:6) uses module 'scratchalpha' outside its api package (from module 'scratchbeta')
+        Method <hms.scratchbeta.application.BetaUser.read(hms.scratchalpha.domain.AlphaThing)> has parameter of type <hms.scratchalpha.domain.AlphaThing> in (BetaUser.kt:0) uses module 'scratchalpha' outside its api package (from module 'scratchbeta')
+14 tests completed, 1 failed
+> Task :platform:testing:test FAILED
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### F1' key missing from ckb.json #####
+removed key app.name from ckb.json
+ERROR  ckb.json: key "app.name" is missing (present in ar.json, en.json)
+frontend-i18n-catalogues: FAIL (catalogues=3, keys=4, messages=11)
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### F1'' an ICU syntax error in ar.json #####
+broke ICU syntax of key app.name in ar.json
+ERROR  ar.json: key "app.name": ICU MessageFormat syntax error EXPECT_ARGUMENT_CLOSING_BRACE at line 1, column 1
+frontend-i18n-catalogues: FAIL (catalogues=3, keys=4, messages=12)
+exit=1
+[restored: HEAD=adb631c dirty=0]
+##### H. requirements-lock reproduction (PyPI JSON API, official registry) #####
+bootstrap: wrote tools/requirements.txt
+exit=0
+(no output above = byte-identical)
+[restored: HEAD=adb631c dirty=0]
+=== final state ===
+HEAD=adb631c96f4c30fdd27cedda3c5d209cc3514fdb
+=== date 2026-10-18T19:40:52+03:00 ===
+SCRIPT-DONE

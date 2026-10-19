@@ -1,0 +1,89 @@
+1. KNOWN-ANOMALIES.md, KA-011 (not my file): please replace its Description cell with the text below. The previous fixer's proposed text claimed merges were covered when they were not; this version is accurate for the current code. Leave the other cells as they are.
+
+"The sign-off gate cannot prove on its own that a human signed. The gate (`sh tools/hms safety check`, §3.5) accepts a sign-off record only if the working-tree record is the committed one and every commit in its history has a good signature (git `%G?` = `G`; `U` is rejected) by a key listed in `docs/safety/signoffs/allowed-signers.yaml` for the person and the role the record names. It trusts that list only as far as the list's own history allows, merges included: after a trust anchor, every change must be signed by a key that the trusted version before it lists, and a merge whose sides trust different versions, none of them the newest, by a key listed on every side (the fix of review findings R-01 and R-20). Until an external CI and a protected branch exist (DN-010), anyone with write access to this machine's repository, including an agent session, can add a key to the list in a trust-anchor commit. A trust anchor is the first commit that adds a key, a commit that adds a key after a listed signer has removed every key, or the first such commit in a rewritten history (a reset or a force-push) that leaves out the human's anchor. An anchor commit with an AI co-author trailer is rejected, but nothing stops one without a trailer. A commit made by an agent session with a listed signer's unlocked key also looks like the signer's own. The check reports every trust anchor as a warning. Until then, the automated reviewer and the human lead must verify every signer fingerprint in that file, and every trust anchor the check reports, out of band with the signer before trusting any record. Git verifies signatures with the host's own configuration, so each host that runs the gate of record needs the signers' GPG keys valid in its keyring, or their SSH keys in `gpg.ssh.allowedSignersFile` [HUMAN]. No signer is listed and no sign-off record exists yet."
+
+2. Proposed new KNOWN-ANOMALIES entry (carried over from the earlier report; next free KA number; I took none):
+- Description: "A state-machine spec changed without raising its `version` keeps its approval. The sign-off gate compares a record's `subject_version` with the spec's `version` field only (`docs/safety/signoffs/README.md`, \"Subject version\"). Subjects without a version field are versioned by content (sha256), so they are not affected. No state-machine spec exists yet."
+- Hazard references: "§3.5; the approval gate of every machine (§8.4)"
+- Backlog ID: `PLT-CORE-03`
+- Since: 2026-10-18
+- Status: open
+- Closes with: "WP-0.5 [P]: the spec tooling fails a spec whose content changed since its approval record without a version bump"
+
+3. Optional open question for the CSO, at the next free OQ number (none was assigned to me): should a hazard's risk acceptance survive linking a release or an incident to it? Today any such link voids the acceptance.
+
+4. STATUS.md and COMMANDS.md, if you record the safety check's output:
+- The JSON has the count key `allowed_signers`.
+- Every run warns "... allowed-signers.yaml lists no trusted signer, so no sign-off record can authorise any approval field ... (KA-011)".
+- Until allowed-signers.yaml is committed, it also warns "has uncommitted changes or is not committed".
+
+5. To commit with my group's changes:
+- Untracked: docs/safety/signoffs/allowed-signers.yaml, docs/safety/signoffs/allowed-signers.schema.json, tools/hmstools/safety/tests/test_signed_commits.py, and fixture directories tools/hmstools/safety/tests/fixtures/state-machines/filled-version-2/ and no-required/.
+- Deletions: the six static fixtures under fixtures/signoffs/{match,other-subject,other-field,rejected,triage,state-machine}/.
+- Modified: tools/hmstools/safety/tests/harness.py. Only the stand-in authenticator's type hints and one import changed; nobody else had modified it.
+- test_seeded_content.py and test_template_b2.py are the hazard-log group's.
+- Nothing was staged.
+- The commit that adds the empty allowed-signers.yaml may carry the agent's co-author trailer: it lists no key, so it is not an anchor. A commit that adds a key with that trailer is rejected.
+
+6. Evidence of record: please re-run the fast tier in the WSL clone after committing. The python-unit-tests step now includes 29 real-git tests in test_signed_commits.py. In one WSL full-suite run against /mnt/c, 3 tests failed with 'fatal: failed to write commit object'. I did not capture which; it did not recur in one full re-run or four runs of that file. Please watch for it in the evidence run.
+
+7. How the WSL runs were made: `sh tools/hms` run inside WSL against the Windows checkout picks the Windows venv (only `.tools/venv/Scripts` exists there) and fails to open 'C:\\mnt\\c\\...\\tools\\hms.py'. A `| tail` in the pipeline hid the failing exit code. My WSL safety check therefore used `~/src/hospitalmanagementsystem/.tools/venv/bin/python -I tools/hms.py safety check`.
+
+8. No new OQ, DN or KA numbers were used.
+
+9. My scratch files are outside the repository and can be deleted: C:\\Users\\Surface\\AppData\\Local\\Temp\\signoff-gate\\ (block.py, splice.py, plants.py, copies of the verifier's scripts, run logs). The WSL /tmp scratch repositories from my re-runs of the verifier's scripts were removed. The verifier's originals in AppData\\Local\\Temp\\verif\\ were not modified.
+
+---- VERIFIER OTHER PROBLEMS ----
+1. False claims. The following statements are false given R-01 gaps 1 and 2:
+- docs/safety/signoffs/README.md:61-62 and the Tightenings paragraph at :98 ('a merge … needs a key listed on every side'; 'A removed key cannot come back without a listed signer's signature'; re-anchoring only after a listed signer removed every key).
+- docs/safety/README.md:111.
+- The GitAuthenticator docstring (signoffs.py:424-431).
+- The proposed KA-011 replacement text in notes_for_lead item 1 ('after a trust anchor, every change must be signed by a key listed in the version before it').
+- The fixer's plant-13 'FAIL' result: it holds for a linear unsigned change, not for an injected message or a TREESAME merge.
+
+2. The fixer's test count of 221 for the whole suite no longer reproduces: it is now 226 on both hosts, because of other groups' concurrent test files. The per-file counts (49, 68, 19) do reproduce exactly.
+
+3. The FakeGit design in test_git_authentication.py gives false confidence for the merge and revocation tests (:359, :394, :402): it feeds every commit to the walk, which real `git log -- <path>` without --full-history does not. At least one real-git merge test is needed.
+
+4. tests/harness.py still annotates the Authenticator argument as a Path. The fixer disclosed this; it is minor.
+
+5. Nothing else was found: no edits outside the group's files were attributable, no new OQ, DN or KA numbers were used, STATUS.md and the review report were not edited, and no approval was written. The sign-off paragraphs in docs/safety/README.md changed only where they were assigned.
+
+---- FINAL FINDINGS ----
+
+[R-01] resolved
+NOTE: Gate accepts a record only if its working-tree text is the committed one and every commit in its history has %G? = G (U rejected) by a key in the human-maintained allowed-signers.yaml for the record's name and role; the list is trusted only as far as its full history (every merge, each commit read on its own, each version against its own committed schema) allows; the R-01 plant and the verifier's five bypasses now fail; the remaining trust-anchor limitation is recorded (KA-011).
+RESIDUAL: 1. The KA-011 limitation remains, by design (plant 14). While the list holds no key, or after a listed signer removes every key, or in a rewritten history (reset or force-push) that leaves out the human's anchor, an agent commit without a trailer can be a trust anchor. The check only reports it as a warning. A listed signer's unlocked key used by an agent is also indistinguishable from the signer. Only out-of-band verification and DN-010 close this.
+2. Departure from the verifier's suggested gap-4 fix ('an anchor version that does not validate should fail closed'). I judge each version by the schema committed with it. That makes the reported attack impossible: no later or uncommitted schema change can make a trusted version unreadable. A version that was already invalid when committed never conferred trust, so the next valid key-adding commit is a reported anchor, the same exposure as no anchor at all. Failing closed there would block the list for ever, because cited history is never rewritten (§3.6). This is documented in the README ('Who may sign') and in the GitAuthenticator docstring.
+3. Departure from the verifier's 'probably' for the record log: it keeps git's default simplification (`git rev-list HEAD -- <record>`). Records carry no cumulative state, and the default history always follows the line that produced the content at HEAD, so the commit that wrote it is always checked. Real-git tests show a merge keeping an unsigned record version fails, and an unsigned merge bringing in a signed record passes. With --full-history, such legitimate unsigned merges would be listed and fail. This is documented in README step 3.
+4. New fail-closed case, recorded as a Tightening [P]: a merge whose sides trust different versions and list no key in common can never be trusted. The README says to redo such a branch's change, signed, on the other line instead of merging.
+5. Still open from before: the relaxation (an unsigned list change fails only until reverted or signed over), the other [P] tightenings, and host set-up [HUMAN] (each gate host must vouch for signers' keys).
+6. One WSL full-suite run had 3 unidentified failures ('failed to write commit object'). They did not recur in 1 full re-run and 4 runs of the file.
+FILES: tools/hmstools/safety/signoffs.py, tools/hmstools/safety/check.py, tools/hmstools/safety/tests/test_git_authentication.py, tools/hmstools/safety/tests/test_signed_commits.py, tools/hmstools/safety/tests/harness.py, docs/safety/signoffs/README.md, docs/safety/signoffs/allowed-signers.yaml, docs/safety/signoffs/allowed-signers.schema.json, docs/safety/README.md
+TESTS: Windows host (all from the repository root):
+- Full suite, `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools/hmstools/safety/tests -t tools`: 'Ran 255 tests in 92.133s OK'. The 255 include the hazard-log group's in-progress test files; it was 226 when verified, plus my 29 new tests.
+- Per file:
+  - test_git_authentication.py: 'Ran 68 tests in 1.743s OK'
+  - test_signed_commits.py: 'Ran 29 tests in 61.768s OK'
+  - test_signoff_gate.py: 'Ran 68 tests in 32.588s OK'
+- `sh tools/hms safety check`: exit 0, 'safety: PASS (... signoff_records=0, allowed_signers=0, state_machine_specs=0, approval_fields_filled=0)'. Two sign-off warnings: 'allowed-signers.yaml: has uncommitted changes or is not committed ...' and '... lists no trusted signer ... (KA-011)'.
+- `sh tools/hms repo check`: PASS (crlf_files=0). `sh tools/hms backlog check`: PASS.
+
+WSL Ubuntu-24.04 against this checkout, with ~/src/hospitalmanagementsystem/.tools/venv/bin/python:
+- First full-suite run: 'Ran 255 tests in 80.806s FAILED (failures=3)', with 'fatal: failed to write commit object' in the output. I kept only the tail, so I do not know which tests failed. That run overlapped a Windows-host test run and other agents' work.
+- Full-suite re-run: 'Ran 255 tests in 72.900s OK'.
+- test_signed_commits.py alone, four times: 'Ran 29 tests in 24.476s OK', '24.604s OK', '28.356s OK', '30.574s OK'.
+- Safety check via `python -I tools/hms.py safety check`: exit 0, PASS, same two warnings.
+
+Verifier's bypass scri
+
+[R-20] resolved
+NOTE: Every record must state a decision and a subject_version; each decision backs only its own field kind (accepted → accepted_by, triaged → cso_triage, approved → approval), records match only the subject's current version (spec `version`, else a sha256 content version) and the field's roles (cso; approval.required, all of them for a filled status), and only the committed record content counts.
+RESIDUAL: As reported earlier, unchanged:
+1. A state-machine spec is versioned by its `version` field, so a spec changed without raising it keeps its approval. A KA entry is proposed in notes_for_lead.
+2. Acceptance and approval content versions include linked `releases` and `incidents` (a possible CSO question; optional OQ in notes_for_lead).
+3. signed_by maps to 'approved'.
+FILES: tools/hmstools/safety/signoffs.py, tools/hmstools/safety/check.py, docs/safety/signoffs/signoff.schema.json, docs/safety/signoffs/README.md, tools/hmstools/safety/tests/test_signoff_gate.py
+TESTS: test_signoff_gate.py, Windows host: 'Ran 68 tests in 32.588s OK'.
+Full safety suite: 'Ran 255 tests in 92.133s OK' on the Windows host; in WSL against this checkout, 'Ran 255 tests in 72.900s OK' on the re-run (see R-01 for the one earlier WSL run with 3 unidentified failures).
+The safety check PASSes on the real repository: approval_fields_filled=0 and signoff_records=0, on the Windows host and in WSL.

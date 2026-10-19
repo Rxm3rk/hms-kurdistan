@@ -1,0 +1,6 @@
+# rtl-visual-diffs
+# command: (not built: RTL visual diffs)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# RTL visual diffs: not built yet; WP-0.7 builds it. Counted as a failure (fail closed).
+

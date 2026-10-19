@@ -1,0 +1,15 @@
+- [User is in Kurdistan](user-kurdistan-based.md) — KRI focus, terse style, expects exhaustive top-quality output, likes read-aloud summaries and PDFs
+- [Derive from existing research](feedback-derive-from-existing-research.md) — build editions/derived docs from the blueprints and research/; tag local facts [L]; no new web research unless asked
+- [Project phase](project-phase.md) — WP-0.1 done 19 Oct (09afa41); WP-0.2 and WP-0.7 in progress; WP-0.3/0.5/0.8 cluster-free parts started early (see parallel-streams); read docs/program/STATUS.md first
+- [Resuming killed work](resuming-killed-work.md) — two Claude profiles with separate memory dirs; where killed workflow scripts and agent transcripts live
+- [Tooling locations](pdf-build-tooling.md) — PDF builder and BUILD-PROMPT assembly, lint and review files in %TEMP%, outside the repo
+- [Slow GitHub/Gradle downloads](slow-github-downloads.md) — GitHub assets and services.gradle.org often ~20-30 KB/s here; Maven Central/npm/PyPI/Corretto/Aliyun mirror fast
+- [WP-0.7 human decisions](wp07-human-decisions.md) — AI-drafted ckb/ar text marked unreviewed; 0BSD, Unicode-3.0, Zlib approved; record as DNs
+- [Overnight run](overnight-run.md) — 19 Oct 2026 autonomous night: heartbeat task, order of work, never push, never API profile
+- [Auto-save](autosave.md) — scheduled task saves every worktree to refs/wip/<branch> every 10 min; restore commands; user demands no lost progress
+- [Boss demo](boss-demo.md) — clickable prototype for the user's boss at C:\Users\Surface\hms-demo (port 5200), outside the repo; synthetic; how to run
+- [Mac split](mac-split.md) — POSTPONED 19 Oct 12:15 ("mac is not gonna join yet"); private repo Rxm3rk/hms-kurdistan; hand-over procedure kept for later
+- [Parallel streams](parallel-streams.md) — 19 Oct: extra accounts A7a/Ahmad@/mi approved; WP-0.3/0.5/0.8 cluster-free started early; lighter low-risk review; IDs and task IDs
+- [No whole-drive searches](feedback-no-drive-wide-search.md) — never find / on this host; tell every subagent; search named folders only
+- [No whole-drive searches](no-whole-drive-search.md) — never find / on this host; search .tools/gradle-home caches or the worktree; tell every subagent
+- [Review policy](review-policy.md) — 19 Oct 12:15: most reviews abolished; only one automated review per work package at its end; tests/gates stay

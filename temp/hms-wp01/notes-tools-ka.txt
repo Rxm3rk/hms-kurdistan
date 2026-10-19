@@ -1,0 +1,88 @@
+Test runs. All on the Windows host unless marked; none is evidence of record.
+- Full suite, `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools -t tools -p "test_*.py"`: 'Ran 577 tests in 296.364s / OK'. No failure from any group's in-progress edits in this run.
+- Per area, Windows host: licence 61 OK, repo 68 OK, backlog 109 OK, bootstrap 48 OK, doctor 29 OK, ci 36 OK, safety 226 OK. These sum to 577.
+- WSL Ubuntu-24.04 against /mnt/c with the clone's venv: licence 61 OK, repo 68 OK.
+- Checks: `sh tools/hms repo check` PASS (adrs_valid=28). `sh tools/hms backlog check` PASS (hazard_log_entries=27, features_with_hazards=101, hazard_links=237, features=234). `sh tools/hms safety check` PASS (hazards=27, controls=193), with 2 warnings from the sign-off group's uncommitted allowed-signers.yaml.
+- Scratch files for the licence probes are in /tmp/r18fix (outside the repo).
+
+Must do:
+1. Stage the new untracked file tools/hmstools/backlog/hazards.py.
+2. After the hazard-log group finishes docs/safety/hazard-log.yaml: run `sh tools/hms backlog render` (it re-derives the hazards in backlog.yaml from the log, then writes BACKLOG.md), then `sh tools/hms backlog check`, and commit both files with the R-05 commit. If the log names a feature ID that Appendix A lacks, render refuses and writes nothing.
+3. KNOWN-ANOMALIES.md KA-010, 'Closes with' cell: replace 'The commit that resolves review finding R-05 (SHA to be filled in when it is committed)' with '`<sha>` (`tools/hms backlog render` derives `hazards` from the hazard log; `tools/hms backlog check` fails when they disagree)'.
+4. KA-011: untouched, for you to adjust from the sign-off group's report.
+5. KA-006 and KA-008: re-check against the final hazard log (today: 27 entries, 193 controls, no entry for H7/H9/H11/H15, the same 22 SACs).
+6. KA-005 changed this session; it now reads '... until `tools/licence/register.yaml` records it as unmodified, under the rule and licence the policy applies to it; ...'.
+
+Exact edits in files I do not own. A and B replace my earlier notes and take in the stricter R-18 rule.
+
+A. docs/adr/ADR-022-licence-dependency-governance.md
+- evaluator.rules.kts bullet (~line 45): replace 'a conditional licence or component is a warning that needs a register entry;' with 'a conditional licence or component is a warning that needs a register entry until the ORT step exists (WP-0.9), a decision recorded in `tools/licence/README.md` ("Conditional licences");'.
+- `sh tools/hms licence check` bullet (~line 48): replace 'It fails on a denied, excluded or unmapped licence and warns on a conditional one until `register.yaml` has a matching entry;' with 'It fails on a denied, excluded or unmapped licence; on a conditional one until `register.yaml` has an entry that matches the component, records the rule and the licence the policy applies to it and records it as unmodified; and on a register entry that does not follow the fields in the register's header;'.
+- Optional, at the end of the register.yaml bullet (~line 42): '`tools/hms licence check` enforces the fields listed in the register's header.'
+
+B. docs/program/COMMANDS.md
+- §3 licence row (line 57): after 'Denied, excluded and unmapped licences fail' add ', and so does a conditional licence until `tools/licence/register.yaml` has an entry that records it as unmodified, under the rule and licence the policy applies'.
+- §3 backlog check row (line 56): after 'the A.18 totals' add ', and each row's `hazards` against the `features` lists of `docs/safety/hazard-log.yaml`'.
+- §5 generate row: replace the description with 'Rewrites `docs/program/backlog.yaml` from Appendix A and §21, with each feature's `hazards` derived from `docs/safety/hazard-log.yaml`, keeping the hand-edited fields (`status`, `work_packages`, `tests`, `notes`); refuses if a feature disappears, the hazard log names a feature ID that Appendix A does not hold, or an unknown field is present'.
+- §5 render row: replace the description with 'Derives each row's `hazards` from `docs/safety/hazard-log.yaml` again (rewriting `backlog.yaml` only if one changed), then rewrites `docs/program/BACKLOG.md` from `backlog.yaml`'.
+- §1 `sh tools/bootstrap` row (line ~22): replace 'JDK 25' with 'the pinned JDK (Eclipse Temurin 25.0.4.1+1, ADR-002, checked against the SHA-256 recorded in `tools/hmstools/bootstrap/steps.py`)'. Also replace "its vendor's SHA-256" there for the JDK.
+- §1 `sh tools/doctor --tier fast` row (line ~29): replace 'JDK 25' with 'the pinned JDK 25 (Temurin 25.0.4.1+1)'.
+
+C. tools/host/provision-ubuntu.sh (~lines 49-58, another group's file): it still installs a system OpenJDK 25 with a Corretto fallback. The build never uses that JDK (tools/ci/run and `tools/bootstrap env` put the pinned .tools JDK first, and the doctor passes only the pin). Either drop it, or state in tools/host/README.md and COMMANDS.md §1 that it is not the build's JDK.
+
+D. Optional, tools/hmstools/ci/runner.py: the host record stores only the first line of `java -version`. Recording the 'Runtime Environment' line too would let evidence name the vendor build (Temurin vs Ubuntu).
+
+Other notes:
+- I used no OQ or DN numbers.
+- I did not touch STATUS.md, the review report, evidence or the plan of record.
+- I did not commit, stage or restore anything.
+- I did not regenerate the frontend licence lists in build/; the PASS runs reused the files the earlier session wrote today.
+
+---- VERIFIER OTHER PROBLEMS ----
+1. Documentation that contradicts the new licence behaviour sits in files the group does not own. docs/adr/ADR-022-licence-dependency-governance.md (~lines 45 and 48) and docs/program/COMMANDS.md §3 still say a conditional licence 'warns'. ADR-002's new licence paragraph cites ADR-022 for 'until then `tools/hms licence check` fails on it', so the two ADRs disagree until the lead applies note A of notes_for_lead.
+2. COMMANDS.md §1 (lines 22 and 29) still says 'JDK 25' and 'checked against its vendor's SHA-256'.
+3. tools/host/provision-ubuntu.sh:49-58 still installs a system OpenJDK 25 with a Corretto fallback whose key is trusted on TLS alone. The build does not use that JDK; this is notes_for_lead C.
+4. tools/hmstools/ci/runner.py host_info records only the first line of `java -version`, so evidence cannot tell Ubuntu's 25.0.4.1 build from the pinned Temurin build (notes_for_lead D, optional).
+5. KNOWN-ANOMALIES KA-010 is marked 'closed' with the placeholder 'SHA to be filled in when it is committed'. The lead must fill it in.
+6. backlog.yaml and BACKLOG.md now depend on docs/safety/hazard-log.yaml, which another group is editing in the same tree. Any later edit to the hazard log makes `sh tools/hms backlog check` fail until `sh tools/hms backlog render` is run again.
+7. No STATUS.md, review-report, evidence or plan-of-record edits by this group were found.
+8. No OQ or DN numbers were used by this group. docs/safety/README.md:150 refers to DN-014, but that file belongs to another group.
+9. All the fixer's test counts reproduced exactly. Windows host: licence 54, repo 67, bootstrap 48, doctor 29, backlog 109, all OK. WSL Ubuntu-24.04 against /mnt/c: the same counts, all OK. The five JDK checksums equal the vendor's published .sha256.txt files. None of these runs is evidence of record.
+
+---- FINAL FINDINGS ----
+
+[R-18] resolved
+NOTE: licence check fails on a conditional component until a register entry records it as unmodified under the rule and licence the policy applies (a blanket or wrong-rule entry no longer counts; patterns matching the empty string are refused) and validates the register schema; ORT conditional rules stay warnings until WP-0.9 (decision in tools/licence/README.md, guarded by a test)
+RESIDUAL: The ORT conditional rules stay WARNINGs until WP-0.9; the Direction allows this, it is recorded in evaluator.rules.kts, tools/licence/README.md and KA-005, and a test guards it. Two tightenings of this build are recorded in tools/licence/README.md: the source_offer requirement for GPL/AGPL containers, and an entry counting only under the rule and licence the policy applies (for os-packages that means one entry per declared licence expression). A package whose declared licence is not an SPDX expression cannot be registered until it is curated, because an entry's licence must parse as SPDX; this fails closed. ADR-022 and COMMANDS.md §3 still describe the old warn behaviour; those files are not mine (notes_for_lead A and B).
+FILES: tools/hmstools/licence/spdx.py, tools/hmstools/licence/policy.py, tools/hmstools/licence/__main__.py, tools/hmstools/licence/tests/test_licence.py, tools/licence/register.yaml, tools/licence/README.md, tools/licence/policy.yaml, tools/licence/ort/evaluator.rules.kts, docs/program/KNOWN-ANOMALIES.md
+TESTS: Windows host: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools/hmstools/licence/tests -t tools` printed 'Ran 61 tests ... OK'. WSL Ubuntu-24.04 against /mnt/c with the clone's venv: 'Ran 61 tests ... OK'. Windows host scratch run of the verifier's plant, `sh tools/hms licence check --sbom /tmp/r18fix/bom.json --register /tmp/r18fix/blanket.yaml` (`.*`, MIT, os-packages; hapi-base and dcm4che-core): exit 1. Output: a register error for the empty-matching pattern and two conditional errors; 'licence: FAIL (components=2, allowed=0, conditional=2, conditional_registered=0, ..., register_entries=0)'. With '(hapi|dcm4che)' under os-packages/MIT: exit 1, both components fail with 'the policy applies rule ..., and no entry ... records that', register_entries=1. With correct entries (MPL-1.1/MPL-1.1 and dcm4che-lgpl-option/LGPL-2.1-only): exit 0, 'conditional_registered=2'. Windows host, on the frontend lists already in the git-ignored build/ (written earlier today by the previous session, not regenerated by me): `--pnpm build/licences-shipped.json` PASS (components=2, allowed=2, register_entries=0); `--pnpm build/licences-all.json --scope build-only` PASS (components=124, allowed=124). None of these runs is evidence of record.
+
+[R-14] resolved
+NOTE: JDK pinned to Temurin jdk-25.0.4.1+1 with per-platform SHA-256 in steps.py (all five match the vendor's .sha256.txt; Windows zip and Linux tarball re-hashed on disk); no fallback; doctor passes only the pin; ADR-002 records what is pinned, where, and the phase-boundary rule
+RESIDUAL: In files I do not own: tools/host/provision-ubuntu.sh still installs a system OpenJDK 25 with a Corretto fallback, COMMANDS.md §1 still says 'JDK 25' and 'its vendor's SHA-256', and tools/hmstools/ci/runner.py records only the first line of `java -version` (notes_for_lead C and D). The build does not use that JDK: tools/ci/run and `tools/bootstrap env` put the pinned .tools JDK first, and the doctor passes only the pin.
+FILES: tools/hmstools/bootstrap/steps.py, tools/hmstools/bootstrap/__main__.py, tools/hmstools/bootstrap/tests/test_bootstrap.py, tools/hmstools/doctor/checks.py, tools/hmstools/doctor/fixes.py, tools/hmstools/doctor/__main__.py, tools/hmstools/doctor/tests/test_doctor.py, docs/adr/ADR-002-runtime-kotlin-jvm-spring.md, backend/gradle/libs.versions.toml, docs/program/KNOWN-ANOMALIES.md
+TESTS: Re-hashed today. Windows host: `sha256sum .tools/downloads/temurin-25.0.4.1-windows-x64.zip` = 00c847d804f4a78e9f04f2683faf14fed898535b177b7fc704486cb0284e9283, equal to the windows-x64 pin. WSL clone (~/src/hospitalmanagementsystem/.tools/downloads/OpenJDK25U-jdk_x64_linux_hotspot_25.0.4.1_1.tar.gz) = dbb698396d478e7fa2b1e50f4103324b2a99b90569ee27c33f2261f9215cf41e, equal to the linux-x64 pin. Not confirmed locally: the linux-aarch64, mac-x64 and mac-aarch64 archives were never downloaded or hashed on this machine. The earlier session and the verifier compared all five values only with the vendor-published <archive>.sha256.txt files and the Adoptium API. Windows host: bootstrap 'Ran 48 tests ... OK', doctor 'Ran 29 tests ... OK'. The earlier session's WSL runs against /mnt/c (bootstrap 48 OK, doctor 29 OK) were not repeated this session, because those files did not change. None of these runs is evidence of record.
+
+[R-15] resolved
+NOTE: ADR-014 and the catalogue now say 'to be recorded in the licence register when first depended on (WP-1.1b)'; ADR-002 no longer calls the OpenJDK runtime allowlisted
+RESIDUAL: None.
+FILES: docs/adr/ADR-014-integration-hub.md, backend/gradle/libs.versions.toml, docs/adr/ADR-002-runtime-kotlin-jvm-spring.md
+TESTS: Windows host `sh tools/hms repo check`: 'repo: PASS (... adrs_total=28, adrs_valid=28 ...)'. tools/licence/register.yaml is still `entries: []`.
+
+[R-17] resolved
+NOTE: ADR check: status matched whole, exactly one Status and one Date line in the header, H1 form, Source field and B.1 heading order, with unit and repository-level failing-case tests including both review plants
+RESIDUAL: None.
+FILES: tools/hmstools/repo/rules.py, tools/hmstools/repo/__main__.py, tools/hmstools/repo/tests/test_repo.py, docs/adr/README.md
+TESTS: Windows host: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools/hmstools/repo/tests -t tools` printed 'Ran 68 tests ... OK'. WSL Ubuntu-24.04 against /mnt/c with the clone's venv: 'Ran 68 tests ... OK'. Windows host `sh tools/hms repo check`: 'repo: PASS (text_files_checked=344, ..., adrs_total=28, adrs_valid=28, ...)', exit 0, with 4 crlf warnings on plan-of-record files. All 28 real ADRs have exactly one Status and one Date line.
+
+[R-12] partly
+NOTE: docs/adr/README.md 'What the repository check enforces' now describes the check exactly, including numbers above 028, the index links and exactly one Status and Date line
+RESIDUAL: The other R-12 bullets (tools/README.md, tools/bootstrap, frontend/README.md, README.md, ADR-010, ADR-020) belong to other groups.
+FILES: docs/adr/README.md
+TESTS: Windows host `sh tools/hms repo check`: PASS (adrs_valid=28). I compared the README text with rules.py `adr_problems` and `check_required`.
+
+[R-05] resolved
+NOTE: KNOWN-ANOMALIES covers every R-05 item (KA-005, KA-007..KA-012); backlog generate/render derive hazards from the hazard log's features lists and backlog check fails on disagreement; KA-010 closed
+RESIDUAL: KA-010 is marked closed, with a placeholder for the R-05 commit SHA. backlog.yaml and BACKLOG.md must be rendered again once the hazard-log group's edits are final, or `backlog check` fails. KA-006 and KA-008 must be re-checked against the final hazard log. KA-011 is left for the lead. COMMANDS.md §3/§5 (not mine) still describe hazards as hand-edited.
+FILES: docs/program/KNOWN-ANOMALIES.md, tools/hmstools/backlog/hazards.py, tools/hmstools/backlog/paths.py, tools/hmstools/backlog/plan.py, tools/hmstools/backlog/records.py, tools/hmstools/backlog/commands.py, tools/hmstools/backlog/check.py, tools/hmstools/backlog/render.py, tools/hmstools/backlog/__main__.py, tools/hmstools/backlog/__init__.py, tools/hmstools/backlog/tests/synthetic.py, tools/hmstools/backlog/tests/test_generate.py, tools/hmstools/backlog/tests/test_render.py, tools/hmstools/backlog/tests/test_check.py, tools/hmstools/backlog/tests/test_real_plan.py, docs/program/backlog.yaml, docs/program/BACKLOG.md
+TESTS: Windows host: backlog 'Ran 109 tests ... OK'. Windows host `sh tools/hms backlog check`: 'backlog: PASS (hazard_log_entries=27, features_with_hazards=101, hazard_links=237, rows=236, features=234, part_rows=2, ...)', exit 0, with 1 warning (WP-2.2's RCM-* wildcard). Windows host `sh tools/hms safety check`: 'safety: PASS (hazards=27, controls=193, controls_planned=193, ..., feature_ids_known=234, ..., allowed_signers=0, ...)', exit 0, with 2 warnings from the sign-off group's uncommitted allowed-signers.yaml. Both checks ran against the working-tree hazard log, which the hazard-log group is still editing.

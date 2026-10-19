@@ -1,0 +1,48 @@
+236
+PLT-UX-04 | Mobile app framework | R2b | PLACED | One app: nurse mode (BCMA, R2b) + physician mode (K §6.6) · Placed R2b: Mobile app is needed for nurse BCMA in R2b
+PLT-PWR-01 | Power-loss resilience (K new) | R1 | INFERRED | Inferred R1: RG1 power obligations; M18 power-cut tests
+TRU-KEY-01 | Per-tenant KMS | R1 | INFERRED | BP P2→MVP; HSM/TPM KMS, no HYOK (ADR-008); inferred R1
+TRU-SEC-02 | ISO 27001 + SOC 2 | R1 | PLACED | ISO 27001(+27701) ≈M24; SOC 2 only if a buyer asks · Placed R1: Controls built from R1; the certification itself is [HUMAN]
+TRU-SEC-03 | Market attestations | R1 | PLACED | Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]
+TRU-BCP-03 | Back-entry | R1 | INFERRED | Frequent outages; sized for back-entry (SI-10); inferred R1
+ACC-ID-03 | Aliases, newborn, photo | R1 | INFERRED | Inferred R1 (registration); K §4.3 Identity list
+CLN-CHT-03 | Results review | R1 | INFERRED | Inferred R1 (wedge LIS/RIS results)
+CLN-CDS-01 | Drug KB adapter | R1 | PLACED,P,UNSTATED | Regional brand mapping; R1 OPD use unstated · Placed R1: [P] Pulled to R1 so outpatient e-prescribing is screened
+CLN-CDS-02 | Order checks | R1 | PLACED,P | KB screening at R2a transcription; CPOE checks R2b · Placed R1: [P] Outpatient subset in R1; transcription checks R2a; full CPOE checks R2b
+CLN-CDS-03 | CDS telemetry + harness | R1 | PLACED | Harness runs after every KB/content release (K §6.3) · Placed R1: CDS runs from R1, so telemetry and the harness do too
+CLN-CDS-07 | Predictive deterioration | P3 | PLACED,CONFLICT,UNSTATED | Conflict: K §4.3 P2 vs K §11.2 P3 · Placed P3: Device-grade partner model, silent first (K §11.2 AI-3)
+CLN-CDS-08 | VTE prompts | R2b | INFERRED | Inferred R2b (inpatient CPOE); sweep candidate (K §5.6)
+CLN-DOC-02 | Copy-forward provenance | R1 | PLACED,UNSTATED | BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b
+CLN-HND-01 | I-PASS | R2b | INFERRED | Inferred R2b (inpatient)
+CLN-RES-01 | Results inbox | R2b | UNSTATED | Named in R2b; R1 OPD inbox unstated · Outpatient result acknowledgement runs in R1 through DX-ORD-01
+CLN-BH-01 | Suicide screen + restraint | R2b | INFERRED | Inferred R2b (inpatient orders)
+CLN-IPC-01 | Isolation flags | R1 | PLACED | Banner (R1) and bed board (R2a) both carry isolation · Placed R1: Banner flag in R1; bed-board use in R2a
+CLN-ACP-01 | Code status + ACP | R2a | PLACED | Code status on banner (R1); 'code documentation' in R2b · Placed R2a: Inpatient workflow; the banner field exists from R1
+CLN-INC-01 | Incidents + RCA | R1 | PLACED,UNSTATED | In K §4.3 Quality MVP; release unstated · Placed R1: Safety-event reporting from the first go-live
+CLN-QI-01 | Accreditation KPIs | R1 | PLACED | Replaced, same size: JCI + KRG licensing indicators · Placed R1: Measure engine in R1; JCI and KRG packs complete by R2b
+CLN-IMM-01 | Immunisation (BP new) | R1 | UNSTATED | BCMA scan with inpatient BCMA (BP); ABDM part unaddressed in K
+MED-FRM-01 | Formulary | R1 | INFERRED | Inferred R1 (OP POS); regional brands
+MED-INF-01 | Infusion model | R2b | INFERRED | Inferred R2b (with eMAR)
+MED-KRI-01 | Brand master + labels (K new) | R1 | PLACED,UNSTATED | Release unstated; brands serve POS, labels serve BCMA · Placed R1: Brand master for the R1 POS; unit-dose labels by R2a
+DX-LAB-06 | ISO 15189 doc control | P3 | UNSTATED | BP NABL condition (P3→P2) not addressed in K
+DX-BB-02 | Blood bank interface | R2b | PLACED | Not dropped in K §4.1; K §9.1 assumes no interface · Placed R2b: Optional inbound adapter only; no interface assumed (K §9.1)
+DEV-GW-01 | Device gateway | R2.1 | INFERRED | Inferred: validated ICU monitor feed R2.1 · Nothing clinical depends on a device feed before R2.1
+DEV-VAL-01 | Vitals validation UX | R2.1 | INFERRED | Inferred with ICU monitor feed (R2.1)
+SPC-OT-03 | Intra-op record + charging | R2a | UNSTATED | OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b
+SPC-MAT-01 | L&D + newborn | R2a | UNSTATED | Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b
+SPC-DIE-01 | Diet orders | R2b | INFERRED | Religious preferences; inferred R2b (inpatient orders)
+RCM-DEN-01 | Denials | R1 | INFERRED | Inferred R1 (credit flow); denial root-cause queues
+ERP-INV-01 | Stores | R1 | INFERRED | Inferred R1 (OP POS dependency)
+ERP-PRC-01 | Procurement-lite | R2.1 | UNSTATED | K R2.1 says 'breadth'; base release unstated
+ERP-HR-01 | Staff master | R1 | INFERRED | Medical Syndicate/IMA registration IDs; inferred R1
+OPS-FLW-01 | Discharge clearance | R2a | INFERRED | Inferred R2a (discharge billing); SI-12 extended
+OPS-PRD-01 | Predictive discharge | P3 | CONFLICT | Conflict: K §4.3 P3 vs K §11.2 forecasts P2
+OPS-RTL-01 | RTLS | P2 | PLACED | BP/K §4.3 list RTLS ingestion P2; counts keep P3 · Placed P2: RTLS ingestion is P2 (K §4.3, §9.2); the engine is never built
+INT-IPS-01 | IPS $summary | R1 | CONFLICT,UNSTATED | Conflict: K §4.3/§9 MVP 'from day one'; §4.1 silent
+AI-NUR-01 | Nursing ambient | P3 | CONFLICT | Conflict: K §4.3 P3 vs §14.2 arithmetic P2
+AI-DAT-01 | Reporting replica | R1 | INFERRED | On the on-site cell; inferred R1 (MIS basics)
+AI-DAT-02a | CDC bronze (BP split) | R1 | INFERRED | Central site; migration staging; inferred R1
+DFD-BOK-01 | Booking link | R1.1 | PLACED,UNSTATED | BP R2.1; K §4.2 silent · Placed R1.1: Ships with wallet payment links
+IMP-TEL-01 | Clinician telemetry | R1 | PLACED | K §4.3 drops 'telemetry' from BP's tooling list · Placed R1: Usability telemetry from the first go-live (T-120 baselines)
+IMP-SUP-01 | Service desk + status page | R1 | INFERRED | Inferred R1 (24×7 support M21); status page (K §13.7)
+KRI-LOC-02 | Badini templates | R1 | PLACED,UNSTATED | Release unstated; Duhok review; Latin-script need via S7-K · Placed R1: Framework in R1; Badini content before the first Duhok go-live

@@ -1,0 +1,70 @@
+feat(hal-client): WP-0.7 S8 HAL client transports and label-printer simulator
+
+Slice S8 of WP-0.7 (design system and client shells) builds the web
+side of HAL contract v1 (docs/specs/hal/) and the label-printer capture
+endpoint. The Tauri shell itself is slice S9; no Tauri runtime has run.
+
+What S8 adds, in frontend/packages/hal-client:
+- contract.ts: Zod schemas repeating hal-v1.schema.json for the twelve
+  calls, every request, value, event and error kind, and the closed audit
+  record; message-key helpers (hal.error.outcomeUnknown when the outcome
+  is unknown).
+- transport-tauri.ts: the IPC binding hal_call, hal_subscribe (one
+  channel per subscription) and hal_release_blob (OQ-157). Every request
+  is checked before it is sent (one outside the contract is refused and
+  never crosses the bridge) and every reply and event after; an unusable
+  reply, a rejected invoke, a no-shell reason from the shell or no reply
+  within the 180 s client deadline becomes a typed error result with a
+  fresh UUIDv7, never an exception. A success reply to hal.id.read
+  becomes unavailable/not-implemented; to hal.pay.request, an unknown
+  outcome (KA-027).
+- transport-none.ts: with no shell every call returns
+  unavailable/no-shell with its own audit record, and never throws, even
+  with a broken clock or ID source.
+- transport-sim.ts: a simulated shell that checks requests, results and
+  audit records against the contract; a refused request copies nothing
+  into its record; barcode reads reach only the focused window.
+- capture.ts: a capture bound to the window's patient id, change counter
+  and change time; a result that arrives after a context change is
+  discarded with hal.capture.discardedAfterContextChange and its blob
+  released. It holds the window's modal guard while it waits.
+- client.ts (shell detection, no-shell otherwise) and uuid7.ts.
+
+In tools/simulators/label_printer (Python standard library only): a raw
+port-9100 capture endpoint that stores each job's ZPL, PDF or bytes with
+a JSON sidecar (format, size, sha256, time), atomically. It binds to
+loopback only unless --allow-non-loopback is given (with a warning),
+limits connections, jobs and stored bytes, and never reuses or
+overwrites a job number, across restarts or two servers on one
+directory. tools/README.md describes it.
+
+Integrator changes: docs/specs/hal/README.md names the simulator's real
+path, tools/simulators/label_printer/ (a hyphenated directory is not an
+importable package, so unittest discovery would not find its test).
+OQ-157 (open): the IPC binding, request and reply handling, the client
+deadline [P], dropped events and the capture binding. KA-040 (open): a
+failure only hal-client sees has no audit record of its own.
+
+Tests (spec §9 names): UnitTest:hal-contract-fixtures (all 69
+fixtures), UnitTest:no-shell-fails-closed,
+UnitTest:hal-capture-discarded-after-context-change and
+test_printer_capture (14 Python tests); also the transport-tauri and
+transport-sim tests. @hms/hal-client 365 tests in 6 files.
+
+Checks on the Windows host (not evidence of record), this commit's tree
+(S2 to S4 and S8): `sh tools/ci/run fast --no-evidence` PASS, 8 of 8
+steps, tests=1854, failures=0: python-unit-tests 688, backend-fast 66,
+frontend-fast 1100 (hal-client 365, design-system 81, ui-core 89, i18n
+89, eslint-plugin-hms 473, web 3); repo, safety and backlog checks and
+the secret scan PASS. Not run: the WSL build host.
+
+Hazards: none named. The hazard log names none of S8's tests in a
+control's planned_verification. Spec §9 relates
+UnitTest:hal-capture-discarded-after-context-change to CTRL-0016-6
+(HAZ-0016), not named there yet, and the closed audit record applies
+the allowlist principle of CTRL-0020-7 (HAZ-0020); HAZ-0011
+(CTRL-0011-8, CTRL-0011-11) is touched through the contract and
+simulated devices only and no control of it is verified. No control
+changes state.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

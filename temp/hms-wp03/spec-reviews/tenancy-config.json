@@ -1,0 +1,552 @@
+[
+ {
+  "target": "tenancy-config",
+  "lens": "correctness",
+  "summary": "Correctness and architecture review (automated review, AI) of docs/specs/modules/platform-tenancy.md and docs/specs/modules/platform-config.md, checked against BUILD-PROMPT, DN-040, the hazard log, ADR-006 and ADR-020, R08 §5, R11 §2, the sibling specs and integrator decisions D1 to D9. Result: 4 critical, 19 major and 16 minor findings.\n\nMost cited section numbers say what the specs claim (§5.2, §6.6, §7 item 1, §8.2, §10.2, §11.7, §19.3, §19.4, R08 §5, R11 §2, R07 AZ-6 and AU-1, K §7.7, K-24). The hazard-log risk matrix values are cited correctly. The WP-0.3 now/waits split mostly matches DN-040. Tenancy says its schema waits for the cell, but DN-040 allows schemas and migrations to be written now; only the evidence backed by real persistence has to wait.\n\nCritical findings:\n- **CA-01:** The governed path can be bypassed. Tenancy's public `apply` takes a change-set id and a SYNTHETIC/APPROVED label that the caller simply asserts.\n- **CA-02:** No test checks which way a strictness comparator points. A reversed comparator would turn tighten-only into loosen-only, and every test would still pass.\n- **CA-03:** The SI-18 test only checks that no key starts with `tier2.`. A Tier 2 on/off setting under any other name passes it, so the test proves less than its acceptance criterion claims.\n- **CA-04:** A flag check can only answer On or Off. When the check itself fails, the CDS rule is simply off, so a Tier A hard stop can stop firing without anyone being told.\n\nMajor themes:\n- The specs do not yet follow D1, D4 and D6 (shared kernel types, the one `AsOf`, the partition-key rule).\n- The specs do not fit the journal API (`DuplicateAggregateInAppend`, PascalCase aggregate types, UUID aggregate ids, BACK_DATED entries).\n- Bundle activation would need one transaction across two modules, which §5.2 does not allow.\n- Tenancy has no query that lists or dry-runs entries, which config needs for snapshots, diffs, compare-and-set and gate G7.\n- Content items have nowhere to be stored, and node scopes have no identity that carries across environments.\n- The clinical tier's VENDOR_FOUNDATION level lets a vendor bundle change every facility's tier at once.\n- The rules break when a SafetyInvariant or TightenOnly setting has no vendor default (sibling SI-10 tolerances).\n- The vendor-lock test harness does not fit SI-19 and SI-18.\n- How governed evidence is supplied for C1 flags and for clears is not defined.\n- A kill switch has no defined behaviour when a flag is checked as of a past time.\n- Holiday lists that change over time do not fit the kernel's `BusinessCalendar`.\n- The merge table's rows overlap.\n- User preferences are serialised on the per-tenant aggregate.\n- `resolve` trusts a setting definition passed in by the caller.\n- Change sets cannot express when a value takes effect.\n\nWhere the sibling specs contradict these two:\n1. **Event names.** The catalogue's §4 names (EnterpriseNodeCreated/Changed/Retired, SettingChanged, ChangeSetApplied, BundlePromoted, BundlePromotionRefused, FeatureFlagChanged) differ from tenancy's (HierarchyNode*, SettingValueChanged, SettingLock*) and config's (ConfigChangeSet*, ConfigBundleActivated, ConfigBundleRefused, FlagChanged).\n2. **Partition key.** `envelope.md` §5 and journal J-10 key events by the aggregate id, while config keys them by tenant.\n3. **Batches and the journal.** Journal §6 allows one entry per aggregate per append, but tenancy writes one entry per change on a per-tenant aggregate.\n4. **Aggregate type names.** The journal wants PascalCase; the specs use `tenancy.EnterpriseStructure` and `config.change-set`.\n5. **`AsOf`.** The kernel's `AsOf.knownAt` is a `RecordedTime`; tenancy declares its own `AsOf` with an `Instant`.\n6. **Calendar keys.** The kernel §11.1 and tasks §8 still use the `kri.calendar.*` keys, against D3.\n7. **Setting key grammar.** Tasks' `tasks.orphan.alarmLimit` breaks tenancy's lower-case key rule, and tenancy's example key `platform.tasks.orphan-alarm.max-delay` differs from it.\n8. **Vendor defaults.** The kernel's SI-10 tolerances have no vendor value (DN-KN1), but tenancy rule D-2 requires one.\n9. **Setting value types.** Tasks' `EscalationPolicy` values and the keys with a placeholder segment in tasks, the kernel and config (`<id>`, `<record-type>`, `<contentType>`) don't fit tenancy's closed set of value types.\n10. **Shared types.** The workflow and tasks specs still point at tenancy's placeholder ids (resolved by D1).\n11. **Build files.** The tenancy and config build files lack `:platform:journal` and `:platform:events`, though both specs depend on them.",
+  "findings": [
+   {
+    "id": "CA-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 ApplyConfigurationChanges / ConfigurationCommands; §10 Permissions; with platform-config.md §3.1, §8 'Applying an activated bundle'",
+    "finding": "`ConfigurationCommands.apply` is public api, and both `changeSet: ChangeSetId` and `provenance: ContentProvenance` (SYNTHETIC | APPROVED) are supplied by the caller and taken on trust. Tenancy checks only `TenancyAuthorization` (W-15). §10 says safety-classified keys go through 'the governed path in platform-config (approved change set)', but nothing in tenancy enforces that. Config claims change sets are 'the only governed way to change a configured value' and that TEST/TRAIN/PROD change values only by activating a signed bundle, and R08 §5 says 'Every change belongs to a versioned, approved change set'. Once WP-0.4 grants `config.write`, any module or admin channel can call tenancy directly with a made-up ChangeSetId and provenance=APPROVED. That skips human approval (INV-7), the §19.4 synthetic gate (G8), signature verification (G1) and promotion, and writes safety-relevant values in PROD. The same hole is how config's own bundle path gets VENDOR_FOUNDATION/COUNTRY_PACK writes past tenancy's W-15 (config §3.1: 'the permission for that path is this module's config.bundle.activate').",
+    "recommendation": "Make the write path verifiable inside tenancy. Restrict `ConfigurationCommands` to `hms.platform.config` (and the USER-preference path) with an arch rule, and/or have tenancy check every ChangeSetId and its provenance through a port that `platform-config` implements (`ChangeSetVerifier.confirm(changeSetId, items)` that returns APPROVED, SYNTHETIC-in-BUILD/PLAY, or unknown). Refuse writes to safety-classified keys and to VENDOR_FOUNDATION/COUNTRY_PACK unless the confirmed origin is an activated, verified bundle or an applied change set. Add a property test: a direct apply with a fabricated change set id is refused."
+   },
+   {
+    "id": "CA-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.3 Strictness, D-7; §13 PropertyTest:config-chain-vendor-lock-SI-* (VendorLockHarness)",
+    "finding": "Tighten-only depends entirely on each owner's `Strictness.compare`. D-7 asks only that a definition's tests show the comparator is a total order, and the harness runs W-4…W-7 and R-T on the definition's own comparator. If an owner writes the comparator backwards (for example a longer delay rated as stricter), W-5, W-6, R-T and the harness all stay self-consistent and pass, while the chain only lets values be loosened. Only SI-03 has a direction oracle in the hazard log ('an orphan alarm later than 5 minutes is refused'). The SI-05, SI-08, SI-16 and SI-10 parameters to come have none, so the control would fail silently.",
+    "recommendation": "Make the direction part of the definition, with a reviewed oracle. Every TightenOnly definition declares at least one `looserThanDefault` and one `stricterThanDefault` sample, cited to its hazard control (for example 'PT6M is looser than PT5M', CTRL-0003-1). Catalogue rule D-9 checks compare(stricter, default) > 0 and compare(looser, default) < 0. The harness asserts that the looser sample is refused at every level below the vendor and at the vendor level (W-6). Changing these samples is a §3.4 item 10 safety-test change."
+   },
+   {
+    "id": "CA-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.9; D-6; §13 PropertyTest:config-chain-vendor-lock-SI-18; §14 acceptance 5 (and platform-config.md INV-6, G12)",
+    "finding": "The spec claims D-6 shows that 'the chain cannot carry an activation' and that acceptance 5 'Tier 2 activation cannot be represented in the chain' is met by it. The test only refuses keys under `tier2.`. A module can declare `reg-dose.enabled` or `lis.autoverification.active` as a BOOLEAN or ENUM setting, a tenant can turn it on, and every listed test passes. Config's G12 ('no item targets Tier 2 activation') and INV-6 have no way to recognise such a setting, because only `FlagDefinition` carries `tier2Function` and `SettingDefinition` has no Tier 2 marker. CTRL-0018-1 and CTRL-0018-6 would be recorded as verified by a check that does not test what they require.",
+    "recommendation": "Give `SettingDefinition` a mandatory `tier2Function: Tier2FunctionId?`, or a catalogue rule that a definition owned by a Tier 2 module (`hms.reg..`) or gating a Register-listed function is refused unless it is a flag bound to `tier2Function`. Add an arch rule that Tier 2 modules read activation only through `FlagEvaluator`. Restate acceptance 5 to what the test proves, and keep CTRL-0018-1 `planned` until the substantive test exists."
+   },
+   {
+    "id": "CA-04",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.2 FlagDecision/OffReason; §5.1 INV-3; §6.2",
+    "finding": "`FlagDecision` is only On or Off, and errors map to Off (UNKNOWN_FLAG, REGISTER_UNAVAILABLE). Nothing says what happens when tenancy answers `Refused` (INCONSISTENT_CONTEXT, SCOPE_NOT_FOUND) or `NotConfigured`, or when the kill-switch store cannot be read. For a `CDS_RULE` flag, Off means the rule does not fire. A Tier A hard stop whose flag check fails, for example because a unit moved and the caller's context now disagrees with the hierarchy, or because of a typo in the key, is silently switched off, and `cds` cannot tell that apart from a governed Off. §3.5 requires an unimplemented or failed path to be 'explicit … unavailable, manual check required'. For Tier 2 activation, Off is the safe direction. For CDS rules that are already ON it is not.",
+    "recommendation": "Make the decision three-way: `On`, `Off(reason)` and `Unavailable(reason)`, the last for an unknown flag, a chain refusal, NotConfigured, or a store or Register failure. Require callers to treat `Unavailable` explicitly: `cds` shows 'CDS unavailable, manual check required' and alarms, while Tier 2 gating treats it as Off. Add `PropertyTest:SI-19-evaluation-failure-never-silent`."
+   },
+   {
+    "id": "CA-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 identifiers, AsOf, ApplyConfigurationChanges.reason; §10 TenancyAuthorization; §15 OQ-T1, KA-T4 (and platform-config.md §4 CommandContext, §4.2 ChangeReason)",
+    "finding": "The specs do not follow D1 and D4 yet. Tenancy declares `TenantId`, `FacilityId` and `UserRef` itself, without the kernel's `TypedId`/`requireV7` pattern. It declares its own `AsOf(validAt: Instant, knownAt: Instant?)`, which clashes with `hms.kernel.time.AsOf(validAt, knownAt: RecordedTime?)`. It types `reason` as a `String`, leaves `CommandContext` 'home: OQ-T1', and uses `ActorRef` with no home. Config declares its own `ChangeReason` in `hms.platform.config.api`, and its CommandContext list omits the causation id. OQ-T1 and KA-T4 are overtaken by D1. Value entries' `recordedAt` should be `RecordedTime` (the D7 restore rule).",
+    "recommendation": "Tenancy: use `hms.kernel.ids.TenantId/FacilityId/UserId`, `hms.kernel.context.CommandContext/ChangeReason/ActorRef` and `hms.kernel.time.AsOf/RecordedTime`; make `ApplyConfigurationChanges.reason: ChangeReason`; make the remaining tenancy ids (`NodeId`, `LegalEntityId`, `DepartmentId`, `UnitId`) implement `TypedId`; close OQ-T1 and KA-T4. Config: delete its `ChangeReason`, import the kernel one, and list the causation id in CommandContext."
+   },
+   {
+    "id": "CA-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.4 (one aggregate per tenant), §7 'one entry per change', §11 aggregate types; platform-config.md §5.2, §9",
+    "finding": "The specs cannot be built on the journal API as written:\n(1) `ApplyConfigurationChanges` writes 'one entry per change' to the single per-tenant `TenantConfiguration` aggregate. Journal §6 item 6 says 'An aggregate appears at most once per append' (`DuplicateAggregateInAppend`), and versions go up by 1 per row, yet tenancy returns one `Applied(version)`.\n(2) The aggregate type names `tenancy.EnterpriseStructure` and `config.change-set` break the journal's PascalCase `AggregateType`.\n(3) The vendor and country-pack `ScopeConfiguration` aggregates and config's `BundleActivation` (environment, stream) have no UUID aggregate id, which `aggregate_id uuid` requires.\n(4) A retroactive ordinary-key write (W-11) maps to journal `BACK_DATED`, which needs a `policy_decision_id` and is refused until WP-0.4. Tenancy never says how 'retroactive' maps to `EntryTiming`.\n(5) Config §9 records refused commands as journal entries, but a refusal changes no state and has no version to append (journal J-3, §6 item 5).",
+    "recommendation": "Choose and state one model:\n- either a batch is one journal row whose payload lists every change, carrying all the event payloads;\n- or the aggregate is (tenant, key, scope) and each change gets its own row.\n\nThen:\n- Use PascalCase type names.\n- Give vendor/pack scopes and bundle activations deterministic UUIDs.\n- Map retroactive writes to the kernel's `EntryTimeClassifier` result, and record that they are refused until WP-0.4.\n- Send refused-command audit to the audit port, not the journal, as tenancy does."
+   },
+   {
+    "id": "CA-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§10 Events ('keyed by tenant [P]'); platform-tenancy.md §8 partition key",
+    "finding": "D6 and `envelope.md` §5 / journal J-10 set the partition key to the patient id when the aggregate has a patient, otherwise the aggregate id. Config's aggregates (`ChangeSet` per ChangeSetId, `KillSwitch` per KillSwitchId, `BundleActivation` per environment and stream) are not per tenant, so their events are keyed by those ids, not by the tenant as config claims. Ordering between `FlagChanged` (activation) and `KillSwitchEngaged` for one tenant is then not guaranteed for the caches that invalidate on events. Tenancy is consistent only if its aggregate id equals the tenant id, which the spec never states, and the vendor and pack ScopeConfiguration aggregates have no tenant.",
+    "recommendation": "Tenancy: state that the EnterpriseStructure and TenantConfiguration aggregate ids are the tenant id, and give the vendor/pack scope aggregates their own key. Config: either restructure kill-switch and bundle-activation state into per-tenant aggregates, or drop 'keyed by tenant' and say consumers must not assume ordering across config aggregates. Point to the events spec as the owner of the rule (D6)."
+   },
+   {
+    "id": "CA-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.4 last paragraph; §6 ApplyConfigurationChanges (single expectedVersion, context tenant); §11",
+    "finding": "The vendor-foundation scope and each country-pack scope are 'aggregates of their own'. `ApplyConfigurationChanges`, though, carries one tenant (CommandContext), one `expectedVersion` and claims all-or-nothing, so a batch for the VENDOR_FOUNDATION or COUNTRY_PACK stream (config §8 activation), or one that mixes scopes, has no defined version to check and spans aggregates. Under ADR-006 and §6.4 (one database per tenant) nobody says where vendor and pack values live: a copy per tenant database written by each tenant's activation, or a shared store, which would break database-per-tenant.",
+    "recommendation": "State that vendor and pack scope entries are stored per tenant database, written by that tenant's activation of the vendor/pack stream. Replace `expectedVersion: Long` with a map of aggregate to expected version (or one batch per aggregate), and define atomicity across them within one tenant transaction."
+   },
+   {
+    "id": "CA-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§5.1 INV-11, INV-12; §8 'Applying an activated bundle'; §10 FlagChanged",
+    "finding": "Activation writes values through tenancy, where tenancy opens its own unit of work, and must also record the activated sequence and manifest hash in config's `BundleActivation` aggregate plus `ConfigBundleActivated` and `FlagChanged` journal entries. §2.2 rule 3 and §5.2 allow shared transactions only between Safety Kernel modules, so the two cannot commit together. If tenancy commits and config's append fails (version conflict, crash), values have changed but anti-rollback (INV-12, G3) and the audit (INV-5) never saw it. INV-11's 'a refused bundle changes nothing' cannot be guaranteed as written. Change-set apply has the same problem (APPLIED state vs tenancy writes).",
+    "recommendation": "Design the cross-module step explicitly. Either tenancy records the bundle's manifest hash and sequence in the same tenancy transaction, so config's sequence check reads tenancy's state and is idempotent on manifest hash, or use an outbox/saga with an idempotent, resumable 'activation pending' state and a reconciliation that alarms. State which record anti-rollback trusts. Add a property test that injects a failure between the two commits."
+   },
+   {
+    "id": "CA-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 Public API (queries); platform-config.md §3.1 table, §4.4, §5.1 INV-8/INV-9, §6.3, §8 G7",
+    "finding": "Config needs tenancy operations that the tenancy API lacks:\n(a) `BuildBundle` snapshots a stream's entries and locks, and activation diffs a snapshot against 'the stream's current values and locks', but tenancy exposes only `resolve`, and §5.2 forbids reading its tables.\n(b) INV-8 compare-and-set compares `before` with the raw entry at (key, scope), with 'null = absent', but config says it uses `resolve`, which returns the inherited, resolved value.\n(c) G7 and INV-9 'refused at submit' need a dry run, but tenancy has only an `apply` that writes.\n(d) Kill-switch scope checks need the completed and validated scope chain of a context. Config would have to rebuild tenancy's 5.2 completion and InconsistentContext logic, and the two could disagree.",
+    "recommendation": "Add to `hms.platform.tenancy.api`: `entries(scopeFilter, at: AsOf)` (raw value and lock entries per stream or level), `entryAt(key, scope, at)`, `validate(ApplyConfigurationChanges): List<IndexedRefusal>` (a dry run against the same rules), and `chainOf(context, at): ChainResult` (the ordered ConfigScopes, or a typed refusal). Config then uses these and never re-implements chain logic."
+   },
+   {
+    "id": "CA-11",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.1 ContentTypeDefinition; §4.3 ItemTarget.Content; §8 activation; §11 'Configuration values live in tenancy's store'",
+    "finding": "Content items (order sets, CDS rules, escalation policies, tariffs) are change-set targets and bundle items. Activation writes 'the difference … as one ApplyConfigurationChanges batch through tenancy', but tenancy's `SettingValueType` is a closed set (BOOLEAN … ZONE_ID) that cannot hold content items, and no content store or `ContentReader` api exists. Several sibling settings cannot be represented either: tasks' `tasks.escalation.policies.<id>` (EscalationPolicy), config's `platform.config.approver-roles.<contentType>` (a set of roles), and keys with a placeholder segment (`<record-type>`, `<id>`, `<contentType>`), because the catalogue registers fixed keys only. Bundle activation of content is therefore not buildable as specified.",
+    "recommendation": "Either add a content-item store and read API (versioned, effective-dated, with provenance) in config or `content`, and split activation into setting writes and content writes in one design, or extend tenancy with an opaque, schema-validated `CONTENT_REF` / structured value type and parameterised key families (a template with a registered set of instances). State which modules read content and how."
+   },
+   {
+    "id": "CA-12",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§5.3 TENANT_OVERLAY stream; §5.4 manifest 'scope (level and node)'; §8 promotion",
+    "finding": "Overlay items are scoped by tenancy `ConfigScope.Node(tenant, NodeId, level)`. Node and tenant ids are UUIDv7 values created by commands in each environment's tenant database. BUILD, TEST, TRAIN and PROD each hold their own enterprise structure, and the hierarchy is not promoted in any stream, so an item authored in BUILD names node ids that do not exist in PROD. W-8 then refuses it (ScopeNotFound) or, worse, it maps to nothing. Neither spec defines how scopes keep their identity across environments.",
+    "recommendation": "Define scope addressing that survives promotion: either promote the enterprise structure itself in a signed stream with stable ids, or address scopes in bundles by a stable natural key (a tenant code plus a path of node codes, with H-8 unique codes), resolved at activation and refused if missing (a gate). Add a test that promotes a node-scoped item BUILD → TEST."
+   },
+   {
+    "id": "CA-13",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.8 CLINICAL_TIER definition; R-C (§5.6); tightening 8 (§15)",
+    "finding": "`allowedLevels = setOf(VENDOR_FOUNDATION, FACILITY)`. The spec says a new facility never inherits CLINICAL_SAFETY without its own evidence, and tightening 8 promises no tenant or pack default. But the VENDOR_FOUNDATION scope value comes from signed vendor bundles (§5.1). One vendor-stream item setting CLINICAL_SAFETY would change the effective tier of every facility that has no value of its own, including facilities created later, and R-C ('the facility's own value or the vendor default') allows it. CTRL-0005-14 needs the tier to be a deliberate per-facility decision (K-24 readiness, RG1–RG4).",
+    "recommendation": "Set `allowedLevels = setOf(FACILITY)` and keep CORE only as the coded `vendorDefault` (step 6), or add a catalogue rule that a GOVERNED facility-level key refuses VENDOR_FOUNDATION and COUNTRY_PACK values. Change R-C to 'the facility's own value or the coded default CORE', and add a test that a vendor-level CLINICAL_SAFETY write is refused."
+   },
+   {
+    "id": "CA-14",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.3 D-2; §5.5 W-5/W-6; §5.6 step 6 (sibling: platform-kernel.md §11.1 SI-10 tolerances; platform-config.md §12)",
+    "finding": "D-2 requires `vendorDefault` for every SafetyInvariant definition, and a violation stops the application from assembling. The kernel spec declares the SI-10 entry-time tolerances as vendor-locked, tighten-only, with 'none: DN-KN1' (no vendor value until the CSO decides), so registering them would stop app-hms from starting. Config's `platform.config.killswitch.engagement-task-sla` is tighten-only with no default. W-5 compares against 'the effective value of the parent scope', and W-6 against the coded `vendorDefault`, and neither is defined when the parent resolves to NotConfigured or the default is null.",
+    "recommendation": "Allow a SafetyInvariant or TightenOnly definition with no vendor default only if declared `configurationRequired` with a mandatory hazard reference: callers fail closed on NotConfigured, and the first value at any level is accepted only from the vendor or pack stream (a governed write). Define W-5 and W-6 for a parent that is NotConfigured, and reconcile D-2 with the kernel spec's DN-KN1."
+   },
+   {
+    "id": "CA-15",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§6.1 backing setting; §14 PropertyTest:config-chain-vendor-lock-SI-19; platform-tenancy.md §13 harness and SI-18 rows",
+    "finding": "Tenancy's harness 'runs W-4 … W-7 and R-T on every definition tagged with that SI' and fails on zero definitions. Flag backing settings are `SafetyRelevant(controls)` (no SI tag) with no `vendorLock` stated (so None), so the SI-19 instance finds zero definitions and fails, or would pass with nothing to test if SI-19 were put on the exemption list. Config nevertheless says the instance runs 'tenancy's VendorLockHarness … on every flag's backing definition'. Making them `SafetyInvariant(SI-19)` would force Fixed or TightenOnly (D-2), which would stop tenants from turning flags on at all. Tenancy also defines `PropertyTest:config-chain-vendor-lock-SI-18` twice (as a harness instance and as the D-6 namespace test).",
+    "recommendation": "Say what 'SI-19 vendor-locked' means in the chain: the locked parts are the rules (kill switch present, safety default OFF, no reclassification), not the flag value. Give the SI-19 instance its own checks against the catalogue and registry, not W-4…W-7, and say so in both specs. Give SI-18 one definition. State `vendorLock` for backing settings explicitly."
+   },
+   {
+    "id": "CA-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.5 W-10; §6 SettingChange; platform-config.md §6.1 'changeControl GOVERNED for C1 flags', §8",
+    "finding": "W-10 requires an `EvidenceRef` accepted by `GovernedChangeVerifier`, which tenancy describes as RG1–RG4 readiness evidence (clinical tier). Config marks C1 flag backing settings GOVERNED, but its evidence is CSO approval through `HumanApprovalSource`, and config never says what `EvidenceRef` it puts on the SetValue in activation. `ClearValue`, `ApplyLock` and `RemoveLock` have no `evidence` field, so clearing a facility's CLINICAL_SAFETY value (a downgrade to the CORE default) either is always refused or skips W-10. The spec does not say which.",
+    "recommendation": "Define one evidence model: either `EvidenceRef` is a tagged union (ReadinessEvidence, ChangeSetApproval) with the verifier routing by key, or GOVERNED means 'carried by an approved change set confirmed by the CA-01 port' plus key-specific evidence. Add `evidence` to every SettingChange, or state that W-10 applies to all four change kinds and refuses when it is missing."
+   },
+   {
+    "id": "CA-17",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.2 FlagEvaluator.evaluate(key, context, at: AsOf); §5.1 INV-3/INV-4; §5.2 KillSwitch; §6.2 trace 'for the as-was view'",
+    "finding": "Evaluation takes an `AsOf`, but kill-switch state is 'runtime state' with engage and release times and no rule for valid time and recorded time. If the evaluator checks the switch as of `validAt`, a caller passing an earlier clinical time (a back-entered order, a replay) gets ON while the switch is engaged, so the emergency stop does not work for that path. If it ignores `AsOf`, as-was explanations ('was the rule off at 09:12?') are wrong. INV-4 speaks only of 'evaluations that start after commit'.",
+    "recommendation": "Specify: a live evaluation always applies the switch state as of now (recorded time), whatever `validAt` is. An as-was evaluation (knownAt set) uses the switch history with recorded time ≤ knownAt. Give the KillSwitch aggregate a recorded history and test both cases."
+   },
+   {
+    "id": "CA-18",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.10 Calendars; §5.3 HOLIDAY_LIST; §6 CalendarReader (vs platform-kernel.md §6.3 BusinessCalendar)",
+    "finding": "The kernel's `BusinessCalendar` takes `holidays: Map<Year, Set<LocalDate>>` and knows `coveredYears`. Tenancy's HOLIDAY_LIST is one effective-dated value resolved at one `validAt`:\n(a) next year's holidays entered as a future-dated value (the §5.7 example) are invisible to a calendar resolved now, so deadlines crossing the year boundary come out wrong;\n(b) a year that is configured but has no holidays cannot be told apart from an unconfigured year;\n(c) most-specific-wins replaces the whole list, so any TENANT value hides the pack's yearly Eid updates without warning;\n(d) `BusinessCalendar.of` failures (NoBusinessDayInWeek, HolidayOutsideItsYear) and a context with no facility, and so no zone, have no `Resolution` variant;\n(e) one `Provenance` cannot describe a value built from two settings plus the zone, which tasks needs ('the calendar version it used').",
+    "recommendation": "Make the holiday list cumulative per year (entries keyed by year, with an explicit covered-years set), not effective-dated per year, or resolve each year at its own start. Define merge semantics for list-valued settings (a pack list plus tenant additions or removals), or forbid TENANT values until decided. Add `Refused` reasons (`NO_FACILITY_ZONE`, `INVALID_CALENDAR`) and a composite provenance (both entries and the zone) for `businessCalendar`."
+   },
+   {
+    "id": "CA-19",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§7 merge rules table; INV-15",
+    "finding": "The rows overlap. A TightenOnly key is normally safety-classified, so 'vendor changed, key safety-relevant → CONFLICT_SAFETY (blocking)' and 'Tighten-only, O at least as strict as N → TIGHTENING_KEPT (non-blocking)' both match, and `Fixed` with a safety key matches CONFLICT_SAFETY and DROPPED_LOCKED. No precedence is given, so 'every tenant override appears in exactly one finding' cannot be tested. DROPPED_LOCKED is non-blocking even when the vendor changed a key to Fixed with a value looser than the tenant's tightening: a stricter tenant safety value is dropped without a human decision, which is the HAZ B cause the spec lists and contradicts INV-15 'never auto-resolves a conflict on a safety-relevant key'.",
+    "recommendation": "Make the table ordered (first match wins) with an explicit precedence, and state it in INV-15. Make DROPPED_LOCKED blocking when the key is safety-classified and the dropped tenant value was stricter than N. Add a property test that each override lands in exactly one finding."
+   },
+   {
+    "id": "CA-20",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.4 last paragraph ('Configuration writes are rare'); §6 ApplyConfigurationChanges.expectedVersion",
+    "finding": "`TenantConfiguration` is one aggregate per tenant with one version, and every write must carry that version. USER-level preferences are written at runtime by every user (config §5.3: 'written at runtime through the chain'). In a 1,000-bed tenant every preference change contends with every other configuration write, and a user's UI must first learn the tenant-wide configuration version. 'Configuration writes are rare' does not hold for USER level.",
+    "recommendation": "Put USER-scope entries in their own aggregate per (tenant, user), checked against locks read at write time (W-7) and masked on read (step 3, which already holds as defence in depth). Keep the per-tenant aggregate for TENANT…UNIT."
+   },
+   {
+    "id": "CA-21",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 ConfigurationReader.resolve(definition: SettingDefinition<T>, …); SettingCatalogue.register",
+    "finding": "`resolve` takes the caller's `SettingDefinition` object and runs the read filter (step 3) and tighten-only (step 5) on its `allowedLevels`, `vendorLock` and `strictness`. A caller holding a modified copy (a data-class `copy(vendorLock = None)` or a different comparator) can get a value that the registered definition would mask. `SettingCatalogue.register` is public api with no sealing after assembly, so definitions can also be added or changed at runtime.",
+    "recommendation": "Resolve by key against the registered definition. Refuse (`DEFINITION_MISMATCH`) when the passed definition is not the same instance as the registered one, or offer `resolve(key: TypedSettingKey<T>, …)`. Seal the catalogue after `app-hms` assembly, and keep `register` out of `api` or have it refuse once sealed."
+   },
+   {
+    "id": "CA-22",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.3 ChangeItem (no valid period); §5.4 manifest validPeriod; platform-tenancy.md §5.5 W-11, §6 SetValue.validFrom: Instant?",
+    "finding": "Config's `ChangeItem` has no valid period, while tenancy supports future-dated values (§5.7) and the manifest has `validPeriod?`, so effective dating cannot be authored through the only governed path. Tenancy never says what `validFrom = null` means. W-11 calls any `validFrom` before the command's recorded time retroactive, so:\n(a) a client sending its own 'now' is always retroactive and is refused for safety keys;\n(b) a bundle item built in BUILD with an explicit `validFrom` is retroactive by the time it is activated in PROD, and safety-classified items are refused.\nW-11 also duplicates the kernel's `EntryTimeClassifier`, which has tolerances.",
+    "recommendation": "Add `validFrom`/`validTo` to `ChangeItem`. Define null as 'at activation or apply (recorded time)'. Classify timing with `hms.kernel.time.EntryTimeClassifier` (a contemporaneous tolerance), and state that bundles carry relative or null start times, or that activation re-bases them."
+   },
+   {
+    "id": "CA-23",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§9 Audit; platform-tenancy.md §7 last paragraph, §10",
+    "finding": "The two specs treat refused writes differently. Config writes every refused command as a journal entry 'in the same transaction'. Tenancy reports refused safety-classified writes to `TenancyAudit`, with no journal row. Siblings should agree, and the journal model has no row for a refusal (see CA-06).",
+    "recommendation": "Use one rule: refusals go to the audit port (in memory in WP-0.4, BALP later), accepted changes to the journal."
+   },
+   {
+    "id": "CA-24",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.3 SettingKey grammar and D-1; example key",
+    "finding": "The key grammar `[a-z][a-z0-9-]*` with 'the first segment naming the owner's area' is broken by sibling and own keys:\n- tasks' `tasks.orphan.alarmLimit`, `tasks.timers.tickInterval` (camelCase);\n- tenancy's own `calendar.*` (owner platform-tenancy);\n- config's `flag.<flag key>` (owner e.g. `cds`).\nTenancy's example `platform.tasks.orphan-alarm.max-delay` and §5.11 do not match tasks' key `tasks.orphan.alarmLimit`.",
+    "recommendation": "Drop the 'owner's area' rule, or define reserved shared namespaces (`calendar.`, `flag.`). Align the example with the tasks spec, and ask the tasks spec to move to kebab-case."
+   },
+   {
+    "id": "CA-25",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§8 Events published (and platform-config.md §10)",
+    "finding": "The event names contradict `docs/specs/events/catalogue.md` §4:\n- the catalogue's EnterpriseNodeCreated/Changed/Retired vs tenancy's HierarchyNodeCreated/Updated/Moved/Retired;\n- SettingChanged vs SettingValueChanged/SettingLockApplied/SettingLockRemoved;\n- ChangeSetApplied, BundlePromoted, BundlePromotionRefused, FeatureFlagChanged vs config's ConfigChangeSet*, ConfigBundleActivated/Refused, FlagChanged.\nThe code registry must equal the catalogue (`UnitTest:event-catalogue-matches-document`).",
+    "recommendation": "The module specs win per catalogue §4. Have the integrator correct the catalogue in the same slice, and keep the names consistent between the two module specs (for example `FlagChanged` vs tenancy's `SettingValueChanged` for the same backing-setting write: say whether both are emitted)."
+   },
+   {
+    "id": "CA-26",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§9 Configuration this module needs vs §5.10 table",
+    "finding": "§9 says the calendar keys are 'lockable at COUNTRY_PACK [P]', while §5.10 gives no `lockableAt`. A pack-level lock would mask every TENANT value and make TENANT in `allowedLevels` pointless (§11.7 'tenant calendars').",
+    "recommendation": "Pick one (per D3: COUNTRY_PACK and TENANT, not locked) and make both tables agree."
+   },
+   {
+    "id": "CA-27",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§3 Dependencies; §11 Persistence; platform-tenancy.md §3, §11, §2",
+    "finding": "Several integrator decisions are not reflected yet:\n- **D5:** config cites §5.2 as allowing its tenancy dependency, but §5.2 lists only Trust; the open question is not recorded.\n- **D8:** in-memory adapters sit in `…infrastructure` rather than a `…inmemory`/`…testing` package, and neither spec says what app-hms binds for repositories when production must never bind them.\n- **Test harness:** tenancy's `api.testing` harness sits in main api with no rule keeping production code from importing it.\n- **Build files:** both modules lack `:platform:journal` and `:platform:events`, though both specs append to the journal.",
+    "recommendation": "Record the D5 open question in config. Name the in-memory packages per D8 and state the deployed binding (fail-closed repositories, or the module left unwired). Add an arch rule that `..testing..`/`..inmemory..` are referenced only from test sources. Ask the integrator to add the Gradle dependencies."
+   },
+   {
+    "id": "CA-28",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.5 W-5, W-7; §5.6 R-L",
+    "finding": "USER scope has no position in the hierarchy (`ConfigScope.User(tenant, user)`). 'The parent scope one level up' (W-5) and 'a lock at a scope strictly above the target' (W-7) are undefined for a user value, which applies in many unit contexts.",
+    "recommendation": "Define the rule: a user write is checked against locks and tighten-only values at TENANT and above at write time, and is masked on read by any lock on the context's chain (already in step 3)."
+   },
+   {
+    "id": "CA-29",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.6 step 2; §5.5 batch ordering",
+    "finding": "Step 2 picks the 'newest recordedAt ≤ knownAt'. All entries of one batch share one recorded time (journal J-4), and a batch may write the same key and scope twice (SetValue then ClearValue), so the spec gives no tie-break.",
+    "recommendation": "Break ties by the order of changes within the batch (`command_seq` or an entry sequence number), and include it in R-A."
+   },
+   {
+    "id": "CA-30",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 ConfigScope, ResolutionContext, ids",
+    "finding": "The `ConfigScope` sketch has three defects:\n- `VendorFoundation`, `CountryPack`, `Tenant` and `User` do not implement the abstract `level`, so the sketch does not compile.\n- `Node(level)` duplicates the node's kind, and no rule checks that the two agree.\n- `ResolutionContext` uses `FacilityId`/`UnitId` while scopes use `NodeId`, with no conversion defined. `ContextResult` and the `CreateNode…RetireNode` command types are undefined.",
+    "recommendation": "Derive `level` from the node kind (or check it under W-8), state how `NodeId` relates to the kind-specific ids, and define the missing types."
+   },
+   {
+    "id": "CA-31",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§4.3 H-8",
+    "finding": "Codes must be unique across the whole tenant per kind. Group tenants (K §7.7, ADR-006) hold several hospitals that commonly reuse unit and room codes ('ICU', 'W1').",
+    "recommendation": "Scope uniqueness to the facility, or to the parent on the relevant axis, and keep tenant-wide uniqueness for tenant-level kinds. Fold this into OQ-T2."
+   },
+   {
+    "id": "CA-32",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.2, §4.3, §5.3, §6.1, §6.2, §6.3, §12",
+    "finding": "Small API defects:\n- `ReleaseKillSwitch` has no expected version, yet the guard says 'version matches' and `STALE_VERSION` exists.\n- The first engagement of a kill switch has no uniqueness rule on (tenant, flag, scope), so concurrent first engages can create two KillSwitchIds.\n- §6.2 gives `evaluate(key, at)`; §4.2 gives `evaluate(key, context, at)`.\n- `ChangeItem.provenance: Provenance` clashes with tenancy's `Provenance` (it should be `ContentProvenance`).\n- `FlagDefinition.hazardRefs` holds HAZ ids, while `SafetyRelevant` takes CTRL ids.\n- Stream `COUNTRY_PACK:kurdistan` vs `CountryPackId(\"kri\")`.\n- §12 lock vocabulary ('VendorLockedTightenOnly') is not tenancy's (`Fixed`/`TightenOnly`).\n- `RegistryVersion` claims to hash definitions that contain code (comparators, validators).",
+    "recommendation": "Fix each one: add `expectedVersion`, a deterministic id or unique key for kill switches, one evaluator signature, `ContentProvenance`, control refs in flags, `COUNTRY_PACK:kri`, tenancy's lock names, and a statement of which fields go into the registry hash."
+   },
+   {
+    "id": "CA-33",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§8 G11 vs §6.1 'vendor-validated CDS baseline … arrives ON'",
+    "finding": "G11 refuses an item that 'sets a safety-relevant flag's vendor default to ON'. It is unclear whether a VENDOR_FOUNDATION or COUNTRY_PACK scope value of ON (the go-live baseline that CTRL-0014-5 says ships interruptive from day 0) counts as 'the vendor default'. One reading blocks the baseline; the other lets a vendor-stream ON reach every tenant.",
+    "recommendation": "Say that the coded `defaultValue` must be OFF, and that ON values may arrive only in an approved go-live bundle at a named stream and level, with CSO approval (G9/G11) and the CTRL-0014-5 promotion check."
+   },
+   {
+    "id": "CA-34",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§14 Acceptance criteria 6–8; platform-config.md §18 items 5, 10, 11",
+    "finding": "Some acceptance criteria name no test. Tenancy 6 (journal entry with actor, reason, before, after, scope and both times), 7 (Modulith verification) and 8 (KA records) name none. Config 5 claims refusal 'at submit, at apply and at activation', but only `PropertyTest:change-set-below-lock-refused` is named. Config 10 and 11 have no test row.",
+    "recommendation": "Name a test per criterion (for example `UnitTest:config-change-journal-entry-complete`, `PromotionGate:activation-below-lock-refused`, `ArchitectureTest:modulith-verification`, and a docs check for the KA records)."
+   },
+   {
+    "id": "CA-35",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.6 R-A; §5.7; Provenance",
+    "finding": "As-was stability covers entries only. A release that changes a definition (`vendorDefault`, `allowedLevels`, the comparator) changes past resolutions, and `Provenance` does not record which definition or registry version was used, so an investigation cannot explain a past decision (§7 item 3).",
+    "recommendation": "Record the registry version (config's `RegistryVersion`) and the definition revision in `Provenance`, and say that as-was answers are relative to the definitions of the running release unless historical definitions are kept."
+   },
+   {
+    "id": "CA-36",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§2 rows 'PostgreSQL schema …' and 'Persistence-backed evidence'",
+    "finding": "The schema, migrations and jOOQ adapters are marked 'waits for the cell (WP-0.2)', citing DN-040. DN-040 lists the journal's schema, migrations and repository code as in scope now; only evidence backed by real persistence waits. Writing the tenancy schema does not need the cell, so this is a [P] choice presented as if DN-040 required it.",
+    "recommendation": "Mark it '[P] a later WP-0.3 slice', and keep only the persistence-backed evidence and integration-test runs as waiting for the cell."
+   },
+   {
+    "id": "CA-37",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§4.4 commands; §4.2 TENANT.countryPack, FACILITY.zone",
+    "finding": "`UpdateNode` covers code, names and cost centre only. No command changes a tenant's effective-dated `countryPack` or a facility's `zone`, though both are described as effective-dated or configurable (§4.1). Switching the country pack changes every resolution for the tenant and is not classified as governed.",
+    "recommendation": "Add commands, or fields on `UpdateNode`, for `countryPack` and `zone`, with effective dating. Make a country-pack change a governed, non-retroactive change."
+   },
+   {
+    "id": "CA-38",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.10 and §15 OQ-T4 (sibling: platform-kernel.md §6.3, §11.1; platform-tasks.md §4.1, §8)",
+    "finding": "D3 makes the keys generic (`calendar.weekend-days`, `calendar.holidays`, supplied by the pack items `kri.calendar.*`). Tenancy follows it, but the kernel and tasks specs still read the setting keys `kri.calendar.weekend` and `kri.calendar.holidays`. OQ-T4's key question is now decided, though its levels question (a facility override) stays open per D3.",
+    "recommendation": "Close the key half of OQ-T4 by citing D3, keep the facility-override question, and flag the kernel and tasks specs for the key rename."
+   }
+  ]
+ },
+ {
+  "target": "tenancy-config",
+  "lens": "safety",
+  "summary": "Clinical-safety and hazard review (automated review, AI) of docs/specs/modules/platform-tenancy.md and docs/specs/modules/platform-config.md, checked against BUILD-PROMPT §2.1, §2.2, §3.4, §3.5, §5.2, §5.3, §6.2, §6.6, §7, §19.2–§19.4, §21, §22.1, WP-0.3.md, DN-040, hazard-log.yaml (HAZ-0003, -0005, -0010, -0014, -0018, -0019 and the CTRL-00nn-1 controls), integrator decisions D1–D9, and the sibling specs (platform-tasks.md, events/envelope.md, events/catalogue.md, platform-kernel.md). I found 4 critical, 15 major and 10 minor findings. Critical: (1) tenancy's public ConfigurationCommands accepts a change-set id and provenance that the caller asserts and never checks, so the approval, signature and synthetic gates in platform-config can be bypassed; tenancy §10 (administrators write directly) also contradicts config §8 (TEST/TRAIN/PROD change only by bundle). (2) A Fixed safety-invariant parameter can be changed at the vendor level by a bundle with no strictness check. (3) The clinical tier allows a VENDOR_FOUNDATION value, so one vendor bundle could put every facility into CLINICAL_SAFETY without per-facility RG1–RG4 evidence. (4) In-memory kill-switch and configuration state: a restart silently releases engaged kill switches and drops tenant tightenings, and neither spec says what app-hms binds under D8. Sibling contradictions: orphan-alarm key names and grammar (tenancy vs platform-tasks); event names (both specs vs catalogue.md); partition keys (D6); country-pack id (kri vs kurdistan); write paths (tenancy §10 vs config §8); vendor/pack write permission (tenancy §10 vs config §3.1). Updates needed for D1/D4 (kernel ids, CommandContext, ChangeReason, AsOf with RecordedTime), D3 (OQ-T4 now decided), D5 (open question against the §5.2 column), D6 and D8. Hazard-log control names checked: the CTRL-0003-1, -0010-1, -0014-5, -0018-1/-3/-6 and -0019-1…-6 planned_verification names match. CTRL-0005-14 and CTRL-0014-7 carry proposed names that must be recorded as additions. No [HUMAN] field is filled and no clinical value is invented (Newroz 21 March and Friday–Saturday come from §7 item 1, §11.7 and L-20).",
+  "findings": [
+   {
+    "id": "SAF-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 ConfigurationCommands / ApplyConfigurationChanges; §5.4; §10; vs platform-config.md §8, §3.1",
+    "finding": "ConfigurationCommands.apply is exported in hms.platform.tenancy.api, so any module or channel adapter can call it. The command carries a changeSet id and a provenance (SYNTHETIC | APPROVED) that tenancy copies without checking (§5.4). Tenancy cannot tell whether the change set exists, is APPROVED by human evidence (config INV-7), came from a signed and verified bundle (G1–G4), or is synthetic in TRAIN/PROD (§19.4, G8). Tenancy §10 also lets TENANT…UNIT administrators write directly, which contradicts config §8: TEST, TRAIN and PROD change values only by activating a signed bundle. For VENDOR_FOUNDATION and COUNTRY_PACK, tenancy says a tenant actor never writes them, but the actor who activates a bundle is the hospital operator, and config §3.1 says the permission there is config.bundle.activate.<env>. The two specs contradict each other, and the result is either an unusable path or a bypass. As written, the §19.4 synthetic gate, human approval and signature verification are all bypassable through the tenancy API.",
+    "recommendation": "Make the governed write path the only path. Add a D7 arch rule: only hms.platform.config (and tenancy's own USER-preference handler) may depend on ConfigurationCommands; other modules get ConfigurationReader only. Alternatively, tenancy verifies each changeSet through a port that config implements (state APPROVED, bundle manifest hash, environment). In tenancy, refuse SYNTHETIC provenance in TRAIN/PROD as defence in depth. Replace the actor-permission rule for vendor and pack scopes with a module-capability check (a verified-bundle token from config). Reconcile tenancy §10 with config §8 (§3.4 item 1: record as a tightening [P])."
+   },
+   {
+    "id": "SAF-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.3 D-2/D-3; §5.5 W-4, W-6",
+    "finding": "W-6 (a vendor foundation value is never looser than the coded vendorDefault) applies only to TightenOnly. A SafetyInvariant key declared VendorLock.Fixed has allowedLevels == {VENDOR_FOUNDATION} (D-3), so a signed vendor foundation bundle may write any value that passes type validation. Examples are an SI-16 60-second window or an SI-05 10×/100× threshold loosened by a content item. Tenancy's own rule is that loosening an SI parameter is a code change with hazard-log review (W-6; §3.4 item 1), and this lets an SI parameter be loosened by bundle content instead.",
+    "recommendation": "For every SafetyInvariant key, refuse a VENDOR_FOUNDATION entry that is looser than the coded default. For Fixed keys, either forbid VENDOR_FOUNDATION entries outright (the value is the coded default, and a change is a code change) or require equality with the coded default. Extend PropertyTest:config-chain-vendor-locked-key-refused-below-vendor, or add PropertyTest:config-chain-fixed-si-parameter-never-changed-by-bundle. Record this as a tightening [P]."
+   },
+   {
+    "id": "SAF-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.8 CLINICAL_TIER definition; R-C (§5.6); tightening 8 (§15)",
+    "finding": "CLINICAL_TIER has allowedLevels = {VENDOR_FOUNDATION, FACILITY} with VendorLock.None, and §5.1 says a signed vendor foundation bundle writes the VENDOR_FOUNDATION level. One vendor-level CLINICAL_SAFETY value would make every facility without its own value, across all tenants, resolve to CLINICAL_SAFETY. That breaks tightening 8 (a facility never inherits CLINICAL_SAFETY without its own evidence) and §6.6 / CTRL-0005-14 (changing the tier is a governed change backed by that site's RG1–RG4 evidence). R-C ('the facility's own value or the vendor default') would still pass because 'vendor default' is ambiguous. The hazard is H2: a closed loop switched on at a site not ready for it, or a MAR shown where none should be.",
+    "recommendation": "Set allowedLevels = {FACILITY} only and keep CORE as the coded DefinitionDefault, never a writable vendor entry. Refuse VENDOR_FOUNDATION writes for this key with LevelNotAllowed and ignore planted entries on read. Restate R-C as 'equals the facility's own governed value, otherwise the coded default CORE'. Add the vendor-level case to PropertyTest:clinical-tier-locked-below-facility."
+   },
+   {
+    "id": "SAF-04",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§2 Persistence; §11; §15 KA 'Configuration state is in memory only'; tenancy §3, §11, KA-T1",
+    "finding": "Kill-switch state lives in KillSwitchRepository, and both specs ship only in-memory adapters. Neither spec says what app-hms binds. If the in-memory adapter is bound, a restart or a failover to another node silently releases every engaged kill switch, and a stopped faulty rule fires again with no decision, alarm or audit (HAZ-0019, H4). Configuration values in tenancy are lost the same way, so tenant tightenings of SI parameters silently revert to vendor values (H6; HAZ-T1). The KA text records 'in memory only' but not this effect. D8 now says production wiring never binds in-memory adapters, and neither spec states the production behaviour that follows. Tenancy also places its in-memory adapters in hms.platform.tenancy.infrastructure, not in a ...testing or ...inmemory package.",
+    "recommendation": "Follow D8 in both specs. Move the in-memory adapters to ...inmemory or ...testing, documented as test/dev only. State that app-hms has no repository binding before the persistence slice, so the modules fail closed at assembly or on every write and kill-switch command, never with volatile state. Add the effect to the KA text ('an in-memory kill switch would be lost on restart; therefore not bound'). Add IntegrationTest:kill-switch-survives-restart and IntegrationTest:config-values-survive-restart to the persistence slice, with CTRL-0019-3 references."
+   },
+   {
+    "id": "SAF-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.3 Strictness ('a total order'); §5.6 step 5; W-5; vs platform-config.md §12 approver-roles",
+    "finding": "Strictness requires a total order, and resolution picks 'the strictest remaining value'. Many tighten-only safety parameters are sets or structures with only a partial order: high-alert or LASA lists, required approver roles (config §12 'roles may be added, never removed'), escalation chains, pairs of minimum and maximum. For two incomparable values, both W-5 and step 5 are undefined. An implementation would either pick one arbitrarily or force a fake total order, and either can resolve a looser value. Config §12 already declares a set-valued tighten-only key that tenancy's type cannot express, so the siblings contradict each other.",
+    "recommendation": "Redefine Strictness as a partial order (isAtLeastAsStrictAs(a, b)). W-5 refuses a write that is not at least as strict as the parent's effective value, including incomparable values. At read, if the remaining values have no unique strictest element, return Refused(INCOMPARABLE_VALUES) so the caller fails closed, or use a definition-supplied meet (for example set union) proven tighten-only. Update D-7's test and the VendorLockHarness."
+   },
+   {
+    "id": "SAF-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.3, §5.11 (orphan-alarm key); §5.5 write rules; vs platform-tasks.md §4.3, §8",
+    "finding": "The SI-03 five-minute bound in platform-tasks depends on a cross-key constraint, S + G + B ≤ L (tasks.orphan.scanInterval, grace, scanBudget, alarmLimit), and on a required per-facility value (tasks.fallbackQueue: 'a bundle that lacks it cannot be activated'). Tenancy's write and read rules are per key only, with no cross-setting validation and no 'required at level' rule. Each key resolves its own strictest value, so a facility that tightens L to 2 minutes while S + G + B = 3 minutes is accepted, and the tightened alarm limit silently fails. The names also disagree: tenancy names the key platform.tasks.orphan-alarm.max-delay, while tasks uses tasks.orphan.alarmLimit. The camelCase segment also breaks tenancy's D-1 grammar [a-z][a-z0-9-]*, so the catalogue would refuse it and the application would not assemble.",
+    "recommendation": "Add definition-group constraints to the catalogue: a pure predicate over resolved values, checked at write for every affected context and at read, with Refused on violation. Add 'required at level X' (with a matching config gate G5/G6) so a missing fallback queue blocks activation. Align the key names with the platform-tasks owner under one grammar. Make the SI-03 harness instance test the combined constraint as well as L alone."
+   },
+   {
+    "id": "SAF-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.2 FlagDecision/OffReason; §5.1 INV-3; §6.2 Evaluation",
+    "finding": "INV-3 does not say what happens when the chain resolution returns Refused (INCONSISTENT_CONTEXT, SCOPE_NOT_FOUND) or NotConfigured, when EnterpriseDirectory cannot build the scope chain for the kill-switch check, or when the kill-switch store cannot be read. FlagDecision is only On or Off. In practice an error becomes Off, and UNKNOWN_FLAG is a silent Off. For a CDS_RULE or Tier A/B baseline flag, Off means a protection is silently absent (a hard stop not firing), which breaks §2.2 rule 6 ('nothing fails silently') and §3.5 ('unavailable, manual check required'). The kill-switch check also cannot be trusted when the context cannot be built, so On cannot be returned either.",
+    "recommendation": "Add FlagDecision.Unavailable(reason, trace) for resolution refusals, a missing directory or store, and UNKNOWN_FLAG. Require callers that use a flag to enable a protection (cds) to treat Unavailable as 'CDS unavailable, manual check required' with the §10.3 fallback, never as 'rule off'. Raise an operational alarm on Unavailable. Add PropertyTest:SI-19-evaluation-error-never-silently-off."
+   },
+   {
+    "id": "SAF-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§6.1 Backing setting; §14 PropertyTest:config-chain-vendor-lock-SI-19; tenancy §13 harness row",
+    "finding": "CTRL-0019-1's planned verification, PropertyTest:config-chain-vendor-lock-SI-19, cannot work as mapped. Flag backing definitions are SafetyRelevant, not SafetyInvariant tagged SI-19, and their VendorLock is unspecified (in effect None). Tenancy's harness 'runs W-4 … W-7 and R-T on every definition tagged with that SI' and fails on zero definitions, so the instance either finds no definitions or passes vacuously. Neither spec defines which SI-19 parameters are 'vendor-locked, tighten never loosen'. If OFF were stricter (TightenOnly), the go-live baseline could never be turned ON (W-5/W-6). If it is None, a tenant can turn a flag either way. This is an SI reading that needs a recorded decision.",
+    "recommendation": "Define SI-19's chain parameters explicitly: kill-switch existence and safety classification are code; default OFF for safety-relevant flags is a vendor-locked definition property. Tag the backing definitions SafetyInvariant(SI-19) with a Fixed or specified lock, or move the SI-19 instance onto config's own property, with tenancy's harness accepting it. Record the reading as an OQ/DN for the CSO (§3.4 item 1) and keep CTRL-0019-1 planned until then."
+   },
+   {
+    "id": "SAF-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§6.1 'Backing setting' (changeControl GOVERNED for C1 only) and 'How a safety-relevant flag gets turned on'; G11",
+    "finding": "A CDS_RULE flag (or a Tier A/B baseline rule) can be set OFF by an ordinary value change in a tenant-overlay change set. That works like a kill switch but has none of HAZ C's controls (owned task to owner and CSO, highest priority, visibility on engaged-switch views), and it is not GOVERNED unless the flag is C1. Approver roles for CDS_RULE flag items are not specified. G11 forbids a safety-relevant flag at vendor default ON, yet the vendor-validated baseline (SI-14 clause c) 'arrives ON in the approved go-live bundle' and the stream is not named. So it is unclear where CTRL-0014-5's promotion check attaches and who approves.",
+    "recommendation": "Make the backing settings of CDS_RULE and CLINICAL_BEHAVIOUR flags GOVERNED in both directions, with the CSO among the required roles. A value change to OFF on a Tier A/B rule raises the same owned task and appears on the same views as an engagement (extend HAZ C with this cause). State that the baseline is set ON in the tenant-overlay go-live bundle (or name the stream), and that G10/CTRL-0014-5 runs on that bundle."
+   },
+   {
+    "id": "SAF-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§16 OQ 3; §6.3 'Who may engage'; §15 KA ConfigAuthorization deny-all",
+    "finding": "With deny-all production wiring before WP-0.4, and the proposed default 'refused when the policy decision point is unavailable' after it, no one can engage a kill switch in a deployed system now, or during any Trust Plane outage later. The spec itself says 'an emergency stop that cannot be used fails SI-19'. Choosing between an unauthorised stop and an unusable stop is a patient-safety ambiguity and a reinterpretation of SI-19 clause a. §3.4 items 1 and 8 make that stop-and-ask, but the spec records it only as a non-blocking OQ with an agent-chosen default.",
+    "recommendation": "Move it to DECISIONS-NEEDED as a DN for the CSO, blocking R1 go-live, with options such as a local break-glass engage path (audited, step-up with cell-local credentials, reviewed afterwards) versus refusal. Link the KA to HAZ-0019 CTRL-0019-3 and state that until the DN is answered no clinical behaviour behind a flag may go live."
+   },
+   {
+    "id": "SAF-11",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§6.3 state machine (release guard) and 'Who may engage and release'; §4.2 ReleaseKillSwitch",
+    "finding": "The text says release 'needs the release permission, a reason, and a linked review reference', but ReleaseKillSwitch has no review-reference field and the state-machine guard for release lists only 'permitted; reason present; version matches'. Because of this inconsistency, a stopped faulty rule can be released without the review that HAZ C relies on.",
+    "recommendation": "Add reviewRef (incident or review-task id, validated as existing and closed or linked) to ReleaseKillSwitch, put it in the release guard, add a refusal REVIEW_REFERENCE_REQUIRED, and add UnitTest:kill-switch-release-needs-review-reference under CTRL-C-1."
+   },
+   {
+    "id": "SAF-12",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§6.3 'every engagement raises an owned task'; §3 Dependencies; §12 platform.config.killswitch.engagement-task-sla; CTRL-C-2",
+    "finding": "The spec does not say how the owned task is created. Config imports only tenancy.api, so the only route is platform-tasks consuming KillSwitchEngaged asynchronously, and no spec owns that mapping. The SLA key has no default ('configuration required [HUMAN]'). When it is NotConfigured, either the task is created without an SLA (breaking SI-03 'every task has an owner and an SLA') or engagement depends on configuration (breaking SI-19). Neither outcome is specified.",
+    "recommendation": "Name the mechanism: config depends on platform-tasks' api (record against §5.2 per D5), or platform-tasks owns a declared consumer of KillSwitchEngaged with an owned dead-letter. Engagement must never fail because of the SLA. If the SLA is NotConfigured, the task goes to the fallback supervisory queue with the platform-tasks fail-closed behaviour plus an alarm. Add this to CTRL-C-2's test."
+   },
+   {
+    "id": "SAF-13",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.9; D-6; §14 acceptance 5; §13 PropertyTest:config-chain-vendor-lock-SI-18",
+    "finding": "The claim 'Tier 2 activation cannot be represented in the chain' overstates what D-6 does. The reserved tier2. namespace and 'no SettingValueType means activate' only check names. Any BOOLEAN or ENUM setting under another key (for example a frequency-driven-by-score switch read by a reg-ews caller) can act as an activation toggle. The test passing would then give false assurance against CTRL-0018-1/-6.",
+    "recommendation": "Narrow the acceptance claim to what the test proves. Add a catalogue rule that no definition owned by or read from a Tier 2 module or its caller may gate activation, enforced by the shared ArchTest:tier-2-activation-only-through-register (Tier 2 callers read activation only from the Register port). Cross-reference this from §12 and from config §13.1."
+   },
+   {
+    "id": "SAF-14",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§6 identifiers, AsOf, ApplyConfigurationChanges.reason; §5.7; config §4.2 ChangeReason",
+    "finding": "Tenancy does not yet follow D1/D4. It declares its own TenantId, FacilityId, UserRef and AsOf(validAt: Instant, knownAt: Instant?) and uses reason: String. Config defines ChangeReason in hms.platform.config.api. With both axes typed as Instant, clinical and recorded time can be swapped silently. §5.7 also says 'both default to the application's Clock instant', but valid time must come from the command's clinical time (CommandContext), not system now. Otherwise a back-entered event after downtime resolves configuration as of entry time (SI-10; §6.2 'clinical time and recorded time are separate fields everywhere').",
+    "recommendation": "Use hms.kernel.ids.TenantId/FacilityId/UserId, hms.kernel.context.CommandContext/ChangeReason/ActorRef and hms.kernel.time.AsOf(validAt, knownAt: RecordedTime?). Remove UserRef, KA-T4 and OQ-T1. Delete config's own ChangeReason. Change §5.7: validAt never defaults, callers pass the clinical time of the act being decided, and only knownAt may default to latest knowledge."
+   },
+   {
+    "id": "SAF-15",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§7 merge rules table; INV-15",
+    "finding": "The merge cases overlap. A tighten-only safety key whose vendor value changed matches both 'vendor changed, key safety-relevant → CONFLICT_SAFETY, blocking, never auto-resolved' and 'tighten-only, O at least as strict as N → TIGHTENING_KEPT, non-blocking' (or 'N stricter → VENDOR_STRICTER_TAKEN', which auto-resolves). 'Exactly one finding' and 'never auto-resolves a safety conflict' cannot both hold until precedence is defined. Incomparable values (SAF-05) are not covered either.",
+    "recommendation": "Give an explicit precedence order (Fixed → tighten-only → safety-relevant → others) and state the reading: auto-taking a stricter value is not resolving a conflict. Add a row for incomparable tighten-only values (blocking CONFLICT_SAFETY). Add PropertyTest:merge-each-override-matches-exactly-one-rule."
+   },
+   {
+    "id": "SAF-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§5.4 manifest items; §8 'Applying an activated bundle'; tenancy W-10, §5.8, §10",
+    "finding": "W-10 requires SetValue.evidence (RG1–RG4) for GOVERNED keys such as the clinical tier. The bundle manifest items carry approvals[] but no evidence reference, and activation builds the batch from the snapshot difference. So a governed item delivered by a bundle can never pass W-10. Tenancy §10 says FACILITY values are written by administrators, but config §8 forbids runtime writes in PROD. As written, no implementable path exists for the clinical tier or any GOVERNED value. It fails closed, but the design is not implementable as written.",
+    "recommendation": "Add evidenceRef to manifest items for GOVERNED definitions, carry it into SetValue.evidence on activation, and check it in a gate (G9 or a new one) as well as in tenancy W-10. State the one write path for governed values in both specs."
+   },
+   {
+    "id": "SAF-17",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§8 events and partition key; config §10 events",
+    "finding": "These are contradictions with sibling specs and D6. (a) Event names: tenancy uses HierarchyNodeCreated/Updated/Moved/Retired, SettingValueChanged and SettingLockApplied/Removed; config uses ConfigChangeSetApplied, ConfigBundleActivated, ConfigBundleRefused and FlagChanged. catalogue.md lists EnterpriseNodeCreated/Changed/Retired, SettingChanged, ChangeSetApplied, BundlePromoted, BundlePromotionRefused and FeatureFlagChanged. (b) Partition key: tenancy keys by tenant id, but its vendor and pack ScopeConfiguration aggregates have no tenant. Config's ChangeSet, BundleActivation and KillSwitch are not per-tenant aggregates, and envelope.md keys by aggregate id. Per-tenant ordering, which caches and kill-switch invalidation rely on, is therefore not guaranteed. (c) Config's FlagChanged payload omits actor and reason, which the catalogue and §6.6 'flag changes are audited' require.",
+    "recommendation": "Adopt the catalogue names, or change the catalogue in the same slice. Apply D6: key = aggregate id, and make the tenancy and config aggregates per tenant (or define the vendor and pack scope key). Add actor, onBehalfOf and reason to FlagChanged and KillSwitch events."
+   },
+   {
+    "id": "SAF-18",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§5.1 INV-11; §5.3 streams; §8 activation; tenancy §5.4 ScopeConfiguration",
+    "finding": "§5.3/§6.4 give each tenant its own database, but VENDOR_FOUNDATION and COUNTRY_PACK streams are activated per (environment, stream), and tenancy keeps vendor and pack scopes as separate aggregates. On a central site with several tenants, activating a vendor bundle cannot be one atomic ApplyConfigurationChanges batch. Some tenants could end up on the new vendor values and some on the old, which breaks INV-11 ('a refused bundle changes nothing') and the baseRefs/lineage assumptions of merge and G4.",
+    "recommendation": "Define per-tenant activation of vendor and pack streams (BundleActivation keyed by tenant, environment and stream), with the vendor scope copied into each tenant store. Restate INV-11 per tenant and record the cross-tenant rollout behaviour."
+   },
+   {
+    "id": "SAF-19",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§6.1 'How a safety-relevant flag gets turned on'; §2.4 registry rules; vs tenancy §5.8 and CTRL-0005-14",
+    "finding": "CTRL-0005-14 says no configuration state can leave NICU or PICU outside the closed loop or activate parts of it later. The planned verification is 'PropertyTest:clinical-tier-has-no-partial-loop (NICU and PICU included)'. Config's registry accepts any CLINICAL_BEHAVIOUR flag at UNIT scope, so an owner could register a flag that enables CPOE, eMAR or a MAR view per unit, which is exactly a partial loop. Tenancy's 'test obligation' for readers leaves out NICU/PICU and 'every inpatient area'. Its own test name, clinical-tier-locked-below-facility, is not in CTRL-0005-14's planned_verification and is not marked as a proposed addition.",
+    "recommendation": "Add a registry refusal in config (CLOSED_LOOP_CAPABILITY_NOT_FLAGGABLE) and an arch rule that orders, medications and transfusion derive closed-loop capabilities only from CLINICAL_TIER. Add NICU/PICU and every inpatient area to tenancy's obligation text. Mark PropertyTest:clinical-tier-locked-below-facility as a proposed addition to CTRL-0005-14."
+   },
+   {
+    "id": "SAF-20",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§15 HAZ-T1 causes; §5.3 'This module never decides which direction is safer'",
+    "finding": "HAZ-T1 leaves out some causes. (1) Over-tightening is assumed safe, but a stricter value can harm: an alarm or hard-stop flood causing alert fatigue (H4), or a near-zero scan interval overloading the scanner. The type bounds (min/max) that limit this are clinical or operational content values with no stated owner. (2) A ROUTINE clear or relaxation of a tenant's own SI tightening (W-5 allows it if it is still at least as strict as the parent) silently returns a site to the looser vendor value. Config's HAZ B covers this only for merges. (3) A vendor-level clinical-tier write (SAF-03).",
+    "recommendation": "Add these causes to HAZ-T1. Require owners to cite the source of each SI parameter's type bounds in `sources`, or mark them as a content request. Consider making relaxations of SafetyInvariant tightenings GOVERNED (config OQ 9), recorded as a tightening [P]."
+   },
+   {
+    "id": "SAF-21",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.9; OQ-T8; tightening 7",
+    "finding": "CTRL-0018-1's text says Tier 2 activation is 'vendor-locked in the configuration chain: a tenant may tighten it'. The spec moves activation out of the chain and puts the tenant's tightening on a config kill switch. That is a reinterpretation of a hazard-control description (§3.4 item 1). Even if it is stricter, the hazard-log text needs amending through a recorded decision, not only an OQ. The tightening also only works if every Tier 2 function has a tier2Function-bound flag, and config's registry does not require one, so a tenant may have no way to keep a cleared function off.",
+    "recommendation": "Record it as a DN/tightening with a proposed amendment to CTRL-0018-1's description. Add a config registry rule that every Tier 2 function in the Register has a tier2Function-bound flag, so the tenant's 'tighten' is always available."
+   },
+   {
+    "id": "SAF-22",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§12 configuration table",
+    "finding": "(a) 'VendorLockedTightenOnly' and 'Vendor-locked' are not tenancy VendorLock names. (b) platform.config.change-set.author-cannot-approve is a separation-of-duties rule made into a setting, against tenancy §9 ('the chain's own rules are code'). As TightenOnly from true it can never change, so it is dead configuration. (c) killswitch.max-propagation bounds an SI-19 timing claim, yet it has no safety class and no default; if classed SafetyInvariant (SI-19), D-2 would require a vendorDefault. (d) No key states its SafetyClass or changeControl.",
+    "recommendation": "Use tenancy's VendorLock names. Make author-cannot-approve code (INV-7). Give every key its SafetyClass, changeControl and sources. Keep max-propagation as an OQ with no value until the cell sets it, classed SafetyRelevant with NotConfigured handled fail-closed."
+   },
+   {
+    "id": "SAF-23",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§4.2 KillSwitchResult.AlreadyInState; §6.3 table; INV-5",
+    "finding": "A second engage of an already-engaged switch by another person, with another reason, returns AlreadyInState and emits nothing. That person's actor and reason are lost, although INV-5 says every engage produces an audit record. Idempotency should also rest on the CommandContext idempotency key (§22.1 item 2), not on state.",
+    "recommendation": "Make repeat engagements with a new idempotency key produce an audit record (and optionally a note event) while state stays the same. Use the CommandContext idempotency key for true retries."
+   },
+   {
+    "id": "SAF-24",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§5.6 'trust store ships inside the signed release'; ADR-021 N-1 rollback",
+    "finding": "ADR-021 lets releases roll back to N-1. Because the trust store, revocations included, ships inside the release, a rollback can bring back a key revoked in N, and that key would then pass G1.",
+    "recommendation": "Keep revocations monotonic, outside the release rollback, or have anti-rollback refuse any trust store older than the newest revocation set seen. Cover this in the key ADR and add UnitTest:release-rollback-keeps-revocations."
+   },
+   {
+    "id": "SAF-25",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§5.4 items.validPeriod; tenancy W-11",
+    "finding": "Tenancy W-11 refuses a retroactive validFrom for safety-classified keys. A bundle item whose validFrom was fixed at build time becomes retroactive by the time the bundle is activated in TRAIN or PROD days later, so every safety item in such a bundle would be refused. The spec does not say how validFrom of snapshot items maps onto activation.",
+    "recommendation": "State that an item without an explicit validFrom takes effect from the activation's recorded time, and that an explicit past validFrom on a safety-classified item is refused at G7 with a clear finding."
+   },
+   {
+    "id": "SAF-26",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§13.1 'Status after WP-0.3' column; §3 Dependencies; §5.3 stream names; §6.2; §3.1",
+    "finding": "Several small mismatches. (a) 'partly implemented' is not a hazard-log state (schema: planned, implemented, verified), and CTRL-0019-3 cannot be 'implemented' while its 'per tenant and site' acceptance on the cell waits. (b) §3 cites §5.2 for the dependency on tenancy.api, but §5.2 lists only Trust for platform-config; D5 requires an open question against that column. (c) The stream name COUNTRY_PACK:kurdistan differs from tenancy's CountryPackId 'kri'. (d) ChangeItem.provenance is typed Provenance, which clashes with tenancy's resolution Provenance (tenancy calls it ContentProvenance). (e) §6.2 calls evaluate(key, at), while §4.2 has (key, context, at).",
+    "recommendation": "Use hazard-log states only. Mark the cell part of CTRL-0019-3 as waiting. Record the D5 OQ. Use CountryPackId 'kri'. Rename the type to ContentProvenance. Fix the evaluate signature."
+   },
+   {
+    "id": "SAF-27",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§5.10 table vs §9 table; OQ-T4; OQ-T1",
+    "finding": "§9 marks calendar.weekend-days and calendar.holidays as 'lockable at COUNTRY_PACK [P]', while §5.10's definition table gives no lockableAt. A pack lock on holidays would also stop a tenant adding local holidays, which affects calendar-aware SLAs. OQ-T4 still presents the generic keys as a proposal and OQ-T1 asks where the ids live, but D3 and D1 have decided both. A facility override stays open (D3).",
+    "recommendation": "State lockableAt in §5.10 and justify the pack lock or drop it. Rewrite OQ-T4 as 'decided (D3): generic keys, COUNTRY_PACK and TENANT; open: a facility override'. Close OQ-T1 under D1."
+   },
+   {
+    "id": "SAF-28",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tenancy.md",
+    "location": "§12 table (CTRL-0005-14 row); §13",
+    "finding": "Proposed test names (PropertyTest:clinical-tier-locked-below-facility; UnitTest:config-retroactive-safety-change-refused for CTRL-0010-1) are attached to existing controls without saying they are proposed additions to planned_verification. Config does say this for CTRL-0014-7. Without the label, CI's hazard check and traceability will not find them.",
+    "recommendation": "Mark each as '(proposed addition to CTRL-nnnn-n planned_verification)' and add them to the hazard log in the same slice, without changing control state."
+   },
+   {
+    "id": "SAF-29",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-config.md",
+    "location": "§14 StaticAnalysis:every-flag-and-rule-has-a-kill-switch item (3); §11",
+    "finding": "The ArchUnit rule 'module code reads flags only through FlagEvaluator', the detekt rule against @ConditionalOnProperty, and the §6.8 #2 migration linter are described without a home. D7 puts shared arch rules and the reusable migration linter in :platform:arch-rules.",
+    "recommendation": "State that these rules live in :platform:arch-rules (D7), are applied to every module, and that config's later schema runs the shared migration linter."
+   }
+  ]
+ }
+]

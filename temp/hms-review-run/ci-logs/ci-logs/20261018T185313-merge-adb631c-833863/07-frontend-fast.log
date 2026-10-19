@@ -1,0 +1,63 @@
+# frontend-fast
+# command: corepack pnpm run fast
+# cwd: frontend
+# result: PASS (exit code 0)
+
+frontend-css-logical: PASS (files=0, findings=0)
+Scope: 2 of 3 workspace projects
+packages/i18n typecheck$ tsc --noEmit -p tsconfig.json
+packages/eslint-plugin-hms typecheck$ tsc --noEmit -p tsconfig.json
+packages/i18n typecheck: Done
+packages/eslint-plugin-hms typecheck: Done
+Scope: 2 of 3 workspace projects
+packages/eslint-plugin-hms test$ vitest run
+packages/i18n test$ vitest run
+packages/i18n test: 
+packages/i18n test:  RUN  v5.0.5 /home/surface/src/hospitalmanagementsystem/frontend/packages/i18n
+packages/i18n test: 
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  RUN  v5.0.5 /home/surface/src/hospitalmanagementsystem/frontend/packages/eslint-plugin-hms
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  ✓ test/physical-css.test.ts (11 tests) 53ms
+packages/i18n test:  ✓ test/locales.test.ts (4 tests) 27ms
+packages/i18n test:  ✓ test/duplicate-keys.test.ts (5 tests) 51ms
+packages/i18n test:  ✓ test/catalogues.test.ts (5 tests) 28ms
+packages/i18n test:  ✓ test/catalogue-lint.test.ts (23 tests) 67ms
+packages/i18n test:  ✓ test/cli.test.ts (4 tests) 2239ms
+packages/i18n test:    ✓ localisation lint CLI (4)
+packages/i18n test:      ✓ passes on the shipped catalogues by default 381ms
+packages/i18n test:      ✓ fails on the invalid fixtures with one error per planted problem 320ms
+packages/i18n test:      ✓ exits 2 for an unknown argument or a missing directory 1231ms
+packages/i18n test: 
+packages/i18n test:  Test Files  5 passed (5)
+packages/i18n test:       Tests  41 passed (41)
+packages/i18n test:    Start at  18:54:23
+packages/i18n test:    Duration  2.76s (tests 79%, import 12%, transform 6%, worker 3%)
+packages/i18n test: 
+packages/i18n test: JUNIT report written to /home/surface/src/hospitalmanagementsystem/frontend/reports/junit/i18n.xml
+packages/i18n test: Done
+packages/eslint-plugin-hms test:  ✓ test/css-check.test.ts (10 tests) 2506ms
+packages/eslint-plugin-hms test:    ✓ stylesheet check CLI (5)
+packages/eslint-plugin-hms test:      ✓ exits 1 and reports every finding as JSON for physical.css 369ms
+packages/eslint-plugin-hms test:      ✓ exits 0 for logical.css 348ms
+packages/eslint-plugin-hms test:      ✓ exits 1 for a stylesheet it cannot parse 452ms
+packages/eslint-plugin-hms test:      ✓ exits 2 for an unknown option or a missing path 873ms
+packages/eslint-plugin-hms test:      ✓ skips its own fixtures in the default workspace scan 374ms
+packages/eslint-plugin-hms test:  ✓ test/no-jsx-literals.test.ts (117 tests) 939ms
+packages/eslint-plugin-hms test:  ✓ test/plugin.test.ts (4 tests) 2817ms
+packages/eslint-plugin-hms test:  ✓ test/no-physical-css.test.ts (331 tests) 1720ms
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  Test Files  5 passed (5)
+packages/eslint-plugin-hms test:       Tests  473 passed (473)
+packages/eslint-plugin-hms test:    Start at  18:54:23
+packages/eslint-plugin-hms test:    Duration  4.43s (tests 60%, import 37%, transform 2%, worker 1%)
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test: JUNIT report written to /home/surface/src/hospitalmanagementsystem/frontend/reports/junit/eslint-plugin-hms.xml
+packages/eslint-plugin-hms test: Done
+frontend-i18n-catalogues: PASS (catalogues=3, keys=4, messages=12)
+--- stderr ---
+$ corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run i18n:lint
+$ eslint --max-warnings 0 . && node packages/eslint-plugin-hms/src/css/cli.ts
+$ tsc --noEmit -p tsconfig.json && corepack pnpm -r run typecheck
+$ node scripts/clean-junit-reports.ts && corepack pnpm -r run test
+$ node packages/i18n/src/lint/cli.ts

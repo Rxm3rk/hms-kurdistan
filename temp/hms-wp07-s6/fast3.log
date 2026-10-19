@@ -1,0 +1,334 @@
+$ corepack pnpm run lint && corepack pnpm run typecheck && corepack pnpm run test && corepack pnpm run i18n:lint
+$ eslint --max-warnings 0 . && node packages/eslint-plugin-hms/src/css/cli.ts
+frontend-css-logical: PASS (files=9, findings=0)
+$ tsc --noEmit -p tsconfig.json && corepack pnpm -r run typecheck
+Scope: 6 of 7 workspace projects
+packages/ui-core typecheck$ tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.src.json
+packages/i18n typecheck$ tsc --noEmit -p tsconfig.json
+packages/eslint-plugin-hms typecheck$ tsc --noEmit -p tsconfig.json
+packages/i18n typecheck: Done
+packages/eslint-plugin-hms typecheck: Done
+packages/ui-core typecheck: Done
+packages/hal-client typecheck$ tsc --noEmit -p tsconfig.json
+packages/design-system typecheck$ tsc --noEmit -p tsconfig.json
+packages/hal-client typecheck: Done
+packages/design-system typecheck: Done
+apps/web typecheck$ tsc --noEmit -p tsconfig.json
+apps/web typecheck: Done
+$ node scripts/clean-junit-reports.ts && corepack pnpm -r run test
+Scope: 6 of 7 workspace projects
+packages/i18n test$ vitest run
+packages/ui-core test$ vitest run
+packages/eslint-plugin-hms test$ vitest run
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/eslint-plugin-hms
+packages/eslint-plugin-hms test: 
+packages/ui-core test: 
+packages/ui-core test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/ui-core
+packages/ui-core test: 
+packages/i18n test: 
+packages/i18n test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/i18n
+packages/i18n test: 
+packages/eslint-plugin-hms test:  ✓ test/physical-css.test.ts (11 tests) 34ms
+packages/ui-core test:  ✓ test/smoke.test.ts (3 tests) 86ms
+packages/i18n test:  ✓ test/clinical-keys.test.ts (15 tests) 51ms
+packages/ui-core test:  ✓ test/clock.test.ts (4 tests) 707ms
+packages/ui-core test:    ✓ clock (4)
+packages/ui-core test:      ✓ reads the platform clocks 349ms
+packages/i18n test:  ✓ test/catalogue-lint.test.ts (23 tests) 512ms
+packages/i18n test:  ✓ test/ui-intl.test.ts (6 tests) 532ms
+packages/i18n test:  ✓ test/review-marking.test.ts (10 tests) 562ms
+packages/i18n test:    ✓ UnitTest:ckb-ar-drafts-marked-unreviewed (3)
+packages/i18n test:      ✓ passes the review marking lint on the shipped directory 510ms
+packages/ui-core test:  ✓ test/clinical-number.property.test.ts (6 tests) 1902ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-leading-zero (1)
+packages/ui-core test:      ✓ never shows a naked decimal: a digit always precedes the point 543ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-ascii-digits-only (2)
+packages/ui-core test:      ✓ rejects any string containing a character outside ASCII digits, `.` and `-` 329ms
+packages/ui-core test:    ✓ PropertyTest:clinical-number-value-unchanged (2)
+packages/ui-core test:      ✓ keeps the numeric value: the digits match the input once both are padded with zeros 382ms
+packages/ui-core test:  ✓ test/patient-context.test.ts (25 tests) 1896ms
+packages/ui-core test:    ✓ UnitTest:context-switch-requires-confirmation (9)
+packages/ui-core test:      ✓ changes the patient only through the transitions that allow it (property) 1382ms
+packages/i18n test:  ✓ test/catalogues.test.ts (9 tests) 845ms
+packages/ui-core test:  ✓ test/banner-model.test.ts (22 tests) 1563ms
+packages/ui-core test:    ✓ UnitTest:allergy-status-nka-distinct-from-not-assessed (5)
+packages/ui-core test:      ✓ never yields NKA for missing, null, unknown, empty-list, malformed, extra-key or contradictory data 347ms
+packages/ui-core test:  ✓ test/clinical-number.test.ts (14 tests) 42ms
+packages/i18n test:  ✓ test/locales.test.ts (4 tests) 17ms
+packages/i18n test:  ✓ test/duplicate-keys.test.ts (5 tests) 15ms
+packages/ui-core test:  ✓ test/reverification.property.test.ts (15 tests) 3879ms
+packages/ui-core test:    ✓ PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change (15)
+packages/ui-core test:      ✓ requires re-verification exactly when the elapsed time is at most 60 000 ms, or negative (property) 1495ms
+packages/ui-core test:      ✓ never opens signing without re-verification within the window, nor submits with another user’s re-verification (model) 2299ms
+packages/ui-core test: 
+packages/ui-core test:  Test Files  7 passed (7)
+packages/ui-core test:       Tests  89 passed (89)
+packages/ui-core test:    Start at  11:34:42
+packages/ui-core test:    Duration  6.92s (import 46%, tests 46%, transform 7%, worker 1%)
+packages/ui-core test: 
+packages/i18n test:  ✓ test/sorani-letters.test.ts (6 tests) 26ms
+packages/i18n test:  ✓ test/pseudo.property.test.ts (7 tests) 4465ms
+packages/i18n test:    ✓ PropertyTest:pseudo-locale-preserves-placeholders (7)
+packages/i18n test:      ✓ generates valid ICU messages to test with 1293ms
+packages/i18n test:      ✓ keeps every placeholder, branch, # and tag of a generated message, in both pseudo-locales 2427ms
+packages/eslint-plugin-hms test:  ✓ test/no-jsx-literals.test.ts (117 tests) 2028ms
+packages/eslint-plugin-hms test:    ✓ hms/no-jsx-literals (116)
+packages/eslint-plugin-hms test:      ✓ valid (43)
+packages/eslint-plugin-hms test:        ✓ <p>{t('app.name')}</p> 397ms
+packages/ui-core test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/ui-core.xml
+packages/ui-core test: Done
+packages/hal-client test$ vitest run
+packages/eslint-plugin-hms test:  ✓ test/css-check.test.ts (10 tests) 8896ms
+packages/eslint-plugin-hms test:    ✓ stylesheet check CLI (5)
+packages/eslint-plugin-hms test:      ✓ exits 1 and reports every finding as JSON for physical.css 3225ms
+packages/eslint-plugin-hms test:      ✓ exits 0 for logical.css 1379ms
+packages/eslint-plugin-hms test:      ✓ exits 1 for a stylesheet it cannot parse 1252ms
+packages/eslint-plugin-hms test:      ✓ exits 2 for an unknown option or a missing path 1822ms
+packages/eslint-plugin-hms test:      ✓ skips its own fixtures in the default workspace scan 928ms
+packages/i18n test:  ✓ test/cli.test.ts (4 tests) 7573ms
+packages/i18n test:    ✓ localisation lint CLI (4)
+packages/i18n test:      ✓ passes on the shipped catalogues by default 3035ms
+packages/i18n test:      ✓ passes on the valid fixtures, whose plural branches differ by locale 1517ms
+packages/i18n test:      ✓ fails on the invalid fixtures with one error per planted problem 852ms
+packages/i18n test:      ✓ exits 2 for an unknown argument or a missing directory 2162ms
+packages/i18n test: 
+packages/i18n test:  Test Files  10 passed (10)
+packages/i18n test:       Tests  89 passed (89)
+packages/i18n test:    Start at  11:34:42
+packages/i18n test:    Duration  10.51s (tests 65%, transform 20%, import 14%, worker 1%)
+packages/i18n test: 
+packages/i18n test:     Isolate  10 workers spawned · ~2.35s startup each (spawn + environment, per file)
+packages/i18n test:              at least ~1.01s faster with isolate: false — reuses workers across files instead of one per file
+packages/i18n test: 
+packages/eslint-plugin-hms test:  ✓ test/no-physical-css.test.ts (331 tests) 3254ms
+packages/eslint-plugin-hms test:    ✓ hms/no-physical-css (331)
+packages/eslint-plugin-hms test:      ✓ valid (106)
+packages/eslint-plugin-hms test:        ✓ <div style={{ insetInlineStart: 4 }} /> 310ms
+packages/i18n test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/i18n.xml
+packages/i18n test: Done
+packages/design-system test$ vitest run
+packages/hal-client test: 
+packages/hal-client test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/hal-client
+packages/hal-client test: 
+packages/eslint-plugin-hms test:  ✓ test/plugin.test.ts (4 tests) 7726ms
+packages/eslint-plugin-hms test: 
+packages/eslint-plugin-hms test:  Test Files  5 passed (5)
+packages/eslint-plugin-hms test:       Tests  473 passed (473)
+packages/eslint-plugin-hms test:    Start at  11:34:42
+packages/eslint-plugin-hms test:    Duration  12.17s (tests 56%, import 41%, transform 3%)
+packages/eslint-plugin-hms test: 
+packages/hal-client test:  ✓ test/hal-capture-discarded-after-context-change.test.ts (9 tests) 207ms
+packages/design-system test: 
+packages/design-system test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/packages/design-system
+packages/design-system test: 
+packages/hal-client test:  ✓ test/smoke.test.ts (3 tests) 1918ms
+packages/hal-client test:    ✓ hal-client workspace wiring (3)
+packages/hal-client test:      ✓ imports the package entry point without error 677ms
+packages/hal-client test:      ✓ compiles the HAL contract v1 schema with Ajv (JSON Schema 2020-12) 1235ms
+packages/hal-client test:  ✓ test/no-shell-fails-closed.test.ts (19 tests) 369ms
+packages/hal-client test:  ✓ test/transport-tauri.test.ts (81 tests) 724ms
+packages/hal-client test:  ✓ test/transport-sim.test.ts (34 tests) 1196ms
+packages/hal-client test:  ✓ test/hal-contract-fixtures.test.ts (219 tests) 3258ms
+packages/hal-client test:    ✓ hal-contract-fixtures (219)
+packages/hal-client test:      ✓ builds, for every call, exactly the errors the schema allows (halError) 672ms
+packages/hal-client test:      ✓ rejects, with both schemas, an error whose flags or message key do not match its call and kind 383ms
+packages/hal-client test:      ✓ rejects, with both schemas, an extra field in the value or the error in every fixture 365ms
+packages/hal-client test: 
+packages/hal-client test:  Test Files  6 passed (6)
+packages/hal-client test:       Tests  365 passed (365)
+packages/hal-client test:    Start at  11:34:54
+packages/hal-client test:    Duration  7.66s (import 56%, tests 37%, transform 6%, worker 1%)
+packages/hal-client test: 
+packages/eslint-plugin-hms test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/eslint-plugin-hms.xml
+packages/eslint-plugin-hms test: Done
+packages/hal-client test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/hal-client.xml
+packages/hal-client test: Done
+packages/design-system test:  ✓ test/banner/banner-renders-every-field.test.tsx (42 tests) 8046ms
+packages/design-system test:    ✓ UnitTest:banner-renders-every-field (42)
+packages/design-system test:      ✓ in en (14)
+packages/design-system test:        ✓ is a region named "Patient banner", not the page header landmark 322ms
+packages/design-system test:        ✓ shows the photo with its alternative text 975ms
+packages/design-system test:        ✓ shows an approximate or partial date of birth at its precision, with the approximate flag 310ms
+packages/design-system test:        ✓ shows the allergy count in the locale's plural form for each count 819ms
+packages/design-system test:        ✓ shows the weight through ClinicalNumber: the component's own markup, the model's display text 415ms
+packages/design-system test:      ✓ in ckb (14)
+packages/design-system test:        ✓ shows the allergy count in the locale's plural form for each count 478ms
+packages/design-system test:        ✓ shows the weight through ClinicalNumber: the component's own markup, the model's display text 389ms
+packages/design-system test:      ✓ in ar (14)
+packages/design-system test:        ✓ shows the allergy count in the locale's plural form for each count 479ms
+packages/design-system test:        ✓ shows the weight through ClinicalNumber: the component's own markup, the model's display text 364ms
+packages/design-system test:  ✓ test/sign/sign-requires-reverification.test.tsx (11 tests) 8222ms
+packages/design-system test:    ✓ sign-requires-reverification (11)
+packages/design-system test:      ✓ shows re-verification before authentication within the window, with Sign disabled 1917ms
+packages/design-system test:      ✓ shows the patient to confirm: photo state, every name form, MRN and date of birth, whole 666ms
+packages/design-system test:      ✓ focuses no control on open, and Enter on open confirms nothing 643ms
+packages/design-system test:      ✓ enables authentication only after the patient is confirmed, and Sign only after authentication 1351ms
+packages/design-system test:      ✓ still requires re-verification at exactly 60.000 s, and not at 60.001 s 552ms
+packages/design-system test:      ✓ "Not this patient" ends the dialog with sign.reverify.rejected and focuses the banner close control 754ms
+packages/design-system test:      ✓ without the banner control, focus goes to the status message, never to a clinical action 713ms
+packages/design-system test:      ✓ shows the machine’s own window: a configured 120 s window reads 120 seconds 406ms
+packages/design-system test:      ✓ never confirms a patient whose identity is unavailable or incomplete (fail closed) 729ms
+packages/design-system test:      ✓ cancelling leaves nothing signed and keeps the patient 392ms
+packages/design-system test:  ✓ test/banner/banner-missing-data-visible.test.tsx (39 tests) 10108ms
+packages/design-system test:    ✓ UnitTest:banner-missing-data-visible (39)
+packages/design-system test:      ✓ in en (13)
+packages/design-system test:        ✓ shows "No photo" in the photo's place for an absent, invalid or failed photo, never an empty frame 1259ms
+packages/design-system test:        ✓ shows a missing Latin name in its place, with "Identity incomplete" 466ms
+packages/design-system test:        ✓ shows "Identity incomplete" and the default name order when the own script is absent or invalid 422ms
+packages/design-system test:        ✓ shows "Date of birth missing" or "unavailable", with "Identity incomplete", and disables signing 333ms
+packages/design-system test:        ✓ shows the error state for a missing or invalid MRN, patient id or every name form, and disables signing 521ms
+packages/design-system test:        ✓ shows "Allergy status unavailable" for missing, invalid or contradictory data, never NKA 469ms
+packages/design-system test:        ✓ shows "No dated weight" and "Weight unavailable" as distinct states, never as a weight 478ms
+packages/design-system test:      ✓ in ckb (13)
+packages/design-system test:        ✓ shows the error state for a missing or invalid MRN, patient id or every name form, and disables signing 332ms
+packages/design-system test:        ✓ shows "Allergy status unavailable" for missing, invalid or contradictory data, never NKA 304ms
+packages/design-system test:        ✓ shows "No dated weight" and "Weight unavailable" as distinct states, never as a weight 552ms
+packages/design-system test:      ✓ in ar (13)
+packages/design-system test:        ✓ shows "Date of birth missing" or "unavailable", with "Identity incomplete", and disables signing 338ms
+packages/design-system test:        ✓ shows the error state for a missing or invalid MRN, patient id or every name form, and disables signing 400ms
+packages/design-system test:        ✓ shows "Allergy status unavailable" for missing, invalid or contradictory data, never NKA 317ms
+packages/design-system test:        ✓ shows "No dated weight" and "Weight unavailable" as distinct states, never as a weight 420ms
+packages/design-system test:  ✓ test/command-palette/palette-never-preselects-patient.test.tsx (6 tests) 9599ms
+packages/design-system test:    ✓ palette-never-preselects-patient (6)
+packages/design-system test:      ✓ highlights nothing when it opens 2243ms
+packages/design-system test:      ✓ highlights nothing when typing leaves a single patient, and Enter then does nothing 2613ms
+packages/design-system test:      ✓ drops the highlight when typing changes the results 1849ms
+packages/design-system test:      ✓ drops the highlight when the results change while the palette is open 1405ms
+packages/design-system test:      ✓ runs only what the user highlighted, once highlighted on purpose 1473ms
+packages/design-system test:  ✓ test/sign/sign-outcome-unknown-reuses-idempotency-key.test.tsx (9 tests) 12385ms
+packages/design-system test:    ✓ sign-outcome-unknown-reuses-idempotency-key (9)
+packages/design-system test:      ✓ a rejection shows sign.failed, keeps the dialog open, and a retry keeps the key 3127ms
+packages/design-system test:      ✓ a timeout shows sign.outcomeUnknown and a retry sends the same idempotency key 1309ms
+packages/design-system test:      ✓ a lost response (transport error) is unknown, never "not signed" 984ms
+packages/design-system test:      ✓ a malformed answer is unknown 917ms
+packages/design-system test:      ✓ Escape while submitting does not close the dialog 1055ms
+packages/design-system test:      ✓ a dialog closed while the command is in flight reports the outcome as unknown 868ms
+packages/design-system test:      ✓ a refusal for re-verification returns to the re-verification step with the same key 1694ms
+packages/design-system test:      ✓ any other refusal is a rejection: sign.failed 882ms
+packages/design-system test:      ✓ a new sign session gets a new key 1542ms
+packages/design-system test:  ✓ test/sign/cosign-same-pattern.test.tsx (7 tests) 13369ms
+packages/design-system test:    ✓ cosign-same-pattern (7)
+packages/design-system test:      ✓ uses the same steps, in the same order, with the same controls; only the intent differs 2901ms
+packages/design-system test:      ✓ applies the re-verification rule to the co-signer’s own window 883ms
+packages/design-system test:      ✓ asks for a badge tap plus a PIN, and enables Co-sign only after both 1791ms
+packages/design-system test:      ✓ refuses a co-signature authenticated without badge and PIN 1188ms
+packages/design-system test:      ✓ a simulated PIN that is not 4 to 8 digits is not accepted 993ms
+packages/design-system test:      ✓ returns to re-verification when the co-signer is not the person who confirmed the patient 3220ms
+packages/design-system test:      ✓ after a return to re-verification, a failed authentication confirms nothing 2388ms
+packages/design-system test:  ✓ test/command-palette/palette-keyboard-only.test.tsx (14 tests) 13917ms
+packages/design-system test:    ✓ palette-keyboard-only (14)
+packages/design-system test:      ✓ opens with Ctrl+K, with focus in the search field 2291ms
+packages/design-system test:      ✓ lists every item, grouped in display order: navigation, patients, settings 502ms
+packages/design-system test:      ✓ reaches and runs nav.demo with the arrow keys and Enter 984ms
+packages/design-system test:      ✓ reaches and runs nav.none with the arrow keys and Enter 1175ms
+packages/design-system test:      ✓ reaches and runs SYN-PAT-0001 with the arrow keys and Enter 1024ms
+packages/design-system test:      ✓ reaches and runs SYN-PAT-0002 with the arrow keys and Enter 1153ms
+packages/design-system test:      ✓ reaches and runs settings.language.ckb with the arrow keys and Enter 1102ms
+packages/design-system test:      ✓ reaches and runs settings.language.ar with the arrow keys and Enter 919ms
+packages/design-system test:      ✓ finds a command by typing, then runs it from the keyboard 1404ms
+packages/design-system test:      ✓ closes with Escape, runs nothing and returns focus to the palette button 870ms
+packages/design-system test:      ✓ announces how many results there are, and says when nothing matches 2110ms
+packages/design-system test:  ✓ test/smoke.test.tsx (3 tests) 8270ms
+packages/design-system test:    ✓ design-system workspace wiring (3)
+packages/design-system test:      ✓ imports the package entry point without error 8163ms
+packages/design-system test:  ✓ test/density/density-control.test.tsx (4 tests) 3947ms
+packages/design-system test:    ✓ density-control (4)
+packages/design-system test:      ✓ is a labelled radio group with both modes, comfortable chosen by default 1765ms
+packages/design-system test:      ✓ switches density from the keyboard 794ms
+packages/design-system test:      ✓ the palette command switches to the other mode and names it 1378ms
+packages/design-system test:  ✓ test/banner/colour-not-only-carrier.test.tsx (14 tests) 4285ms
+packages/design-system test:    ✓ UnitTest:colour-not-only-carrier (14)
+packages/design-system test:      ✓ gives every status of a field an icon of its own outline, read from the drawing 306ms
+packages/design-system test:      ✓ shows every variant of a banner field with a distinct icon and text, in en 1376ms
+packages/design-system test:      ✓ shows every variant of a banner field with a distinct icon and text, in ckb 1005ms
+packages/design-system test:      ✓ shows every variant of a banner field with a distinct icon and text, in ar 779ms
+packages/design-system test:  ✓ test/command-palette/palette-selects-patient-via-confirmation.test.tsx (2 tests) 5696ms
+packages/design-system test:    ✓ palette-selects-patient-via-confirmation (2)
+packages/design-system test:      ✓ closes the palette first; the confirmation opens after it has closed, never over it 3927ms
+packages/design-system test:      ✓ choosing the patient already open changes nothing and opens no confirmation 1763ms
+packages/design-system test:  ✓ test/banner/bidi-isolation.test.tsx (15 tests) 3290ms
+packages/design-system test:    ✓ UnitTest:bidi-isolation (15)
+packages/design-system test:      ✓ in en (5)
+packages/design-system test:        ✓ isolates every name form with its own direction and language 1188ms
+packages/design-system test:        ✓ isolates the MRN and every date left to right 304ms
+packages/design-system test:  ✓ test/modal-no-stacking.test.tsx (21 tests) 3480ms
+packages/design-system test:    ✓ modal-no-stacking (21)
+packages/design-system test:      ✓ Modal (12)
+packages/design-system test:        ✓ opens one modal and holds the guard while it is open 1319ms
+packages/design-system test:        ✓ throws ModalStackError in development and tests when a second modal opens over the first 305ms
+packages/design-system test:        ✓ in production, shows the refusal on screen, not to assistive technology only 302ms
+packages/design-system test:        ✓ does not queue a refused modal: it stays closed after the first closes, until it is asked again 324ms
+packages/design-system test:  ✓ test/banner/banner-long-names-wrap.test.tsx (16 tests) 3563ms
+packages/design-system test:    ✓ UnitTest:banner-long-names-wrap (16)
+packages/design-system test:      ✓ in en (5)
+packages/design-system test:        ✓ shows long four-part names whole in the banner, own script ckb 742ms
+packages/design-system test:        ✓ shows long four-part names whole in the banner, own script ar 589ms
+packages/design-system test:        ✓ tells apart two patients whose names differ only in the grandfather's name 373ms
+packages/design-system test:      ✓ in ar (5)
+packages/design-system test:        ✓ shows long four-part names whole in the banner, own script ckb 351ms
+packages/design-system test:  ✓ test/font-coverage.test.ts (13 tests) 1149ms
+packages/design-system test:    ✓ font-coverage (13)
+packages/design-system test:      ✓ has a glyph in the chosen bundled woff2 for the ten Sorani letters of the spec 413ms
+packages/design-system test:      ✓ shapes every Sorani letter: a joined form after a joining letter, and before one when dual-joining 511ms
+packages/design-system test:  ✓ test/tokens-contrast.test.ts (13 tests) 64ms
+packages/design-system test:  ✓ test/banner/banner-identifiers-never-room-or-bed.test.tsx (12 tests) 1482ms
+packages/design-system test:    ✓ UnitTest:banner-identifiers-never-room-or-bed (12)
+packages/design-system test:      ✓ in en (4)
+packages/design-system test:        ✓ ignores room, bed and location keys beside a complete record 319ms
+packages/design-system test:  ✓ test/locale-sets-dir-and-lang.test.tsx (9 tests) 1146ms
+packages/design-system test:    ✓ locale-sets-dir-and-lang (9)
+packages/design-system test:      ✓ updates lang and dir on <html> on every change, in place, keeping state below the provider 851ms
+packages/design-system test:  ✓ test/message.test.tsx (3 tests) 187ms
+packages/design-system test:  ✓ test/density-provider.test.tsx (4 tests) 753ms
+packages/design-system test:    ✓ DensityProvider (4)
+packages/design-system test:      ✓ switches to compact and back, and stores the choice per user 575ms
+packages/design-system test:  ✓ test/clinical-number.test.tsx (15 tests) 801ms
+packages/design-system test:    ✓ ClinicalNumber (13)
+packages/design-system test:      ✓ in en (4)
+packages/design-system test:        ✓ renders a number and its unit in one <bdi dir="ltr">, joined by a no-break space 542ms
+packages/design-system test:  ✓ test/sign/simulated-authenticator.test.ts (9 tests) 28ms
+packages/design-system test: 
+packages/design-system test:  Test Files  22 passed (22)
+packages/design-system test:       Tests  281 passed (281)
+packages/design-system test:    Start at  11:34:56
+packages/design-system test:    Duration  73.06s (environment 33%, import 31%, tests 26%, setup 10%, transform 1%)
+packages/design-system test: 
+packages/design-system test: Environment  jsdom was created 22 times · 144.64s total, 33% of tracked time
+packages/design-system test:              create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+packages/design-system test:              learn more: https://vitest.dev/guide/improving-performance#test-environments
+packages/design-system test: 
+packages/design-system test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/design-system.xml
+packages/design-system test: Done
+apps/web test$ vitest run
+apps/web test: 
+apps/web test:  RUN  v5.0.5 C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/apps/web
+apps/web test: 
+apps/web test:  ✓ test/demo-fixtures.test.ts (30 tests) 198ms
+apps/web test:  ✓ test/smoke.test.tsx (3 tests) 788ms
+apps/web test:    ✓ web workspace wiring (3)
+apps/web test:      ✓ imports the workspace packages without error 653ms
+apps/web test:  ✓ test/patient-query-cache.test.ts (7 tests) 91ms
+apps/web test:  ✓ test/route-tree.test.ts (7 tests) 2757ms
+apps/web test:    ✓ banner-present-on-every-clinical-route (7)
+apps/web test:      ✓ /demo/banner renders the banner when the window holds a patient 1788ms
+apps/web test:      ✓ /demo/banner shows the patient chooser and no banner with no patient 778ms
+apps/web test:  ✓ test/patient-address-is-a-request.test.tsx (7 tests) 7682ms
+apps/web test:    ✓ the address is a request to the patient context (7)
+apps/web test:      ✓ opens the first patient of an empty window from the address, with no confirmation 1868ms
+apps/web test:      ✓ asks before switching; cancel keeps the patient and puts the address back 1805ms
+apps/web test:      ✓ confirming switches the patient and the address follows 1127ms
+apps/web test:      ✓ cannot confirm a switch to a patient whose identity data is invalid 533ms
+apps/web test:      ✓ closing the patient empties the window and the address, and shows the chooser 964ms
+apps/web test:      ✓ turns ?fixture=<id> into the patient request 451ms
+apps/web test:      ✓ a language change re-renders in place, right to left, and keeps the patient 929ms
+apps/web test: 
+apps/web test:  Test Files  5 passed (5)
+apps/web test:       Tests  54 passed (54)
+apps/web test:    Start at  11:36:11
+apps/web test:    Duration  22.42s (import 41%, environment 33%, tests 14%, setup 9%, transform 2%)
+apps/web test: 
+apps/web test: JUNIT report written to C:/Users/Surface/.t3/worktrees/hospitalmanagementsystem/wp07/frontend/reports/junit/web.xml
+apps/web test: Done
+$ node packages/i18n/src/lint/cli.ts
+frontend-i18n-catalogues: PASS (catalogues=3, keys=125, messages=375, unreviewed=250)

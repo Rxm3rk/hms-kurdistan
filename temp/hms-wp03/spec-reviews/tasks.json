@@ -1,0 +1,560 @@
+[
+ {
+  "target": "tasks",
+  "lens": "correctness",
+  "summary": "Automated review (AI), correctness and architecture lens, of docs/specs/modules/platform-tasks.md and docs/specs/state-machines/task.yaml, checked against BUILD-PROMPT, DN-040, the hazard log, the sibling specs and integrator decisions D1-D9. Result: 3 critical, 27 major and 7 minor findings.\n\nCritical: (1) tasks without a facility are never scanned for TaskOrphaned. (2) Dead-letter tasks start their SLA at the dead-letter instant, not the first failure, so the 5-minute alarm can be late. (3) Work requested through the TaskRequested outbox has no alarm while it is in transit.\n\nMain architecture defects:\n- The task design does not fit the journal API: one command writes several events to the same aggregate, one idempotency key is reused across modules in a shared transaction, and the module keeps a second idempotency store.\n- TaskCommands takes no TransactionContext, so it cannot create a task inside the caller's transaction.\n- Nothing says what a caller must do with a Rejected create.\n- The 5-minute proof leaves out scheduling semantics, failover and database RTO.\n- Escalation to an unroutable owner contradicts invariant 3.\n- Release has no routability guard.\n- Fail-closed directory handling blocks claim and reassign during an outage.\n- Creating the orphan-alarm task can be refused.\n- The settings break tenancy's key grammar and closed type set, and D2's content-type split.\n- Runtime QueueIds are placed in promoted bundles.\n- D1, D3 and D8 are not yet applied.\n- Persistence is deferred, which contradicts the WP-0.3 chaos exit criterion.\n- The §8.2 deviation (one aggregate holding the order and its tasks) is not recorded.\n- The whole TaskCommands interface becomes the Tier 2 contract, not a narrow API.\n- Pool and queue changes write no journal entries.\n- Hazard IDs are mislabelled as H4.\n- SI-10 time handling is not specified.\n- Refusal sets are incomplete.\n- Several acceptance criteria have no test.\n\nContradictions with sibling specs:\n- **events/catalogue.md:** describes TaskEscalated as \"(SLA breached)\" and TaskCompleted as \"claimed → done\" only. It lacks TaskReleased, TaskSlaBreached, TaskOrphanCleared and TaskRequested.\n- **events/envelope.md §10:** the dead-letter clock starts at the first failure; each consumer team owns its own queue; an item nobody picks up becomes TaskOrphaned; it has its own DeadLetterAlarmPolicy and key platform.events.dead-letter-alarm-after; it defines no sink port. Tasks §7.1 differs on every point.\n- **platform-journal.md:** DuplicateAggregateInAppend, the idempotency-key rules, and the name JournalAppender (tasks calls it JournalAppend).\n- **platform-tenancy.md:** key grammar (D-1), example key platform.tasks.orphan-alarm.max-delay, the closed SettingValueType set, and facility-scoped queues versus tenant-level fallback queues.\n- **platform-config.md:** expects platform-tasks to consume KillSwitchEngaged and raise a task \"to the flag owner and the CSO\"; tasks has no such intake, and a task has one owner. Config also names its keys platform.config.*.\n- **platform-workflow.md:** names the arch test ArchTest:safety-kernel-never-uses-workflow / SafetyKernelWorkflowRuleTest; tasks names it ArchitectureTest:safety-kernel-does-not-use-workflow-port.\n- **platform-kernel.md:** CalendarAnswer.uncoveredYears and EntryTimeClassifier are not used by tasks.\n\nThe now/waits split matches DN-040 except that the tasks schema, migrations and repositories are deferred past WP-0.3.",
+  "findings": [
+   {
+    "id": "CA-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 Detection loop; §3.1 facilityId; §3.2; §4.3 The alarm item 2; §7.1",
+    "finding": "Tasks with facilityId = null (tenant-level platform tasks, including dead-letter tasks whose item has no facility, §7.1) are never scanned, because orphan detection is OrphanScan.run(facility). These tasks can never raise TaskOrphaned (SI-03 clause c, CTRL-0003-5). Separately, §4.3 and §8 send tenant-level orphan alarms and dead-letter items to a tenant-level fallback or owner queue, but §3.2 makes every queue facility-scoped and defineQueue requires a FacilityId, so such a queue cannot exist.",
+    "recommendation": "Define a tenant-scope scan, e.g. run(scope: Facility(id) | Tenant(id)), with the same S/G/B bound and its own watermark, heartbeat and watchdog. Either allow tenant-scoped pools and queues or forbid tenant-level tasks: for example, require dead-letter tasks to resolve a facility, or default them to a configured facility. Add PropertyTest:SI-03-orphan-alarm-within-5-minutes cases for tenant-level tasks."
+   },
+   {
+    "id": "CA-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§7.1 Dead-letter items; §5.1 RaiseDeadLetterTask",
+    "finding": "The dead-letter task's SLA starts at the instant the item was dead-lettered. envelope.md §10 says 'Retries never extend the alarm: the clock starts at the first failure, not at the move to the dead-letter queue', and DeadLetterItem carries firstFailureAt. With retries before dead-lettering, the alarm fires up to the whole retry window late, which breaks the '5 minutes' of §5.3 and §6.7 and CTRL-0003-5. BreachSla also fires 'at the first timer tick at or after dueAt' (tickInterval PT30S), so even with the right start the alarm can come 5 min + tick after the failure. DeadLetterItemRef is undefined.",
+    "recommendation": "Use envelope's DeadLetterItem (or a ref that carries firstFailureAt) and set startsAt = firstFailureAt. Make the dead-letter alarm due at alarmAfter minus the maximum timer lateness, or drive it from a precise one-shot timer, so 'older than 5 minutes alarms' holds at the boundary. Add a boundary test at exactly 5 minutes after the first failure, including retries."
+   },
+   {
+    "id": "CA-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 Two creation paths, item 2; §4.1 startsAt",
+    "finding": "For non-kernel callers, work exists only as a TaskRequested journal row until this module consumes it. If the Debezium relay, Kafka or this consumer stalls, or the request is parked behind a dead-lettered event with the same patient key (envelope §10 parks by key unless the consumer's spec says otherwise), no task exists, no orphan scan sees the work, and no alarm fires. That breaks SI-03 'Unowned work raises TaskOrphaned within 5 minutes' for every non-kernel source (referrals, ADT, record, config kill-switch tasks). The created task's SLA also starts at the consumer's creation time, not the request's recorded time, so delay in the pipeline silently extends the SLA.",
+    "recommendation": "Specify: (a) startsAt defaults to the TaskRequested row's recorded time (or the request's clinical start); (b) a watchdog that alarms within 5 minutes on any TaskRequested older than the bound with no matching task, read from the journal or the relay lag; (c) the consumer's ordering policy (skip-and-continue per request, justified per envelope §10, or parking with an alarm on parked items). Put these into the proposed ADR and HAZ-0003."
+   },
+   {
+    "id": "CA-04",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 TaskCommands; Two creation paths, item 1",
+    "finding": "Path 1 says kernel modules call TaskCommands.create synchronously 'and share the transaction', but no TaskCommands method takes a transaction. The journal's JournalAppender.append(tx: TransactionContext, …) needs the caller's TransactionContext, and D1 moves TransactionContext and TransactionRunner into hms.kernel.context for exactly this. As written, the order-sign atomicity (ADR-001 C1) cannot be implemented.",
+    "recommendation": "Add the caller's hms.kernel.context.TransactionContext to every TaskCommands method, or give kernel callers a separate in-transaction API. State that the module never opens its own transaction when one is given."
+   },
+   {
+    "id": "CA-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 CreateTaskResult; Two creation paths",
+    "finding": "No caller contract exists for CreateTaskResult.Rejected in the in-transaction path. Because outcomes are sealed values rather than exceptions, an orders handler can ignore Rejected and commit an order-sign with no verification task. The order is then live and its work owned by no one, invisible to orphan detection (SI-03 clause b, CTRL-0003-4).",
+    "recommendation": "State that a Rejected create must roll back the caller's transaction, or that the caller must refuse its own command (fail closed). Provide a helper (e.g. requireCreated()) and an ArchUnit or detekt check, or a test fixture that proves orders cannot commit without the task. Add a test, e.g. PropertyTest:SI-03-kernel-caller-rolls-back-on-task-rejection."
+   },
+   {
+    "id": "CA-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.4 invariant 7; §4.3 creation-time orphan and Clearing; §4.2 Catch-up; §5.4 IdempotencyStore",
+    "finding": "Several commands write more than one event to the same Task aggregate: Create plus DetectOrphan at creation, Claim, Reassign, Complete or Cancel plus TaskOrphanCleared, and catch-up Escalate firing several steps. The journal refuses this (JournalViolation.DuplicateAggregateInAppend; J-3 version+1 per row). In path 1, orders and tasks both append under the same ctx idempotency key in one transaction; journal §4.6 returns IdempotencyKeyReused or AlreadyApplied for a second command under the same key. The module also adds its own IdempotencyStore, a second source of truth beside JournalReader.byIdempotencyKey.",
+    "recommendation": "Choose one of two models: one event per command, whose payload carries the episode-cleared or episode-opened facts and the list of fired steps; or separate commands with their own versions and derived idempotency keys (e.g. key + ':task:' + n, or episode id or step index for timer commands). Agree the cross-module key derivation with platform-journal. Use the journal's idempotency for applied commands and keep IdempotencyStore only for refusals, if at all."
+   },
+   {
+    "id": "CA-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 The alarm; Deduplication; §11 CTRL-0003-5 tests; §12 step 4",
+    "finding": "Raising the alarm is said to do three things 'in one transaction', one of them OperationalAlarms (OpenTelemetry), which is not transactional. If the alarm is raised before commit and the scan loses the VersionConflict race, it is duplicated; if it is raised after commit and the process dies, it is lost. 'One operational alarm per episode' cannot be guaranteed. Separately, the scan reads 'now' once at its start, but the journal sets recorded_at at append time (J-4). Whether detectedAt is the scan start or the recorded time is undefined. If it is the scan start, the chaos assertion 'detectedAt − t0 ≤ 5 min' never measures B or the commit delay.",
+    "recommendation": "Make the operational alarm at-least-once with an idempotency or dedup key equal to the episode id. Drive it from the committed TaskOrphaned row (outbox), and also from a pre-commit path that does not depend on the database, so a database outage does not suppress it. Define detectedAt as the journal recorded time of TaskOrphaned. Make the chaos test measure arrival in the cell's alerting and the committed row time against t0."
+   },
+   {
+    "id": "CA-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 The 5-minute bound; §8 constraint row; §12",
+    "finding": "The proof that S + G + B ≤ L guarantees the bound assumes scans start every S (fixed-rate) and always run. It does not say whether scheduling is fixed-rate or fixed-delay; with fixed-delay the bound becomes S + G + 2B. It also ignores leader-lock lease or failover time when the scan node is killed, and PostgreSQL failover (in-cell RTO up to 5 min, §16.4), which the §12 chaos test injects. The configuration constraint therefore claims a guarantee it cannot give, and the 2-minute 'margin' is informal.",
+    "recommendation": "Specify fixed-rate start times. Add the leader-lease takeover time F and the commit or failover budget to the bound, e.g. S + G + B + F ≤ L. Declare F as a setting or derive it, and state the database-RTO assumption. Either alarm through a path that does not depend on the database or record the residual risk in HAZ-0003. Keep the TestClock property for S + G only."
+   },
+   {
+    "id": "CA-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md; docs/specs/state-machines/task.yaml",
+    "location": "§3.4 invariant 3; §4.2 'An unroutable target is skipped'; YAML Escalate transitions",
+    "finding": "Invariant 3 says escalation obeys the reassignment rule: refuse an unroutable new owner and keep the old one. §4.2 says the terminal owner 'receives the task whatever its state', even when unroutable. The YAML has no predicate for target routability or skipping. claimed+Escalate+stepReassigns always goes to open, even when the step is skipped, so it is unclear whether a skipped step releases the claim. Several steps firing 'at once' do not fit a one-step Escalate transition. The property-test model generated from the YAML cannot exercise the skip path.",
+    "recommendation": "Add predicates stepTargetRoutable and stepIsTerminal and the transitions for skip, non-terminal reassign and terminal reassign. Define the claim and owner effect of a skipped step. Reword invariant 3 to make the terminal-owner exception explicit, with the orphan alarm as its control."
+   },
+   {
+    "id": "CA-10",
+    "severity": "major",
+    "file": "docs/specs/state-machines/task.yaml",
+    "location": "Release transition; predicate actorIsClaimantOrSupervisor",
+    "finding": "Release (claimed → open) returns the task to its owner without checking that the owner is routable. A claimant or supervisor can hand work back to an empty pool or an unmonitored queue, opening a gap that invariant 3 and CTRL-0003-4 forbid for reassignment. Only the orphan alarm, after up to S + G, catches it. The proposed default for claims held by a deactivated person (supervisor releases) has the same problem.",
+    "recommendation": "Add an ownerRoutable guard to Release with a refusal (e.g. OwnerNotRoutable) that directs the user to Reassign. Alternatively, make Release atomically reassign to the chain's terminal owner when the owner is unroutable. Add a unit test."
+   },
+   {
+    "id": "CA-11",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md; docs/specs/state-machines/task.yaml",
+    "location": "§3.3 DIRECTORY_UNAVAILABLE; predicates claimantEligible, newOwnerRoutable",
+    "finding": "'Directory cannot answer counts as unroutable' is right for the alarm, but claimantEligible and newOwnerRoutable use the same predicate. During a RoutingDirectory outage, no task can be claimed or reassigned anywhere, while every task is orphan-alarmed. Clinical work is blocked (H7) and supervisors are flooded at the same time.",
+    "recommendation": "Separate the two uses. For the alarm, unavailable means unroutable. For Claim, an authenticated actor present in the session is evidence of their own routability. For Reassign, define the outage behaviour explicitly (e.g. allow to a pool or queue with a routable cached member, flagged), and put it to the CSO. Add tests for a directory outage."
+   },
+   {
+    "id": "CA-12",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 The alarm item 2; §7.2; §9 TaskAuthorization 'production denies everything'",
+    "finding": "Creating the orphan-alarm task goes through the ordinary create guards. 'This build chooses no value' for its SLA or escalation, so with missing kind content create returns SLA_MISSING, ESCALATION_CHAIN_MISSING or KIND_UNKNOWN. The production TaskAuthorization adapter denies everything, which gives NOT_AUTHORISED for internally raised work: alarm tasks, dead-letter tasks and timer commands. Unlike FALLBACK_QUEUE_MISSING, no 'nothing is dropped' rule covers these refusals, so the alarm task can be silently missing.",
+    "recommendation": "Specify that system-raised commands (DetectOrphan, BreachSla, Escalate, alarm and dead-letter task creation) are authorised by module identity, not by the user policy port. Give the platform kinds a coded vendor definition, or have creation never refuse them: on any refusal, raise an operational alarm and keep the episode open. Add a unit test."
+   },
+   {
+    "id": "CA-13",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§8 Configuration table",
+    "finding": "The settings do not fit tenancy's SettingCatalogue, which is the only store of setting definitions under D2. Keys such as tasks.orphan.alarmLimit, scanInterval, scanBudget, tickInterval, fallbackQueue, deadLetter.ownerQueue and defaultPolicy break tenancy D-1's grammar ([a-z][a-z0-9-]* segments; camelCase refuses assembly). Tenancy's own example is platform.tasks.orphan-alarm.max-delay, and config uses platform.config.*. The value types QueueId, 'Policy ref', EscalationPolicy and TaskKindDefinition are not in the closed SettingValueType set. tasks.escalation.policies.<id> and tasks.kinds.<kind> are dynamic key families that a code-declared catalogue cannot register. Under D2, versioned clinical content with provenance belongs in platform-config's content-type registry. The dead-letter age 'declared by hms.kernel.events' cannot be a SettingDefinition, because a kernel library cannot import hms.platform.tenancy.api.",
+    "recommendation": "Rename the keys to the tenancy grammar, e.g. platform.tasks.orphan.alarm-limit. Map each value to a closed SettingValueType (a STRING code for queue references). Register escalation policies and task-kind definitions as platform-config ContentTypeDefinitions with promotion checks for synthetic provenance. Agree with the events spec who declares the dead-letter setting: platform-tasks, or an app-level definition."
+   },
+   {
+    "id": "CA-14",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 'No fallback, no activation'; §8 tasks.fallbackQueue, tasks.deadLetter.ownerQueue",
+    "finding": "These settings hold QueueIds, which are UUIDv7 values created at runtime by WorkRoutingCommands. Configuration is promoted BUILD → TEST → TRAIN → PROD as signed bundles, so an id from one environment is meaningless in another. Neither tenancy nor config specifies a mechanism that 'refuses a facility configuration without it' or checks that the queue exists, is live, is in the same facility and is not retired. UnitTest:fallback-queue-missing-configuration-refused therefore has nothing to test.",
+    "recommendation": "Reference queues by a stable code that is unique per facility and resolved at runtime. Define the activation check as a platform-config promotion or activation check (a 'required per facility' rule), plus a runtime check that resolves the code to a live queue. Name the owning spec for each check."
+   },
+   {
+    "id": "CA-15",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.1; §5.1 comments and CommandContext bullet; §14 OQ 'one kernel CommandContext'",
+    "finding": "Not yet aligned with D1. The spec uses tenancy's UserRef, TenantId and FacilityId placeholders and its own PatientRef. It treats CommandContext as an open question and leaves ReasonCode unrelated to ChangeReason. QueryContext is undefined. D1 settles these: hms.kernel.context.CommandContext (with causation id), ChangeReason, ActorRef, DeviceRef, PurposeOfUse, IdempotencyKey and CorrelationId, plus hms.kernel.ids TenantId, FacilityId, PatientId and UserId.",
+    "recommendation": "Replace the placeholders with the kernel types (Owner.Person(UserId), subject: PatientId?, claimant: UserId?). Delete the CommandContext OQ. State how ReasonCode relates to ChangeReason (a governed code plus a mandatory, never-defaulted ChangeReason, or ReasonCode as its coded form). Define QueryContext or reuse CommandContext's read subset."
+   },
+   {
+    "id": "CA-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.1 Business calendar; §8 kri.calendar.* row",
+    "finding": "Not aligned with D3. The spec reads the keys kri.calendar.weekend and kri.calendar.holidays and lists [FRIDAY, SATURDAY] and Newroz under 'Vendor default'. D3 and tenancy §5.10 use the generic keys calendar.weekend-days and calendar.holidays, with no vendor default, and the Kurdistan pack supplies country-pack values ([L] L-20). The facility-override question from D3 is missing.",
+    "recommendation": "Use calendar.weekend-days and calendar.holidays through CalendarReader. Move the Kurdistan values to the COUNTRY_PACK column, citing the L-20 item names. Add the facility-override OQ."
+   },
+   {
+    "id": "CA-17",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.4 last paragraph; §14 KA 'task persistence is in memory'",
+    "finding": "Not aligned with D8. The in-memory adapters sit in hms.platform.tasks.infrastructure.memory, and app-hms binds them in the dev and test profiles. D8 requires a ...testing or ...inmemory package, documented as test/dev only, and says production wiring (app-hms) never binds them.",
+    "recommendation": "Move them to hms.platform.tasks.infrastructure.inmemory (or ...testing). Remove the app-hms profile binding. State that app-hms has no task persistence until the jOOQ adapters exist, and update the KA."
+   },
+   {
+    "id": "CA-18",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§2 Persistence row; §10; §12",
+    "finding": "The tasks schema, Flyway migrations and jOOQ repositories are deferred to 'the first module that runs tasks on the cell'. The WP-0.3 exit chaos test (§12) runs 'against the assembled app-hms with real PostgreSQL', which needs that persistence in WP-0.3. DN-040 brings schema, migrations and repository code into scope now (as the journal does), with integration tests waiting in src/integrationTest.",
+    "recommendation": "Write the tasks schema, migrations (expand → migrate → contract) and jOOQ repositories in WP-0.3, with integration tests marked as waiting for the cell. Say which tables are shape A and which are facts for D7's migration linter, and how pool_member and queue_monitor history is kept."
+   },
+   {
+    "id": "CA-19",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§1, §3.1 (Task as its own aggregate with a focus)",
+    "finding": "§8.2 'Orders and tasks' says 'One aggregate holds the request, its tasks and its status history', echoing R11 §0. The spec makes Task a separate aggregate in platform-tasks that points to the order through its focus. This may be a reasonable reading (§5.2 gives platform-tasks the tasks and lets the Safety Kernel share transactions), but it is an unrecorded deviation from §8.2.",
+    "recommendation": "Record the deviation and its reason (§3.5 'Report every deviation'). Say what the Order aggregate keeps, e.g. task references in its status history, and how the order's terminal state relates to its tasks' terminal states (CTRL-0003-3)."
+   },
+   {
+    "id": "CA-20",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5 intro (TaskApi.VERSION = 1); §4.2 last bullet",
+    "finding": "The whole TaskCommands interface is declared the versioned Tier 2 contract. §5.2 and BP §5.5 call for a narrow, versioned task API so that the Tier 1 task engine is not pulled into device scope (BP §5.5: 'To stop that pulling … the Tier 1 task engine into device scope'). Making the whole API the Tier 2 contract ties every future TaskCommands change to Tier 2 verification. Tier 2 sidecars are separate processes, so an in-process Kotlin interface is also not their transport.",
+    "recommendation": "Define a separate minimal contract, e.g. RequestEscalationTask(kind, subject, focus, priority, sourceModuleVersion), with its own schema version and transport (event or HTTP). Map it onto TaskCommands inside platform-tasks. Only that contract is part of Tier 2 verification."
+   },
+   {
+    "id": "CA-21",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§6 Events published; §5.2 Routing administration",
+    "finding": "Pool and queue changes (definePool, member and monitor changes, retire) have no event types or journal entries, although every change must append a journal row that is the write-audit trail (§5.3 C), and the journal refuses unregistered types (J-8). TaskRequested, written into other modules' journals, is neither in §6 nor in the catalogue. The sibling catalogue §4 contradicts this spec: TaskEscalated is described as '(SLA breached)', TaskCompleted as 'claimed → done' only, and TaskReleased, TaskSlaBreached and TaskOrphanCleared are missing. The catalogue says the owning spec wins and must match exactly.",
+    "recommendation": "Add events for pools and queues (e.g. PoolDefined, PoolMemberAdded/Removed, QueueMonitorAssigned/Unassigned, PoolRetired, QueueRetired; aggregate-keyed). Add TaskRequested with its owner (schema in platform-tasks), keying and status. List the catalogue corrections for the integrator."
+   },
+   {
+    "id": "CA-22",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§7.1; §8 dead-letter rows",
+    "finding": "Contradicts envelope.md §10 in several ways:\n- **Owner:** envelope routes each item to 'the owning team's queue' (one owner per consumer); tasks routes every item to one facility or tenant queue, tasks.deadLetter.ownerQueue.\n- **Orphan rule:** envelope says 'an item nobody picks up becomes TaskOrphaned'; tasks raises TaskOrphaned only for unroutable holders and uses an SLA breach (DeadLetterItemAged) instead. That is a reading of CTRL-0003-5 ('undeliverable message, dead-letter item … raises TaskOrphaned within 5 minutes') that needs to go to the CSO under §3.4 item 1.\n- **Duplicate alarm:** both specs raise the §6.7 dead-letter alarm (DeadLetterAlarmPolicy versus DeadLetterItemAged).\n- **Sink port:** tasks says the sink port 'belongs to the events specification', which does not define it.",
+    "recommendation": "Agree one model with envelope.md: an owner queue per consumer (or per team, through a code), and one alarm source. Name and define the sink port, e.g. hms.kernel.events.DeadLetterSink.raise(DeadLetterItem, facility?, patient?). Record the CTRL-0003-5 reading as a decision for the CSO."
+   },
+   {
+    "id": "CA-23",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 Two creation paths; §9 system identities",
+    "finding": "Only creation has an outbox path. How non-kernel modules complete or cancel their tasks is unspecified. §5.2 lets scheduling, adt and record call tasks synchronously, but outside a shared transaction: if completeByFocusOwner succeeds and the caller's transaction then rolls back, the task is done while the referral or other work is not, and the work is lost (H5, CTRL-0003-6). platform-config.md expects platform-tasks to consume KillSwitchEngaged and raise a task 'to the flag owner and the CSO' (two owners); this spec has no such intake.",
+    "recommendation": "Specify outbox commands for non-kernel callers (e.g. TaskCompletionRequested and TaskCancellationRequested, keyed on focus, idempotent), or require completion only after the caller commits, with reconciliation. Settle the kill-switch task intake with platform-config: TaskRequested from config, one owner plus NOTIFY, and the SLA key."
+   },
+   {
+    "id": "CA-24",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md; docs/specs/state-machines/task.yaml",
+    "location": "§11 'H4 mechanism' row; YAML header comment",
+    "finding": "Hazard attribution is wrong against the hazard log. CTRL-0004-5 belongs to HAZ-0004 (seeded H3), CTRL-0005-12 to HAZ-0005 (H2) and CTRL-0017-5 to HAZ-0017 (H3), not H4. The H4 entries (HAZ-0014, HAZ-0019) do not involve platform-tasks. The YAML header lists CTRL-0003-1, -4, -5 and -7 but not CTRL-0003-2, which the spec maps to the YAML.",
+    "recommendation": "Relabel these as the H3 and H2 controls that the engine carries. If WP-0.3's 'H4 delayed escalation' needs an entry for escalation chains, propose an H4 cause and control (to be numbered). Add CTRL-0003-2 to the YAML header."
+   },
+   {
+    "id": "CA-25",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.4 invariant 9; §4.1 startsAt; §5.1 CompleteTask.performedAt, SlaRequest.startsAt; §6 TaskCompleted 'back-entry label'",
+    "finding": "SI-10 handling is not specified:\n- performedAt (ClinicalTime) is never classified with hms.kernel.time.EntryTimeClassifier, so there is no refusal of future times, no back-dating privilege, no reason, and no BackEntryEpisode check.\n- The source of the 'back-entry label' is undefined.\n- SlaRequest.startsAt is a bare Instant, used for paper-time back-entry without classification or privilege.\n- The ValidTime and EntryTiming that each task event's NewEntry needs (journal §5) are not defined, e.g. for BreachSla, Escalate and DetectOrphan.",
+    "recommendation": "Take ClinicalTime plus an EntryMode for performedAt and back-entered startsAt. Classify through EntryTimeClassifier, refuse Refused outcomes, and require the privilege and reason for BackDated (J-6 policyDecisionId). State the valid time of each event, normally ClinicalTime.atRecordedTime for system events. Define what happens with a startsAt later than recorded time (refuse)."
+   },
+   {
+    "id": "CA-26",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 CreateRejection, TaskRefusal; YAML reassignReasonEntered, cancelReasonEntered",
+    "finding": "The refusal sets are incomplete for an API other streams build on. Missing: an invalid SLA (non-positive Duration, BusinessDays < 1); an owner that is unknown, retired at definition, in another tenant or in another facility; an invalid explicit chain (decreasing or negative offsets, last step not REASSIGN, which TERMINAL_OWNER_INVALID only partly covers); a policy id or version not found; settings NotConfigured or Refused; CreateTask.facility disagreeing with ctx.facility; a reason not in the governed list; a refused clinical time. The 'governed list' of reassign and cancel reasons has no configuration key or content type, so the guards cannot be implemented.",
+    "recommendation": "Make CreateRejection a sealed interface with these cases (and data where useful). Add ReasonNotInList and ClinicalTimeRefused to TaskRefusal. Declare the reason lists, e.g. content type platform.tasks.reason-list with reassign and cancel lists and provenance. State the precedence between ctx.facility and CreateTask.facility."
+   },
+   {
+    "id": "CA-27",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.2 WorkRoutingCommands",
+    "finding": "The routing API breaks §6.2 conventions:\n- No command takes expectedVersion, so optimistic concurrency is missing. Two concurrent removals of a pool's last two routable members can each pass the WouldLeaveWorkUnroutable check and leave the pool empty.\n- definePool and defineQueue return a bare id, not a sealed result with refusals (NotAuthorised, duplicate name, facility not found) and the new version.\n- retire(Owner) accepts Owner.Person, which this module does not own.\n- Monitor is defined only in a comment.",
+    "recommendation": "Add expectedVersion to each command. Return sealed results that carry the id and version. Narrow retire to Pool and Queue. Define Monitor as a sealed interface. Check WouldLeaveWorkUnroutable against live tasks under a lock or a version on the pool or queue, and state that the orphan scan is the backstop."
+   },
+   {
+    "id": "CA-28",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.1 Business calendar; §14 Decision 'calendar-aware'",
+    "finding": "The calendar rules have gaps:\n- kernel BusinessCalendar returns CalendarAnswer.uncoveredYears and asks the caller to raise an owned configuration task; the tasks spec handles only NotConfigured.\n- 'Same local time on the Nth business day' does not say how to resolve a DST gap or overlap. ClinicalTime.resolveLocal refuses gaps, and the kernel never assumes a fixed offset.\n- BusinessDays(0) and negative spans are undefined.\n- The reading that 'the calendar changes who receives work, not when' relies on calendar-aware routing (an on-call queue at weekends) that no API in this spec provides. Queue monitors are static.",
+    "recommendation": "Handle incomplete answers: use the earlier value, raise an owned configuration task and an operational alarm. Specify DST resolution, e.g. the earlier instant for an overlap and the first instant after a gap. Require BusinessDays ≥ 1. Specify or defer, as an OQ, a calendar-aware monitor schedule so the CSO decision rests on a real mechanism."
+   },
+   {
+    "id": "CA-29",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§11 tests; §13 acceptance criteria",
+    "finding": "Several specified behaviours and acceptance criteria have no named test:\n- AC7 (one journal entry per change, both axes) is evidenced only by an integration test that waits for the cell; there is no WP-0.3 unit or property test on the in-memory journal.\n- Idempotency is tested for create only.\n- No tests for WouldLeaveWorkUnroutable, the OrphanSettingsInconsistent read fallback, the CalendarNotConfigured fallback, FallbackQueueUnroutable without recursion (named only in a hazard proposal), auto-completion of the alarm task on clearing, TaskRequested refusal → dead letter, supervisor release audit, the safetyRelevant tighten-only direction, OrphanScanOverrun or the watchdog on the TestClock, or app-hms never binding in-memory adapters (D8).",
+    "recommendation": "Name a test for each, e.g. UnitTest:task-every-command-appends-one-journal-entry-in-memory, PropertyTest:task-commands-idempotent, UnitTest:routing-change-refused-when-work-would-be-unroutable, UnitTest:orphan-settings-inconsistent-falls-back-and-alarms, UnitTest:calendar-not-configured-falls-back-to-continuous, UnitTest:fallback-queue-unroutable-raises-operational-alarm, UnitTest:orphan-alarm-task-completed-on-clear, UnitTest:task-requested-refusal-dead-lettered, UnitTest:orphan-scan-overrun-and-stall-alarms. Map each AC to its tests in §13."
+   },
+   {
+    "id": "CA-30",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§11 Other tests; §13 AC9; §14 OQ platform-tasks/tenancy; §5.4",
+    "finding": "Stale or inconsistent references:\n- ArchitectureTest:safety-kernel-does-not-use-workflow-port differs from platform-workflow's ArchTest:safety-kernel-never-uses-workflow / SafetyKernelWorkflowRuleTest. D7 makes this rule (e) in :platform:arch-rules.\n- AC9 says 'the four architecture rules'.\n- The OQ says build.gradle.kts still needs :platform:journal and the tenancy api; both are now present, and D5 settles the question.\n- The port is called JournalAppend; the journal's is JournalAppender.",
+    "recommendation": "Refer to arch-rules rule (e) and its test name, and to the full D7 rule set. Mark the D5 question as recorded and the Gradle wiring as done. Use JournalAppender."
+   },
+   {
+    "id": "CA-31",
+    "severity": "minor",
+    "file": "docs/specs/state-machines/task.yaml",
+    "location": "transitions; predicates",
+    "finding": "YAML modelling gaps for the generator:\n- '(start)' is a pseudo-state the Appendix B.3 template does not define, and no initial state is declared.\n- The guards leave out authorisation (task.claim, task.reassign, the create authorisation behind NOT_AUTHORISED), so the generated model cannot produce those refusals.\n- orphanGraceElapsed depends on application scan state (watermark, candidates), not aggregate state.\n- No mapping from transitions to events.\n- The episode closing on Claim, Reassign, Complete and Cancel appears only in the header comment.",
+    "recommendation": "Declare (start) or initial in the README and generator contract. Add permission predicates. Pass the episode start into the predicate as an explicit input. Add an events or effects mapping per transition, e.g. a description field as §8.4 allows."
+   },
+   {
+    "id": "CA-32",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.2 Escalation chains",
+    "finding": "Several escalation behaviours are undefined:\n- whether a manual Reassign changes the chain's next step index;\n- what a NOTIFY step does when its target is unroutable (recorded as skipped?);\n- where NOTIFY recipients are stored and how they are told (platform-notify is not a port);\n- whether a REASSIGN step should take a task from a routable claimant who is working on it;\n- what follows once the chain is exhausted and a user reassigns to a person.",
+    "recommendation": "Specify each case and add unit tests. Consider NOTIFY instead of REASSIGN while the task is claimed by a routable person, as an open question for the panels."
+   },
+   {
+    "id": "CA-33",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.1 'Which kinds may use business time'",
+    "finding": "Referral-tracking kinds are given as examples of 'not safety-relevant' kinds. HAZ-0003 lists referrals under SI-03, and CTRL-0003-6 sets a 24-hour seam KPI. Using one flag for both the safety classification and permission to use the business calendar confuses the two. Who may classify a kind as not safety-relevant (a safety decision) is not stated.",
+    "recommendation": "Split this into slaClockPolicy (CONTINUOUS_ONLY or BUSINESS_ALLOWED) and safety classification. Make BUSINESS_ALLOWED a governed classification approved by the CSO. Keep the referral orphan alarm and the seam KPI on continuous time."
+   },
+   {
+    "id": "CA-34",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md; docs/specs/state-machines/task.yaml",
+    "location": "§4.3 Episode start rule 3; predicate orphanGraceElapsed",
+    "finding": "Rule 3 clamps the start to 'creation or last ownership change', but the holder also changes on Claim and Release. A holder that alternates between unroutable and routable between scans resets its candidate each time and may never alarm, although it is unroutable most of the time.",
+    "recommendation": "Say 'last holder change'. Consider accumulating unroutable time over a window, or alarming when a holder is seen unroutable in N consecutive or windowed scans, and test with a holder that alternates."
+   },
+   {
+    "id": "CA-35",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.1 focus row",
+    "finding": "'FHIR Task.focus shape (R11 §13)': R11 §13 lists only 'Task | Task | universal work item for worklists and inboxes' and says nothing about focus.",
+    "recommendation": "Cite the FHIR Task resource definition, or R11 §7.3 for fulfilment tasks, or mark the choice [P]."
+   },
+   {
+    "id": "CA-36",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 The alarm; Clearing; §7.1 focus/subject",
+    "finding": "The orphan-alarm task's subject is undefined: copying the orphaned task's patient changes its keying and read audit. The 'outcome cleared' used when the module completes it has no field in CompleteByFocusOwner. The subject and facility of a dead-letter task 'when the item carries them' cannot be read from DeadLetterItem, whose PartitionKey may be a patient or an aggregate id.",
+    "recommendation": "Specify that the alarm task's subject is the orphaned task's subject (with J-13 keying), add an outcome code to completion, and carry patientId and facilityId explicitly in the dead-letter sink call."
+   },
+   {
+    "id": "CA-37",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§8 constraint row and scanInterval floor",
+    "finding": "The fallback on read (G = 0, S = B = alarmLimit / 3) can go below the PT5S floor of scanInterval if alarmLimit is tightened under 15 s. alarmLimit has no lower bound (DURATION min).",
+    "recommendation": "Give alarmLimit a DURATION minimum consistent with the floors (≥ 3 × PT5S), or define the fallback as max(floor, L/3) and alarm."
+   }
+  ]
+ },
+ {
+  "target": "tasks",
+  "lens": "safety",
+  "summary": "Clinical-safety and hazard review (automated review, AI) of docs/specs/modules/platform-tasks.md and docs/specs/state-machines/task.yaml, checked against BUILD-PROMPT §2.1, §2.2, §3.4, §3.5, §5.2, §5.3, §6.x, §7, §8.x, §16.4, §18.7, §18.13, §19.3, §19.4, §21 and §22.1, HAZ-0003 and the cited H4 controls, DN-040, L-20, the sibling specs, and integrator decisions D1 to D9.\n\nWhat checks out:\n- The hazard-log mappings and planned_verification names for CTRL-0003-1, -2, -4, -5 and -7 match the log.\n- The cited section numbers say what the spec claims, including BP §6.7, BP §5.5, §9.7 acceptance 3 and §18.13.\n- No [HUMAN] field is filled.\n- No clinical threshold is invented. Newroz and Fri-Sat come from L-20; S, G and B are labelled [P] engineering values.\n\nFindings: 4 critical, 17 major, 9 minor.\n\nCritical:\n1. A user with task.cancel can cancel any task, including tasks behind other controls (the CTRL-0005-12 review task) and the platform's own dead-letter and orphan-alarm tasks. The work is then lost without an alarm.\n2. The alarm paths (orphan scan, timers, dead-letter intake) are not exempt from the production TaskAuthorization adapter, which denies everything. A refused RaiseDeadLetterTask has no fallback, so the alarm can be lost silently.\n3. A tenant or facility can override a task kind's default SLA and escalation policy in either direction. That loosens SI-derived timings, such as the 4-hour review in CTRL-0005-12.\n4. The spec's own outbox path for non-kernel modules (TaskRequested) leaves work, including seam referrals, without an owner for an unbounded time and with no 5-minute alarm.\n\nMajor:\n- **The 5-minute timing:**\n  - The proof leaves out directory lag, leader-lock failover and alarm transport.\n  - The fallback values it uses cannot make the bound hold.\n  - The operational alarm is sent as a side effect inside the transaction.\n  - The tasks the spec calls tenant-level (no facility, §3.1), which include dead-letter tasks, are never orphan-scanned.\n  - Unreadable configuration is unspecified.\n  - The clock-skew write block (ADR-026) is not covered.\n- **Gaps in ownership:**\n  - The final escalation step can move work from a routable holder to an unroutable one (against invariant 3); task.yaml does not model skipped steps.\n  - NOTIFY steps are never checked for routability and have no delivery or alarm.\n  - Release can hand work back to an unroutable owner.\n  - Escalation can take a claim away from someone in the middle of the work, so they cannot record that they finished it.\n  - Completion and cancellation by non-kernel focus modules run outside their transaction.\n  - Owners from another tenant or facility, and unknown pool or queue ids, are not refused.\n  - A directory outage blocks every claim and reassignment, and floods supervisors with alarm tasks.\n- **Clinical and recorded time:** startsAt mixes clinical (paper) time and recorded time in one Instant field. A start in the future is not refused, and back-dating needs no privilege (SI-10).\n- **Classification:**\n  - Referrals are pre-classified as not safety-relevant, and the default for safetyRelevant is not stated.\n  - The \"calendar-aware\" reading drops a capability that CTRL-0004-5 and BP §6.7 call for.\n  - The Level-3 trigger query skips orphaned items that have no patient (subject).\n- **Contradictions with sibling specs:** dead-letter timing and owner (events), the event catalogue, and the D1, D2 and D3 alignments.\n\nMinor: tightenings missing from the list, known anomalies without backlog IDs, naming mismatches, missing events for pool and queue changes, calendar edge cases, kind codes that could reveal labelled data, no alarm for tasks stuck at the final owner, inconsistencies in task.yaml, idempotency edge cases, and the D8 package name.",
+  "findings": [
+   {
+    "id": "SAF-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§9 Permissions (task.cancel); §3.5 and task.yaml predicate cancelAuthorised; §7.1, §7.2",
+    "finding": "cancelAuthorised lets any actor holding task.cancel cancel any open or claimed task with a governed reason, even though the focus aggregate still needs the work. That reaches safety-control tasks owned by other modules: the CTRL-0005-12 pharmacist review task after a dose given before verification (SI-05), a critical-result call task (SI-04), a results-inbox task (SI-17). It also reaches the platform's own tasks. Cancelling a platform.dead-letter task leaves the dead-letter item unresolved with no owner and no further alarm. Cancelling an orphaned task closes the episode with cause FINAL and auto-completes the orphan-alarm task, so the alarm goes away without the work being done. Nothing requires the focus module to learn of the cancellation or to re-raise the work. A task-level permission therefore bypasses SI-03 clause b for the underlying work and defeats controls owned by other modules.",
+    "recommendation": "For safety-relevant kinds and for the platform kinds, allow cancellation only by the focus-owning module, because its aggregate ended (the focus-module limb of cancelAuthorised). A user cancel should become a request to the focus module, which decides. Refuse user cancel of platform.dead-letter until the dead-letter item is resolved or replayed. Refuse user cancel of platform.task-orphaned, which closes only when its episode clears. Add a predicate (for example cancelAllowedForKind) to task.yaml, add a test (UnitTest:user-cancel-refused-for-safety-relevant-kind), and propose a HAZ-0003 cause: 'a task is cancelled while its focus still needs the work'."
+   },
+   {
+    "id": "SAF-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.4 Ports (TaskAuthorization: 'production denies everything'); §9; §7.1; §4.3 'The alarm'",
+    "finding": "The spec says the production TaskAuthorization adapter denies every request, and lists raiseDeadLetterTask as an ordinary TaskCommands method taking a CommandContext. It never exempts the alarm paths from the authorisation check: the orphan scan's DetectOrphan, the creation of the orphan-alarm task, the BreachSla and Escalate timers, and RaiseDeadLetterTask from the events sink. Taken literally, failing closed on authorisation means the alarms fail silently. No behaviour is specified when RaiseDeadLetterTask returns Rejected (for example OWNER_MISSING because tasks.deadLetter.ownerQueue is missing at run time, KIND_UNKNOWN, or NOT_AUTHORISED). The orphan path has a FALLBACK_QUEUE_MISSING operational alarm, but the dead-letter path has nothing equivalent, so a dead-lettered message can stay unowned and unalarmed (CTRL-0003-5).",
+    "recommendation": "State that the timer, scan and dead-letter intake paths run under a fixed system identity that never depends on the policy decision point. A deny or error on any alarm path must itself raise an operational alarm and never drop the work. Give RaiseDeadLetterTask the same fallback as the orphan path: on any refusal, raise the operational alarm (DEAD_LETTER_TASK_REFUSED, with the reason) and retry idempotently on the item id. Add UnitTest:alarm-paths-independent-of-authorisation and UnitTest:dead-letter-task-refused-raises-operational-alarm."
+   },
+   {
+    "id": "SAF-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§8 Configuration rows tasks.kinds.<kind> and tasks.escalation.policies.<id>; §4.1; §4.2",
+    "finding": "tasks.kinds.<kind> (TaskKindDefinition with safetyRelevant, slaClock, defaultSla and escalationPolicy) can be set at TENANT and FACILITY, but only safetyRelevant is tighten-only. A tenant can lengthen defaultSla or swap escalationPolicy on a safety-relevant kind. Where the owning module relies on the kind default (SlaRequest.span = null means 'the kind's default'), that loosens an SI-derived timing, for example CTRL-0005-12's 'due within 4 hours' (SI-05), against the §2.1 preamble that safety parameters are vendor-locked and can be tightened, never loosened. tasks.escalation.policies.<id> can also be redefined at TENANT and FACILITY with no direction rule, so a facility can stretch the offsets of a chain behind CTRL-0004-5. Provenance 'approved' blocks synthetic content but does not stop an approved loosening below a vendor lock.",
+    "recommendation": "Split TaskKindDefinition into separate settings, each with a strictness comparator registered in tenancy's SettingCatalogue (D2): defaultSla tighten-only, shorter is stricter; slaClock tighten-only, CONTINUOUS is stricter; escalationPolicy selectable only from governed policies whose offsets are not looser than the parent's. Alternatively, make the kind definition the owning module's code (vendor level) and allow only tightening below it. Require owning modules that implement an SI timing to pass an explicit SLA rather than the kind default. Add PropertyTest:config-chain-vendor-lock-SI-03 cases for the kind settings."
+   },
+   {
+    "id": "SAF-04",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 'Two creation paths' item 2 (TaskRequested through the caller's outbox); §14 ADR proposal",
+    "finding": "Non-kernel modules (scheduling for referrals and the seam, adt, record, the hub) must request tasks by writing a TaskRequested journal entry, which reaches this module through Debezium and Kafka. From the caller's commit until the consumer creates the task, the referral, letter or message has no owner. Nothing bounds that window or alarms on it. If the connector is stopped, the broker is partitioned or the consumer is down, no task is created, no dead-letter item exists (nothing failed), and no TaskOrphaned fires. The journal spec offers only a replication-slot lag alarm 'with the disk alarms', which is not a 5-minute bound. This contradicts SI-03 ('Unowned work raises TaskOrphaned within 5 minutes'), §2.2 rule 6 and the spec's own claim 'it is never lost silently'. Referrals are HAZ-0003's main cause (CTRL-0003-6).",
+    "recommendation": "Bound the window and alarm on it. Add an owned reconciler in platform-tasks that reads TaskRequested entries through the journal's JournalReader api and raises TaskOrphaned or an operational alarm for any request with no task after a vendor-locked limit (≤ 5 minutes, tighten-only), on the injected Clock. Include that limit in the §4.3 budget. Alternatively, let the modules that §5.2 allows to call tasks synchronously (scheduling, adt, record) create tasks synchronously and keep the outbox entry only as the reconciliation record. Add the cause 'a task request is committed but never consumed' to the HAZ-0003 proposals, with ChaosTest:task-request-pipeline-stopped-alarms-within-5-minutes."
+   },
+   {
+    "id": "SAF-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 'Episode' and 'The 5-minute bound'; §8 constraint row; §12",
+    "finding": "The proof bounds the time only from the moment the directory reports the holder unroutable, and the constraint S+G+B ≤ alarmLimit lets the sum equal 5 minutes. SI-03 counts from the moment the work loses its owner, and the chaos test measures from the deactivating action. Several terms are missing from the budget: the Trust Plane or directory propagation lag (§7 item 2 says only 'deprovisioning within minutes'), any caching in the RoutingDirectory adapter, the leader-lock lease and failover time when the scanning node is killed (an injected §18.7 fault), and the latency of the alarm reaching a human (outbox to read model, OpenTelemetry to alerting). Whether scans run at a fixed rate or a fixed delay is not stated; with a fixed delay the period is S plus the scan duration. The read-time fallback 'G = 0 and S = B = alarmLimit/3' does not make the bound hold 'whatever the stored values': B is a threshold for raising OrphanScanOverrun, not a speed the scan obeys. Once a scan overruns, only an operational alarm fires and TaskOrphaned can be late.",
+    "recommendation": "Define the end-to-end budget as D_directory + L_failover + S + G + B + T_alarm-delivery ≤ alarmLimit. Make each term a vendor-locked, tighten-only setting or a stated requirement on the adapter it belongs to: a maximum staleness for RoutingDirectory, the leader lease time, the alerting delivery bound. Specify fixed-rate scheduling. Remove the claim that the fallback guarantees the bound, and state that an overrun is itself an SI-03 breach that the overrun alarm reports. Add a HAZ-0003 cause: 'person status is stale or propagated late'."
+   },
+   {
+    "id": "SAF-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 'The alarm' (three things 'in one transaction'), 'Deduplication'",
+    "finding": "Raising the OperationalAlarms port is an external side effect, not something the database transaction covers. If two replicas race, the loser has already emitted its alarm before it receives VersionConflict, so the claim 'one episode raises ... one operational alarm' cannot be proven. If emission fails after commit, nothing retries it, so the alarm channel silently misses an episode. The same applies to the creation-time episode opened inside a Safety Kernel caller's order-sign transaction that later rolls back.",
+    "recommendation": "Drive the operational alarm from the committed TaskOrphaned journal entry (after commit or through the outbox), idempotent on the episode id, with a retry and a delivery check. Restate deduplication as exactly-once per episode at the alarm sink. Add UnitTest:operational-alarm-emitted-after-commit-only and a chaos assertion for retries."
+   },
+   {
+    "id": "SAF-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.4 invariant 3; §4.2 'An unroutable target is skipped'; task.yaml Escalate transitions and predicate stepReassigns",
+    "finding": "Invariant 3 says escalation obeys the rule that a reassignment never moves work to an unroutable owner, but §4.2 says the terminal owner 'receives the task whatever its state'. If the terminal queue is unroutable, the most overdue task is moved from a routable holder to an unroutable one, which creates exactly the gap CTRL-0003-4 forbids. It then waits for orphan detection, with the grace restarting at the ownership change under episode-start rule 3. task.yaml has no predicate for target routability, step skipping or the terminal step. The guard stepReassigns sends claimed → open even when the step is skipped, so the generated model would release claims on skipped steps and cannot check the skip rule.",
+    "recommendation": "If the terminal owner is unroutable, keep the current owner when it is routable, record the step as failed, and open an orphan episode against the terminal owner immediately, with no grace. Add the predicates stepTargetRoutable, stepTargetUnroutable and stepIsTerminal to task.yaml, with separate transitions for 'skipped' (state unchanged, claim kept) and for the terminal step. Make invariant 3 and §4.2 agree."
+   },
+   {
+    "id": "SAF-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.2 NOTIFY mode; task.yaml predicate stepNotifies",
+    "finding": "A NOTIFY step 'adds the target as an escalation recipient' but defines no delivery (platform-notify, a worklist entry), no routability check and no acknowledgement. A NOTIFY to a deactivated person or an empty pool is recorded as fired, yet nobody is escalated to, with no alarm. That is H4 (delayed escalation) and H9 (alarm not delivered). §9.7 chains such as 'covering provider → charge nurse' may be built mostly from such steps.",
+    "recommendation": "Check the routability of NOTIFY targets when the step fires. Skip an unroutable target to the next step at once, as for REASSIGN, and record the skip in TaskEscalated. Specify how the recipient sees the escalation (a worklist entry for that recipient, or platform-notify) and that a failed delivery raises an operational alarm. Add UnitTest:notify-step-to-unroutable-target-skipped."
+   },
+   {
+    "id": "SAF-09",
+    "severity": "major",
+    "file": "docs/specs/state-machines/task.yaml",
+    "location": "transition 'claimed → Release → open' (guard actorIsClaimantOrSupervisor); platform-tasks.md §3.5",
+    "finding": "Release hands the task back to its owner without checking that the owner is routable. A claimant or supervisor releasing a task whose owning pool is empty or retired moves work from a routable holder to an unroutable one, a gap created by a user command that CTRL-0003-4 ('a reassignment never leaves a gap') is meant to prevent. Reassign has the guard newOwnerRoutable; Release has nothing equivalent.",
+    "recommendation": "Add an ownerRoutable guard to Release, so a release to an unroutable owner is refused with OwnerNotRoutable and the user is told to reassign. Alternatively, apply the release and open an orphan episode immediately, with no grace, in the same transaction. Add PropertyTest:SI-03-release-never-leaves-a-gap."
+   },
+   {
+    "id": "SAF-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.3 DIRECTORY_UNAVAILABLE; task.yaml predicates claimantEligible, newOwnerRoutable, holderUnroutable; §14 hazard proposal 'mass orphaning'",
+    "finding": "Treating directory unavailability as 'unroutable' is right for raising alarms, but the same rule makes claimantEligible and newOwnerRoutable false. During a directory outage no one can claim, complete (which needs a claim) or reassign any task, and that blocks clinical work facility-wide (H4, H7). The scan also opens one episode and one alarm task per live task in the facility, flooding the fallback queue and hiding real orphans. The proposed control aggregates only the operational alarm; 'each episode still gets its own task'.",
+    "recommendation": "Separate the two uses of routability. For Claim by the authenticated actor, the actor's live session is proof enough of being active, so self-claim and complete should not depend on the directory. During DIRECTORY_UNAVAILABLE, raise one facility-level alarm ('orphan detection blind') and keep per-task alarm tasks for holders already known to be unroutable. Add this cause and control to the HAZ-0003 proposals, with UnitTest:directory-outage-does-not-block-self-claim."
+   },
+   {
+    "id": "SAF-11",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.2 REASSIGN 'releases any claim'; task.yaml 'claimed → Escalate → open'; predicate actorIsClaimant",
+    "finding": "A REASSIGN escalation step takes the task from a clinician who has claimed it and may be mid-procedure. Complete then requires actorIsClaimant, and the former claimant may not be eligible to re-claim from the new owner (a supervisory queue they do not monitor). Work that was done cannot be recorded by the person who did it. The likely outcomes are duplicate work, or the new owner completing on hearsay. The claimed state's 'who must act now' is overridden silently, with no clinical-panel decision.",
+    "recommendation": "Put this to the approvers (open question). Options: a REASSIGN step on a claimed task notifies and keeps the claim; or the former claimant may still Complete within a window, recorded as such. Add a predicate and a test for whichever is chosen, and list the proposal in §14."
+   },
+   {
+    "id": "SAF-12",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 CompleteByFocusOwner and Cancel by the focus module; 'Two creation paths'",
+    "finding": "Only creation has a defined transactional or outbox path. Non-kernel focus modules (lis via 'kernel', record, scheduling, adt) cannot share a transaction with platform-tasks (§5.2), yet the spec does not say how they complete or cancel. If a synchronous CompleteByFocusOwner or Cancel succeeds and the caller's own change then rolls back, the task is final while the fulfilment never committed, and the work is lost with no alarm (H5). Final states cannot be re-opened, and the spec does not require the focus module to re-raise work when its fulfilment is later marked entered-in-error.",
+    "recommendation": "Specify that non-kernel modules complete and cancel through the same outbox mechanism (TaskCompletionRequested or TaskCancellationRequested), applied idempotently only after the caller commits. State that a focus module whose fulfilment is marked entered-in-error must create a new task. Add these causes to the HAZ-0003 proposals."
+   },
+   {
+    "id": "SAF-13",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 'Detection loop' (OrphanScan.run(facility)); §3.1 facilityId null; §7.1",
+    "finding": "The orphan scan runs per facility, but the spec allows tenant-level tasks with facilityId null: dead-letter items that carry no facility, and the orphan-alarm tasks for them. No scan covers these, so an unroutable tasks.deadLetter.ownerQueue at tenant level never raises TaskOrphaned (CTRL-0003-5). Timers (TaskTimers) have the same unstated scope.",
+    "recommendation": "Add a tenant-scope scan (OrphanScan.run(tenant) for tasks with no facility), with the same watermark, heartbeat and watchdog, and say which scope TaskTimers covers. Add UnitTest:tenant-level-task-orphan-detected and include a tenant-level dead-letter task in the §12 chaos test."
+   },
+   {
+    "id": "SAF-14",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 SlaRequest(startsAt: Instant?); §4.1 first bullet; §3.4 invariant 9; CompleteTask.performedAt",
+    "finding": "SlaRequest.startsAt is a raw Instant that holds either the recorded creation time or a caller-supplied paper or first-failure time. That puts a clinical (valid) time and a recorded time in one field, against §6.2 'Clinical time and recorded time are separate fields everywhere' and SI-10. A future startsAt is not refused, so a caller can postpone the SLA and every escalation step, a quiet loosening. An earlier startsAt is back-dating, but no privilege is required (SI-10: 'Back-dating is privileged and audited'). CompleteTask.performedAt in the past is likewise back-entry with no privilege check; only a label is mentioned.",
+    "recommendation": "Keep the SLA's start as a RecordedTime by default. Add a separate workBeganAt: ClinicalTime? labelled back-entry, from which the SLA may run only when the earlier start is stricter. Refuse any start after the recorded time (StartInFuture). Require a back-entry permission, audited, for workBeganAt and for a performedAt earlier than now by more than a configured tolerance. Classify the entry with the kernel's entry-time classification, as the journal does with entry_timing."
+   },
+   {
+    "id": "SAF-15",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.1 'Which kinds may use business time'; §8 tasks.kinds.<kind>",
+    "finding": "The spec gives 'referral-tracking stages' as an example of a not-safety-relevant, business-calendar kind. Referrals are HAZ-0003's central cause ('a lost referral ... can cause permanent harm'; CTRL-0003-6, 24-hour seam KPI). Whether a kind is safety-relevant is a clinical classification that §1 says this engine does not make (§3.4 item 3). The default value of safetyRelevant when a definition omits it is not stated, and an urgent or STAT referral on a business calendar would not escalate over a multi-day Eid holiday.",
+    "recommendation": "Remove the referral example, or mark it as the scheduling module's decision pending CSO classification. Make safetyRelevant default to true, require a governed, approved reason to set it false, and refuse a business-calendar clock for URGENT, ASAP and STAT priorities whatever the kind. Add UnitTest:kind-without-safety-flag-defaults-to-safety-relevant."
+   },
+   {
+    "id": "SAF-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.1 last bullet; §14 'Decision ... calendar-aware timers for safety work'",
+    "finding": "CTRL-0004-5 ('escalate ... on calendar-aware timers'), §9.7 and BP §6.7 (calendar-aware SLA timers for 'escalation, orphan alarms') ask for calendar-aware safety timers. The spec reads this as 'continuous only' and calls it stricter. That holds only against pausing. A policy that shortens timers or changes recipients at weekends or on holidays (for example a covering on-call queue) would be stricter still, and the engine provides no way to express it. The 'who, not when' alternative also depends on rosters and surrogates that are not built (known anomaly), so the CTRL-0004-5 mechanism is missing, not tightened.",
+    "recommendation": "Restate the decision for the CSO accurately: never pause, but allow day-type-dependent selection of steps or targets (a chain variant per weekend or holiday, chosen when each step fires from the BusinessCalendar), so calendar awareness can only tighten. If that is deferred, record a known anomaly against CTRL-0004-5 instead of calling the reading a tightening."
+   },
+   {
+    "id": "SAF-17",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.3 openOrphanEpisodes ('episodes older than 2 hours whose task has a subject')",
+    "finding": "The Level-3 trigger candidate filter drops orphaned tasks with no subject. Dead-letter items for messages that could not be parsed (for example an ORU result that failed parsing), which the spec itself expects to lack a subject, are the clearest case where patient impact is unknown, yet they are excluded before a human judges. Because episodes reset whenever the holder flaps between unroutable and routable, a task orphaned for more than 2 hours in total, across short gaps, never appears. §18.13 says 'Build the dashboards and alarms that detect each trigger automatically'.",
+    "recommendation": "Report every episode over 2 hours, flag those with a subject, and let a human judge patient impact. Also measure cumulative orphaned time per task across episodes. Update UnitTest:open-orphan-episodes-older-than-query."
+   },
+   {
+    "id": "SAF-18",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§3.3 Routability table; task.yaml ownerPresent and newOwnerPresent",
+    "finding": "The owner checks accept any Person, Pool or Queue id. Nothing refuses an unknown pool or queue id (only retired or empty are listed), a pool or queue of another facility, or one belonging to another tenant. Work routed to a routable pool in another tenant raises no orphan alarm, yet nobody at this hospital can see it (H5), and it exposes the subject to another organisation (H13, H14). An unknown pool or queue has no defined Unroutable reason.",
+    "recommendation": "Add POOL_UNKNOWN and QUEUE_UNKNOWN reasons that count as unroutable. Extend ownerPresent and newOwnerPresent so the owner must belong to the task's tenant, and pools and queues to the task's facility or a configured allowed scope; refuse anything else with OWNER_OUT_OF_SCOPE. Add PropertyTest:SI-03-owner-in-tenant-scope."
+   },
+   {
+    "id": "SAF-19",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§7.1 Dead-letter items; §8 dead-letter row",
+    "finding": "Sibling contradiction with docs/specs/events/envelope.md §10, which says the alarm clock starts at the first failure ('retries never extend the alarm'), while this spec sets startsAt to 'the instant the item was dead-lettered'. Envelope.md raises the task 'in the owning team's queue' (per consumer), while this spec uses one tasks.deadLetter.ownerQueue per facility or tenant. Envelope.md's DeadLetterAlarmPolicy alarms 'exactly' at 5 minutes, while this spec raises DeadLetterItemAged only at the first timer tick after dueAt (up to tickInterval, 30 s, later) plus an unbounded intake lag. That gives two alarm producers with no stated authority and no provable bound.",
+    "recommendation": "Make startsAt the first-failure time carried in the item's failure headers. Decide whether the owner is the consumer's owning team queue (falling back to tasks.deadLetter.ownerQueue) and state it in both specs. Name one authority for the 5-minute alarm, preferably the events policy, with the task SLA as the owned work. Include tickInterval and the intake lag in the 'within 5 minutes' budget, or fire the breach exactly on time."
+   },
+   {
+    "id": "SAF-20",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.1 code comment and bullets (UserRef, TenantId, FacilityId placeholders; CommandContext open question); §5.4 JournalAppend; §14 'one kernel CommandContext'",
+    "finding": "The spec contradicts integrator decision D1. It still uses tenancy's placeholder UserRef, TenantId and FacilityId, and PatientRef 'UUID-based until empi exists'. It treats CommandContext as an open question. It does not use ChangeReason, ActorRef, DeviceRef, PurposeOfUse, IdempotencyKey, CorrelationId or TransactionContext/TransactionRunner from :platform:context. It names the journal port JournalAppend, while platform-journal.md calls it JournalAppender, with a TransactionContext parameter. Other streams code against this api, so the mismatch would spread.",
+    "recommendation": "Change the api to use hms.kernel.ids.UserId, TenantId, FacilityId and PatientId, and hms.kernel.context.CommandContext, ActorRef, DeviceRef, IdempotencyKey, CorrelationId and TransactionContext/TransactionRunner. Name the port JournalAppender. State how ReasonCode (a governed code) relates to the kernel ChangeReason (never defaulted). Drop the CommandContext open question and update the §14 entry to cite D1."
+   },
+   {
+    "id": "SAF-21",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§8 Configuration (preamble, key names, 'Vendor default' column, calendar row); §4.1 calendar text",
+    "finding": "The settings do not follow D2 and D3 or tenancy's catalogue rules. (1) The settings are 'declared by this module' with no statement that they register in tenancy's SettingCatalogue (D2). (2) The calendar keys are kri.calendar.weekend and kri.calendar.holidays, shown with a 'vendor default'. D3 and platform-tenancy.md §5.10 use the generic keys calendar.weekend-days and calendar.holidays at the COUNTRY_PACK and TENANT levels, with no vendor default ('configuration required'); the Kurdistan pack supplies the [L] L-20 values. (3) The key names differ from tenancy's own example for this very setting, 'platform.tasks.orphan-alarm.max-delay' versus tasks.orphan.alarmLimit. (4) No key gives its tenancy safety classification (SafetyInvariant, SafetyRelevant or Ordinary) or its strictness comparator. Tenancy D-2 requires VENDOR_FOUNDATION in the allowed levels for SafetyInvariant keys, but S, G and B list only TENANT and FACILITY.",
+    "recommendation": "Register every key through tenancy's SettingCatalogue, giving the classification, allowed levels (including VENDOR_FOUNDATION for the SI-03 parameters), the TightenOnly comparator and its floor. Agree the key names with tenancy and config. Replace the calendar row with calendar.weekend-days and calendar.holidays, owned by tenancy, read through CalendarReader, with country-pack values from L-20 and no vendor default, and note the open question on a facility-level override."
+   },
+   {
+    "id": "SAF-22",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 detection loop; §8 constraint row; §5.4 TaskSettings",
+    "finding": "The spec says nothing about what the scan and timers do when TaskSettings cannot resolve a value: NotConfigured, Refused, or tenancy unavailable. Under tenancy step 6 the caller 'fails closed and owns that behaviour'. For an alarm loop, failing closed must not mean stopping. The fallback rule 'S = B = alarmLimit/3' itself depends on reading alarmLimit.",
+    "recommendation": "State that the scan and timers use coded vendor values (the vendorDefault of each SI-03 key: alarmLimit PT5M with the strictest S, G and B) whenever resolution fails, and raise the operational alarm OrphanSettingsUnavailable. Add UnitTest:orphan-scan-runs-on-vendor-values-when-settings-unreadable."
+   },
+   {
+    "id": "SAF-23",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 detection loop and watchdog; §12 chaos test step 3",
+    "finding": "ADR-026 blocks clinical writes from a node that is more than 5 s out of sync, and the chaos test skews a node's clock. The spec does not say whether task and orphan writes count as clinical writes. If they do, a scan leader on a skewed node cannot record TaskOrphaned. Nothing moves the leader lock off a write-blocked node, and the scan reads 'now' from that node's Clock. The §18.7 nightly list also includes power-cut emulation (the graceful shutdown path), which the chaos test omits.",
+    "recommendation": "Require leader election to exclude a write-blocked or skewed node, and have the scan take its 'now' from the cell's time source. Specify that alarm writes either are exempt or move nodes within the failover term of the budget. Add power-cut emulation and 'leader on a skewed node' to the §12 fault list."
+   },
+   {
+    "id": "SAF-24",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§6 Events published; §5.1 TaskRequested",
+    "finding": "Sibling contradiction with docs/specs/events/catalogue.md §4. The catalogue omits TaskReleased, TaskSlaBreached and TaskOrphanCleared. It describes TaskEscalated as 'A step ... fired (SLA breached)', which merges two events this spec keeps separate. It describes TaskCompleted as 'claimed → done', while this spec allows open → done through CompleteByFocusOwner. TaskRequested, a cross-module event that every non-kernel module will produce, appears in neither the catalogue nor this spec's §6. Pool and queue administration changes (members, monitors, retirement) are journalled under invariant 7 but have no events, so routing changes that cause orphaning cannot be traced downstream.",
+    "recommendation": "List TaskRequested in §6, with its owner, payload, key and versioning, and add events for pool and queue changes (for example PoolMembershipChanged, QueueMonitorChanged, RoutingTargetRetired, keyed by aggregate). Have the catalogue corrected to match all ten task events and their descriptions (the catalogue says the module spec wins)."
+   },
+   {
+    "id": "SAF-25",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§14 'Tightenings'; §3.4 invariants 4, 5 and 8; §8 'no kill switch of its own'",
+    "finding": "Several [P] readings of SIs and controls are missing from the tightenings list. These are: CTRL-0003-3's no-sink rule applied to tasks (invariant 4); the SI-02 'never defaulted' reason rule applied to reassign and cancel (invariant 8); WouldLeaveWorkUnroutable refusals; and the snapshot of the chain at creation. The decision that the engine has no kill switch is a narrow reading of SI-19 and of §22.1 item 6 ('kill switch for any clinical behaviour'), and it is not recorded as a decision.",
+    "recommendation": "Add each of these to the tightenings list for docs/safety/README.md. Record the no-kill-switch reading as a decision for the CSO, with the rationale that SI-03 cannot be switched off."
+   },
+   {
+    "id": "SAF-26",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§14 Known anomalies",
+    "finding": "§3.5 requires every unimplemented path to carry a backlog ID and a hazard reference. 'No policy enforcement or read audit until WP-0.4' has neither (it should name HAZ-0021 or the HAZ-0022 to HAZ-0027 label entries, and TRU-*). 'Operational alarms have no transport' has neither (HAZ-0003 and H9, PLT-OPS-05). The chaos-test and watchdog anomaly has no backlog ID.",
+    "recommendation": "Add a backlog ID and a hazard reference to each known anomaly."
+   },
+   {
+    "id": "SAF-27",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§11 'Other tests'; §13 item 9",
+    "finding": "The architecture test is named ArchitectureTest:safety-kernel-does-not-use-workflow-port and presented as this spec's own proposal, while platform-workflow.md §10 defines rule (e) safetyKernelNeverUsesWorkflow with the test ArchTest:safety-kernel-never-uses-workflow (D7). '§13 item 9 'the four architecture rules' is out of date now that D7 adds rule (e) and the other rules.",
+    "recommendation": "Cite D7's rule (e) in :platform:arch-rules and the workflow spec's test name. Change item 9 to 'HmsArchitectureRules.all() including rule (e)'."
+   },
+   {
+    "id": "SAF-28",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.1 business calendar; §8 tasks.kinds",
+    "finding": "The kernel's BusinessCalendar returns CalendarAnswer.uncoveredYears so that 'the caller can raise an owned configuration task'. This spec never handles that answer. It also does not refuse a BusinessDays span or offset on a kind that must run on the continuous clock.",
+    "recommendation": "When uncoveredYears is not empty, raise an owned configuration task or alarm. Refuse a BusinessDays span or offset for a continuous-clock kind with CONTINUOUS_CLOCK_REQUIRED."
+   },
+   {
+    "id": "SAF-29",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§4.3 'The alarm' item 3 (operational alarm with 'kind'); §6 'No PHI beyond ids'",
+    "finding": "Task kind codes appear in the operational alarm and in events keyed by patient. A kind such as a labelled-result acknowledgement could reveal sensitivity-labelled context (SI-21) and leave the cell through telemetry (SI-20). The spec does not constrain kind codes.",
+    "recommendation": "Require kind codes to be label-neutral, or replace the kind in operational alarms with a non-revealing category. Add the check to the PHI canary scan."
+   },
+   {
+    "id": "SAF-30",
+    "severity": "minor",
+    "file": "docs/specs/state-machines/task.yaml",
+    "location": "transitions and invariants; platform-tasks.md §4.2 and §4.3",
+    "finding": "Authorisation appears in the guards of Cancel and Release (cancelAuthorised, actorIsClaimantOrSupervisor) but not in those of Claim, Reassign or Complete (task.claim, task.reassign, task.complete). The episode-closing effects of Claim, Reassign, Complete and Cancel appear only in comments, so the generated model cannot check them. The invariants list should also name SI-10 (performedAt and back-entry). Separately, a task that reaches its terminal owner past its last escalation step raises no further alarm, and overdue work at that point is reported but never alarmed. Idempotency-key reuse with a different payload, and the episode start when no scan watermark exists (first start, or a restart with in-memory storage), are undefined.",
+    "recommendation": "Add the permission predicates consistently, model the closing of the orphan episode as effects, and add SI-10 to the invariants. Define an alarm for tasks overdue at the terminal owner. Refuse reuse of an idempotency key with a different payload. Define the episode start with no watermark as the creation time or last ownership change."
+   },
+   {
+    "id": "SAF-31",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-tasks.md",
+    "location": "§5.4 last paragraph",
+    "finding": "The in-memory adapters live in hms.platform.tasks.infrastructure.memory, and the spec relies on app-hms 'refusing to start with them outside dev and test'. D8 requires a package named ...testing or ...inmemory, documented as test and dev only, which production wiring never binds. The 'fixed test values' TaskSettings adapter and the recording OperationalAlarms adapter are not named in that rule.",
+    "recommendation": "Rename the package to hms.platform.tasks.infrastructure.inmemory (or ...testing) and state that app-hms never binds any of these adapters, explicitly including the TaskSettings fixed values, the RoutingDirectory, the OperationalAlarms recorder and the allow-list TaskAuthorization."
+   }
+  ]
+ }
+]

@@ -1,0 +1,45 @@
+QUESTION: {
+ "questions": [
+  {
+   "question": "The screens need Kurdish (Sorani) and Arabic text: about 40 labels for the patient banner, things like \"Allergies\", \"No known allergies\", \"Not assessed\", \"Weight (dated)\". The plan's rule says no invented or machine translation, because wrong clinical wording is a safety risk. How do you want to handle it?",
+   "header": "Translations",
+   "multiSelect": false,
+   "options": [
+    {
+     "label": "AI drafts, you check (Recommended)",
+     "description": "I draft Sorani and Arabic, each label marked 'unreviewed'. You (or a clinician) correct them, and the clinician review stays a gate before any hospital use. Recorded as a deviation from the rule."
+    },
+    {
+     "label": "I'll write them myself",
+     "description": "You give me the Sorani and Arabic text. Until then the screens show clearly marked placeholder text in those languages."
+    },
+    {
+     "label": "Placeholders for now",
+     "description": "Build everything with fake marked text. The 'three languages' check stays open until real text arrives."
+    }
+   ]
+  },
+  {
+   "question": "The UI libraries will probably pull in small pieces of code under three permissive open-source licences that aren't on the project's approved list yet: 0BSD, Unicode-3.0 and Zlib. All three let you ship them in a commercial product. Add them to the approved list?",
+   "header": "Licences",
+   "multiSelect": false,
+   "options": [
+    {
+     "label": "Approve all three (Recommended)",
+     "description": "Add 0BSD, Unicode-3.0 and Zlib to the shipped-code allowlist, recorded as your decision. The build carries on without stopping."
+    },
+    {
+     "label": "Ask me each time",
+     "description": "The build stops and asks whenever a package with one of these licences comes up."
+    },
+    {
+     "label": "Avoid them",
+     "description": "Look for alternatives without them. This may not be possible for some (unicode-ident is used by almost all Rust code)."
+    }
+   ]
+  }
+ ]
+}
+TIMESTAMP: 2026-10-18T18:52:17.758Z
+ANSWER: Your questions have been answered: "The screens need Kurdish (Sorani) and Arabic text: about 40 labels for the patient banner, things like "Allergies", "No known allergies", "Not assessed", "Weight (dated)". The plan's rule says no invented or machine translation, because wrong clinical wording is a safety risk. How do you want to handle it?"="AI drafts, you check (Recommended)", "The UI libraries will probably pull in small pieces of code under three permissive open-source licences that aren't on the project's approved list yet: 0BSD, Unicode-3.0 and Zlib. All three let you ship them in a commercial product. Add them to the approved list?"="Approve all three (Recommended)". You can now continue with these answers in mind.
+TIMESTAMP: 2026-10-18T19:12:56.280Z

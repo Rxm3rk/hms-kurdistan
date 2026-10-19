@@ -1,0 +1,66 @@
+## issues
+[
+ {
+  "severity": "major",
+  "file": "docs/program/work-packages/WP-0.2.md",
+  "problem": "The object-store deliverable is marked \"done\", but no WORM record of record exists. §3.5 does not allow a claim like that without stored evidence. ADR-029 itself says its results came from exploratory runs before the commit, and that the records of record \"are added under docs/program/evidence/cell/ by the evidence commit that follows\". The plan gives that record to S8 (\"The WORM record of record that ADR-029 promised\"), and the matching exit criterion (\"the object store refuses to delete a locked object\") has not been shown in the cell either.",
+  "evidence": "WP-0.2.md deliverables: \"...not MinIO (§4.1): SeaweedFS 4.48 (ADR-029), done.\" `ls docs/program/evidence/` lists only README.md, backlog, ci, doctor and licence. There is no `cell/` directory and so no WORM record. ADR-029 line 37: \"State on 2026-10-18: the WORM test and its unit tests exist. The results in the Context table come from exploratory runs ...\".",
+  "fix": "Replace \"done\" with something like \"chosen (ADR-029); WORM test and unit tests built; the record of record is owed (compose stack S8, cell S5)\", in line with the WORK-PACKAGES.md row, which already says \"chosen and its WORM test built\"."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/safety/hazard-log.yaml",
+  "problem": "CTRL-0028-5's planned_verification uses the family `ChaosTest:db-failover-*`, but no planned test has that prefix. The database-failover tests are named `primary-pod-kill`, `primary-partition`, `standbys-fenced-writes-block` and `two-node-loss-writes-stop` (CTRL-0028-1/-2 and WP-0.2.md). `db-failover` is only the nightly step and the record name. Under the README's `<Kind>:<name>` rule, where a trailing `*` names a family of tests, this reference matches no test, so it cannot be traced when the control is later verified. KA-009 records that the safety check does not cross-check verified_by against tests or evidence.",
+  "evidence": "CTRL-0028-5 planned_verification: \"ChaosTest:node-kill-*\", \"ChaosTest:db-failover-*\", \"ChaosTest:cell-restart-any-order\". WP-0.2.md maps P1, P2, Q1 and Q2/Q3 to ChaosTest:primary-pod-kill, primary-partition, standbys-fenced-writes-block and two-node-loss-writes-stop, recorded in `chaos/<date>-db-failover-<sha>.json`.",
+  "fix": "List the four test names explicitly, or rename the tests so that they share a `db-failover-` prefix in the hazard log, WP-0.2.md and the plan's scenario files."
+ },
+ {
+  "severity": "minor",
+  "file": "tools/hmstools/cell/evidence.py",
+  "problem": "The slice's merge step said to make code_git_info use the runner's helper. That was not done, and the implementer says so. I confirmed their reason: at 09afa41, `tools/hmstools/ci/runner.py:git_info` (lines 245-264) still counts every untracked file and has no evidence-aware helper. Commit c1c2ea9 said that WP-0.1 would fix this, but it did not. As a result the two record writers now name records by different rules. The evidence README defines `-dirty` as \"a run on a working tree with uncommitted changes\" and never mentions the cell's exception for untracked evidence files.",
+  "evidence": "runner.py git_info: `files = [line[3:] for line in status.splitlines() if len(line) > 3]` → `\"dirty\": bool(files)`. evidence.py code_git_info leaves out `?? docs/program/evidence/...`. evidence/README.md: \"`-dirty` marks a run on a working tree with uncommitted changes\".",
+  "fix": "Lead decision: either add a shared helper to ci/runner.py (which changes the naming of ci/ records; it needs a WP-0.1-side test and a mention in the README), or record the cell's divergent rule in evidence/README.md and in a KA or OQ until the helper exists."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/OPEN-QUESTIONS.md",
+  "problem": "OQ-129 states in the present tense that a rerun \"adds -2, -3 and never overwrites an earlier record\", but the only record writer on this branch overwrites a file of the same name. The entry does not say that the rule is not built yet.",
+  "evidence": "OQ-129: \"A rerun with the same name adds `-2`, `-3` and never overwrites an earlier record [P].\" evidence.py write() opens `path` with `open(path, \"w\", ...)` and never checks whether the file exists.",
+  "fix": "Add \"(not built yet; S1 changes `cell/evidence.py`)\" to OQ-129, or implement the suffix rule, with a test, in the slice that next touches evidence.py."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/STATUS.md",
+  "problem": "The rewritten ID-range line contradicts itself. It still says that WP-0.1 \"continues from OQ-122, KA-014 and DN-015\", but those exact IDs are now used by WP-0.2 on this branch. The line was inherited from WP-0.1's file, but it was supposed to be rewritten for this branch.",
+  "evidence": "\"ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and DN-015 only if it needs more; WP-0.2 takes DN-015…DN-019, OQ-122…OQ-139, KA-014…KA-024 ... Used by WP-0.2 so far: DN-015, DN-016; OQ-122…OQ-134; KA-014…KA-023\".",
+  "fix": "Drop the WP-0.1 clause, since WP-0.1 is done, or point it after the reserved ranges (for example DN-040, OQ-160, KA-045 and HAZ-0035)."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/STATUS.md",
+  "problem": "The rewrite of WP-0.1's STATUS lost some pointers to items still waiting on humans. Three pointers are gone: the Appendix A placements (OQ-040…OQ-082, OQ-108…OQ-116), the ADR gaps (OQ-101…OQ-105) and the ADR differences (OQ-117…OQ-119). So is the instruction under DN-010 to verify every listed signer and trust anchor out of band (KA-004, KA-011), which is a sign-off-gate safety instruction. The lens asks that nothing from either side be lost.",
+  "evidence": "09afa41 STATUS, Blocked / waiting on humans: \"DN-010 (remote, hosted CI, CODEOWNERS handles; also KA-004 and KA-011: until a protected branch exists, verify every listed signer and every trust anchor out of band)\" and \"(OQ-040…OQ-082, OQ-108…OQ-116) ... (OQ-101…OQ-105) ... (OQ-117…OQ-119)\". The worktree STATUS has only \"Later: DN-007, DN-008, DN-009 (reference cell), DN-010, ...\" and \"(OQ-094…OQ-100, OQ-106, OQ-107, OQ-122…OQ-134)\".",
+  "fix": "Restore those references in the \"Blocked / waiting on humans\" section."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/KNOWN-ANOMALIES.md",
+  "problem": "Two KA rows are wrong after this edit. KA-006 now reads as a run-on sentence with a garbled meaning. KA-009 still gives the old control count, but the log now holds 200 controls.",
+  "evidence": "KA-006: \"(H9, H11 and H15 have no entry yet, KA-008); WP-0.2 added HAZ-0028 and HAZ-0029, whose controls are also `planned`, every control `state: planned` with empty ...\". KA-009: \"No control is `verified` yet (193 of 193 `planned`)\". The safety check reports controls=200, controls_planned=200.",
+  "fix": "KA-006: \"... (27 entries, each mapped to the seeded hazards its SI names) and, from WP-0.2, HAZ-0028 and HAZ-0029. Every control is `state: planned` ...\". KA-009: \"200 of 200 `planned`\"."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/adr/ADR-030-signature-enforcement-kyverno.md",
+  "problem": "The comparison of alternatives misstates the Sigstore policy-controller. The ADR says it \"needs a second mechanism for the registry-only rule\", but the controller's no-match policy denies by default any image that matches no ClusterImagePolicy glob, so a local-registry-only glob already refuses other registries. The real drawback is different: the controller checks only namespaces labelled `policy.sigstore.dev/include=true`, which matters for the kube-system coverage this ADR requires. This is checked from memory of the upstream documentation; this session did not fetch it.",
+  "evidence": "Options table, Sigstore policy-controller row, Against column: \"Needs a second mechanism for the registry-only rule\".",
+  "fix": "Check the policy-controller documentation and correct the Against column, for example \"namespaces must opt in by label, so kube-system coverage needs extra configuration\"."
+ },
+ {
+  "severity": "minor",
+  "file": "docs/program/OPEN-QUESTIONS.md",
+  "problem": "OQ-133 contains a human gate (\"A human confirms that the UBI terms allow these images to ship to sites\") without the [HUMAN] marker and without the \"Who confirms\" line that WP-0.1's entries use for human confirmations. Readers scanning for human gates will miss it.",
+  "evidence": "OQ-133 Choice ends: \"A human confirms that the UBI terms allow these images to ship to sites.\" Only a Status line follows. Compare OQ-120 and OQ-121: \"**Who confirms:** the CSO [HUMAN]: ...\".",
+  "fix": "Add \"- **Who confirms:** the human lead [HUMAN] (UBI redistribution terms), before any image ships to a site\" to OQ-133."
+ }
+]

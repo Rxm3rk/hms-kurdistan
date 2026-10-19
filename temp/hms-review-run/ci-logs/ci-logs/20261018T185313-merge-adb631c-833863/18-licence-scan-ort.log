@@ -1,0 +1,6 @@
+# licence-scan-ort
+# command: (not built: ORT licence scan from its official container image)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# ORT licence scan from its official container image: not built yet; WP-0.9 (needs a container engine, WP-0.2) builds it. Counted as a failure (fail closed).
+

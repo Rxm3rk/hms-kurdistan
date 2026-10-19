@@ -1,0 +1,22 @@
+const path = require('path');
+const web = process.argv[2];
+const ts = require(require.resolve('typescript', { paths: [web] }));
+const cfgPath = path.join(web, 'tsconfig.json');
+const cfg = ts.getParsedCommandLineOfConfigFile(cfgPath, {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: d => console.log(d) });
+const probe = path.join(web, 'src', '__probe.ts').split(String.fromCharCode(92)).join('/');
+const src = `import './routing/static-data.ts';
+import { createRootRoute, createRoute } from '@tanstack/react-router';
+const root = createRootRoute({ staticData: { clinical: false } });
+export const noFlag = createRoute({ getParentRoute: () => root, path: 'x' });
+export const emptyFlag = createRoute({ getParentRoute: () => root, path: 'y', staticData: {} });
+export const rootNoFlag = createRootRoute({});
+`;
+const host = ts.createCompilerHost(cfg.options);
+const orig = host.getSourceFile;
+host.getSourceFile = (f, l, ...r) => f.split(String.fromCharCode(92)).join('/') === probe ? ts.createSourceFile(f, src, l) : orig(f, l, ...r);
+const origExists = host.fileExists;
+host.fileExists = f => f.split(String.fromCharCode(92)).join('/') === probe || origExists(f);
+const program = ts.createProgram([probe, path.join(web,'src','env.d.ts')], cfg.options, host);
+const diags = ts.getPreEmitDiagnostics(program).filter(d => d.file && d.file.fileName.split(String.fromCharCode(92)).join('/') === probe);
+for (const d of diags) { const { line } = d.file.getLineAndCharacterOfPosition(d.start); console.log('line', line+1, ts.flattenDiagnosticMessageText(d.messageText, '\n').slice(0, 200)); }
+console.log('diag count', diags.length);

@@ -1,0 +1,6 @@
+# contract-asyncapi
+# command: (not built: AsyncAPI and CloudEvents contract tests for published events)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# AsyncAPI and CloudEvents contract tests for published events: not built yet; WP-0.3 builds it. Counted as a failure (fail closed).
+

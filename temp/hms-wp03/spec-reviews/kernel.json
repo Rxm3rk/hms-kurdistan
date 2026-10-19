@@ -1,0 +1,440 @@
+[
+ {
+  "target": "kernel",
+  "lens": "correctness",
+  "summary": "Correctness and architecture review (automated review, AI) of docs/specs/modules/platform-kernel.md against BUILD-PROMPT, DN-040, the hazard log (HAZ-0003/0005/0010), sibling specs and integrator decisions D1-D9. Cited section numbers mostly check out: §2.1, §5.3, §6.2, §6.5, §6.8 #1, §7 items 1/3/18, §8.1, §9.10 acc. 6, §9.21, §11.4, §11.7, ADR-026, R07 §5.4 AU-1, R08 §3.7/§3.11/§6.2/§8, R11 §15 items 8-10, and the detekt/Kotlin version facts. The WP-0.3 now/waits split matches DN-040, except that D1 now adds :platform:context. Two critical findings. First, the entry mode is declared by the caller. Second, EntryTimePolicy and GovernedThreshold can be built anywhere, so the SI-10 and SI-05 vendor-locked controls can be bypassed. There are 14 major findings. D1 and D3 are not followed. AsOf.knownAt cannot be built for as-was queries. There is no ValidTime with offsets. The entry-timing vocabulary contradicts the journal and envelope specs. Refused is part of EntryTiming. Back-entry privilege is inconsistent and its episode is caller-supplied. There is no SYSTEM mode for WP-0.3 appends. A DoseQuantity's magnitude cannot be persisted. The BusinessCalendar API does not fit platform-tasks, and calendar coverage can silently report complete. The restore allowance is too wide. The synthetic gate has no enforcement point. The calendar and zone ownership deviations from §5.2 and §4.1 are not recorded. 11 minor findings follow. Contradictions with sibling specs: platform-journal and envelope (ValidTime, entry_timing values, back-entry privilege, Instant instead of RecordedTime); platform-tenancy (AsOf.knownAt as Instant, its own TenantId and FacilityId, calendar lock column); platform-tasks (kri.calendar.* keys, tenancy-owned ids, the business-days-at-local-time semantics).",
+  "findings": [
+   {
+    "id": "CA-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 table and EntryTimeClassifier.classify(mode: EntryMode); §11.2",
+    "finding": "The entry mode is a free parameter 'declared by the channel', and nothing binds it to the authenticated principal. A USER command that is declared INTERFACE or MIGRATION is classified LateArrival or Migrated. Those classifications require no privilege and no user-entered reason (line 313), and §11.2 names permissions only for back-dating and back-entry. So back-dating can be done without privilege or reason by declaring another mode, which bypasses SI-10 clause b (CTRL-0010-4).",
+    "recommendation": "Derive the mode from the command context (D1: ActorRef kind USER / DEVICE / INTERFACE / MIGRATION_LOADER / SYSTEM, plus the back-entry tooling flag), never from request input. classify could take the CommandContext. Alternatively, add TimingRequirements such as INTERFACE_PRINCIPAL and MIGRATION_LOADER_PERMISSION for LateArrival and Migrated, and name those permissions in §11.2. Add a property test showing that a USER actor can never obtain LateArrival, Migrated or BackEntry."
+   },
+   {
+    "id": "CA-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 EntryTimePolicy; §9.5 GovernedThreshold; §14 CTRL-0010-1 and CTRL-0005-1 rows",
+    "finding": "EntryTimePolicy and GovernedThreshold are public classes with public constructors, and nothing ties them to the vendor-locked configuration chain. Any module can hard-code EntryTimePolicy(contemporaneousTolerance = 365 days, …) with PolicySource.Configured(fake keys), or GovernedThreshold(factor = 1000, provenance = APPROVED). Either one turns off back-dating detection or the Tier A ≥10× hard stop, while §14 claims that 'tolerances come only through EntryTimePolicy from vendor-locked settings'. GovernedThreshold does not even validate that factor > 0.",
+    "recommendation": "Make both constructors internal or private. Build them only through a factory that takes a resolved setting with its provenance (tenancy's Resolution, D2) or a kernel provenance token. Add an ArchUnit rule that allows the constructors to be called only from the tenancy and config resolvers and from test sources. Validate the values in init (durations ≥ 0, factor > 0). Add tests."
+   },
+   {
+    "id": "CA-03",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 PolicySource.Synthetic; §9.5 ContentProvenance; §15 preamble; DN-KN1",
+    "finding": "§19.4 says synthetic content 'is a gate, not a label', and the spec says a synthetic value 'can never reach TRAIN or PROD'. No component, check or test enforces this. The classifier and DoseComparisons accept SYNTHETIC silently, and ComparisonRecord does not record the provenance.",
+    "recommendation": "Name the enforcement point, for example the production wiring or the config-bundle promotion gate refusing a Synthetic policy or threshold, or a kernel guard that takes the environment class. Carry the provenance in ComparisonRecord and in the timing result. Add a named test such as PropertyTest:synthetic-safety-parameters-never-in-train-or-prod."
+   },
+   {
+    "id": "CA-04",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "Header scope; §1 table; §3; §4 table; §5 'Typed ids'; §10; §15; §16",
+    "finding": "The spec does not follow D1. It does not specify :platform:context (CommandContext with tenant, facility, actor, on-behalf-of, device, purpose-of-use, clinical time, idempotency key, correlation and causation ids; ChangeReason; ActorRef; DeviceRef; PurposeOfUse; IdempotencyKey; CorrelationId; TransactionContext and TransactionRunner), even though backend/platform/context/build.gradle.kts names this spec as its specification. §5 says 'The kernel declares no module's ids', which contradicts D1's TenantId, FacilityId, PatientId and UserId in hms.kernel.ids. The sibling specs still hold placeholders: tenancy's own TenantId and FacilityId with OQ-T1, tasks' 'TenantId and FacilityId are hms.platform.tenancy.api's' plus UserRef, workflow's OQ-W2, and the journal's TransactionContext in hms.kernel.journal with plain UUIDs.",
+    "recommendation": "Add a hms.kernel.context section with signatures, invariants (ChangeReason non-blank and never defaulted; on-behalf-of rules; idempotency-key format), tests and acceptance criteria. Add the four typed ids to §5. Add :platform:context to §4, §3 and the framework-free rule. Mark which signatures are 'kernel API 1' only after the time types are aligned (CA-07 to CA-11)."
+   },
+   {
+    "id": "CA-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.3 paragraph 1; §11.1 rows kri.calendar.weekend and kri.calendar.holidays",
+    "finding": "The spec does not follow D3. It names the settings kri.calendar.weekend and kri.calendar.holidays and lists '[FRIDAY, SATURDAY] (K's default)' as the shipped value. D3 makes the keys generic (calendar.weekend-days, calendar.holidays), with the Kurdistan pack supplying the COUNTRY_PACK values under the L-20 items. The spec's Lock column ('none') also contradicts tenancy §9 ('lockable at COUNTRY_PACK [P]'). platform-tasks §5 and §9 repeat the kri.* keys (sibling contradiction).",
+    "recommendation": "Rename the keys to calendar.weekend-days and calendar.holidays. Set the vendor default to 'none (configuration required)', with the value source 'Kurdistan pack: [FRIDAY, SATURDAY] ([L] L-20, item kri.calendar.weekend)'. Align the lock column with tenancy. Keep the facility override as OQ-KN9."
+   },
+   {
+    "id": "CA-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 AsOf and RecordedTime; §10 ArchTest:recorded-time-restore-only-in-persistence",
+    "finding": "Under D4, AsOf.knownAt is a RecordedTime?. A RecordedTime can only be built from a Clock or by restore, and restore is limited to persistence code. An as-was query ('what did the clinician see at 09:12', §7 item 3; tenancy's effective-dated reads) takes a knownAt supplied by a user or a query. Application or web code therefore has no lawful way to build that AsOf, so either the rule is broken or the query cannot be written. Tenancy works around this with knownAt: Instant? (a sibling contradiction of D4).",
+    "recommendation": "Add a kernel factory for query coordinates, for example AsOf.of(validAt: Instant, knownAt: Instant?), which builds the RecordedTime internally as a query bound and never as a stored value. Alternatively, add a separately named RecordedTime.queryBound(instant) that the ArchUnit rule allows everywhere but that the journal refuses to persist. Then tenancy can adopt the kernel AsOf (D4)."
+   },
+   {
+    "id": "CA-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 ValidPeriod; §13 ValidPeriod row",
+    "finding": "ValidPeriod holds bare Instants, so a period built from clinical times loses its original offsets. The journal's NewEntry expects a 'ValidTime' from hms.kernel.time ('from (+offset), optional to (+offset)'), and the envelope carries validfrom and validto with their original offsets (§5.3 'with the original offset'). The kernel defines no ValidTime. §13's 'offsets of the bounds in separate columns where they came from clinical times' cannot be filled from the type.",
+    "recommendation": "Add a kernel type such as ValidTime(start: ClinicalTime, endExclusive: ClinicalTime?), with the same half-open, never-empty rules and a toValidPeriod(). Add a sealed result for empty or reversed values, and add tests. The journal and envelope specs then reference that exact type."
+   },
+   {
+    "id": "CA-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 EntryTiming, EntryLabel; §3 stability",
+    "finding": "The kernel's timing vocabulary contradicts the sibling specs. The journal's entry_timing and the envelope's entrytiming allow CONTEMPORANEOUS, LATE_ENTRY, BACK_ENTRY and BACK_DATED. The kernel classifies Contemporaneous, BackDated, BackEntry, LateArrival and Migrated, with labels LATE_ENTRY (meaning back-dated), DOWNTIME_ENTRY, LATE_ARRIVAL and MIGRATED. So LATE_ENTRY means different things in the two vocabularies, and LateArrival and Migrated have no stored value. Either those labels (CTRL-0010-5) are lost, or appends fail the database check. The journal also tests against an 'EntryTiming enumeration', but the kernel's EntryTiming is a sealed hierarchy with payloads. §3 nevertheless declares hms.kernel.time stable now.",
+    "recommendation": "Define a single persisted code in the kernel, for example enum EntryTimingCode { CONTEMPORANEOUS, BACK_DATED, BACK_ENTRY, LATE_ARRIVAL, MIGRATED }, with a fixed mapping to display labels. Have the journal column, the envelope extension and the tests use it. Do not freeze kernel API 1 until the three specs agree."
+   },
+   {
+    "id": "CA-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 sealed interface EntryTiming",
+    "finding": "Refused is a subtype of EntryTiming. The journal's NewEntry.timing: EntryTiming and JournalViolation.ReasonRequired(timing: EntryTiming?) therefore type-admit a refused classification, and a caller can append one. This defeats the 'outcomes are sealed values' design (§6.2).",
+    "recommendation": "Have classify return EntryTimingResult = Accepted(timing: EntryTiming) | Refused(reason). Make EntryTiming contain only the accepted classifications, so that the journal can only take accepted ones."
+   },
+   {
+    "id": "CA-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 line 313 and BackEntryEpisode; §11.2 second bullet",
+    "finding": "Back-entry privilege is inconsistent, and the episode is trusted blindly. §6.2 gives BackEntry only AUDIT_BOTH_TIMES and LABEL_ON_DISPLAY_PRINT_EXPORT, while §11.2 says back-entry runs under its own permission clinical-time.back-entry. The journal (§4.4, §17) defaults to 'privilege for BACK_DATED only'. BackEntryEpisode also has a public constructor and an arbitrary window supplied by the caller. A fabricated episode with a wide window therefore classifies any late entry as BackEntry, with no privilege and no reason.",
+    "recommendation": "Choose one rule and record it. Either add a BACK_ENTRY_PERMISSION requirement or raise one shared open question with the journal for the CSO. Require the episode to be loaded server-side by id from the downtime-episode registry (TRU-BCP-03 / platform-site), scoped to tenant and facility, and never accepted from the command payload. Add a test."
+   },
+   {
+    "id": "CA-11",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 EntryMode; DN-KN1 'Until answered'; KA-KN4",
+    "finding": "Every journal append carries an entry timing, but the spec gives no classification path for changes the system makes itself or for non-clinical changes in WP-0.3. Examples are platform-tasks timers and TaskOrphaned (source = system), tasks' performedAt: ClinicalTime?, and config and tenancy changes. USER and INTERFACE classification needs an EntryTimePolicy, and no policy values can exist until DN-KN1 is answered. As written, the WP-0.3 consumers cannot produce a timing without inventing tolerances, which §3.4 forbids.",
+    "recommendation": "Add EntryMode.SYSTEM, or a dedicated factory for changes the platform makes itself, in which the clinical time must equal the recorded time (atRecordedTime) and the result is Contemporaneous without a policy. State which mode each WP-0.3 module uses, and add a test that SYSTEM refuses any clinical time different from the recorded time."
+   },
+   {
+    "id": "CA-12",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.3; §9.5 DoseQuantity (internal val quantity); §13 Quantity/DoseQuantity row",
+    "finding": "DoseQuantity's inner Quantity is internal to the :platform:quantity Gradle project. Neither infrastructure (which must persist 'numeric (scale as entered)', §13) nor reg-dose (another project, §9.3 'uses the magnitude accessor') can reach a DoseQuantity's magnitude. The only exit is display(), which strips trailing zeros and so loses the scale as entered. Re-parsing that output is exactly the laundering that the detekt rule and KA-KN3 forbid. As written, a DoseQuantity can be neither persisted nor passed to reg-dose.",
+    "recommendation": "Add @DoseMagnitudeAccess fun magnitude() (or toQuantity()) to DoseQuantity, covered by the same ArchUnit allow-list. Also add a persistence-only factory for rebuilding a stored value. Extend ArchTest:dose-and-quantity-operations-only-in-reg-dose and its fixtures to cover the new members."
+   },
+   {
+    "id": "CA-13",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.3 BusinessCalendar.plusBusinessDays / plusBusinessTime; §15 business-time test",
+    "finding": "The calendar API does not fit its only consumer, and plusBusinessTime is not precise enough to implement. platform-tasks computes dueAt as 'the same local time on the Nth business day after startsAt' in the facility zone. That needs an Instant-to-Instant operation that keeps the local time and resolves DST gaps and overlaps automatically, because no user is there to choose and resolveLocal refuses. The kernel offers plusBusinessDays on a LocalDate, and plusBusinessTime(Instant, Duration). The spec does not define how plusBusinessTime behaves when the start falls on a non-business day, or how it counts 23-hour and 25-hour days. So the test property 'correct across DST days' has no oracle. Behaviour for negative days, and for days = 0 on a non-business date, is also unspecified.",
+    "recommendation": "Specify plusBusinessDaysAtLocalTime(start: Instant, days: Int): CalendarAnswer<Instant> with an explicit DST rule, for example moving forward by the length of the gap and taking the earlier offset in an overlap. Either define plusBusinessTime precisely or drop it. Refuse negative days. Give exact test oracles."
+   },
+   {
+    "id": "CA-14",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.3 'Coverage'; BusinessCalendar.coveredYears; KA-KN4",
+    "finding": "coveredYears is taken from the keys of the holidays map. If the pack expands a recurring holiday such as Newroz on 21 March (L-20; tenancy's HOLIDAY_LIST) into every year, every year looks covered even though the Eids are not configured. uncoveredYears then stays empty, and the safeguard that KA-KN4 relies on never fires.",
+    "recommendation": "Make coverage an explicit per-year 'calendar confirmed complete' set, configured separately from the holiday dates. Add a test where Newroz-only years are reported as uncovered. Have isBusinessDay also report coverage, or document why it does not."
+   },
+   {
+    "id": "CA-15",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 RecordedTime.restore; §10 ArchTest:recorded-time-restore-only-in-persistence",
+    "finding": "The restore allowance covers all of hms.kernel.journal.., including the journal's domain and port packages. That is wider than 'persistence-only' (D7), and it lets non-persistence journal code make recorded times from arbitrary instants (CTRL-0010-3). The binding check is the ArchUnit rule, but the spec does not say that the rule must match the bytecode owner of a companion function (RecordedTime$Companion.restore, or a @JvmStatic bridge). A rule aimed at RecordedTime.restore could match nothing.",
+    "recommendation": "Allow only ..infrastructure.. (the journal's JooqJournal is already in hms.kernel.journal.infrastructure). State the bytecode target, or require @JvmStatic, for both restore and Quantity.ofMagnitude. The violating fixture must call through the companion."
+   },
+   {
+    "id": "CA-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§1 Out of scope; §11.1 facility zone row; §18",
+    "finding": "Two deviations from BUILD-PROMPT are not recorded. First, §5.2 gives 'calendars and holidays' to platform-i18n, but this spec puts the calendar data in tenancy's chain and the type in the kernel. The tenancy spec records this as OQ-T4; this spec does not. Second, §4.1 says 'Default time zone Asia/Baghdad, configurable per tenant', but the spec makes the zone a facility attribute that is not a setting and is never defaulted. Neither deviation appears in §18.",
+    "recommendation": "Add both to §18 as deviations or readings, with their reasons. Cite tenancy's OQ-T4 and the §7 item 1 versus §5.2 tension. Say how the §4.1 per-tenant default is honoured, for example through a COUNTRY_PACK or TENANT setting that fills in the facility zone at creation."
+   },
+   {
+    "id": "CA-17",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§15 tests versus §16 acceptance 4, 5, 7",
+    "finding": "Acceptance 5 covers 'every mode', but no test is named for INTERFACE (LateArrival or Contemporaneous within the lateness tolerance) or for MIGRATION (Migrated). No test checks the requirement sets of line 313. Acceptance 4's 'ClinicalTime keeps its original offset through a round trip' is not asserted by any named test. Acceptance 7 has no kernel-side test.",
+    "recommendation": "Add PropertyTest:SI-10-interface-late-arrival-labelled, PropertyTest:SI-10-migration-keeps-original-times, UnitTest:entry-timing-requirements and UnitTest:clinical-time-offset-round-trip. Point acceptance 7 at the platform-tasks test by name."
+   },
+   {
+    "id": "CA-18",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§1 paragraph 1 versus §4 table",
+    "finding": "§1 says the libraries 'depend on nothing but the JDK and the Kotlin standard library', but §4 has :platform:money depending on :platform:time. Under D1, :platform:context depends on ids and time (as its build file already does).",
+    "recommendation": "Reword §1 as 'nothing outside the JDK, the Kotlin standard library and other kernel libraries; no application module and no framework'."
+   },
+   {
+    "id": "CA-19",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§5 Monotonicity; §7 deterministic ids",
+    "finding": "Only the generator's state update is declared atomic. The injected RandomGenerator may not be thread-safe: SplittableRandom(seed), as §7 recommends, is not. 'The generator never fails' conflicts with treating an out-of-range timestamp as a programming error. Behaviour for clocks before 1970 (TestClock.setTo can set them) is unspecified.",
+    "recommendation": "Draw the random bits inside the same lock or critical section, or require a thread-safe generator. State that negative or over-48-bit millisecond values throw IllegalStateException, and add a test for that."
+   },
+   {
+    "id": "CA-20",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§10 ArchTest:no-system-default-zone-or-locale; §9.4",
+    "finding": "The rule bans only explicit getDefault calls. APIs that use the default locale implicitly, such as String.format without a Locale, NumberFormat.getInstance(), DecimalFormat(pattern) and DateTimeFormatter.ofPattern(pattern), can still put Eastern Arabic digits or another decimal separator into ClinicalNumberFormat output on an ar or ckb JVM. That breaks §6.5's 'always uses Western digits'.",
+    "recommendation": "Extend the rule to the implicit-default overloads in the kernel. Add a unit test that formats clinical numbers with Locale.setDefault set to ar and ckb."
+   },
+   {
+    "id": "CA-21",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1, §6.2, §8, §9.4 (factories and enums)",
+    "finding": "Several boundaries are unspecified. The limits behind TOO_MANY_DIGITS and TOO_LONG are not given. The spec does not say whether ValidPeriod.of checks emptiness before or after truncation to microseconds. ClinicalTime accepts offsets with seconds (historic LMT), which RFC 3339 validfrom cannot carry. EntryTimePolicy has no factory or init check for negative durations. CashRoundingPolicy.ToIncrement has no checks (positive increment, currency mismatch with the amount). Money.ofMinorUnits and zero() return Money directly, so a currency without minor units has no refusal path. ofExact does not say whether it pads a shorter scale.",
+    "recommendation": "State each limit and order of operations. Refuse offsets with non-zero seconds, or define their serialisation. Give the policy and rounding classes validated factories. Make the Money factories consistent with MoneyResult."
+   },
+   {
+    "id": "CA-22",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.5 fluidBalance; §18 bullet 2",
+    "finding": "fluidBalance takes only plain Quantity, and a DoseQuantity cannot be unwrapped outside the kernel. So infusion and medication volumes cannot be counted in intake, although they are part of a fluid balance. Negative or zero entries are not refused.",
+    "recommendation": "Accept a sealed input type that can be a Quantity or a DoseQuantity volume, unwrapped inside the kernel. Refuse negative entries with a sealed outcome."
+   },
+   {
+    "id": "CA-23",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§12 Events",
+    "finding": "This is a sibling contradiction. The spec says the event specs 'use RecordedTime for the CloudEvents time attribute', but envelope.md's envelope type has time: Instant. The journal's JournalEntry.recordedAt and RecordedTimeRegression also use Instant, so the restore rule the kernel defines for the journal guards nothing there.",
+    "recommendation": "Agree on one representation. Either the journal and envelope types use RecordedTime, or the kernel spec states that Instant is used at those boundaries and why."
+   },
+   {
+    "id": "CA-24",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§7 TestClock; §4 production wiring",
+    "finding": "D8 places TestClock in main code in hms.kernel.testing and says production wiring never binds test or dev adapters. The spec has no rule that stops production code (app-hms and modules' main source sets) from depending on hms.kernel.testing.",
+    "recommendation": "Add an ArchTest saying that no production class depends on ..testing.. or ..inmemory.. packages, and document TestClock as test-only."
+   },
+   {
+    "id": "CA-25",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§10 preamble and ArchTest:kernel-libraries-framework-free",
+    "finding": "The spec still says the existing rules are (a) to (d). D7 adds rule (e) and widens FRAMEWORK_PACKAGES with io.cloudevents, io.debezium and io.apicurio. The framework-free kernel rule lists only ids, time, money and quantity, and omits hms.kernel.context (D1).",
+    "recommendation": "Refer to the extended rule set, use the widened FRAMEWORK_PACKAGES, and add hms.kernel.context to the framework-free scope."
+   },
+   {
+    "id": "CA-26",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§11.1 platform.time.entry.*.<record-type> rows",
+    "finding": "Under D2, tenancy's SettingCatalogue holds explicitly declared definitions. A key family with a variable <record-type> suffix does not fit that model. The spec does not say who declares each record type's definitions, or what happens for a record type that has none.",
+    "recommendation": "State that each owning module registers one definition per record type in tenancy's catalogue, and that a record type with no definition fails closed (no policy can be built, so the command is refused). Add a test for that."
+   }
+  ]
+ },
+ {
+  "target": "kernel",
+  "lens": "safety",
+  "summary": "Clinical safety and hazard review (automated review, AI) of docs/specs/modules/platform-kernel.md against BUILD-PROMPT §2.1, §2.2, §3.4, §3.5, §5.3, §6.x, §7, §8.1-§8.3, §19.4, §22.1, WP-0.3, DN-040, HAZ-0003, HAZ-0005, HAZ-0010, the integrator decisions D1-D9 and the sibling specs. I found 3 critical, 19 major and 6 minor findings. The cited section numbers check out: §4.1 Asia/Baghdad, ADR-026 (5 s write block, 1 s alarm), R07 AU-1, R11 §15 items 8-10, RFC 9562 §5.7 and §6.2 Method 1, and §9.10 acceptance 6. No [HUMAN] field is filled, and no clinical values or standard codes are invented beyond K defaults marked [L].\n\nThe three critical findings:\n1. The SI-10 entry mode is declared by the channel or command. A user command can declare MIGRATION or INTERFACE, or name any back-entry episode, and so skip the back-dating privilege.\n2. `ClinicalTime.atRecordedTime`, and `ClinicalTime.of(recorded.instant, …)`, which nothing restricts, let a module default clinical time to recorded time. The spec gives a bedside scan as the example, which is wrong for offline BCMA (MED-BCM-01) and makes the claimed SI-10 property unprovable.\n3. The `KbDoseResult.Flag` path ignores the threshold the KB flag stands for. If the KB flags at a higher multiple than the governed 10×, the Tier A hard stop fails silently (CTRL-0005-10).\n\nWhere the spec contradicts sibling specs:\n- (a) The journal and envelope `entry_timing`/`entrytiming` lists (CONTEMPORANEOUS, LATE_ENTRY, BACK_ENTRY, BACK_DATED) do not match the kernel's EntryTiming and EntryLabel. They have no LATE_ARRIVAL or MIGRATED, and LATE_ENTRY means something different.\n- (b) The journal's default needs a privilege only for BACK_DATED and leaves back-entry to the CSO. Kernel §11.2 adds a `clinical-time.back-entry` permission, but TimingRequirement has no such item.\n- (c) Tenancy D-2 says a SafetyInvariant key must have a vendorDefault. The kernel ships no vendor value for the SI-10 tolerances, and no module owns their definitions.\n- (d) Tenancy uses the generic keys `calendar.weekend-days` and `calendar.holidays`, lockable at COUNTRY_PACK, as D3 also requires. The kernel uses `kri.calendar.*` with lock \"none\".\n- (e) platform-tasks raises the continuous-time reading of safety timers as a CSO decision. The kernel settles it as a [P] reading.\n- (f) platform-tasks needs \"the same local time on the Nth business day\" and handles only NotConfigured. The kernel's `plusBusinessDays` returns a LocalDate, and nobody consumes `uncoveredYears`.\n- (g) The journal uses a `ValidTime` type \"from hms.kernel.time\" that the kernel does not define.\n\nWhere the spec departs from the integrator decisions:\n- D1: it says \"The kernel declares no module's ids\" and does not mention `:platform:context`.\n- D3: it uses `kri.*` calendar keys.\n- D4: the AsOf signature matches, but `knownAt: RecordedTime` cannot be built from a user's query instant outside persistence code.\n- D8: no rule keeps TestClock out of production wiring.",
+  "findings": [
+   {
+    "id": "CS-01",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 Back-dating and back-entry (SI-10), table column 'Mode (declared by the channel)'; EntryTimeClassifier.classify(mode, episode); §11.2",
+    "finding": "The classifier trusts a caller-supplied EntryMode and BackEntryEpisode. The journal spec §4.4 confirms that the mode is 'the command's declared mode'. A UI or API command that declares MIGRATION or INTERFACE gets Migrated or LateArrival, which need no privilege and no reason. A command that declares BACK_ENTRY with any episode id and window gets BackEntry, and its requirements set has no privilege item either. Back-dating can therefore be done without the privilege, on any channel, which bypasses SI-10 clause b (CTRL-0010-4) and the §2.1 preamble (CTRL-0010-1). §11.2 names a `clinical-time.back-entry` permission, but TimingRequirement has no BACK_ENTRY_PRIVILEGE, so a handler that honours the requirements set never checks it. This also contradicts the journal spec's default, under which back-entry needs no privilege.",
+    "recommendation": "State that EntryMode is never taken from a command payload. The application layer derives it from the authenticated CommandContext of :platform:context (D1: actor kind, device or interface identity, channel). MIGRATION is allowed only for a migration-loader identity with its own permission, and INTERFACE only for a registered interface or device channel; any other combination is a refusal (add EntryTimeRefusal.MODE_NOT_ALLOWED_FOR_CHANNEL). The handler resolves BackEntryEpisode from the downtime-episode registry (TRU-BCP-03/platform-site) for the command's facility, never from caller fields. Add BACK_ENTRY_PRIVILEGE to TimingRequirement, or make it explicitly conditional on the CSO answer, and align the journal spec's default in one shared decision. Add properties: for every channel, a declared mode the channel cannot hold is refused, and a fabricated episode is refused. Record a new cause under HAZ-0010: 'entry mode or downtime episode asserted by the caller'."
+   },
+   {
+    "id": "CS-02",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 ClinicalTime.atRecordedTime and RecordedTime.instant; §14 row CTRL-0010-3; §15 PropertyTest:SI-10-clinical-time-distinct-from-system-time",
+    "finding": "`atRecordedTime` is an unrestricted factory that sets clinical time to recorded time, and its doc comment gives a bedside scan as the example. BCMA is offline-capable (MED-BCM-01; SI-15 mobile offline mode), so a scan made at 08:00 and synced at 10:00 would be recorded as given at 10:00. The next dose would then be timed wrongly, which is HAZ-0010's effect 'a dose repeated or omitted', and the conflation is exactly HAZ-0010's first cause. Any code can also write `ClinicalTime.of(recorded.instant, ZoneOffset.UTC)`, because RecordedTime exposes `instant`. The §14 claim that 'no value of one type is made from the other except the named atRecordedTime' is therefore neither enforced nor provable, and CTRL-0010-3 could silently fail. Nothing records that a clinical time was defaulted, so the defaulting is not visible in the record either.",
+    "recommendation": "Restrict `atRecordedTime` with an ArchUnit allow-list of the command types whose spec says the act and the recording happen together on the server. Forbid it for any command that can be queued offline or relayed, which must carry the client or device capture time and pass the future-tolerance check. Add a ClinicalTimeSource (ENTERED, DEVICE, INTERFACE, DEFAULTED_TO_RECORDED) that is stored with the journal row and shown. Add an ArchUnit or detekt rule that forbids building a ClinicalTime from `RecordedTime.instant`. Rewrite the property to test what the rules enforce, remove the bedside-scan example, and add the offline-sync cause under HAZ-0010."
+   },
+   {
+    "id": "CS-03",
+    "severity": "critical",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.5 table row (c) 'flag: raised means at or above'; KbDoseResult.Flag; KbThresholdOutcome",
+    "finding": "`Flag(raised, verbatim)` carries no information about the multiple the KB's flag stands for, and `checkKbResult` ignores GovernedThreshold for flags. If the KB's flag fires at, say, 20× (or 'exceeds maximum daily dose' on another basis), a dose of 15× the maximum returns BelowThreshold. The ≥10× Tier A hard stop (CTRL-0005-10, SI-05 clause h) then fails silently, and a tighter tenant threshold (tighten-only, CTRL-0005-1) has no effect on the flag path. In the other direction, a 'raised' flag that means '>1× maximum' becomes a Tier A hard stop that the governed list never decided (SI-14).",
+    "recommendation": "Make Flag carry the KB-declared multiple or threshold and basis it represents, set by the KB adapter from KB documentation. A raised flag counts as AtOrAboveThreshold only when the KB multiple is ≤ the governed factor. A non-raised flag counts as BelowThreshold only when the KB multiple is ≤ the governed factor. In every other case, including unknown flag semantics, the outcome is DoseCheckUnavailable (new UnavailableReason KB_FLAG_THRESHOLD_NOT_COMPARABLE). Add unit and property tests for these cases, and send the flag semantics to the CSO together with OQ-KN2."
+   },
+   {
+    "id": "CS-04",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.5 row (c); KbDoseResult.Ratio and KbDoseResult.Maximum",
+    "finding": "The spec does not say what the ratio is a ratio of (dose to maximum or the reverse, a fraction or a percentage) or on what basis (per dose, per day, per kg). `Ratio(ratio)` is compared as `ratio >= factor`, so a KB that returns a percentage (for example 150 for 150%) would make almost every order a hard stop, and an inverted ratio would never stop. For Maximum, exact UCUM equality does not capture a per-dose against per-day basis when both are coded in 'mg'. An ordered single dose compared with a daily maximum understates the exposure, so a dose that is truly ≥10× can be missed.",
+    "recommendation": "Define the ratio as ordered dose divided by the KB maximum on the same basis, as a decimal multiple. Add a `basis` (PER_DOSE, PER_DAY, PER_KG_PER_DOSE, PER_KG_PER_DAY or a coded equivalent) to Ratio and Maximum and an ordered-basis parameter. A basis mismatch gives DoseCheckUnavailable. Require a contract test in the KB adapter, and add the basis mismatch as a HAZ-0005 cause."
+   },
+   {
+    "id": "CS-05",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§14 'Verified by' column; §15 test names",
+    "finding": "Kernel tests reuse the exact planned_verification IDs of whole controls: PropertyTest:SI-10-back-dating-is-privileged-and-audited (CTRL-0010-4), PropertyTest:SI-10-back-entry-keeps-clinical-time-and-label (CTRL-0010-5), PropertyTest:SI-10-clinical-time-distinct-from-system-time (CTRL-0010-3), UnitTest:dose-check-unavailable-goes-to-pharmacist-review (CTRL-0010-10, whose routing the kernel does not do) and UnitTest:clinical-number-ismp-display-rules (CTRL-0005-17, which also covers tall-man lettering, prints and locales). The journal spec uses the same two SI-10 IDs for its own, different part. The kernel's SI-10 property tests also fall under the PropertyTest:SI-10-* family that CTRL-0010-2 names (10⁶ nightly plus 10⁴ per real channel adapter, clock skew, out-of-order events). docs/safety/README.md 'Test names' says CI keys results by these IDs, so a passing kernel-only test would read as verification of privilege, audit, routing or channel coverage that does not exist (§22.1 item 6).",
+    "recommendation": "Give kernel parts distinct IDs, for example PropertyTest:kernel-entry-timing-back-dated-requirements and UnitTest:kernel-kb-check-returns-dose-check-unavailable. Alternatively, agree a 'part' naming convention in docs/safety/README.md that CI does not count as the control's verification. Coordinate with the journal spec so that each ID names one test. CTRL-0005-9's kernel tests (PropertyTest:SI-05-independent-entry-match-exact) should be listed as parts, not as its verification."
+   },
+   {
+    "id": "CS-06",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.2, §9.3, §14 row CTRL-0005-4, KA-KN1",
+    "finding": "Nothing makes callers consult `UnitCatalogue`. A DoseQuantity is Valid for any grammatical unit, including misspellings that still parse as atoms and customary units such as bracketed avoirdupois or apothecary atoms. KA-KN1's 'callers fail closed' has no specified enforcement point. CTRL-0005-4 and SAC-11 also require 'weights and doses are metric only', which the kernel cannot check syntactically, yet §14 claims the control without that part. A misread or non-metric unit (a HAZ-0005 cause) passes silently.",
+    "recommendation": "Specify that a command accepting a DoseQuantity (and a dosing weight) must obtain UnitCheck.Known from the UnitCatalogue port. On Unknown, Unavailable or a new NonMetric result it refuses or routes to an owned manual check, so the pre-WP-1.1 state fails closed. Mark 'metric only' as not covered in §14 and in KA-KN1, and add a property test at the command layer when medications arrive."
+   },
+   {
+    "id": "CS-07",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 EntryTimePolicy and PolicySource; §9.5 GovernedThreshold and ContentProvenance",
+    "finding": "EntryTimePolicy and GovernedThreshold are plain public classes. Their values are not validated (the '// >= 0' comments are not checks, and a factor can be ≤ 0) and their provenance is self-declared. This breaks the spec's own rule in §3 ('validated types are plain classes with private constructors and factories'). Any module can write `GovernedThreshold(BigDecimal.TEN, \"x\", APPROVED)` or `EntryTimePolicy(..., PolicySource.Synthetic)` in production code. That puts hard-coded SI parameters outside the vendor-locked, tighten-only chain (CTRL-0005-1, CTRL-0010-1) and lets synthetic values reach PROD. The §19.4 gate only checks bundle content, so these constructions never pass through it, and the spec's claim that 'a synthetic value can never reach TRAIN or PROD' is not enforced.",
+    "recommendation": "Use private constructors with factories that take a tenancy `Resolved` value, carrying its provenance, change set and setting key, so the parameters cannot be literals. Validate durations ≥ 0 and factor > 0 (the lower bound of the factor is a CSO item). Add an ArchUnit rule that PolicySource.Synthetic and ContentProvenance.SYNTHETIC are only built in test source sets or hms.kernel.testing. Use the §19.4 `provenance: synthetic | approved` vocabulary in both types."
+   },
+   {
+    "id": "CS-08",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§11.1 tolerance rows; §6.2 'tighten-only (a smaller tolerance is stricter)'; DN-KN1; KA-KN4",
+    "finding": "(1) No module owns the definitions of the three SI-10 tolerance settings. The kernel 'reads no configuration', the journal says the tolerances belong to hms.kernel.time, and tenancy only provides the mechanism 'once a parameter exists'. CTRL-0010-1's PropertyTest:config-chain-vendor-lock-SI-10 therefore has nothing to test. (2) Tenancy rule D-2 requires a vendorDefault for every SafetyInvariant key, but the kernel ships none, so the definitions cannot be declared as written. (3) The kernel decides that smaller is stricter for all three tolerances. Tenancy says owners never decide the safer direction for a clinical parameter (§3.4 item 3), and a smaller future or interface tolerance refuses more device data, which can lose observations. (4) No outcome exists for 'policy not configured', so what a handler does before DN-KN1 is answered is a silent-stub risk (§3.5).",
+    "recommendation": "Name the module that declares the definitions (for example platform-journal or a time-settings owner) as SafetyInvariant/TightenOnly keys naming SI-10. State how D-2 holds while DN-KN1 is open: the definition is not registered, and resolution returns NotConfigured. Specify that on NotConfigured every command that needs a classification is refused with a known anomaly (KA-KN4, HAZ-0010, a backlog ID). Add the strictness direction of each tolerance to DN-KN1 as a CSO question."
+   },
+   {
+    "id": "CS-09",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 table row 'any ... CLINICAL_TIME_IN_FUTURE ... refuse'",
+    "finding": "For INTERFACE and MIGRATION channels the spec only says 'refuse'. A device or HL7 observation whose clock runs ahead of the server beyond futureTolerance would be refused, and the spec does not say where it goes. SI-03 and constitution rule 6 require every message to have an owner, a timer and an alarm, and §5.3 says undeliverable messages land in owned queues. A dropped vital sign or result is a missed deterioration. This cause is not in HAZ-0010 or HAZ-0003.",
+    "recommendation": "State that a Refused classification on a non-USER channel must create an owned, alarmed exception item (the dead-letter or owned-queue path of platform-tasks and events) and never drop the data. Add a test for it and record the cause, 'device clock ahead leads to rejected observation', under HAZ-0010 or HAZ-0003."
+   },
+   {
+    "id": "CS-10",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 EntryMode {USER, BACK_ENTRY, INTERFACE, MIGRATION}",
+    "finding": "The modes do not cover offline or queued user capture: mobile offline mode and offline BCMA (SI-15, MED-BCM-01, the edge-agent), whose commands the server revalidates later. Under USER mode, a nurse's offline entry synced later is classified BackDated, which requires the privilege and a typed reason for routine work. That pushes channels toward declaring INTERFACE, see CS-01, or toward defaulting clinical time, see CS-02. §18.3 explicitly asks for offline-BCMA conflict replays.",
+    "recommendation": "Add an offline-sync mode, or a field for client capture time plus device identity, with its own classification and label (for example OFFLINE_CAPTURE). The lag is measured against the device-recorded capture instant, within a CSO-set tolerance. Record the choice as a decision for the CSO with the TRU-BCP-03 and mobile specs."
+   },
+   {
+    "id": "CS-11",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§4 production wiring (Clock.systemUTC()); §6.1 'Elapsed-time rules ... Instant plus Duration'; §6.3; §14 row CTRL-0003-5",
+    "finding": "Every safety timer (TaskOrphaned within 5 minutes, the 5-minute dead-letter alarm, the 4-hour review in CTRL-0005-12) is computed from a wall clock, which is not monotonic. ADR-026 detects skew between nodes, but a cell-wide backward step (an NTP step or GPS reacquisition) moves every node together, and every pending alarm is delayed by the size of the step. The 5-minute claim is then not provable outside a TestClock, the spec proposes no hazard cause for it, and no test steps the clock back during an orphan episode.",
+    "recommendation": "Add a HAZ-0003 cause: 'cell clock steps backwards and delays safety timers'. Require timer services (platform-tasks, events) to detect a backward step, by comparing with the last observed instant and the journal's RecordedTimeRegression, and to alarm and evaluate due timers as if no time was lost, or to use a monotonic elapsed-time source for in-process deadlines. Add a TestClock.setTo-backwards case to PropertyTest:SI-03-orphan-alarm-within-5-minutes."
+   },
+   {
+    "id": "CS-12",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§7 TestClock; §4 production wiring; §10 rules",
+    "finding": "TestClock sits in a main source set (:platform:testing) and is a java.time.Clock, and no rule stops app-hms or any module's main code from binding it. A frozen or misconfigured TestClock in production would stop every SLA, escalation and TaskOrphaned timer without any error: SI-03 (CTRL-0003-5) would fail silently. D8 requires that production wiring never binds test or dev types.",
+    "recommendation": "Add an ArchUnit rule (and a Gradle check) that no main class outside test source sets depends on hms.kernel.testing, and that app-hms binds only Clock.systemUTC(). Document TestClock as test-only per D8."
+   },
+   {
+    "id": "CS-13",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.2 EntryTiming and EntryLabel; contradicts docs/specs/modules/platform-journal.md §3 (entry_timing), §4.4 and docs/specs/events/envelope.md §5 (entrytiming)",
+    "finding": "The journal and envelope store CONTEMPORANEOUS, LATE_ENTRY, BACK_ENTRY and BACK_DATED. The kernel produces Contemporaneous, BackDated (label LATE_ENTRY), BackEntry (DOWNTIME_ENTRY), LateArrival (LATE_ARRIVAL) and Migrated (MIGRATED). LateArrival and Migrated have no stored value, so either the append is rejected or an adapter maps them to CONTEMPORANEOUS and loses the label (CTRL-0010-5 'labelled'). LATE_ENTRY also means back-dated in the kernel but appears as a separate value beside BACK_DATED in the journal. The journal additionally relies on a `ValidTime` type from hms.kernel.time (a period with offsets) that the kernel does not define, and the classifier takes a single ClinicalTime.",
+    "recommendation": "Make the kernel define one closed enumeration of stored entry timings and labels, and derive the journal CHECK constraint and the envelope value list from it, with the journal's schema-equality test. Define ValidTime (start ClinicalTime and an optional end ClinicalTime) in hms.kernel.time, and say which instant of a period is classified."
+   },
+   {
+    "id": "CS-14",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 AsOf(validAt, knownAt: RecordedTime?) with RecordedTime.restore persistence-only; §10 ArchTest:recorded-time-restore-only-in-persistence",
+    "finding": "An as-was query for a past moment ('what did the clinician see at 09:12', §7 item 3; CDS replay) needs a RecordedTime built from a user-supplied instant. Only `now(clock)` and `restore` (restricted to infrastructure and the journal) can build one, so application-layer query handlers cannot express the query. The obvious workaround is to widen the restore allow-list, which weakens the control that keeps recorded time server-made (CTRL-0010-3). D4 fixes the AsOf signature, so the gap must be closed within it.",
+    "recommendation": "Keep D4's AsOf, but add a query-only factory, for example `AsOf.knownAtInstant(validAt, knownAt: Instant)` or `RecordedTime.queryCoordinate(instant)` returning a type that write paths (the journal append, value entries) refuse. Alternatively, document that as-was query handlers live in the journal API. Add an ArchUnit test that a query coordinate never reaches an append."
+   },
+   {
+    "id": "CS-15",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 RecordedTime.restore doc; §10 ArchTest:recorded-time-restore-only-in-persistence",
+    "finding": "The allow-list `..infrastructure..` covers every adapter, including inbound HL7, FHIR and device adapters (§6.1 layout: 'infrastructure/ (jOOQ repositories, adapters)'). Such an adapter could build a RecordedTime from a message timestamp, which contradicts the spec's own table ('never supplied by ... a device or an interface') and the SI-10 clause a separation.",
+    "recommendation": "Narrow the rule to the persistence-mapping package, for example `..infrastructure.persistence..` or the jOOQ converter classes, plus hms.kernel.journal. Add a violating fixture that is an inbound adapter."
+   },
+   {
+    "id": "CS-16",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§17 OQ-KN1, OQ-KN2, OQ-KN3, OQ-KN4, OQ-KN10, OQ-KN11; §6.3 'this split is this build's reading'",
+    "finding": "These items read or tighten SI-05 or SI-10, or concern clinical number display (SAC-50). §3.4 items 1 and 8 say they are not the agent's decisions and must go to DECISIONS-NEEDED.md for the CSO, not OPEN-QUESTIONS. OQ-KN2 is built before it is confirmed. The tightenings (unit atom required, positive magnitude, the episode window, future-time refusal, continuous safety timers) are not entered in docs/safety/README.md's 'Tightenings' table or in the controls' notes, as §3.4 item 1 and the README require. The platform-tasks spec raises the continuous-timer reading as a CSO decision, while the kernel settles it as [P].",
+    "recommendation": "Convert OQ-KN1, -KN2, -KN3, -KN4, -KN10 and -KN11 into DN items for the CSO, each with options and a default in use. Add a 'Tightenings (to be recorded in docs/safety/README.md)' list naming the controls: CTRL-0005-4, CTRL-0010-4/5, CTRL-0003-5. Refer to platform-tasks' decision instead of settling the timer reading in the kernel."
+   },
+   {
+    "id": "CS-17",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§5 'Typed ids ... The kernel declares no module's ids'; §1 and §4 project table; §6.2 TimingRequirement.USER_ENTERED_REASON",
+    "finding": "This contradicts integrator decision D1. hms.kernel.ids gains TenantId, FacilityId, PatientId and UserId, and the new :platform:context library (CommandContext, ChangeReason, ActorRef, DeviceRef, PurposeOfUse, IdempotencyKey, CorrelationId) is not mentioned. The back-dating reason should be the kernel ChangeReason (non-blank, never defaulted), and the entry mode should be derived from CommandContext (see CS-01).",
+    "recommendation": "Add the four typed ids to §5 and :platform:context to §1 and §4, with its dependency on ids and time. Have EntryTimeClassifier and its callers take CommandContext and ChangeReason where SI-10 needs actor, device and reason."
+   },
+   {
+    "id": "CS-18",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.3 'kri.calendar.weekend, kri.calendar.holidays'; §11.1 calendar rows",
+    "finding": "This contradicts integrator decision D3 and the tenancy spec §5.10. The keys are the generic `calendar.weekend-days` and `calendar.holidays`, with Kurdistan pack values at COUNTRY_PACK ([L] L-20, items kri.calendar.weekend and kri.calendar.holidays) and levels COUNTRY_PACK and TENANT; tenancy also makes them lockable at COUNTRY_PACK, where the kernel says the lock is 'none'. platform-tasks repeats the kri.* keys.",
+    "recommendation": "Rename the keys to `calendar.weekend-days` and `calendar.holidays`, describe kri.calendar.* as the pack item names, and align the lock column with tenancy. Keep the facility override as the open question (OQ-KN9)."
+   },
+   {
+    "id": "CS-19",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.3 DoseQuantity NOT_POSITIVE; §9.5 row (d) checkRateAgainstOrderedRange",
+    "finding": "Refusing zero magnitudes makes §2.1 (d) unusable for common titration orders with a minimum of 0, and for documenting a paused rate of 0. The medications module would then be pushed to model rates as plain Quantity, which escapes the unit-less and unit-atom protection of DoseQuantity (CTRL-0005-4) and the restriction to DoseComparisons. OQ-KN3 does not mention this consequence.",
+    "recommendation": "Allow zero for rates, or give rate and range bounds their own non-negative dose-rate type, still unit-mandatory and still used only with DoseComparisons. Add this case to the CSO decision behind OQ-KN3 and test (d) with a minimum of 0."
+   },
+   {
+    "id": "CS-20",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.4 Quantity.parse 'optional -'; §9.5 fluidBalance(intake: List<Quantity>, output: List<Quantity>)",
+    "finding": "fluidBalance takes plain Quantity values, which may be negative because parse accepts '-'. A negative intake or output entry silently gives a wrong net balance (§2.1 (e)). In neonatal and renal care that is a clinically significant error, and it is not refused or flagged.",
+    "recommendation": "Refuse negative or blank entries in fluidBalance with a typed outcome (for example InvalidEntry), or require a non-negative volume type. Add a property test for this."
+   },
+   {
+    "id": "CS-21",
+    "severity": "major",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.4 display 'the UCUM code as the unit, after one space'; §14 row CTRL-0005-17",
+    "finding": "Until OQ-KN4 is answered, clinical screens would show raw UCUM codes (for example 'U', '[iU]', 'ug'). Some unit abbreviations are known to be error-prone on clinical displays, and the ISMP list is not in docs/content-sources/ to check against. CTRL-0005-17 also covers tall-man lettering and prints in every locale, but §14 maps the whole control to ClinicalNumberFormat.",
+    "recommendation": "Mark CTRL-0005-17 as a partial kernel contribution (numbers only). Record a known anomaly: unit display names are pending approved content, and raw codes may not be shown to clinicians in TRAIN or PROD until the ISMP list and approved display names are placed and checked."
+   },
+   {
+    "id": "CS-22",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.4 'no trailing zeros (5, never 5.0 ...)'",
+    "finding": "The rule does not say that trailing zeros are stripped only after the decimal point. A naive `stripTrailingZeros` gives '1E+1' for 10, and a careless reading of the rule could drop integer zeros, which is a 10× display error.",
+    "recommendation": "State that only zeros after the decimal point are removed. Add shared test vectors such as 10, 100, 1000, 0.05, 10.50 and 100.0 to the frontend and kernel vector table."
+   },
+   {
+    "id": "CS-23",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.5 ComparisonRecord.inputs",
+    "finding": "The record stores inputs as ISMP-formatted, so the as-entered scale is lost (0.50 becomes 0.5). For medico-legal review of a double-check mismatch, what each person actually typed matters.",
+    "recommendation": "Store both the as-entered text and the display form in ComparisonRecord."
+   },
+   {
+    "id": "CS-24",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.1 ClinicalTime",
+    "finding": "Paper downtime records often give approximate times ('morning', a date only). ClinicalTime forces an exact instant, so back-entry (SI-10 clause c, 'keeps the original clinical times') would invent a precise time.",
+    "recommendation": "Add a precision field (EXACT, MINUTE, HOUR, DAY, APPROXIMATE), or record an open question for the TRU-BCP-03 spec and the CSO."
+   },
+   {
+    "id": "CS-25",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§9.3 'Its inner Quantity is internal ... cannot be unwrapped'",
+    "finding": "Kotlin `internal` is public in bytecode, so Java callers and reflection can reach it. The claim that a DoseQuantity can only be unwrapped inside the library is stronger than the mechanism.",
+    "recommendation": "Add an ArchUnit rule on access to the DoseQuantity field or accessor from outside hms.kernel.quantity and hms.reg.dose, or soften the claim and cover it under KA-KN3."
+   },
+   {
+    "id": "CS-26",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§1 'They hold no state ... depend on nothing but the JDK and the Kotlin standard library'",
+    "finding": "The statement is inconsistent with the rest of the spec: UuidV7Generator holds counter state, and :platform:money depends on :platform:time (§4).",
+    "recommendation": "Reword to 'no persistent or shared mutable state except the id generator's counter' and 'no dependencies outside the JDK, the Kotlin standard library and other kernel libraries'."
+   },
+   {
+    "id": "CS-27",
+    "severity": "minor",
+    "file": "docs/specs/modules/platform-kernel.md",
+    "location": "§6.3 BusinessCalendar API and Coverage; contradicts docs/specs/modules/platform-tasks.md §4.1",
+    "finding": "platform-tasks computes business-calendar due times as 'the same local time on the Nth business day' and handles only CalendarReader NotConfigured. The kernel offers `plusBusinessDays`, which returns a LocalDate, and `plusBusinessTime`, which has different semantics, and its `uncoveredYears`, meant to 'raise an owned configuration task', has no consumer.",
+    "recommendation": "Add an Instant-returning `plusBusinessDays(start: Instant, days)` that keeps the local time, or align the tasks spec. Name the consumer that raises the owned configuration task when uncoveredYears is not empty."
+   }
+  ]
+ }
+]

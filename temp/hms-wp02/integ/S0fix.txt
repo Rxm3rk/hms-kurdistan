@@ -1,0 +1,78 @@
+## files
+I made no git writes in this round. Everything below is uncommitted in the worktree C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02 (branch wp/0.2-environments, HEAD 889beec), on top of S0's earlier uncommitted entries. It is ready for the checkpoint integrator.
+
+Changed in this round:
+- docs/program/work-packages/WP-0.2.md: the object-store deliverable no longer says "done". It now says "chosen; the WORM test and its unit tests are built, and the records of record are owed (compose stack in S8, cell in S5); not met until they exist".
+- docs/safety/hazard-log.yaml: in CTRL-0028-5, "ChaosTest:db-failover-*" is replaced by the four test names: primary-pod-kill, primary-partition, standbys-fenced-writes-block and two-node-loss-writes-stop.
+- tools/hmstools/ci/runner.py: `git_info(root, ignore_untracked_under: Optional[str] = None)`.
+  - The default is unchanged: every untracked file counts, so ci/ records are named exactly as before.
+  - With a prefix, untracked files under that prefix are ignored and counted in `untracked_evidence_outputs_ignored`.
+- tools/hmstools/ci/tests/test_ci.py: new test `Evidence.test_untracked_evidence_counts_unless_the_caller_ignores_it`.
+- tools/hmstools/cell/evidence.py:
+  - `code_git_info` now calls the runner's helper. Its duplicate git-status code is removed.
+  - `write()` no longer overwrites a record with the same name. It opens with mode "x" and adds -2, -3 (OQ-129).
+- tools/hmstools/cell/tests/test_evidence.py: new test `test_a_rerun_with_the_same_name_never_overwrites`. The three existing tests are unchanged and pass.
+- docs/program/evidence/README.md: a naming bullet saying the two record writers count untracked files differently, and that both rules come from the one helper (KA-024).
+- docs/program/KNOWN-ANOMALIES.md:
+  - New KA-024: the ci/ and cell dirty rules differ; lead decision; O-5.
+  - KA-006 rewritten as in the reviewer's fix.
+  - KA-009 now says "200 of 200 `planned`".
+- docs/program/OPEN-QUESTIONS.md:
+  - OQ-129 names the code and test that now enforce the no-overwrite rule, and says ci/ records do not have it.
+  - OQ-133 gains "**Who confirms:** the human lead [HUMAN]: do the Red Hat UBI terms allow the Keycloak and Strimzi images to ship to sites? ...".
+- docs/adr/ADR-030-signature-enforcement-kyverno.md: the "Against" entry for policy-controller is corrected (details under problems, item 8).
+- docs/program/STATUS.md:
+  - The ID-range line now reads "WP-0.1 is done and takes no more IDs".
+  - Used IDs now include KA-014…KA-024.
+  - The pointers WP-0.1 had under "Blocked / waiting on humans" are restored:
+    - DN-007, DN-008, DN-010 with the out-of-band instruction for KA-004 and KA-011, DN-012 and DN-014;
+    - OQ-040…OQ-082 and OQ-108…OQ-116, OQ-101…OQ-105, OQ-117…OQ-119;
+    - the full OQ-120, OQ-121 and KA-013 wording.
+  - A "For the lead" line names KA-024 and OQ-133 [HUMAN].
+  - The evidence.py and fix-round results are recorded. STATUS is now 41 lines; the limit is 150.
+
+Output of the fast run: C:\Users\Surface\AppData\Local\Temp\hms-wp02\s0\fast-fix.txt
+## runs
+All runs below are on the Windows host, in the worktree, on the uncommitted S0 tree with these fixes. None is evidence of record, and none wrote a record.
+- `python -B -I -m unittest discover -s tools/hmstools/ci/tests -t tools -k Evidence`: "Ran 5 tests ... OK" (the new git_info test included).
+- `python -B -I -m unittest discover -s tools/hmstools/cell/tests -t tools`: "Ran 14 tests ... OK" after the helper change. After adding the no-overwrite test, the cell discover run printed "OK".
+- Full ci tests discover: OK.
+- `sh tools/hms safety check`: "safety: PASS (hazards=29, controls=200, controls_planned=200, controls_implemented=0, controls_verified=0, sis_covered=21, ...)".
+- `sh tools/hms backlog check`: "backlog: PASS (hazard_log_entries=29, features_with_hazards=101, hazard_links=243, rows=236, ...)".
+- `sh tools/hms repo check`, first run in this round: "repo: PASS (... adrs_total=30, adrs_valid=30, ... branches=4, blocking_now_items=2, status_lines=41, executables_checked=6)".
+- `sh tools/ci/run fast --no-evidence`: "tools/ci/run fast: PASS (8 passed, 0 failed, 0 not built; tests=1296, failures=0, errors=0, skipped=0; 490 s)". That is python 716, backend 66, frontend 514, and the secret scan with 0 findings in the history and the working tree.
+- `sh tools/hms repo check`, re-run after the last STATUS edit: "repo: FAIL (... branches=10 ...)". The only errors are three local branches the check does not allow: t3/state-machines-invariants, t3/wp-0-3-platform-kernel and t3/wp08-documents-printing. They appeared in the shared repository during this round, created by other sessions, along with wp/0.3, wp/0.5 and wp/0.8 worktrees. They are not from this slice's files. Every file rule still passes: adrs_valid=30 and status_lines=41.
+- No WSL run was repeated. None of the fixes affects the prototype clearing or any earlier WSL reading, and the evidence.py changes are covered by unit tests on the Windows host.
+## entries
+Findings 1 to 9 from the independent review, with what I did for each:
+
+1. Major, confirmed: WP-0.2.md said the object store was "done" with no WORM record. Fixed in the wording, which now matches WORK-PACKAGES.md and ADR-029. The records are owed in S8 (compose) and S5 (cell).
+2. Confirmed: no test matches `ChaosTest:db-failover-*`. Fixed: CTRL-0028-5 lists the four tests explicitly. `ChaosTest:node-kill-*` is kept, because it does match node-kill-primary, node-kill-standby and node-kill-each.
+3. Confirmed: runner.py had no helper. Fixed without changing how ci/ records are named:
+   - The rule moved into the runner's `git_info` as an opt-in parameter, and evidence.py now calls it. This is the plan's "call the runner's helper".
+   - ci/ records keep counting every untracked file, so the two rules still differ. That is documented in the evidence README and in the new KA-024.
+   - Whether ci/ records adopt the cell's rule stays a lead decision (O-5).
+   - Tests: the ci test pins both behaviours, and test_evidence.py passes unchanged.
+4. Confirmed: OQ-129 claimed in the present tense a behaviour that was not built. Fixed by building it: evidence.write never overwrites and adds -2, -3, with a test. OQ-129 now names the code and the test.
+5. Confirmed: the STATUS ID-range line contradicted itself. Fixed: "WP-0.1 is done and takes no more IDs".
+6. Confirmed: STATUS had lost pointers to items waiting on humans. All of them are restored, including the instruction under DN-010 to verify signers and trust anchors out of band (KA-004, KA-011).
+7. Confirmed: KA-006 was garbled and KA-009 had stale counts. Both fixed; KA-009 now says 200 of 200.
+8. Confirmed against the publisher's documentation (docs.sigstore.dev/policy-controller/overview, fetched 2026-10-19): ADR-030 misstated policy-controller. Fixed; details under problems, item 8.
+9. Confirmed: OQ-133 had a hidden human gate. Fixed by adding a "Who confirms" line with [HUMAN].
+
+IDs used by WP-0.2 now: DN-015 and DN-016; OQ-122…OQ-134; KA-014…KA-024 (KA-024 newly used this round); HAZ-0028 and HAZ-0029; ADR-030. All are inside WP-0.2's reserved ranges.
+## problems
+1. Repo check now fails on branch names, not on this slice's files. `sh tools/hms repo check` passed at the start of this round with branches=4. After the fast run it fails with branches=10, because other sessions created three t3/* branches: t3/state-machines-invariants, t3/wp-0-3-platform-kernel and t3/wp08-documents-printing.
+   - At the same time, wp/0.3, wp/0.5 and wp/0.8 worktrees appeared. WORK-PACKAGES.md says those work packages wait on WP-0.2.
+   - I did not touch these branches or worktrees. The lead should look at them before the checkpoint, because any later fast run in this repository will fail repo-check until they are renamed or removed.
+2. The finding-3 fix is deliberately partial. ci/ records still go "-dirty" because of an untracked earlier record (KA-024, O-5 still open). Switching ci/ records to the cell's rule changes how WP-0.1's runner names records, so I left it to the lead.
+3. A small flaw that existed before, not fixed: the runner's inner git() helper calls .strip() on the whole `git status` output, so the first line's leading space is lost. On a tracked-modified first line, dirty_files then shows a path with one character cut off. The dirty flag is unaffected. evidence.py now inherits this, where it used to run its own git status without stripping.
+4. The ci runner still overwrites a ci/ record with the same name. Only the cell writer has the -2/-3 rule, and OQ-129 says so.
+5. All runs are on the Windows host. The fast record of record in the WSL clone at the checkpoint SHA is still owed.
+6. The two WP-0.1 test edits from the first S0 pass (test_hazard_log_rules.py and test_seeded_content.py) still need the integrator to check them.
+7. Not reported by the reviewer: OQ-133's "Who confirms" names "the human lead". I chose that role because the question is about licence terms rather than safety, so it does not go to the CSO; the lead may reassign it.
+8. Detail of the ADR-030 correction (finding 8):
+   - The publisher's documentation was fetched today; the reviewer had worked from memory.
+   - policy-controller refuses any image that matches no ClusterImagePolicy by default (`no-match-policy`), so it can give the registry-only rule.
+   - Its real drawback is that it checks only namespaces labelled `policy.sigstore.dev/include: "true"`. Covering kube-system and the operators' namespaces needs every one of them labelled, and a namespace created without the label is unchecked.
+   - The ADR's "Against" entry now says this and cites the documentation, read 2026-10-19.

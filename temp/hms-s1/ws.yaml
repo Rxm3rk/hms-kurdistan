@@ -1,0 +1,61 @@
+# HMS Kurdistan frontend workspace (BUILD-PROMPT.md §6.1).
+# Directories under apps/ and packages/ without a package.json (the README placeholders) are not projects.
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 11 and later read only registry and auth keys from .npmrc, so the install policy lives here.
+# .npmrc repeats the first three for npm-compatible tools.
+saveExact: true
+engineStrict: true
+strictPeerDependencies: true
+# pnpm is pinned by "packageManager"; upgrades go through the version rule and ADR-002, not the notifier.
+updateNotifier: false
+# The package store is project-local, like the Gradle home: .tools/ is git-ignored, and installing never
+# writes outside the repository. 'sh tools/bootstrap frontend' fills it.
+storeDir: ../.tools/pnpm-store
+# `pnpm run` fails with a clear message when node_modules does not match the lockfile, instead of running
+# stale tools or installing on its own. Install first: corepack pnpm install --frozen-lockfile.
+verifyDepsBeforeRun: error
+
+# One pinned version per direct dependency (BUILD-PROMPT.md §4.1 version rule). Packages refer to these
+# with "catalog:"; pnpm-lock.yaml pins the full tree. Record changes in ADR-002 and the SBOM.
+catalog:
+  '@axe-core/playwright': 4.12.1
+  '@eslint/js': 10.0.1
+  '@fontsource/noto-sans': 5.2.10
+  '@fontsource/noto-sans-arabic': 5.2.10
+  '@formatjs/icu-messageformat-parser': 3.5.21
+  '@playwright/test': 1.64.1
+  '@tanstack/react-query': 5.104.4
+  '@tanstack/react-router': 1.170.45
+  '@tauri-apps/api': 2.12.4
+  '@testing-library/dom': 10.4.2
+  '@testing-library/jest-dom': 7.0.1
+  '@testing-library/react': 16.3.3
+  '@testing-library/user-event': 14.6.8
+  '@types/fontkit': 2.0.9
+  '@types/node': 24.13.6
+  '@types/react': 19.2.18
+  '@types/react-dom': 19.2.7
+  '@typescript-eslint/parser': 8.71.2
+  '@typescript-eslint/utils': 8.71.2
+  '@vitejs/plugin-react': 6.1.2
+  ajv: 8.17.1
+  eslint: 10.9.1
+  eslint-plugin-react-hooks: 7.1.1
+  fast-check: 4.10.2
+  fontkit: 2.0.4
+  jsdom: 29.1.1
+  playwright-core: 1.64.1
+  postcss: 8.5.30
+  prettier: 3.9.10
+  react: 19.3.1
+  react-aria-components: 1.22.1
+  react-dom: 19.3.1
+  react-intl: 12.1.4
+  typescript: 6.0.3
+  typescript-eslint: 8.71.2
+  vite: 8.3.4
+  vitest: 5.0.5
+  zod: 4.6.7

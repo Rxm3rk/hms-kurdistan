@@ -1,0 +1,2 @@
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java 25.0.4.1)
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"

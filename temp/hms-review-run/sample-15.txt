@@ -1,0 +1,337 @@
+====================================================================================================
+ID DEV-VAL-01
+  BUILD-PROMPT.md:2606: | `DEV-VAL-01` | Vitals validation UX | M | R2.1 | B | Nurse validation of auto-captured vitals; artifact marking · *Inferred with ICU monitor feed (R2.1)* |
+  §21 mention 2365: `SPC-AN-01` anaesthesia pre-assessment and intra-op/PACU record (lite); `RCM-COD-01` ICD-10 coding workbench; `DEV-GW-01` and `DEV-VAL-01` the validated ICU mon
+  backlog.yaml record:
+    - id: DEV-VAL-01
+      group: DEV
+      section: A.8
+      title: Vitals validation UX
+      size: M
+      phase: R2.1
+      stance: B
+      domain_level: false
+      scope: Nurse validation of auto-captured vitals; artifact marking
+      kurdistan_note: Inferred with ICU monitor feed (R2.1)
+      placement_marked: false
+      status: todo
+      work_packages:
+      - Phase 4 (the validated ICU monitor feed)
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID CLN-ORD-01
+  BUILD-PROMPT.md:2515: | `CLN-ORD-01` | Orderables + order sets | L | R1 | B | Orderables catalogue; versioned order sets |
+  §21 mention 2312: | **1.4 Outpatient record and orders** | 1.3 | `CLN-CHT-01`, `CLN-CHT-02`, `CLN-CHT-03`, `CLN-DOC-01`, `CLN-DOC-02`, `CLN-ORD-01`, `CLN-ORD-02` (outpatient), `C
+  backlog.yaml record:
+    - id: CLN-ORD-01
+      group: CLN
+      section: A.4
+      title: Orderables + order sets
+      size: L
+      phase: R1
+      stance: B
+      domain_level: false
+      scope: Orderables catalogue; versioned order sets
+      kurdistan_note: null
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-1.4
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID CLN-AMS-01
+  BUILD-PROMPT.md:2538: | `CLN-AMS-01` | Stewardship | M | P2 | B | Restricted-antimicrobial approval; time-outs; DOT · *BP P2→MVP; K →P2; stewardship control set at go-live* |
+  §21 mention 2369: Order of work: **the Dose Engine first** (`MED-DOSE-01`; shadow mode ≥4 weeks, C2 activation), then the stewardship module (`CLN-AMS-01`), microbiology (`DX-MIC
+  backlog.yaml record:
+    - id: CLN-AMS-01
+      group: CLN
+      section: A.4
+      title: Stewardship
+      size: M
+      phase: P2
+      stance: B
+      domain_level: false
+      scope: Restricted-antimicrobial approval; time-outs; DOT
+      kurdistan_note: BP P2→MVP; K →P2; stewardship control set at go-live
+      placement_marked: false
+      status: todo
+      work_packages:
+      - Phase 5 (the stewardship module)
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID OPS-CMD-01
+  BUILD-PROMPT.md:2676: | `OPS-CMD-01` | Command-centre data | L | P2 | B | Command-centre data layer + tiles |
+  §21 mention 2369: Order of work: **the Dose Engine first** (`MED-DOSE-01`; shadow mode ≥4 weeks, C2 activation), then the stewardship module (`CLN-AMS-01`), microbiology (`DX-MIC
+  backlog.yaml record:
+    - id: OPS-CMD-01
+      group: OPS
+      section: A.12
+      title: Command-centre data
+      size: L
+      phase: P2
+      stance: B
+      domain_level: false
+      scope: Command-centre data layer + tiles
+      kurdistan_note: null
+      placement_marked: false
+      status: todo
+      work_packages:
+      - Phase 5
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID SPC-OT-03
+  BUILD-PROMPT.md:2616: | `SPC-OT-03` | Intra-op record + charging | M | R2a | B | Intra-op record; counts; implants/consumables to charge+stock; op note · *OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b* |
+  §21 mention 2337: | **2.3 Operating theatres: scheduling and billing** | 2.1, 1.6, 1.9 | `SPC-OT-01`, `SPC-OT-03` (charging and stock) | Bookings gated by privileges; lists; impl
+  §21 mention 2352: | **3.7 Perioperative** | 2.3, 3.3 | `SPC-OT-02`, `SPC-OT-03` (clinical record) | WHO checklist (sign-in, time-out, sign-out) with site marking; intra-op record
+  backlog.yaml record:
+    - id: SPC-OT-03
+      group: SPC
+      section: A.9
+      title: Intra-op record + charging
+      size: M
+      phase: R2a
+      stance: B
+      domain_level: false
+      scope: Intra-op record; counts; implants/consumables to charge+stock; op note
+      kurdistan_note: OT billing R2a; clinical intra-op record release unstated · OT charging and stock R2a; clinical intra-op record R2b
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-2.3 (charging and stock)
+      - WP-3.7 (clinical record)
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID CLN-DOC-02
+  BUILD-PROMPT.md:2526: | `CLN-DOC-02` | Copy-forward provenance | M | R1 | B | Copy-forward provenance; bloat indicators; change-since-last-note · *BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b* |
+  BUILD-PROMPT.md:2806: | `CLN-DOC-02` bloat indicator in BP R2.1, absent from K | Provenance in R1; bloat indicators by R2b |
+  §21 mention 2312: | **1.4 Outpatient record and orders** | 1.3 | `CLN-CHT-01`, `CLN-CHT-02`, `CLN-CHT-03`, `CLN-DOC-01`, `CLN-DOC-02`, `CLN-ORD-01`, `CLN-ORD-02` (outpatient), `C
+  backlog.yaml record:
+    - id: CLN-DOC-02
+      group: CLN
+      section: A.4
+      title: Copy-forward provenance
+      size: M
+      phase: R1
+      stance: B
+      domain_level: false
+      scope: Copy-forward provenance; bloat indicators; change-since-last-note
+      kurdistan_note: 'BP P2→MVP (bloat indicator BP R2.1); K §4.2 silent · Placed R1: Provenance from the first note; bloat indicators by R2b'
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-1.4
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID PLT-UX-01
+  BUILD-PROMPT.md:2453: | `PLT-UX-01` | Design system | M | R1 | B | Keyboard-first design system; WCAG 2.2 AA · *Western digits for clinical numerals (K §6.2)* |
+  §21 mention 2291: | **0.7 Design system and client shells** (`PLT-UX-01`, `PLT-UX-02`, `PLT-UX-03` base, `KRI-LOC-01` base) | 0.1 (badge flow: 0.4) | Web workspace frame; banner 
+  backlog.yaml record:
+    - id: PLT-UX-01
+      group: PLT
+      section: A.1
+      title: Design system
+      size: M
+      phase: R1
+      stance: B
+      domain_level: false
+      scope: Keyboard-first design system; WCAG 2.2 AA
+      kurdistan_note: Western digits for clinical numerals (K §6.2)
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-0.7
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID NUR-FLW-02
+  BUILD-PROMPT.md:2549: | `NUR-FLW-02` | Risk scores | M | R2b | B | Braden/Morse/delirium with care-plan triggers |
+  §21 mention 2349: | **3.4 Nursing** | 2.1 | `NUR-FLW-01`, `NUR-FLW-02`, `NUR-CP-01`, `NUR-WND-01`, `CLN-BH-01` | Brain-sheet, flowsheets with field governance, I&O, assessments, 
+  backlog.yaml record:
+    - id: NUR-FLW-02
+      group: NUR
+      section: A.5
+      title: Risk scores
+      size: M
+      phase: R2b
+      stance: B
+      domain_level: false
+      scope: Braden/Morse/delirium with care-plan triggers
+      kurdistan_note: null
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-3.4
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID ACC-OPD-01
+  BUILD-PROMPT.md:2503: | `ACC-OPD-01` | OPD token journey | M | R1 | B | Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards · *Display boards in R1.1* |
+  §21 mention 2311: | **1.3 Scheduling, OPD flow and referrals** | 1.2 | `ACC-SCH-01`, `ACC-OPD-01`, `ACC-SCH-02`, `INT-SEAM-01` | Appointments with the Kurdistan calendar; the tok
+  §21 mention 2329: `DFD-PAY-01` wallet and QR payment links; `DFD-BOK-01` booking links; `KRI-STAT-02` DHIS2 export; document-pack automation (`RCM-INS-01`); LIS autoverification 
+  backlog.yaml record:
+    - id: ACC-OPD-01
+      group: ACC
+      section: A.3
+      title: OPD token journey
+      size: M
+      phase: R1
+      stance: B
+      domain_level: false
+      scope: Token/queue; reg>vitals>consult>bill>lab>pharmacy journey; display boards
+      kurdistan_note: Display boards in R1.1
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-1.3
+      - Phase 1.1 (queue display boards)
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID IMP-FND-01
+  BUILD-PROMPT.md:2736: | `IMP-FND-01` | Foundation content | XL | R1 | B | Order sets, flowsheets, templates, CDS, roles, reports, charge masters · *Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)* |
+  §21 mention 2322: | **1.14 Implementation tooling** | 1.2–1.9 | `IMP-FND-01`, `IMP-MIG-01`, `IMP-RDY-01`, `IMP-TRN-01`, `IMP-TEL-01`, `IMP-SUP-01` | Foundation content (synthetic
+  backlog.yaml record:
+    - id: IMP-FND-01
+      group: IMP
+      section: A.16
+      title: Foundation content
+      size: XL
+      phase: R1
+      stance: B
+      domain_level: false
+      scope: Order sets, flowsheets, templates, CDS, roles, reports, charge masters
+      kurdistan_note: 'Re-scoped: Kurdistan foundation build (regional brands, trilingual forms)'
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-1.14
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID TRU-SEC-03
+  BUILD-PROMPT.md:2482: | `TRU-SEC-03` | Market attestations | M | R1 | B | CERT-In Safe-to-Host; NCA ECC/CCC; ADHICS; MeitY/CST · *Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]* |
+  §21 mention 2321: | **1.13 On-site cell, central site, continuity** | Phase 0 (grows alongside every Phase 1 WP) | `PLT-OPS-01`, `PLT-OPS-02`, `PLT-SITE-01`, `PLT-PWR-01`, `PLT-O
+  backlog.yaml record:
+    - id: TRU-SEC-03
+      group: TRU
+      section: A.2
+      title: Market attestations
+      size: M
+      phase: R1
+      stance: B
+      domain_level: false
+      scope: CERT-In Safe-to-Host; NCA ECC/CCC; ADHICS; MeitY/CST
+      kurdistan_note: 'Replaced, same size: ISO 27001 and local attestations · Placed R1: Controls built from R1; attestations are [HUMAN]'
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-1.13
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID IMP-GOV-01
+  BUILD-PROMPT.md:2742: | `IMP-GOV-01` | Governance intake | S | R2.1 | B | Requests; scoring; 30-day loop closure · *BP P2→MVP; manual path until R2.1* |
+  §21 mention 2365: `SPC-AN-01` anaesthesia pre-assessment and intra-op/PACU record (lite); `RCM-COD-01` ICD-10 coding workbench; `DEV-GW-01` and `DEV-VAL-01` the validated ICU mon
+  backlog.yaml record:
+    - id: IMP-GOV-01
+      group: IMP
+      section: A.16
+      title: Governance intake
+      size: S
+      phase: R2.1
+      stance: B
+      domain_level: false
+      scope: Requests; scoring; 30-day loop closure
+      kurdistan_note: BP P2→MVP; manual path until R2.1
+      placement_marked: false
+      status: todo
+      work_packages:
+      - Phase 4 (governance intake)
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID SPC-MAT-01
+  BUILD-PROMPT.md:2623: | `SPC-MAT-01` | L&D + newborn | M | R2a | B | L&D record; newborn registration; mother–baby link; birth notification · *Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b* |
+  §21 mention 2339: | **2.5 Registers and maternity registration** | 2.1 | `CLN-ACP-01`, `SPC-MAT-01` (newborn registration, mother–baby link, birth notification), `SPC-DTH-01`, `O
+  §21 mention 2354: | **3.9 Maternity and diet** | 2.5, 3.4 | `SPC-MAT-01` (L&D record), `SPC-DIE-01` | Labour and delivery record; diet orders with religious preferences and aller
+  backlog.yaml record:
+    - id: SPC-MAT-01
+      group: SPC
+      section: A.9
+      title: L&D + newborn
+      size: M
+      phase: R2a
+      stance: B
+      domain_level: false
+      scope: L&D record; newborn registration; mother–baby link; birth notification
+      kurdistan_note: Re-scoped; KRG birth notification R2a; L&D release unstated · Newborn registration, mother-baby link and birth notification R2a; electronic L&D record R2b
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-2.5 (newborn registration, mother–baby link, birth notification)
+      - WP-3.9 (L&D record)
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID MED-INF-01
+  BUILD-PROMPT.md:2564: | `MED-INF-01` | Infusion model | M | R2b | B | Infusion data model; pump-channel association; manual rate/volume checks · *Inferred R2b (with eMAR)* |
+  §21 mention 2348: | **3.3 eMAR and BCMA** | 3.2 | `MED-MAR-01`, `MED-BCM-01`, `MED-INF-01`, `PLT-UX-04` | Web and mobile BCMA; offline mode with revalidation and flagged facts; h
+  backlog.yaml record:
+    - id: MED-INF-01
+      group: MED
+      section: A.6
+      title: Infusion model
+      size: M
+      phase: R2b
+      stance: B
+      domain_level: false
+      scope: Infusion data model; pump-channel association; manual rate/volume checks
+      kurdistan_note: Inferred R2b (with eMAR)
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-3.3
+      tests: []
+      hazards: []
+      notes: []
+====================================================================================================
+ID NUR-CP-01
+  BUILD-PROMPT.md:2550: | `NUR-CP-01` | Care plans | M | R2b | B | Care plans; shift worklists; nurse handoff |
+  §21 mention 2349: | **3.4 Nursing** | 2.1 | `NUR-FLW-01`, `NUR-FLW-02`, `NUR-CP-01`, `NUR-WND-01`, `CLN-BH-01` | Brain-sheet, flowsheets with field governance, I&O, assessments, 
+  backlog.yaml record:
+    - id: NUR-CP-01
+      group: NUR
+      section: A.5
+      title: Care plans
+      size: M
+      phase: R2b
+      stance: B
+      domain_level: false
+      scope: Care plans; shift worklists; nurse handoff
+      kurdistan_note: null
+      placement_marked: false
+      status: todo
+      work_packages:
+      - WP-3.4
+      tests: []
+      hazards: []
+      notes: []

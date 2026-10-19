@@ -1,0 +1,62 @@
+{
+  "SI-01": [
+    {"machine": "specimen", "property": "PropertyTest:SI-01-two-identifiers-on-every-patient-affecting-command", "clauses": ["a", "d"],
+     "covers": "Specimen labels and collection only: PrintLabels, AssignKitLabels, Collect and their identity overrides fire only with wristbandScanMatches or twoIdentifiersActivelyConfirmed holding (the MRN with its check digit confirmed and current; name and date of birth or the approximate-DOB flag confirmed). The downtime back-entry and every other channel are not covered"},
+    {"machine": "specimen", "property": "PropertyTest:SI-01-location-never-an-identifier", "clauses": ["b"],
+     "covers": "Every printed specimen label holds no room or bed in an identifier slot, and no identity-override label or collection rests on a room, bed or location check (read from the facts)"},
+    {"machine": "appointment", "property": "PropertyTest:SI-01-two-identifiers-on-every-patient-affecting-command", "clauses": ["a"],
+     "covers": "Appointment check-in only: CheckIn and CheckInWalkIn fire only with patientIdentifiedByTwoIdentifiers holding"}
+  ],
+  "SI-03": [
+    {"machine": "order", "property": "PropertyTest:SI-03-every-order-reaches-a-terminal-state", "clauses": ["a"],
+     "covers": "From every state the order sequences reach, completed, revoked or entered-in-error is reachable in the model's transition graph (guards aside). It does not show that any order is driven there: the owned tasks and the overdue tracking that do it are effects, not modelled"}
+  ],
+  "SI-05": [
+    {"machine": "order", "property": "PropertyTest:SI-05-no-weight-based-medicine-signed-without-dated-weight", "clauses": ["a"],
+     "covers": "Every order signed with a dose per body weight or per body-surface area has a dosing weight with its recorded date and its source (read from the facts)"}
+  ],
+  "SI-07": [
+    {"machine": "order", "property": "PropertyTest:SI-07-ai-never-signs-orders", "clauses": ["b"],
+     "covers": "Every Sign that fires was issued by a human principal authenticated for that signature (read from the facts): an AI agent, a service, an interface or a migration loader never signs, applied before P2"}
+  ],
+  "SI-10": [
+    {"machine": "encounter", "property": "PropertyTest:SI-10-back-dating-is-privileged-and-audited", "clauses": ["b"],
+     "covers": "Every back-entry of location periods and every correction of a location time held privilegedAndAudited"}
+  ],
+  "SI-11": [
+    {"machine": "specimen", "property": "PropertyTest:SI-11-wristband-unit-order-sample-match", "clauses": ["a"],
+     "covers": "The sample part only: a specimen that serves a pre-transfusion test (or whose flag is unknown) is never labelled or collected on the identity override, that is without a wristband scan match (notTransfusionSample). The unit, the order and the bedside match are transfusion's (WP-3.10)"}
+  ],
+  "SI-12": [
+    {"machine": "encounter", "property": "PropertyTest:SI-12-pre-authorisation-never-blocks-discharge-or-emergency-care", "clauses": ["a"],
+     "covers": "The outcome of every encounter command (discharge, arrival, admission and the rest) is the same whatever the payment facts: outstanding balance, deposit and pre-approval status, set to four extremes and refired on the same state and facts"},
+    {"machine": "bed", "property": "PropertyTest:SI-12-no-rcm-state-blocks-a-clinical-command", "clauses": ["a"],
+     "covers": "The outcome of every bed command (reservation and occupancy included) is the same whatever the payment facts, set to four extremes and refired on the same state and facts"}
+  ],
+  "SI-15": [
+    {"machine": "order", "property": "PropertyTest:SI-15-no-new-prescribing-without-full-cds-offline", "clauses": ["a"],
+     "covers": "Every Sign that fires was issued in a known mode, and in an offline mode (a lost on-site cell, edge agent, mobile offline) only with notOfflineWithoutFullCds holding; losing the internet or the WAN is online"},
+    {"machine": "encounter", "property": "PropertyTest:SI-15-no-bed-or-ot-allocation-offline", "clauses": ["b"],
+     "covers": "Every encounter step that puts the patient in a bed (admission, transfer, swap, transfer cancellation, cancelled discharge, back-entered periods) was issued in the on-site-cell mode or on an in-cell channel (read from the facts). OT allocation is not modelled"},
+    {"machine": "bed", "property": "PropertyTest:SI-15-no-bed-or-ot-allocation-offline", "clauses": ["b"],
+     "covers": "A bed is reserved or occupied only by a command issued in the on-site-cell mode or on an in-cell channel (read from the facts)"}
+  ],
+  "SI-16": [
+    {"machine": "order", "property": "PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change", "clauses": ["f"],
+     "covers": "Every Sign that fires after a patient-context change within the window (never less than 60 s; an unknown change time counts as recent) rests on a latest re-verification answer, recorded after the change, that is a confirmation by the signer (read from the facts), and held identityReverificationSatisfied. The server-side patient context is not built (KA-025)"}
+  ],
+  "SI-17": [
+    {"machine": "result", "property": "PropertyTest:SI-17-pending-results-at-discharge-go-to-owned-queue", "clauses": ["a"],
+     "covers": "Whenever the patient of a registered or preliminary result is discharged, RecordPatientDischarged fires and routes the result to the owned pending-at-discharge queue"},
+    {"machine": "encounter", "property": "PropertyTest:SI-17-pending-results-at-discharge-go-to-owned-queue", "clauses": ["a"],
+     "covers": "Every discharge that fires carries routePendingResultsToOwnedQueues"},
+    {"machine": "result", "property": "PropertyTest:SI-17-result-for-discharged-patient-goes-to-owned-queue", "clauses": ["b"],
+     "covers": "Every version filed (released, revised, amended, corrected, autoverified) while patientDischarged holds also goes to the owned discharged-patient queue"}
+  ],
+  "SI-18": [
+    {"machine": "result", "property": "PropertyTest:SI-18-activation-only-when-cleared-or-not-required", "clauses": ["a"],
+     "covers": "Every autoverified release held autoverificationActive under a Register entry for the running function version and the tenant's jurisdiction whose status is cleared or not-required, with a stored opinion not expired at the command's time (read from the facts), and records its basis"},
+    {"machine": "result", "property": "PropertyTest:SI-18-configuration-toggle-cannot-override-register", "clauses": ["d"],
+     "covers": "With the tenant's autoverification flag on and no permitting Register entry (read from the facts), Autoverify never fires"}
+  ]
+}

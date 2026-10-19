@@ -1,0 +1,62 @@
+feat(design-system): WP-0.7 S4 tokens, fonts, providers and modal guard
+
+Slice S4 of WP-0.7 (design system and client shells) builds the
+foundation of frontend/packages/design-system that the banner, the sign
+pattern and the web frame (S5a, S5b, S6) build on.
+
+What S4 adds:
+- CSS in logical properties only: tokens.css (colour roles, density
+  rules on :root[data-density], a two-ring focus indicator that reaches
+  3:1 on every surface, the filled accent surface included), fonts.css
+  (Noto Sans latin and latin-ext with Noto Sans Arabic arabic, weights
+  400 and 700, woff2 from the Fontsource packages, bundled with no
+  network), base.css and styles.css; exported as ./styles.css,
+  ./fonts.css and ./tokens.css.
+- LocaleProvider: sets lang and dir on <html> from @hms/i18n and gives
+  react-intl and React Aria the ui-intl tag; message errors are reported
+  with code and key only. DensityProvider and useDensity: data-density
+  on <html>, stored per user key in localStorage.
+- Bdi (<bdi> with explicit dir and lang) and ClinicalNumber
+  (<bdi dir="ltr"> over ui-core's formatter; invalid and missing values
+  show their own messages).
+- Message: catalogue text in JSX; a key missing at run time shows as the
+  key in a visible error style.
+- The modal stack guard (spec §2.8, §6.5 "No stacked modals"): one
+  guard per window, held by a Modal or a HAL capture through an opaque
+  token only the holder can release; owners compared by identity; a
+  nested provider of another guard throws; another guard can be made
+  only through @hms/design-system/testing, which throws in production.
+  A refusal throws in development and tests; in production it is
+  announced through a role=status region marked data-live-announcer (so
+  ariaHideOutside leaves it exposed) and shown as a status line.
+- messageKey(): a message id outside the en catalogue fails type
+  checking.
+- S1's smoke test gets a 30 s timeout for the cold React Aria import.
+  The package.json exports field changed; no dependency list changed.
+- OQ-160 (open): S4's engineering choices (fonts, colour roles, focus
+  rings, density, the guard, Message, locale tags). It was written as a
+  second OQ-157 while S8 wrote its own; the integrator renumbered it,
+  because S8's code cites OQ-157, and extended WP-0.7's range to
+  OQ-160…OQ-169 [P] (STATUS.md). KA-038 (no bundled glyph for U+202F),
+  KA-039 (a missing key in string-only paths shows as plain text) and
+  KA-042 (raw react-aria-components dialogs outside the design system can
+  bypass the guard until a lint rule bans them), all open.
+
+Tests (spec §9 names): UnitTest:tokens-contrast, UnitTest:font-coverage,
+UnitTest:modal-no-stacking, UnitTest:locale-sets-dir-and-lang; also the
+ClinicalNumber, density-provider and Message tests. @hms/design-system
+81 tests in 8 files.
+
+Checks on the Windows host (not evidence of record), this commit's tree
+(S2 to S4): `sh tools/ci/run fast --no-evidence` PASS, 8 of 8 steps,
+tests=1478, failures=0: python-unit-tests 674, backend-fast 66,
+frontend-fast 738 (design-system 81, ui-core 89, i18n 89); CSS logical
+lint findings=0; repo, safety and backlog checks and the secret scan
+PASS. Not run: the WSL build host, and the rendered checks of S7
+(glyph-render, axe).
+
+Hazards: none named. The hazard log names none of S4's tests in a
+control's planned_verification, and spec §9 gives them no control (§6.5
+and §14.7 rules). No control changes state.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

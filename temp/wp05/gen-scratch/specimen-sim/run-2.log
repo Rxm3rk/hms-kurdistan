@@ -1,0 +1,145 @@
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=114940 since=2026-10-19T11:48:05+03:00 args=:modules:orders:ktlintFormat :modules:orders:test :modules:orders:propertyTest :modules:orders:detekt :modules:orders:ktlintCheck :modules:orders:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=155077 since=2026-10-19T11:56:25+03:00 args=:modules:medications:ktlintFormat :modules:medications:test :modules:medications:propertyTest :modules:medications:detekt :modules:medications:ktlintCheck :modules:medications:verifyArchitectureTest -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=113128 since=2026-10-19T11:59:03+03:00 args=:platform:state-machine:test :platform:testing:test :platform:testing:propertyTest :platform:state-machine:detekt :platform:testing:detekt :platform:state-machine:ktlintCheck :platform:testing:ktlintCheck -Phms.pbt.sequences=1000 --continue --console=plain)
+wp05 gradle.sh: waiting for the worktree Gradle lock (pid=113128 since=2026-10-19T11:59:03+03:00 args=:platform:state-machine:test :platform:testing:test :platform:testing:propertyTest :platform:state-machine:detekt :platform:testing:detekt :platform:state-machine:ktlintCheck :platform:testing:ktlintCheck -Phms.pbt.sequences=1000 --continue --console=plain)
+heavy.sh: waiting for a slot (wp08 pid=149223 since=2026-10-19T11:48:50+03:00;wp08 pid=161516 since=2026-10-19T12:04:30+03:00;)
+heavy.sh: wp05 got slot2.lock after 45s
+Calculating task graph as no cached configuration is available for tasks: :modules:lis:ktlintFormat :modules:lis:test :modules:lis:propertyTest :modules:lis:detekt :modules:lis:ktlintCheck :modules:lis:verifyArchitectureTest
+> Task :build-logic:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:generateExternalPluginSpecBuilders UP-TO-DATE
+> Task :build-logic:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+> Task :build-logic:compilePluginsBlocks UP-TO-DATE
+> Task :build-logic:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+> Task :build-logic:generateScriptPluginAdapters UP-TO-DATE
+> Task :build-logic:compileKotlin UP-TO-DATE
+> Task :build-logic:compileJava UP-TO-DATE
+> Task :build-logic:pluginDescriptors UP-TO-DATE
+> Task :build-logic:processResources UP-TO-DATE
+> Task :build-logic:classes UP-TO-DATE
+> Task :build-logic:jar UP-TO-DATE
+> Task :platform:state-machine:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :modules:lis:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:arch-rules:processResources NO-SOURCE
+> Task :platform:testing:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :platform:testing:processResources NO-SOURCE
+> Task :platform:state-machine:compileKotlin UP-TO-DATE
+> Task :platform:state-machine:compileJava NO-SOURCE
+> Task :platform:state-machine:processResources NO-SOURCE
+> Task :platform:state-machine:classes UP-TO-DATE
+> Task :platform:arch-rules:compileKotlin UP-TO-DATE
+> Task :platform:arch-rules:compileJava NO-SOURCE
+> Task :platform:arch-rules:classes UP-TO-DATE
+> Task :modules:lis:processResources NO-SOURCE
+> Task :modules:lis:processTestFixturesResources NO-SOURCE
+> Task :modules:lis:processTestResources NO-SOURCE
+> Task :modules:lis:processPropertyTestResources NO-SOURCE
+> Task :modules:lis:loadKtlintReporters UP-TO-DATE
+> Task :platform:arch-rules:jar UP-TO-DATE
+> Task :modules:lis:runKtlintCheckOverIntegrationTestSourceSet NO-SOURCE
+> Task :platform:state-machine:jar UP-TO-DATE
+> Task :modules:lis:runKtlintFormatOverKotlinScripts UP-TO-DATE
+> Task :modules:lis:runKtlintFormatOverIntegrationTestSourceSet NO-SOURCE
+> Task :modules:lis:ktlintIntegrationTestSourceSetFormat SKIPPED
+> Task :modules:lis:ktlintKotlinScriptFormat UP-TO-DATE
+
+> Task :modules:lis:detekt
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.0.21/79346ed53db48b18312a472602eb5c057070c54d/kotlin-compiler-embeddable-2.0.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :modules:lis:runKtlintCheckOverKotlinScripts
+> Task :modules:lis:runKtlintCheckOverPropertyTestSourceSet
+> Task :modules:lis:runKtlintCheckOverMainSourceSet
+> Task :modules:lis:runKtlintCheckOverTestFixturesSourceSet
+> Task :modules:lis:runKtlintCheckOverTestSourceSet
+> Task :modules:lis:compileKotlin
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :modules:lis:runKtlintFormatOverMainSourceSet
+
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+> Task :modules:lis:detekt
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:1:1: File 'C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt' with '12' functions detected. Defined threshold inside files is set to '11' [TooManyFunctions]
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\test\kotlin\hms\lis\domain\specimen\SpecimenGuardsTest.kt:45:7: Class SpecimenGuardsTest is too large. Consider splitting it into smaller pieces. [LargeClass]
+
+Analysis failed with 2 weighted issues.
+
+> Task :modules:lis:detekt FAILED
+> Task :modules:lis:ktlintMainSourceSetFormat
+> Task :modules:lis:ktlintIntegrationTestSourceSetCheck SKIPPED
+> Task :modules:lis:ktlintKotlinScriptCheck
+> Task :modules:lis:ktlintMainSourceSetCheck
+
+> Task :modules:lis:ktlintPropertyTestSourceSetCheck FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:197:49 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:197:69 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:259:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:277:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:299:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:312:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:341:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:353:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:367:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:373:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:388:51 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:388:58 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:410:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:435:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:471:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:477:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:506:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:535:1 Unexpected indentation (24) (should be 28)
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:535:35 Expected newline before '?.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:535:42 Expected newline before '.'
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:535:52 Expected newline before '.'
+
+> Task :modules:lis:ktlintTestFixturesSourceSetCheck
+> Task :modules:lis:ktlintTestSourceSetCheck
+> Task :modules:lis:runKtlintFormatOverPropertyTestSourceSet
+> Task :modules:lis:runKtlintFormatOverTestFixturesSourceSet
+> Task :modules:lis:ktlintTestFixturesSourceSetFormat
+
+> Task :modules:lis:ktlintPropertyTestSourceSetFormat FAILED
+C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-5dcdaa39\backend\modules\lis\src\propertyTest\kotlin\hms\lis\domain\specimen\SpecimenPropertyTest.kt:343:64 Exceeded max line length (140) (cannot be auto-corrected)
+
+> Task :platform:testing:compileKotlin
+> Task :platform:testing:compileJava NO-SOURCE
+> Task :platform:testing:classes UP-TO-DATE
+> Task :platform:testing:jar
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.jetbrains.kotlin.com.intellij.util.containers.Unsafe (file:/C:/Users/Surface/.t3/projects/hospitalmanagementsystem/.tools/gradle-home/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.2.21/b13aed5cf8412f9ee9d1e4db21bdcfebcc24f606/kotlin-compiler-embeddable-2.2.21.jar)
+WARNING: Please consider reporting this to the maintainers of class org.jetbrains.kotlin.com.intellij.util.containers.Unsafe
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+> Task :modules:lis:runKtlintFormatOverTestSourceSet
+> Task :modules:lis:ktlintTestSourceSetFormat
+Terminated
+EXIT=143

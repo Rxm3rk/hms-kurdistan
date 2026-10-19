@@ -1,0 +1,347 @@
+﻿2026-10-19 13:12:09
+Full thread dump OpenJDK 64-Bit Server VM (25.0.4.1+1-LTS mixed mode, sharing):
+
+Threads class SMR info:
+_java_thread_list=0x00000173d3188cf0, length=11, elements={
+0x00000173adeb5c30, 0x00000173cbeec9c0, 0x00000173cbeee190, 0x00000173cbef0370,
+0x00000173cbef1750, 0x00000173cbef2310, 0x00000173cbef32e0, 0x00000173cbef8600,
+0x00000173cbef9210, 0x00000173d0031cb0, 0x00000173d003a100
+}
+
+"main" #3 [24368] prio=5 os_prio=0 cpu=39921.88ms elapsed=51.12s tid=0x00000173adeb5c30 nid=24368 runnable  [0x0000003ac5df7000]
+   java.lang.Thread.State: RUNNABLE
+	at kotlin.jvm.internal.Intrinsics.areEqual(Intrinsics.java:169)
+	at org.jetbrains.kotlin.fir.types.ConeTypeContext.areEqualTypeConstructors(ConeTypeContext.kt:331)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.collectAllSupertypesWithGivenTypeConstructor(AbstractTypeChecker.kt:730)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.findCorrespondingSupertypes(AbstractTypeChecker.kt:797)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.findCorrespondingSupertypes(AbstractTypeChecker.kt:781)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:425)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.equalTypes(AbstractTypeChecker.kt:299)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:580)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3$0(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9fc0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState$ForkPointContext$Default.fork(AbstractTypeChecker.kt:98)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType$lambda$3(AbstractTypeChecker.kt:445)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker$$Lambda/0x00000000336f9b68.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.TypeCheckerState.runForkingPoint(AbstractTypeChecker.kt:87)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:443)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeForSameConstructor(AbstractTypeChecker.kt:581)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOfForSingleClassifierType(AbstractTypeChecker.kt:430)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.completeIsSubTypeOf(AbstractTypeChecker.kt:330)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf(AbstractTypeChecker.kt:278)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.isSubtypeOf$default(AbstractTypeChecker.kt:266)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.equalTypes(AbstractTypeChecker.kt:299)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.equalTypes(AbstractTypeChecker.kt:259)
+	at org.jetbrains.kotlin.types.AbstractTypeChecker.equalTypes$default(AbstractTypeChecker.kt:252)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateParametrizedType(AbstractTypeApproximator.kt:863)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateTo(AbstractTypeApproximator.kt:634)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateSimpleToSuperType(AbstractTypeApproximator.kt:621)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator._get_referenceApproximateToSuperType_$lambda$0(AbstractTypeApproximator.kt:44)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator$$Lambda/0x00000000336cc760.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateTo(AbstractTypeApproximator.kt:197)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateToSuperType(AbstractTypeApproximator.kt:164)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateParametrizedType$approximateToSuperTypeWithRecursionPrevention(AbstractTypeApproximator.kt:757)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateParametrizedType(AbstractTypeApproximator.kt:786)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateTo(AbstractTypeApproximator.kt:634)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateSimpleToSuperType(AbstractTypeApproximator.kt:621)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator._get_referenceApproximateToSuperType_$lambda$0(AbstractTypeApproximator.kt:44)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator$$Lambda/0x00000000336cc760.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateTo(AbstractTypeApproximator.kt:197)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateToSuperType(AbstractTypeApproximator.kt:164)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateParametrizedType$approximateToSuperTypeWithRecursionPrevention(AbstractTypeApproximator.kt:757)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateParametrizedType(AbstractTypeApproximator.kt:786)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateTo(AbstractTypeApproximator.kt:634)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateSimpleToSuperType(AbstractTypeApproximator.kt:621)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator._get_referenceApproximateToSuperType_$lambda$0(AbstractTypeApproximator.kt:44)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator$$Lambda/0x00000000336cc760.invoke(Unknown Source)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateTo(AbstractTypeApproximator.kt:197)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateToSuperType(AbstractTypeApproximator.kt:164)
+	at org.jetbrains.kotlin.types.AbstractTypeApproximator.approximateToSuperType(AbstractTypeApproximator.kt:85)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintIncorporator.approximateCapturedTypes(ConstraintIncorporator.kt:396)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintIncorporator.generateNewConstraintForSecondIncorporationKind$prepareType(ConstraintIncorporator.kt:203)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintIncorporator.generateNewConstraintForSecondIncorporationKind(ConstraintIncorporator.kt:213)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintIncorporator.access$generateNewConstraintForSecondIncorporationKind(ConstraintIncorporator.kt:22)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintIncorporator.insideOtherConstraint(ConstraintIncorporator.kt:171)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintIncorporator.incorporate(ConstraintIncorporator.kt:77)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector.processGivenConstraints(ConstraintInjector.kt:203)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector.processConstraintsIgnoringForksData(ConstraintInjector.kt:174)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector.processConstraints(ConstraintInjector.kt:156)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector.addSubTypeConstraintAndIncorporateIt(ConstraintInjector.kt:130)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector.access$addSubTypeConstraintAndIncorporateIt(ConstraintInjector.kt:23)
+	at org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector.addInitialSubtypeConstraint(ConstraintInjector.kt:86)
+	at org.jetbrains.kotlin.resolve.calls.inference.model.NewConstraintSystemImpl.addSubtypeConstraint(NewConstraintSystemImpl.kt:216)
+	at org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilderKt.addConstraintIfCompatible(ConstraintSystemBuilder.kt:114)
+	at org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilderKt.addSubtypeConstraintIfCompatible(ConstraintSystemBuilder.kt:98)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.checkApplicabilityForArgumentType(ArgumentCheckingProcessor.kt:301)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolvePlainArgumentType(ArgumentCheckingProcessor.kt:223)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolvePlainArgumentType$default(ArgumentCheckingProcessor.kt:192)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolvePlainExpressionArgument(ArgumentCheckingProcessor.kt:182)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolvePlainExpressionArgument$default(ArgumentCheckingProcessor.kt:174)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolveArgumentExpression(ArgumentCheckingProcessor.kt:131)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolveArgumentExpression(ArgumentCheckingProcessor.kt:167)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolveArgumentExpression(ArgumentCheckingProcessor.kt:84)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ArgumentCheckingProcessor.resolveArgumentExpression$default(ArgumentCheckingProcessor.kt:70)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.CheckArguments.resolveArgument(CheckArguments.kt:85)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.CheckArguments.check(CheckArguments.kt:44)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ResolutionStageRunner$processCandidate$1.invokeSuspend(ResolutionStageRunner.kt:35)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ResolutionStageRunner.processCandidate(ResolutionStageRunner.kt:49)
+	at org.jetbrains.kotlin.fir.resolve.calls.stages.ResolutionStageRunner.processCandidate$default(ResolutionStageRunner.kt:20)
+	at org.jetbrains.kotlin.fir.resolve.calls.candidate.CandidateCollector.consumeCandidate(CandidateCollector.kt:48)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.TowerLevelProcessor.consumeCandidate(TowerLevelHandler.kt:90)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.TowerLevelProcessor.consumeCandidate$default(TowerLevelHandler.kt:82)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.ScopeBasedTowerLevel.consumeCallableCandidate(TowerLevels.kt:442)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.ScopeBasedTowerLevel.processFunctionsByName$lambda$0(TowerLevels.kt:464)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.ScopeBasedTowerLevel$$Lambda/0x0000000033672728.invoke(Unknown Source)
+	at org.jetbrains.kotlin.fir.resolve.calls.ConstructorProcessingKt.processConstructors$lambda$0$0(ConstructorProcessing.kt:148)
+	at org.jetbrains.kotlin.fir.resolve.calls.ConstructorProcessingKt$$Lambda/0x0000000033672d78.invoke(Unknown Source)
+	at org.jetbrains.kotlin.fir.scopes.impl.FirClassDeclaredMemberScopeImpl.processDeclaredConstructors(FirClassDeclaredMemberScope.kt:128)
+	at org.jetbrains.kotlin.fir.scopes.impl.AbstractFirUseSiteMemberScope.processDeclaredConstructors(AbstractFirUseSiteMemberScope.kt:285)
+	at org.jetbrains.kotlin.fir.resolve.calls.ConstructorProcessingKt.processConstructors(ConstructorProcessing.kt:147)
+	at org.jetbrains.kotlin.fir.resolve.calls.ConstructorProcessingKt.processConstructorsByName(ConstructorProcessing.kt:54)
+	at org.jetbrains.kotlin.fir.resolve.calls.ConstructorProcessingKt.processFunctionsAndConstructorsByName(ConstructorProcessing.kt:74)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.ScopeBasedTowerLevel.processFunctionsByName(TowerLevels.kt:457)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.TowerLevelHandler.handleLevel(TowerLevelHandler.kt:61)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.FirBaseTowerResolveTask.processLevel(FirTowerResolveTask.kt:165)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.FirBaseTowerResolveTask.access$processLevel(FirTowerResolveTask.kt:53)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.FirBaseTowerResolveTask$processLevel$3.invokeSuspend(FirTowerResolveTask.kt)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.TowerResolveManager.resumeTask(TowerResolveManager.kt:77)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.TowerResolveManager.runTasks(TowerResolveManager.kt:83)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.FirTowerResolver.runResolver(FirTowerResolver.kt:54)
+	at org.jetbrains.kotlin.fir.resolve.calls.tower.FirTowerResolver.runResolver(FirTowerResolver.kt:40)
+	at org.jetbrains.kotlin.fir.resolve.calls.FirCallResolver.collectCandidates(FirCallResolver.kt:260)
+	at org.jetbrains.kotlin.fir.resolve.calls.FirCallResolver.collectCandidates$default(FirCallResolver.kt:218)
+	at org.jetbrains.kotlin.fir.resolve.calls.FirCallResolver.resolveCallAndSelectCandidate(FirCallResolver.kt:86)
+	at org.jetbrains.kotlin.fir.resolve.calls.FirCallResolver.resolveCallAndSelectCandidate$default(FirCallResolver.kt:79)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirExpressionsResolveTransformer.transformFunctionCallInternal$resolve(FirExpressionsResolveTransformer.kt:593)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirExpressionsResolveTransformer.transformFunctionCall(FirExpressionsResolveTransformer.kt:521)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformFunctionCall(FirAbstractBodyResolveTransformerDispatcher.kt:209)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformFunctionCall(FirAbstractBodyResolveTransformerDispatcher.kt:27)
+	at org.jetbrains.kotlin.fir.expressions.FirFunctionCall.transform(FirFunctionCall.kt:45)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirPropertyImpl.transformInitializer(FirPropertyImpl.kt:124)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirPropertyImpl.transformInitializer(FirPropertyImpl.kt:33)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.transformProperty(FirDeclarationsResolveTransformer.kt:215)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformProperty(FirAbstractBodyResolveTransformerDispatcher.kt:512)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformProperty(FirAbstractBodyResolveTransformerDispatcher.kt:27)
+	at org.jetbrains.kotlin.fir.declarations.FirProperty.transform(FirProperty.kt:62)
+	at org.jetbrains.kotlin.fir.visitors.FirTransformerUtilKt.transformInplace(FirTransformerUtil.kt:20)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl.transformDeclarations(FirRegularClassImpl.kt:97)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl.transformChildren(FirRegularClassImpl.kt:79)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirRegularClassImpl.transformChildren(FirRegularClassImpl.kt:31)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformElement(FirAbstractBodyResolveTransformerDispatcher.kt:101)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformDeclarationContent(FirAbstractBodyResolveTransformerDispatcher.kt:476)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.transformDeclarationContent(FirDeclarationsResolveTransformer.kt:95)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.doTransformRegularClassContent$lambda$0(FirDeclarationsResolveTransformer.kt:950)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer$$Lambda/0x0000000033642600.invoke(Unknown Source)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.forRegularClassBody$lambda$0(FirDeclarationsResolveTransformer.kt:959)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer$$Lambda/0x0000000033642830.invoke(Unknown Source)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.BodyResolveContext.forRegularClassBody$lambda$0$0(BodyResolveContext.kt:1950)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.BodyResolveContext$$Lambda/0x000000003363d7c0.invoke(Unknown Source)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.BodyResolveContext.withScopesForClass(BodyResolveContext.kt:674)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.BodyResolveContext.forRegularClassBody(BodyResolveContext.kt:499)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.forRegularClassBody(FirDeclarationsResolveTransformer.kt:958)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.doTransformRegularClassContent(FirDeclarationsResolveTransformer.kt:949)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.transformRegularClass(FirDeclarationsResolveTransformer.kt:853)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformRegularClass(FirAbstractBodyResolveTransformerDispatcher.kt:561)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformRegularClass(FirAbstractBodyResolveTransformerDispatcher.kt:27)
+	at org.jetbrains.kotlin.fir.declarations.FirRegularClass.transform(FirRegularClass.kt:70)
+	at org.jetbrains.kotlin.fir.visitors.FirTransformerUtilKt.transformInplace(FirTransformerUtil.kt:20)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirFileImpl.transformDeclarations(FirFileImpl.kt:83)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirFileImpl.transformChildren(FirFileImpl.kt:68)
+	at org.jetbrains.kotlin.fir.declarations.impl.FirFileImpl.transformChildren(FirFileImpl.kt:29)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformElement(FirAbstractBodyResolveTransformerDispatcher.kt:101)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformDeclarationContent(FirAbstractBodyResolveTransformerDispatcher.kt:476)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.transformDeclarationContent(FirDeclarationsResolveTransformer.kt:95)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.doTransformFile$lambda$0(FirDeclarationsResolveTransformer.kt:922)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer$$Lambda/0x000000003363d130.invoke(Unknown Source)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.withFile(FirDeclarationsResolveTransformer.kt:935)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.doTransformFile(FirDeclarationsResolveTransformer.kt:921)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirDeclarationsResolveTransformer.transformFile(FirDeclarationsResolveTransformer.kt:831)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformFile(FirAbstractBodyResolveTransformerDispatcher.kt:60)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirAbstractBodyResolveTransformerDispatcher.transformFile(FirAbstractBodyResolveTransformerDispatcher.kt:27)
+	at org.jetbrains.kotlin.fir.declarations.FirFile.transform(FirFile.kt:47)
+	at org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirBodyResolveTransformerAdapter.transformFile(FirBodyResolveTransformerAdapters.kt:41)
+	at org.jetbrains.kotlin.fir.declarations.FirFile.transform(FirFile.kt:47)
+	at org.jetbrains.kotlin.fir.resolve.transformers.FirTransformerBasedResolveProcessor.processFile(FirResolveProcessor.kt:53)
+	at org.jetbrains.kotlin.fir.resolve.transformers.FirTotalResolveProcessor.process(FirTotalResolveProcessor.kt:39)
+	at org.jetbrains.kotlin.fir.pipeline.AnalyseKt.runResolution(analyse.kt:24)
+	at org.jetbrains.kotlin.fir.pipeline.FirUtilsKt.resolveAndCheckFir(firUtils.kt:78)
+	at org.jetbrains.kotlin.cli.pipeline.jvm.JvmFrontendPipelinePhase.executePhase(JvmFrontendPipelinePhase.kt:173)
+	at org.jetbrains.kotlin.cli.pipeline.jvm.JvmFrontendPipelinePhase.executePhase(JvmFrontendPipelinePhase.kt:55)
+	at org.jetbrains.kotlin.cli.pipeline.PipelinePhase.phaseBody(PipelinePhase.kt:68)
+	at org.jetbrains.kotlin.cli.pipeline.PipelinePhase.phaseBody(PipelinePhase.kt:58)
+	at org.jetbrains.kotlin.config.phaser.NamedCompilerPhase.invoke(CompilerPhase.kt:102)
+	at org.jetbrains.kotlin.backend.common.phaser.CompositePhase.invoke(PhaseBuilders.kt:22)
+	at org.jetbrains.kotlin.config.phaser.CompilerPhaseKt.invokeToplevel(CompilerPhase.kt:53)
+	at org.jetbrains.kotlin.cli.pipeline.AbstractCliPipeline.runPhasedPipeline(AbstractCliPipeline.kt:109)
+	at org.jetbrains.kotlin.cli.pipeline.AbstractCliPipeline.execute(AbstractCliPipeline.kt:68)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecutePhased(K2JVMCompiler.kt:51)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.doExecutePhased(K2JVMCompiler.kt:42)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:91)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:363)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:341)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:303)
+	at org.jetbrains.kotlin.cli.common.CLICompiler$Companion.doMainNoExit(CLICompiler.kt:442)
+	at org.jetbrains.kotlin.cli.common.CLICompiler$Companion.doMainNoExit$default(CLICompiler.kt:437)
+	at org.jetbrains.kotlin.cli.common.CLICompiler$Companion.doMain(CLICompiler.kt:429)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler$Companion.main(K2JVMCompiler.kt:232)
+	at org.jetbrains.kotlin.cli.jvm.K2JVMCompiler.main(K2JVMCompiler.kt)
+
+"Reference Handler" #14 [19464] daemon prio=10 os_prio=2 cpu=0.00ms elapsed=51.08s tid=0x00000173cbeec9c0 nid=19464 waiting on condition  [0x0000003ac65ff000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@25.0.4.1/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@25.0.4.1/Reference.java:246)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@25.0.4.1/Reference.java:208)
+
+"Finalizer" #15 [15460] daemon prio=8 os_prio=1 cpu=0.00ms elapsed=51.08s tid=0x00000173cbeee190 nid=15460 in Object.wait()  [0x0000003ac66ff000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@25.0.4.1/Native Method)
+	- waiting on <0x00000000ffd018a8> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@25.0.4.1/Object.java:389)
+	at java.lang.Object.wait(java.base@25.0.4.1/Object.java:351)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@25.0.4.1/ReferenceQueue.java:137)
+	at java.lang.ref.ReferenceQueue.remove(java.base@25.0.4.1/ReferenceQueue.java:215)
+	- locked <0x00000000ffd018a8> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@25.0.4.1/Finalizer.java:165)
+
+"Signal Dispatcher" #16 [4180] daemon prio=9 os_prio=2 cpu=0.00ms elapsed=51.08s tid=0x00000173cbef0370 nid=4180 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Attach Listener" #17 [19800] daemon prio=5 os_prio=2 cpu=0.00ms elapsed=51.08s tid=0x00000173cbef1750 nid=19800 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Service Thread" #18 [9296] daemon prio=9 os_prio=0 cpu=0.00ms elapsed=51.08s tid=0x00000173cbef2310 nid=9296 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Deflation Thread" #19 [18080] daemon prio=9 os_prio=0 cpu=15.62ms elapsed=51.08s tid=0x00000173cbef32e0 nid=18080 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #20 [10936] daemon prio=9 os_prio=2 cpu=8968.75ms elapsed=51.08s tid=0x00000173cbef8600 nid=10936 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"C1 CompilerThread0" #23 [10960] daemon prio=9 os_prio=2 cpu=6156.25ms elapsed=51.08s tid=0x00000173cbef9210 nid=10960 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"Notification Thread" #24 [4536] daemon prio=9 os_prio=0 cpu=0.00ms elapsed=51.05s tid=0x00000173d0031cb0 nid=4536 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Common-Cleaner" #25 [6140] daemon prio=8 os_prio=1 cpu=0.00ms elapsed=51.05s tid=0x00000173d003a100 nid=6140 in Object.wait()  [0x0000003ac6eff000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@25.0.4.1/Native Method)
+	- waiting on <0x00000000ffd008f8> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@25.0.4.1/Object.java:389)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@25.0.4.1/ReferenceQueue.java:123)
+	at java.lang.ref.ReferenceQueue.remove(java.base@25.0.4.1/ReferenceQueue.java:201)
+	- locked <0x00000000ffd008f8> (a java.lang.ref.ReferenceQueue$Lock)
+	at jdk.internal.ref.CleanerImpl.run(java.base@25.0.4.1/CleanerImpl.java:146)
+	at java.lang.Thread.runWith(java.base@25.0.4.1/Thread.java:1487)
+	at java.lang.Thread.run(java.base@25.0.4.1/Thread.java:1474)
+	at jdk.internal.misc.InnocuousThread.run(java.base@25.0.4.1/InnocuousThread.java:148)
+
+"GC Thread#7" os_prio=2 cpu=343.75ms elapsed=48.06s tid=0x00000173d0fbefb0 nid=23248 runnable  
+
+"GC Thread#6" os_prio=2 cpu=343.75ms elapsed=48.06s tid=0x00000173d0fbe2c0 nid=7216 runnable  
+
+"G1 Conc#1" os_prio=2 cpu=718.75ms elapsed=48.06s tid=0x00000173d0fbf400 nid=3116 runnable  
+
+"GC Thread#5" os_prio=2 cpu=406.25ms elapsed=49.35s tid=0x00000173d0fc00f0 nid=20300 runnable  
+
+"GC Thread#4" os_prio=2 cpu=312.50ms elapsed=49.35s tid=0x00000173d0fbfca0 nid=14868 runnable  
+
+"GC Thread#3" os_prio=2 cpu=375.00ms elapsed=49.35s tid=0x00000173d0fc0990 nid=9152 runnable  
+
+"GC Thread#2" os_prio=2 cpu=359.38ms elapsed=49.35s tid=0x00000173d1049a30 nid=20504 runnable  
+
+"GC Thread#1" os_prio=2 cpu=406.25ms elapsed=49.35s tid=0x00000173d1049600 nid=6816 runnable  
+
+"VM Thread" os_prio=2 cpu=78.12ms elapsed=51.10s tid=0x00000173cbedbc50 nid=25284 runnable  
+
+"VM Periodic Task Thread" os_prio=2 cpu=46.88ms elapsed=51.10s tid=0x00000173cbec9d70 nid=16008 waiting on condition  
+
+"G1 Service" os_prio=2 cpu=15.62ms elapsed=51.12s tid=0x00000173b036d8c0 nid=21036 runnable  
+
+"G1 Refine#0" os_prio=2 cpu=234.38ms elapsed=51.12s tid=0x00000173b036ccb0 nid=25356 runnable  
+
+"GC Thread#0" os_prio=2 cpu=343.75ms elapsed=51.13s tid=0x00000173b02f5010 nid=18768 runnable  
+
+"G1 Conc#0" os_prio=2 cpu=718.75ms elapsed=51.12s tid=0x00000173b0302c80 nid=11640 runnable  
+
+"G1 Main Marker" os_prio=2 cpu=0.00ms elapsed=51.13s tid=0x00000173b03020e0 nid=13072 runnable  
+
+JNI global refs: 8, weak refs: 0
+

@@ -1,0 +1,39 @@
+feat(kernel): UUIDv7 ids, clinical and recorded time, money, TestClock
+
+The first WP-0.3 kernel libraries (BUILD-PROMPT §5.3, §6.2, §8.1 P2 and
+P10, §21 WP-0.3; docs/specs/modules/platform-kernel.md §5, §6, §8, §9),
+built to the specification with no review (DN-040 decision 4):
+- :platform:ids (hms.kernel.ids): RFC 9562 UUIDv7 generator on an
+  injected Clock and RandomGenerator, monotonic within a millisecond and
+  when the clock steps back; strict parsing; typed ids TenantId,
+  FacilityId, PatientId, UserId.
+- :platform:time (hms.kernel.time): RecordedTime only from the Clock,
+  ClinicalTime with its original offset, ValidPeriod and ValidTime,
+  AsOf, the SI-10 entry-time classifier (every row of the spec table at
+  each tolerance and 1 us either side), safety parameters built only
+  from resolved settings with synthetic values refused in TRAIN and
+  PROD, BusinessCalendar with coverage reporting.
+- :platform:money (hms.kernel.money): BigDecimal plus ISO 4217 currency,
+  explicit rounding, exact allocation, cash rounding as configuration,
+  effective-dated exchange rates. No floating point in the API.
+- :platform:testing gains TestClock (forward, backward, shared zones).
+- Gradle wiring for every WP-0.3 project; the projects not built yet
+  are empty skeletons. spring-modulith-core joins the catalogue (Spring
+  Modulith 2.1.1 line, already pinned) for the app-hms verification.
+
+Kernel spec fixes found while building: a counter rollover at the last
+48-bit millisecond throws; the strictness-direction property waits for
+the tolerance definitions (DN-042). The specs' open items are numbered:
+DN-042 to DN-044, OQ-170 to OQ-178. DN-041 is resolved by the lead.
+
+Tests (Windows host, single-branch scratch clone holding exactly this
+commit's content; not evidence of record): sh tools/ci/run fast
+--no-evidence PASS, 8 of 8 steps, 1490 tests (699 Python, 277 backend,
+514 frontend), 0 failures, secret scan clean.
+
+Hazards: none changed in the hazard log. The time library implements
+the kernel part of HAZ-0010 controls CTRL-0010-1 to -5 (SI-10) and
+TestClock serves CTRL-0003-5 (SI-03 timing); all controls stay planned
+until their module tests and records of record exist.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,6 @@
+# axe
+# command: (not built: axe accessibility checks)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# axe accessibility checks: not built yet; WP-0.7 builds it. Counted as a failure (fail closed).
+

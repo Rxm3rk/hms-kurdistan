@@ -1,0 +1,846 @@
+test_count_mismatch_is_an_error (hmstools.backlog.tests.test_check.A18ComparisonTest.test_count_mismatch_is_an_error) ... ok
+test_difference_explained_by_the_a18_note_is_a_warning (hmstools.backlog.tests.test_check.A18ComparisonTest.test_difference_explained_by_the_a18_note_is_a_warning) ... ok
+test_expected_count_comes_from_the_caller (hmstools.backlog.tests.test_check.A18ComparisonTest.test_expected_count_comes_from_the_caller) ... ok
+test_unexplained_engineer_week_difference_is_an_error (hmstools.backlog.tests.test_check.A18ComparisonTest.test_unexplained_engineer_week_difference_is_an_error) ... ok
+test_a_hazard_log_change_without_render_fails (hmstools.backlog.tests.test_check.CheckTest.test_a_hazard_log_change_without_render_fails) ... ok
+test_a_hazard_log_naming_an_unknown_feature_fails (hmstools.backlog.tests.test_check.CheckTest.test_a_hazard_log_naming_an_unknown_feature_fails) ... ok
+test_a_missing_or_malformed_hazard_log_fails (hmstools.backlog.tests.test_check.CheckTest.test_a_missing_or_malformed_hazard_log_fails) ... ok
+test_a_removed_hazard_link_fails (hmstools.backlog.tests.test_check.CheckTest.test_a_removed_hazard_link_fails) ... ok
+test_built_without_tests_fails (hmstools.backlog.tests.test_check.CheckTest.test_built_without_tests_fails) ... ok
+test_consistent_backlog_passes (hmstools.backlog.tests.test_check.CheckTest.test_consistent_backlog_passes) ... ok
+test_crlf_backlog_md_fails (hmstools.backlog.tests.test_check.CheckTest.test_crlf_backlog_md_fails) ... ok
+test_crlf_plan_of_record_gives_the_same_result (hmstools.backlog.tests.test_check.CheckTest.test_crlf_plan_of_record_gives_the_same_result) ... ok
+test_duplicate_id_fails (hmstools.backlog.tests.test_check.CheckTest.test_duplicate_id_fails) ... ok
+test_edited_parsed_field_fails (hmstools.backlog.tests.test_check.CheckTest.test_edited_parsed_field_fails) ... ok
+test_hand_edited_backlog_md_fails (hmstools.backlog.tests.test_check.CheckTest.test_hand_edited_backlog_md_fails) ... ok
+test_hand_edited_hazards_fail (hmstools.backlog.tests.test_check.CheckTest.test_hand_edited_hazards_fail) ... ok
+test_hazard_counts (hmstools.backlog.tests.test_check.CheckTest.test_hazard_counts) ... ok
+test_id_not_in_appendix_a_fails (hmstools.backlog.tests.test_check.CheckTest.test_id_not_in_appendix_a_fails) ... ok
+test_invalid_status_fails (hmstools.backlog.tests.test_check.CheckTest.test_invalid_status_fails) ... ok
+test_missing_backlog_md_fails (hmstools.backlog.tests.test_check.CheckTest.test_missing_backlog_md_fails) ... ok
+test_missing_backlog_yaml_fails (hmstools.backlog.tests.test_check.CheckTest.test_missing_backlog_yaml_fails) ... ok
+test_missing_id_fails (hmstools.backlog.tests.test_check.CheckTest.test_missing_id_fails) ... ok
+test_removed_derived_work_package_fails_and_extra_one_warns (hmstools.backlog.tests.test_check.CheckTest.test_removed_derived_work_package_fails_and_extra_one_warns) ... ok
+test_stale_backlog_md_fails (hmstools.backlog.tests.test_check.CheckTest.test_stale_backlog_md_fails) ... ok
+test_unparseable_backlog_yaml_fails (hmstools.backlog.tests.test_check.CheckTest.test_unparseable_backlog_yaml_fails) ... ok
+test_generate_reports_overwritten_parsed_fields_and_refuses_unknown_fields (hmstools.backlog.tests.test_check.CliTest.test_generate_reports_overwritten_parsed_fields_and_refuses_unknown_fields) ... ok
+test_json_result_is_the_last_line_and_exit_code_follows_ok (hmstools.backlog.tests.test_check.CliTest.test_json_result_is_the_last_line_and_exit_code_follows_ok) ... ok
+test_missing_source_is_an_environment_error (hmstools.backlog.tests.test_check.CliTest.test_missing_source_is_an_environment_error) ... ok
+test_no_subcommand_is_a_usage_error (hmstools.backlog.tests.test_check.CliTest.test_no_subcommand_is_a_usage_error) ... ok
+test_a_disappeared_feature_still_named_in_section_21_also_fails_loudly (hmstools.backlog.tests.test_generate.GenerateTest.test_a_disappeared_feature_still_named_in_section_21_also_fails_loudly) ... ok
+test_a_feature_that_disappears_from_the_source_fails_loudly (hmstools.backlog.tests.test_generate.GenerateTest.test_a_feature_that_disappears_from_the_source_fails_loudly) ... ok
+test_a_missing_or_malformed_hazard_log_stops_generation (hmstools.backlog.tests.test_generate.GenerateTest.test_a_missing_or_malformed_hazard_log_stops_generation) ... ok
+test_a_new_feature_is_added_with_defaults (hmstools.backlog.tests.test_generate.GenerateTest.test_a_new_feature_is_added_with_defaults) ... ok
+test_an_unknown_field_stops_generation_instead_of_being_dropped (hmstools.backlog.tests.test_generate.GenerateTest.test_an_unknown_field_stops_generation_instead_of_being_dropped) ... ok
+test_duplicate_rows_in_the_existing_file_stop_generation (hmstools.backlog.tests.test_generate.GenerateTest.test_duplicate_rows_in_the_existing_file_stop_generation) ... ok
+test_first_generation (hmstools.backlog.tests.test_generate.GenerateTest.test_first_generation) ... ok
+test_hazards_come_from_the_hazard_log (hmstools.backlog.tests.test_generate.GenerateTest.test_hazards_come_from_the_hazard_log) ... ok
+test_regeneration_keeps_hand_edited_fields_and_refreshes_parsed_ones (hmstools.backlog.tests.test_generate.GenerateTest.test_regeneration_keeps_hand_edited_fields_and_refreshes_parsed_ones) ... ok
+test_regeneration_without_edits_changes_nothing (hmstools.backlog.tests.test_generate.GenerateTest.test_regeneration_without_edits_changes_nothing) ... ok
+test_unknown_feature_in_section_21_stops_generation (hmstools.backlog.tests.test_generate.GenerateTest.test_unknown_feature_in_section_21_stops_generation) ... ok
+test_unknown_feature_in_the_hazard_log_stops_generation (hmstools.backlog.tests.test_generate.GenerateTest.test_unknown_feature_in_the_hazard_log_stops_generation) ... ok
+test_unparseable_existing_file_is_not_overwritten (hmstools.backlog.tests.test_generate.GenerateTest.test_unparseable_existing_file_is_not_overwritten) ... ok
+test_generate_render_check_and_spot_check_do_not_depend_on_line_endings (hmstools.backlog.tests.test_real_plan.RealPlanLineEndingTest.test_generate_render_check_and_spot_check_do_not_depend_on_line_endings) ... ok
+test_lf_and_crlf_parse_identically (hmstools.backlog.tests.test_real_plan.RealPlanLineEndingTest.test_lf_and_crlf_parse_identically) ... ok
+test_234_feature_ids_and_two_part_rows (hmstools.backlog.tests.test_real_plan.RealPlanTest.test_234_feature_ids_and_two_part_rows) ... ok
+test_a18_reconciles (hmstools.backlog.tests.test_real_plan.RealPlanTest.test_a18_reconciles) ... ok
+test_flags (hmstools.backlog.tests.test_real_plan.RealPlanTest.test_flags) ... ok
+test_hand_checked_work_packages (hmstools.backlog.tests.test_real_plan.RealPlanTest.test_hand_checked_work_packages) ... ok
+test_work_package_mapping (hmstools.backlog.tests.test_real_plan.RealPlanTest.test_work_package_mapping) ... ok
+test_work_package_sets_match_a_line_based_reading_of_section_21 (hmstools.backlog.tests.test_real_plan.RealPlanTest.test_work_package_sets_match_a_line_based_reading_of_section_21)
+Independent of the item and qualifier parsing: which WPs name which IDs, read line by line. ... ok
+test_a18_difference_shows_both_numbers (hmstools.backlog.tests.test_render.RenderTest.test_a18_difference_shows_both_numbers) ... ok
+test_face_value_reading_is_shown (hmstools.backlog.tests.test_render.RenderTest.test_face_value_reading_is_shown) ... ok
+test_hazards_column_and_summary (hmstools.backlog.tests.test_render.RenderTest.test_hazards_column_and_summary) ... ok
+test_header_summary_and_group_tables (hmstools.backlog.tests.test_render.RenderTest.test_header_summary_and_group_tables) ... ok
+test_render_derives_hazards_again_from_the_hazard_log (hmstools.backlog.tests.test_render.RenderTest.test_render_derives_hazards_again_from_the_hazard_log) ... ok
+test_render_is_deterministic (hmstools.backlog.tests.test_render.RenderTest.test_render_is_deterministic) ... ok
+test_render_refuses_a_hazard_log_naming_an_unknown_feature (hmstools.backlog.tests.test_render.RenderTest.test_render_refuses_a_hazard_log_naming_an_unknown_feature) ... ok
+test_count_out_of_range (hmstools.backlog.tests.test_render.SpotCheckTest.test_count_out_of_range) ... ok
+test_rows_beside_records (hmstools.backlog.tests.test_render.SpotCheckTest.test_rows_beside_records) ... ok
+test_same_seed_same_rows (hmstools.backlog.tests.test_render.SpotCheckTest.test_same_seed_same_rows) ... ok
+test_crlf_text_parses_the_same (hmstools.backlog.tests.test_source.LineEndingTest.test_crlf_text_parses_the_same) ... ok
+test_missing_phase_row_fails (hmstools.backlog.tests.test_source.ParseA18Test.test_missing_phase_row_fails) ... ok
+test_totals_and_note (hmstools.backlog.tests.test_source.ParseA18Test.test_totals_and_note) ... ok
+test_escaped_pipes_in_title_and_scope (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_escaped_pipes_in_title_and_scope) ... ok
+test_group_section_and_line (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_group_section_and_line) ... ok
+test_id_cell_without_code_span_fails (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_id_cell_without_code_span_fails) ... ok
+test_id_outside_its_group_fails (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_id_outside_its_group_fails) ... ok
+test_italic_note_and_placement_mark (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_italic_note_and_placement_mark) ... ok
+test_part_row (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_part_row) ... ok
+test_rows_and_sections (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_rows_and_sections) ... ok
+test_stance_dagger_becomes_a_flag (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_stance_dagger_becomes_a_flag) ... ok
+test_unknown_phase_fails (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_unknown_phase_fails) ... ok
+test_unknown_stance_fails (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_unknown_stance_fails) ... ok
+test_wrong_cell_count_fails (hmstools.backlog.tests.test_source.ParseFeaturesTest.test_wrong_cell_count_fails) ... ok
+test_approximate_engineer_weeks (hmstools.backlog.tests.test_source.SizeReadingTest.test_approximate_engineer_weeks) ... ok
+test_bp_history_does_not_change_the_count (hmstools.backlog.tests.test_source.SizeReadingTest.test_bp_history_does_not_change_the_count) ... ok
+test_codes (hmstools.backlog.tests.test_source.SizeReadingTest.test_codes) ... ok
+test_combined_code_sums (hmstools.backlog.tests.test_source.SizeReadingTest.test_combined_code_sums) ... ok
+test_minus_annotation_subtracts (hmstools.backlog.tests.test_source.SizeReadingTest.test_minus_annotation_subtracts) ... ok
+test_net_annotation_counts_the_net_addition (hmstools.backlog.tests.test_source.SizeReadingTest.test_net_annotation_counts_the_net_addition) ... ok
+test_unknown_sizes_fail_closed (hmstools.backlog.tests.test_source.SizeReadingTest.test_unknown_sizes_fail_closed) ... ok
+test_middle_dots_inside_the_note_are_kept (hmstools.backlog.tests.test_source.SplitNoteTest.test_middle_dots_inside_the_note_are_kept) ... ok
+test_no_note (hmstools.backlog.tests.test_source.SplitNoteTest.test_no_note) ... ok
+test_scope_and_note (hmstools.backlog.tests.test_source.SplitNoteTest.test_scope_and_note) ... ok
+test_scope_with_colons_and_brackets (hmstools.backlog.tests.test_source.SplitNoteTest.test_scope_with_colons_and_brackets) ... ok
+test_unclosed_italic_note_fails (hmstools.backlog.tests.test_source.SplitNoteTest.test_unclosed_italic_note_fails) ... ok
+test_empty_cells_are_kept (hmstools.backlog.tests.test_source.SplitRowTest.test_empty_cells_are_kept) ... ok
+test_escaped_pipe_at_the_end_of_a_cell (hmstools.backlog.tests.test_source.SplitRowTest.test_escaped_pipe_at_the_end_of_a_cell) ... ok
+test_escaped_pipe_stays_inside_the_cell (hmstools.backlog.tests.test_source.SplitRowTest.test_escaped_pipe_stays_inside_the_cell) ... ok
+test_not_a_row (hmstools.backlog.tests.test_source.SplitRowTest.test_not_a_row) ... ok
+test_plain_row (hmstools.backlog.tests.test_source.SplitRowTest.test_plain_row) ... ok
+test_row_without_trailing_pipe (hmstools.backlog.tests.test_source.SplitRowTest.test_row_without_trailing_pipe) ... ok
+test_bracket_followed_by_more_words_is_kept_whole (hmstools.backlog.tests.test_workpackages.HelpersTest.test_bracket_followed_by_more_words_is_kept_whole) ... ok
+test_bracket_qualifier_before_a_colon (hmstools.backlog.tests.test_workpackages.HelpersTest.test_bracket_qualifier_before_a_colon) ... ok
+test_chained_ids_share_the_tail (hmstools.backlog.tests.test_workpackages.HelpersTest.test_chained_ids_share_the_tail) ... ok
+test_items_split_on_commas_outside_brackets (hmstools.backlog.tests.test_workpackages.HelpersTest.test_items_split_on_commas_outside_brackets) ... ok
+test_items_split_on_semicolons_when_present (hmstools.backlog.tests.test_workpackages.HelpersTest.test_items_split_on_semicolons_when_present) ... ok
+test_label_prefix_is_removed (hmstools.backlog.tests.test_workpackages.HelpersTest.test_label_prefix_is_removed) ... ok
+test_lowercase_code_spans_are_not_features (hmstools.backlog.tests.test_workpackages.HelpersTest.test_lowercase_code_spans_are_not_features) ... ok
+test_sentences_end_at_full_stops_before_capitals (hmstools.backlog.tests.test_workpackages.HelpersTest.test_sentences_end_at_full_stops_before_capitals) ... ok
+test_a_qualifier_naming_a_part_goes_to_the_part_row (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_a_qualifier_naming_a_part_goes_to_the_part_row) ... ok
+test_exit_evidence_and_intro_paragraphs_are_not_read (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_exit_evidence_and_intro_paragraphs_are_not_read) ... ok
+test_mapping_gives_every_wp_in_order (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_mapping_gives_every_wp_in_order) ... ok
+test_paragraph_phases (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_paragraph_phases) ... ok
+test_phase_0_reads_the_wp_column (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_phase_0_reads_the_wp_column) ... ok
+test_table_qualifiers (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_table_qualifiers) ... ok
+test_unknown_feature_id_is_reported (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_unknown_feature_id_is_reported) ... ok
+test_wildcard (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_wildcard) ... ok
+test_wp_ids_with_letters (hmstools.backlog.tests.test_workpackages.SectionTwentyOneTest.test_wp_ids_with_letters) ... ok
+test_good_zip_extracts_single_top_directory (hmstools.bootstrap.tests.test_bootstrap.Archives.test_good_zip_extracts_single_top_directory) ... ok
+test_tar_with_absolute_path_is_refused (hmstools.bootstrap.tests.test_bootstrap.Archives.test_tar_with_absolute_path_is_refused) ... ok
+test_zip_with_parent_path_is_refused (hmstools.bootstrap.tests.test_bootstrap.Archives.test_zip_with_parent_path_is_refused) ... ok
+test_base36_matches_java_biginteger (hmstools.bootstrap.tests.test_bootstrap.Base36AndGradleHash.test_base36_matches_java_biginteger) ... ok
+test_wrapper_directory_hash_for_gradle_981 (hmstools.bootstrap.tests.test_bootstrap.Base36AndGradleHash.test_wrapper_directory_hash_for_gradle_981) ... ok
+test_checksum_mismatch_deletes_and_fails (hmstools.bootstrap.tests.test_bootstrap.Download.test_checksum_mismatch_deletes_and_fails) ... bootstrap: file.bin: SHA-256 mismatch after download (b5c1fb2efc6d6b4674c2fdcc48ce01b43a3b7c03763c0c3355de0099ee0f8c73); deleted, fetching once more from the start
+ok
+test_complete_part_file_is_verified_after_416 (hmstools.bootstrap.tests.test_bootstrap.Download.test_complete_part_file_is_verified_after_416) ... bootstrap: file.bin.part: already complete (16 bytes), verifying
+bootstrap: verified file.bin (sha256 386fd68c7a974d99b14e0b9b6cb67a6399559b565636cff91f32e8f25eac4dae)
+ok
+test_downloads_and_verifies (hmstools.bootstrap.tests.test_bootstrap.Download.test_downloads_and_verifies) ... bootstrap: verified file.bin (sha256 44f8354494a5ba03ba1792a8d3e9c534c47a9181980fde7a3f44b06ef2ae7c7f)
+ok
+test_rejects_malformed_checksum (hmstools.bootstrap.tests.test_bootstrap.Download.test_rejects_malformed_checksum) ... ok
+test_resumes_partial_download (hmstools.bootstrap.tests.test_bootstrap.Download.test_resumes_partial_download) ... bootstrap: resuming https://h.invalid/f at 700 bytes
+bootstrap: verified file.bin (sha256 e392378f849d67bbb1a7bbec84f1098ae3faa751049c009a850130ce6073d91a)
+ok
+test_reuses_verified_file_without_network (hmstools.bootstrap.tests.test_bootstrap.Download.test_reuses_verified_file_without_network) ... bootstrap: reusing verified file.bin
+ok
+test_a_broken_directory_with_the_pinned_name_is_replaced (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_a_broken_directory_with_the_pinned_name_is_replaced) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: JDK: jdk-25.0.4.1+1 exists but does not report the pinned release; replacing it
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+ok
+test_a_failed_download_has_no_fallback (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_a_failed_download_has_no_fallback) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+ok
+test_a_jdk_under_another_name_is_reused_only_if_it_reports_the_pin (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_a_jdk_under_another_name_is_reused_only_if_it_reports_the_pin) ... bootstrap: JDK: reusing .tools/jdk-local-copy (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+ok
+test_a_placed_official_archive_is_used_after_checking_it (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_a_placed_official_archive_is_used_after_checking_it) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: reusing verified fake-OpenJDK25U-jdk.zip
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+ok
+test_a_tampered_archive_fails_and_installs_nothing (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_a_tampered_archive_fails_and_installs_nothing) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: fake-OpenJDK25U-jdk.zip: SHA-256 mismatch after download (f7e49d32f4ada995da64454e24f72ae38ae4f76efaba811dab35dd59a07d013a); deleted, fetching once more from the start
+ok
+test_an_archive_with_another_top_directory_is_refused (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_an_archive_with_another_top_directory_is_refused) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 b19ce817eb2afc0343a23089fdb77617a96192c1575daafdfb53e40acbe0f9ce)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 b19ce817eb2afc0343a23089fdb77617a96192c1575daafdfb53e40acbe0f9ce)
+ok
+test_fetches_the_pinned_archive_and_checks_the_recorded_checksum (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_fetches_the_pinned_archive_and_checks_the_recorded_checksum) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+ok
+test_other_jdk_25_builds_are_never_used (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_other_jdk_25_builds_are_never_used) ... bootstrap: JDK: not using .tools/jdk-25.0.5+11: it reports java "25.0.5", Temurin-25.0.5+11 (build 25.0.5+11-LTS) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: not using .tools/jdk-amazon-corretto-25: it reports java "25.0.4", Corretto-25.0.4.7.1 (build 25.0.4+7-LTS) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: not using .tools/jdk-ubuntu-25: it reports java "25.0.4.1" (build 25.0.4.1+1-Ubuntu-1ubuntu124.04) (JDK 25), not the pinned java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: JDK: installed .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS))
+ok
+test_reuses_the_pinned_jdk_without_network (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_reuses_the_pinned_jdk_without_network) ... bootstrap: JDK: reusing .tools/jdk-25.0.4.1+1 (java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), the pinned release)
+ok
+test_the_unpacked_jdk_must_report_the_pinned_release (hmstools.bootstrap.tests.test_bootstrap.EnsureJdk.test_the_unpacked_jdk_must_report_the_pinned_release) ... bootstrap: JDK: fetching the pinned Eclipse Temurin jdk-25.0.4.1+1: fake-OpenJDK25U-jdk.zip (recorded sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+bootstrap: verified fake-OpenJDK25U-jdk.zip (sha256 2a72973ae75c9dafb52010da9d0a62411d1dfd149d6b3282f2dc13799b20a541)
+ok
+test_env_script_without_jdk_warns_and_exports_gradle_home (hmstools.bootstrap.tests.test_bootstrap.EnvScript.test_env_script_without_jdk_warns_and_exports_gradle_home) ... ok
+test_to_posix (hmstools.bootstrap.tests.test_bootstrap.EnvScript.test_to_posix) ... ok
+test_toolchain_env_puts_tools_bin_first (hmstools.bootstrap.tests.test_bootstrap.EnvScript.test_toolchain_env_puts_tools_bin_first) ... ok
+test_failed_install_raises_with_the_output_tail (hmstools.bootstrap.tests.test_bootstrap.Frontend.test_failed_install_raises_with_the_output_tail) ... bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+ok
+test_frozen_install_in_frontend_with_project_local_caches (hmstools.bootstrap.tests.test_bootstrap.Frontend.test_frozen_install_in_frontend_with_project_local_caches) ... bootstrap: frontend: corepack pnpm install --frozen-lockfile (in frontend/)
+bootstrap: frontend: Done in 1s
+ok
+test_missing_corepack_fails_with_a_clear_message (hmstools.bootstrap.tests.test_bootstrap.Frontend.test_missing_corepack_fails_with_a_clear_message) ... ok
+test_nothing_to_install_without_frontend_package_json (hmstools.bootstrap.tests.test_bootstrap.Frontend.test_nothing_to_install_without_frontend_package_json) ... bootstrap: frontend: no frontend/package.json; nothing to install
+ok
+test_toolchain_env_and_env_script_set_a_project_local_corepack_home (hmstools.bootstrap.tests.test_bootstrap.Frontend.test_toolchain_env_and_env_script_set_a_project_local_corepack_home) ... ok
+test_defaults_without_wrapper_properties (hmstools.bootstrap.tests.test_bootstrap.GradleDist.test_defaults_without_wrapper_properties) ... ok
+test_ensure_gradle_from_mirror_verifies_against_official_checksum (hmstools.bootstrap.tests.test_bootstrap.GradleDist.test_ensure_gradle_from_mirror_verifies_against_official_checksum) ... bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: fetching from the mirror https://mirror.invalid/g/gradle-1.0-bin.zip; verifying against the official checksum 11e3e8d180c6459653ce95a88e853ab1a4d481de919db9faf4b01e5dbddf3ec6
+bootstrap: verified gradle-1.0-bin.zip (sha256 11e3e8d180c6459653ce95a88e853ab1a4d481de919db9faf4b01e5dbddf3ec6)
+bootstrap: Gradle: placed .tools/gradle-home/wrapper/dists/gradle-1.0-bin/5rgtyagbuldvidyz59he0pky7/gradle-1.0-bin.zip; the wrapper unpacks it on first use
+bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: reusing verified .tools/gradle-home/wrapper/dists/gradle-1.0-bin/5rgtyagbuldvidyz59he0pky7/gradle-1.0-bin.zip
+ok
+test_mirror_url_forms (hmstools.bootstrap.tests.test_bootstrap.GradleDist.test_mirror_url_forms) ... ok
+test_mirror_with_wrong_file_fails_and_keeps_nothing (hmstools.bootstrap.tests.test_bootstrap.GradleDist.test_mirror_with_wrong_file_fails_and_keeps_nothing) ... bootstrap: Gradle: gradle-1.0-bin.zip from backend/gradle/wrapper/gradle-wrapper.properties
+bootstrap: Gradle: fetching from the mirror https://mirror.invalid/gradle-1.0-bin.zip; verifying against the official checksum 770e607624d689265ca6c44884d0807d9b054d23c473c106c72be9de08b7376c
+bootstrap: gradle-1.0-bin.zip: SHA-256 mismatch after download (d121be3103007b41edf96f8262925f8c7d61894afe9a041843b631f69445bc57); deleted, fetching once more from the start
+ok
+test_reads_escaped_wrapper_properties (hmstools.bootstrap.tests.test_bootstrap.GradleDist.test_reads_escaped_wrapper_properties) ... ok
+test_a_platform_without_a_recorded_archive_fails (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_a_platform_without_a_recorded_archive_fails) ... ok
+test_adr_002_names_the_pinned_release_and_where_it_is_pinned (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_adr_002_names_the_pinned_release_and_where_it_is_pinned) ... ok
+test_only_the_exact_release_is_the_pin (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_only_the_exact_release_is_the_pin) ... ok
+test_parse_java_version (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_parse_java_version) ... ok
+test_pinned_asset_needs_no_network (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_pinned_asset_needs_no_network) ... ok
+test_the_official_checksums_of_the_two_build_hosts_are_recorded (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_the_official_checksums_of_the_two_build_hosts_are_recorded) ... ok
+test_the_pin_is_one_recorded_release (hmstools.bootstrap.tests.test_bootstrap.JdkPin.test_the_pin_is_one_recorded_release) ... ok
+test_gitleaks_asset_names (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_gitleaks_asset_names) ... ok
+test_java_major (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_java_major) ... ok
+test_parse_checksums (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_parse_checksums) ... ok
+test_parse_pins_from_hashed_requirements (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_parse_pins_from_hashed_requirements) ... ok
+test_requirements_txt_pins_match_requirements_in (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_requirements_txt_pins_match_requirements_in) ... ok
+test_select_files_keeps_sdist_and_target_wheels (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_select_files_keeps_sdist_and_target_wheels) ... ok
+test_venv_mismatches (hmstools.bootstrap.tests.test_bootstrap.Parsing.test_venv_mismatches) ... ok
+test_json_line_is_last (hmstools.cell.tests.test_cli.CellCliTest.test_json_line_is_last) ... ok
+test_missing_credentials_is_an_environment_error (hmstools.cell.tests.test_cli.CellCliTest.test_missing_credentials_is_an_environment_error) ... ok
+test_worm_state_then_recheck (hmstools.cell.tests.test_cli.CellCliTest.test_worm_state_then_recheck) ... ok
+test_an_unknown_images_action_is_a_usage_error (hmstools.cell.tests.test_cli.CellLintCliTest.test_an_unknown_images_action_is_a_usage_error) ... ok
+test_pass_and_fail (hmstools.cell.tests.test_cli.CellLintCliTest.test_pass_and_fail) ... ok
+test_default_and_override (hmstools.cell.tests.test_config.CellHomeTest.test_default_and_override) ... ok
+test_a_build_only_image_is_checked_for_use_restrictions_only (hmstools.cell.tests.test_config.LintTest.test_a_build_only_image_is_checked_for_use_restrictions_only) ... ok
+test_a_chart_without_a_checksum_fails (hmstools.cell.tests.test_config.LintTest.test_a_chart_without_a_checksum_fails) ... ok
+test_a_component_above_its_limit_fails (hmstools.cell.tests.test_config.LintTest.test_a_component_above_its_limit_fails) ... ok
+test_a_denied_licence_fails (hmstools.cell.tests.test_config.LintTest.test_a_denied_licence_fails) ... ok
+test_a_digest_in_the_upstream_reference_fails (hmstools.cell.tests.test_config.LintTest.test_a_digest_in_the_upstream_reference_fails) ... ok
+test_a_manifest_not_at_its_commit_fails (hmstools.cell.tests.test_config.LintTest.test_a_manifest_not_at_its_commit_fails) ... ok
+test_a_missing_digest_fails (hmstools.cell.tests.test_config.LintTest.test_a_missing_digest_fails) ... ok
+test_a_planted_image_from_the_excluded_vendor_fails (hmstools.cell.tests.test_config.LintTest.test_a_planted_image_from_the_excluded_vendor_fails) ... ok
+test_a_profile_over_budget_fails (hmstools.cell.tests.test_config.LintTest.test_a_profile_over_budget_fails) ... ok
+test_a_tool_without_a_digest_fails (hmstools.cell.tests.test_config.LintTest.test_a_tool_without_a_digest_fails) ... ok
+test_an_unclassified_licence_fails (hmstools.cell.tests.test_config.LintTest.test_an_unclassified_licence_fails) ... ok
+test_dangling_references_fail (hmstools.cell.tests.test_config.LintTest.test_dangling_references_fail) ... ok
+test_gpl_in_a_shipped_image_needs_a_register_entry (hmstools.cell.tests.test_config.LintTest.test_gpl_in_a_shipped_image_needs_a_register_entry) ... ok
+test_not_yaml_fails_cleanly (hmstools.cell.tests.test_config.LintTest.test_not_yaml_fails_cleanly) ... ok
+test_the_fixture_passes (hmstools.cell.tests.test_config.LintTest.test_the_fixture_passes) ... ok
+test_the_vendor_name_anywhere_fails (hmstools.cell.tests.test_config.LintTest.test_the_vendor_name_anywhere_fails) ... ok
+test_two_images_sharing_a_local_path_fail (hmstools.cell.tests.test_config.LintTest.test_two_images_sharing_a_local_path_fail) ... ok
+test_every_check_but_the_licence_verdicts_passes (hmstools.cell.tests.test_config.RealCellYamlTest.test_every_check_but_the_licence_verdicts_passes) ... ok
+test_every_lite_image_is_pinned_by_digest (hmstools.cell.tests.test_config.RealCellYamlTest.test_every_lite_image_is_pinned_by_digest) ... ok
+test_the_disk_guard_is_the_dn_013_line (hmstools.cell.tests.test_config.RealCellYamlTest.test_the_disk_guard_is_the_dn_013_line) ... ok
+test_the_registry_is_published_on_loopback_only (hmstools.cell.tests.test_config.RealCellYamlTest.test_the_registry_is_published_on_loopback_only) ... ok
+test_the_spike_decided_cosign_3 (hmstools.cell.tests.test_config.RealCellYamlTest.test_the_spike_decided_cosign_3) ... ok
+test_a_rerun_with_the_same_name_never_overwrites (hmstools.cell.tests.test_evidence.EvidenceTest.test_a_rerun_with_the_same_name_never_overwrites) ... ok
+test_an_empty_label_is_left_out_and_a_scratch_directory_can_be_named (hmstools.cell.tests.test_evidence.EvidenceTest.test_an_empty_label_is_left_out_and_a_scratch_directory_can_be_named) ... ok
+test_other_untracked_files_still_count (hmstools.cell.tests.test_evidence.EvidenceTest.test_other_untracked_files_still_count) ... ok
+test_unknown_cell_is_refused (hmstools.cell.tests.test_evidence.EvidenceTest.test_unknown_cell_is_refused) ... ok
+test_untracked_evidence_outputs_do_not_make_later_records_dirty (hmstools.cell.tests.test_evidence.EvidenceTest.test_untracked_evidence_outputs_do_not_make_later_records_dirty) ... ok
+test_existing_keys_are_kept (hmstools.cell.tests.test_images.KeysTest.test_existing_keys_are_kept) ... ok
+test_generate_passphrase_writes_a_private_file_and_says_so (hmstools.cell.tests.test_images.KeysTest.test_generate_passphrase_writes_a_private_file_and_says_so) ... ok
+test_without_a_passphrase_it_fails_closed (hmstools.cell.tests.test_images.KeysTest.test_without_a_passphrase_it_fails_closed) ... ok
+test_a_failed_copy_fails_that_image (hmstools.cell.tests.test_images.MirrorTest.test_a_failed_copy_fails_that_image) ... ok
+test_a_moved_local_tag_is_an_error_and_never_overwritten (hmstools.cell.tests.test_images.MirrorTest.test_a_moved_local_tag_is_an_error_and_never_overwritten) ... ok
+test_copies_by_digest_then_is_idempotent (hmstools.cell.tests.test_images.MirrorTest.test_copies_by_digest_then_is_idempotent) ... ok
+test_the_disk_guard_stops_before_any_pull (hmstools.cell.tests.test_images.MirrorTest.test_the_disk_guard_stops_before_any_pull) ... ok
+test_disk_guard (hmstools.cell.tests.test_images.ProcTest.test_disk_guard) ... ok
+test_docker_run_passes_secrets_by_name_only (hmstools.cell.tests.test_images.ProcTest.test_docker_run_passes_secrets_by_name_only) ... ok
+test_mem_available (hmstools.cell.tests.test_images.ProcTest.test_mem_available) ... ok
+test_a_network_with_another_subnet_is_refused (hmstools.cell.tests.test_images.RegistryTest.test_a_network_with_another_subnet_is_refused) ... ok
+test_a_registry_from_another_image_is_refused (hmstools.cell.tests.test_images.RegistryTest.test_a_registry_from_another_image_is_refused) ... ok
+test_an_offline_network_that_is_not_internal_is_refused (hmstools.cell.tests.test_images.RegistryTest.test_an_offline_network_that_is_not_internal_is_refused) ... ok
+test_creates_networks_and_the_registry_from_the_pinned_digest (hmstools.cell.tests.test_images.RegistryTest.test_creates_networks_and_the_registry_from_the_pinned_digest) ... ok
+test_idempotent (hmstools.cell.tests.test_images.RegistryTest.test_idempotent) ... ok
+test_a_tampered_signing_config_is_refused (hmstools.cell.tests.test_images.SignVerifyTest.test_a_tampered_signing_config_is_refused) ... ok
+test_already_signed_images_are_not_signed_again (hmstools.cell.tests.test_images.SignVerifyTest.test_already_signed_images_are_not_signed_again) ... ok
+test_sign_then_verify_offline (hmstools.cell.tests.test_images.SignVerifyTest.test_sign_then_verify_offline) ... ok
+test_sign_without_a_passphrase_fails_before_running_anything (hmstools.cell.tests.test_images.SignVerifyTest.test_sign_without_a_passphrase_fails_before_running_anything) ... ok
+test_unsigned_and_missing_images_fail_verification (hmstools.cell.tests.test_images.SignVerifyTest.test_unsigned_and_missing_images_fail_verification) ... ok
+test_aws_documented_get_object_example (hmstools.cell.tests.test_s3.SigV4Test.test_aws_documented_get_object_example) ... ok
+test_retention_round_trip (hmstools.cell.tests.test_s3.SigV4Test.test_retention_round_trip) ... ok
+test_uri_encoding_and_query (hmstools.cell.tests.test_s3.SigV4Test.test_uri_encoding_and_query) ... ok
+test_no_keyless_fulcio_rekor_or_upload_option_ever_appears (hmstools.cell.tests.test_signing.ArgumentBuilderTest.test_no_keyless_fulcio_rekor_or_upload_option_ever_appears) ... ok
+test_sign_uses_the_cell_key_and_the_service_free_signing_config (hmstools.cell.tests.test_signing.ArgumentBuilderTest.test_sign_uses_the_cell_key_and_the_service_free_signing_config) ... ok
+test_tags_are_refused (hmstools.cell.tests.test_signing.ArgumentBuilderTest.test_tags_are_refused) ... ok
+test_the_guard_rejects_every_forbidden_option (hmstools.cell.tests.test_signing.ArgumentBuilderTest.test_the_guard_rejects_every_forbidden_option) ... ok
+test_verify_uses_the_public_key_and_the_offline_option (hmstools.cell.tests.test_signing.ArgumentBuilderTest.test_verify_uses_the_public_key_and_the_offline_option) ... ok
+test_a_verified_payload_for_the_digest_passes (hmstools.cell.tests.test_signing.ParserTest.test_a_verified_payload_for_the_digest_passes) ... ok
+test_failures (hmstools.cell.tests.test_signing.ParserTest.test_failures) ... ok
+test_public_key_fingerprint_is_the_sha256_of_the_der (hmstools.cell.tests.test_signing.ParserTest.test_public_key_fingerprint_is_the_sha256_of_the_der) ... ok
+test_text_before_the_json_is_skipped (hmstools.cell.tests.test_signing.ParserTest.test_text_before_the_json_is_skipped) ... ok
+test_generated_passphrases_are_long_and_distinct (hmstools.cell.tests.test_signing.PassphraseTest.test_generated_passphrases_are_long_and_distinct) ... ok
+test_it_fails_closed_without_the_variable (hmstools.cell.tests.test_signing.PassphraseTest.test_it_fails_closed_without_the_variable) ... ok
+test_a_config_naming_rekor_is_refused (hmstools.cell.tests.test_signing.SigningConfigTest.test_a_config_naming_rekor_is_refused) ... ok
+test_it_names_no_service (hmstools.cell.tests.test_signing.SigningConfigTest.test_it_names_no_service) ... ok
+test_enforcing_server_passes (hmstools.cell.tests.test_worm.WormVerdictTest.test_enforcing_server_passes) ... ok
+test_recheck_after_restart (hmstools.cell.tests.test_worm.WormVerdictTest.test_recheck_after_restart) ... ok
+test_server_that_deletes_locked_objects_fails (hmstools.cell.tests.test_worm.WormVerdictTest.test_server_that_deletes_locked_objects_fails) ... ----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 49270)
+Traceback (most recent call last):
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\http\server.py", line 436, in handle
+    self.handle_one_request()
+  File "C:\Users\Surface\AppData\Local\Programs\Python\Python312\Lib\http\server.py", line 424, in handle_one_request
+    method()
+  File "C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp02\tools\hmstools\cell\tests\test_worm.py", line 58, in do_PUT
+    versions = s.buckets[bucket].setdefault(key, {})
+               ~~~~~~~~~^^^^^^^^
+KeyError: 'worm-3b150c93fe4c'
+----------------------------------------
+ok
+test_server_without_object_lock_fails_early (hmstools.cell.tests.test_worm.WormVerdictTest.test_server_without_object_lock_fails_early) ... ok
+test_unreachable_endpoint_fails (hmstools.cell.tests.test_worm.WormVerdictTest.test_unreachable_endpoint_fails) ... ok
+test_exit_0_with_ok_false_fails (hmstools.ci.tests.test_ci.CheckContract.test_exit_0_with_ok_false_fails) ... ok
+test_exit_2_is_reported_as_environment_error (hmstools.ci.tests.test_ci.CheckContract.test_exit_2_is_reported_as_environment_error) ... ok
+test_missing_json_fails (hmstools.ci.tests.test_ci.CheckContract.test_missing_json_fails) ... ok
+test_pass (hmstools.ci.tests.test_ci.CheckContract.test_pass) ... ok
+test_junit_counts_testcases (hmstools.ci.tests.test_ci.Counts.test_junit_counts_testcases) ... ok
+test_last_json_line (hmstools.ci.tests.test_ci.Counts.test_last_json_line) ... ok
+test_unittest_summaries (hmstools.ci.tests.test_ci.Counts.test_unittest_summaries) ... ok
+test_evidence_is_lf_utf8_json (hmstools.ci.tests.test_ci.Evidence.test_evidence_is_lf_utf8_json) ... ok
+test_file_name_clean_and_dirty (hmstools.ci.tests.test_ci.Evidence.test_file_name_clean_and_dirty) ... ok
+test_record_has_every_contract_field (hmstools.ci.tests.test_ci.Evidence.test_record_has_every_contract_field) ... ok
+test_totals_sum_test_counts (hmstools.ci.tests.test_ci.Evidence.test_totals_sum_test_counts) ... ok
+test_untracked_evidence_counts_unless_the_caller_ignores_it (hmstools.ci.tests.test_ci.Evidence.test_untracked_evidence_counts_unless_the_caller_ignores_it) ... ok
+test_a_line_before_the_version_does_not_hide_it (hmstools.ci.tests.test_ci.HostJava.test_a_line_before_the_version_does_not_hide_it) ... ok
+test_another_build_of_the_same_version_is_told_apart (hmstools.ci.tests.test_ci.HostJava.test_another_build_of_the_same_version_is_told_apart) ... ok
+test_no_java_gives_no_identity (hmstools.ci.tests.test_ci.HostJava.test_no_java_gives_no_identity) ... ok
+test_the_pinned_release_is_recorded_with_its_vendor_and_build (hmstools.ci.tests.test_ci.HostJava.test_the_pinned_release_is_recorded_with_its_vendor_and_build) ... ok
+test_the_real_host_block_has_the_java_fields (hmstools.ci.tests.test_ci.HostJava.test_the_real_host_block_has_the_java_fields) ... ok
+test_failures_in_xml_fail_even_with_exit_0 (hmstools.ci.tests.test_ci.JunitSteps.test_failures_in_xml_fail_even_with_exit_0) ... ok
+test_no_xml_from_this_run_fails (hmstools.ci.tests.test_ci.JunitSteps.test_no_xml_from_this_run_fails) ... ok
+test_nonzero_exit_fails_with_counts (hmstools.ci.tests.test_ci.JunitSteps.test_nonzero_exit_fails_with_counts) ... ok
+test_stale_xml_is_removed_and_counts_come_from_this_run (hmstools.ci.tests.test_ci.JunitSteps.test_stale_xml_is_removed_and_counts_come_from_this_run) ... ok
+test_all_pass_gives_pass_and_exit_0 (hmstools.ci.tests.test_ci.RunnerBehaviour.test_all_pass_gives_pass_and_exit_0) ... ok
+test_crashing_function_step_fails_not_crashes (hmstools.ci.tests.test_ci.RunnerBehaviour.test_crashing_function_step_fails_not_crashes) ... ok
+test_keeps_going_after_a_failure_and_exits_1 (hmstools.ci.tests.test_ci.RunnerBehaviour.test_keeps_going_after_a_failure_and_exits_1) ... ok
+test_logs_are_written_per_step (hmstools.ci.tests.test_ci.RunnerBehaviour.test_logs_are_written_per_step) ... ok
+test_missing_program_fails_cleanly (hmstools.ci.tests.test_ci.RunnerBehaviour.test_missing_program_fails_cleanly) ... ok
+test_no_evidence (hmstools.ci.tests.test_ci.RunnerBehaviour.test_no_evidence) ... ok
+test_not_built_alone_fails_the_tier (hmstools.ci.tests.test_ci.RunnerBehaviour.test_not_built_alone_fails_the_tier) ... ok
+test_only_gives_partial_never_pass (hmstools.ci.tests.test_ci.RunnerBehaviour.test_only_gives_partial_never_pass) ... ok
+test_timeout_kills_the_step (hmstools.ci.tests.test_ci.RunnerBehaviour.test_timeout_kills_the_step) ... ok
+test_fast_commands_match_the_contract (hmstools.ci.tests.test_ci.Tiers.test_fast_commands_match_the_contract) ... ok
+test_fast_tier_steps_in_order (hmstools.ci.tests.test_ci.Tiers.test_fast_tier_steps_in_order) ... ok
+test_other_tiers_start_with_fast_and_fail_closed (hmstools.ci.tests.test_ci.Tiers.test_other_tiers_start_with_fast_and_fail_closed) ... ok
+test_section_19_1_contents_are_listed (hmstools.ci.tests.test_ci.Tiers.test_section_19_1_contents_are_listed) ... ok
+test_counts_are_parsed (hmstools.ci.tests.test_ci.UnittestStep.test_counts_are_parsed) ... ok
+test_zero_tests_fail (hmstools.ci.tests.test_ci.UnittestStep.test_zero_tests_fail) ... ok
+test_clean_repository_passes (hmstools.ci.tests.test_secret_scan.SecretScan.test_clean_repository_passes) ... ok
+test_git_ignored_files_are_not_part_of_the_working_tree_scan (hmstools.ci.tests.test_secret_scan.SecretScan.test_git_ignored_files_are_not_part_of_the_working_tree_scan) ... ok
+test_missing_gitleaks_fails_with_the_bootstrap_command (hmstools.ci.tests.test_secret_scan.SecretScan.test_missing_gitleaks_fails_with_the_bootstrap_command) ... ok
+test_only_the_explicit_synthetic_fixture_path_is_allowlisted (hmstools.ci.tests.test_secret_scan.SecretScan.test_only_the_explicit_synthetic_fixture_path_is_allowlisted) ... ok
+test_secret_in_history_is_found_even_after_deletion (hmstools.ci.tests.test_secret_scan.SecretScan.test_secret_in_history_is_found_even_after_deletion) ... ok
+test_untracked_secret_in_working_tree_is_found (hmstools.ci.tests.test_secret_scan.SecretScan.test_untracked_secret_in_working_tree_is_found) ... ok
+test_fast_tier_checks_only_its_five_items (hmstools.doctor.tests.test_doctor.FastTier.test_fast_tier_checks_only_its_five_items) ... ok
+test_fast_tier_missing_gitleaks_fails (hmstools.doctor.tests.test_doctor.FastTier.test_fast_tier_missing_gitleaks_fails) ... ok
+test_autocrlf_true_fails_and_input_passes (hmstools.doctor.tests.test_doctor.FullTier.test_autocrlf_true_fails_and_input_passes) ... ok
+test_complete_wsl2_host_passes_with_dev_cell (hmstools.doctor.tests.test_doctor.FullTier.test_complete_wsl2_host_passes_with_dev_cell) ... ok
+test_every_prerequisite_is_checked (hmstools.doctor.tests.test_doctor.FullTier.test_every_prerequisite_is_checked) ... ok
+test_java_home_comes_before_path_without_a_project_jdk (hmstools.doctor.tests.test_doctor.FullTier.test_java_home_comes_before_path_without_a_project_jdk) ... ok
+test_missing_container_engine_prints_ubuntu_install_commands (hmstools.doctor.tests.test_doctor.FullTier.test_missing_container_engine_prints_ubuntu_install_commands) ... ok
+test_missing_gitattributes_fails (hmstools.doctor.tests.test_doctor.FullTier.test_missing_gitattributes_fails) ... ok
+test_nightly_rust_is_not_stable (hmstools.doctor.tests.test_doctor.FullTier.test_nightly_rust_is_not_stable) ... ok
+test_only_the_pinned_jdk_passes (hmstools.doctor.tests.test_doctor.FullTier.test_only_the_pinned_jdk_passes) ... ok
+test_podman_is_accepted (hmstools.doctor.tests.test_doctor.FullTier.test_podman_is_accepted) ... ok
+test_python_must_be_312 (hmstools.doctor.tests.test_doctor.FullTier.test_python_must_be_312) ... ok
+test_repository_under_mnt_c_fails (hmstools.doctor.tests.test_doctor.FullTier.test_repository_under_mnt_c_fails) ... ok
+test_tauri_prerequisites_name_what_is_missing (hmstools.doctor.tests.test_doctor.FullTier.test_tauri_prerequisites_name_what_is_missing) ... ok
+test_the_pinned_project_jdk_wins_over_a_system_jdk (hmstools.doctor.tests.test_doctor.FullTier.test_the_pinned_project_jdk_wins_over_a_system_jdk) ... ok
+test_unreachable_daemon_fails (hmstools.doctor.tests.test_doctor.FullTier.test_unreachable_daemon_fails) ... ok
+test_venv_with_wrong_pin_fails (hmstools.doctor.tests.test_doctor.FullTier.test_venv_with_wrong_pin_fails) ... ok
+test_without_a_project_jdk_the_system_jdk_must_be_the_pin (hmstools.doctor.tests.test_doctor.FullTier.test_without_a_project_jdk_the_system_jdk_must_be_the_pin) ... ok
+test_wrong_node_and_jdk_versions_fail (hmstools.doctor.tests.test_doctor.FullTier.test_wrong_node_and_jdk_versions_fail) ... ok
+test_json_follows_checkresult_contract (hmstools.doctor.tests.test_doctor.JsonContract.test_json_follows_checkresult_contract) ... ok
+test_dev_cell_needs_eight_cores (hmstools.doctor.tests.test_doctor.Resources.test_dev_cell_needs_eight_cores) ... ok
+test_disk_threshold (hmstools.doctor.tests.test_doctor.Resources.test_disk_threshold) ... ok
+test_lite_cell_below_32_gb (hmstools.doctor.tests.test_doctor.Resources.test_lite_cell_below_32_gb) ... ok
+test_native_linux_disk_ignores_mnt_c (hmstools.doctor.tests.test_doctor.Resources.test_native_linux_disk_ignores_mnt_c) ... ok
+test_no_cell_below_16_gb_fails (hmstools.doctor.tests.test_doctor.Resources.test_no_cell_below_16_gb_fails) ... ok
+test_rust_installed_by_rustup_but_not_on_path (hmstools.doctor.tests.test_doctor.Resources.test_rust_installed_by_rustup_but_not_on_path) ... ok
+test_wsl2_disk_counts_the_windows_drive_that_holds_the_virtual_disk (hmstools.doctor.tests.test_doctor.Resources.test_wsl2_disk_counts_the_windows_drive_that_holds_the_virtual_disk) ... ok
+test_windows_host_fails_os_and_prints_wsl_steps (hmstools.doctor.tests.test_doctor.WindowsHost.test_windows_host_fails_os_and_prints_wsl_steps) ... ok
+test_windows_profile_leaves_memory_for_windows (hmstools.doctor.tests.test_doctor.WindowsHost.test_windows_profile_leaves_memory_for_windows) ... ok
+test_a_blanket_entry_records_no_component (hmstools.licence.tests.test_licence.Cli.test_a_blanket_entry_records_no_component) ... ok
+test_a_conditional_component_rule_needs_an_entry_too (hmstools.licence.tests.test_licence.Cli.test_a_conditional_component_rule_needs_an_entry_too) ... ok
+test_a_malformed_register_entry_fails_and_is_not_used (hmstools.licence.tests.test_licence.Cli.test_a_malformed_register_entry_fails_and_is_not_used) ... ok
+test_an_entry_for_another_component_does_not_count (hmstools.licence.tests.test_licence.Cli.test_an_entry_for_another_component_does_not_count) ... ok
+test_an_entry_that_does_not_record_unmodified_fails (hmstools.licence.tests.test_licence.Cli.test_an_entry_that_does_not_record_unmodified_fails) ... ok
+test_an_entry_under_another_licence_does_not_count (hmstools.licence.tests.test_licence.Cli.test_an_entry_under_another_licence_does_not_count) ... ok
+test_an_entry_under_another_rule_does_not_count (hmstools.licence.tests.test_licence.Cli.test_an_entry_under_another_rule_does_not_count) ... ok
+test_an_unparsable_register_is_an_environment_error (hmstools.licence.tests.test_licence.Cli.test_an_unparsable_register_is_an_environment_error) ... ok
+test_conditional_component_recorded_in_the_register_passes (hmstools.licence.tests.test_licence.Cli.test_conditional_component_recorded_in_the_register_passes) ... ok
+test_conditional_fails_until_registered (hmstools.licence.tests.test_licence.Cli.test_conditional_fails_until_registered) ... ok
+test_entries_that_disagree_about_unmodified_fail (hmstools.licence.tests.test_licence.Cli.test_entries_that_disagree_about_unmodified_fail) ... ok
+test_licences_compare_as_spdx_expressions (hmstools.licence.tests.test_licence.Cli.test_licences_compare_as_spdx_expressions) ... ok
+test_no_input_is_a_usage_error (hmstools.licence.tests.test_licence.Cli.test_no_input_is_a_usage_error) ... ok
+test_pass_fail_and_json_contract (hmstools.licence.tests.test_licence.Cli.test_pass_fail_and_json_contract) ... ok
+test_a_conditional_verdict_names_the_rule_and_the_licence_a_register_entry_must_record (hmstools.licence.tests.test_licence.ComponentRules.test_a_conditional_verdict_names_the_rule_and_the_licence_a_register_entry_must_record) ... ok
+test_classpath_exception_outside_openjdk_needs_a_decision (hmstools.licence.tests.test_licence.ComponentRules.test_classpath_exception_outside_openjdk_needs_a_decision) ... ok
+test_conditional_rules_never_lift_a_denied_licence (hmstools.licence.tests.test_licence.ComponentRules.test_conditional_rules_never_lift_a_denied_licence) ... ok
+test_dcm4che_lgpl_option_is_conditional (hmstools.licence.tests.test_licence.ComponentRules.test_dcm4che_lgpl_option_is_conditional) ... ok
+test_gpl_separate_container_is_conditional (hmstools.licence.tests.test_licence.ComponentRules.test_gpl_separate_container_is_conditional) ... ok
+test_liquibase_only_under_fsl (hmstools.licence.tests.test_licence.ComponentRules.test_liquibase_only_under_fsl) ... ok
+test_named_exclusions (hmstools.licence.tests.test_licence.ComponentRules.test_named_exclusions) ... ok
+test_openjdk_runtime_gpl_with_classpath_exception_is_conditional (hmstools.licence.tests.test_licence.ComponentRules.test_openjdk_runtime_gpl_with_classpath_exception_is_conditional) ... ok
+test_os_packages_are_conditional (hmstools.licence.tests.test_licence.ComponentRules.test_os_packages_are_conditional) ... ok
+test_version_bounded_exclusions (hmstools.licence.tests.test_licence.ComponentRules.test_version_bounded_exclusions) ... ok
+test_cyclonedx_nested_components_and_scope (hmstools.licence.tests.test_licence.Inputs.test_cyclonedx_nested_components_and_scope) ... ok
+test_not_cyclonedx_is_rejected (hmstools.licence.tests.test_licence.Inputs.test_not_cyclonedx_is_rejected) ... ok
+test_pnpm_output_new_and_old_shapes (hmstools.licence.tests.test_licence.Inputs.test_pnpm_output_new_and_old_shapes) ... ok
+test_allowed_matches (hmstools.licence.tests.test_licence.OrtConsistency.test_allowed_matches) ... ok
+test_build_only_matches (hmstools.licence.tests.test_licence.OrtConsistency.test_build_only_matches) ... ok
+test_conditional_matches (hmstools.licence.tests.test_licence.OrtConsistency.test_conditional_matches) ... ok
+test_conditional_rules_stay_warnings_only_while_the_ort_step_is_not_built (hmstools.licence.tests.test_licence.OrtConsistency.test_conditional_rules_stay_warnings_only_while_the_ort_step_is_not_built) ... ok
+test_copyleft_category_matches_the_restricted_pattern (hmstools.licence.tests.test_licence.OrtConsistency.test_copyleft_category_matches_the_restricted_pattern) ... ok
+test_curations_parse (hmstools.licence.tests.test_licence.OrtConsistency.test_curations_parse) ... ok
+test_denied_matches (hmstools.licence.tests.test_licence.OrtConsistency.test_denied_matches) ... ok
+test_evaluator_rules_reference_every_category (hmstools.licence.tests.test_licence.OrtConsistency.test_evaluator_rules_reference_every_category) ... ok
+test_no_licence_is_both_allowed_and_denied (hmstools.licence.tests.test_licence.OrtConsistency.test_no_licence_is_both_allowed_and_denied) ... ok
+test_ort_yml_excludes_and_readme_states_not_run (hmstools.licence.tests.test_licence.OrtConsistency.test_ort_yml_excludes_and_readme_states_not_run) ... ok
+test_a_broad_entry_records_nothing_and_the_check_fails (hmstools.licence.tests.test_licence.RegisterSchema.test_a_broad_entry_records_nothing_and_the_check_fails) ... ok
+test_a_good_entry_and_an_empty_register_pass (hmstools.licence.tests.test_licence.RegisterSchema.test_a_good_entry_and_an_empty_register_pass) ... ok
+test_a_pattern_that_matches_a_package_it_does_not_name_is_refused (hmstools.licence.tests.test_licence.RegisterSchema.test_a_pattern_that_matches_a_package_it_does_not_name_is_refused) ... ok
+test_a_rule_that_is_not_text_is_reported_not_raised (hmstools.licence.tests.test_licence.RegisterSchema.test_a_rule_that_is_not_text_is_reported_not_raised) ... ok
+test_a_separate_gpl_container_needs_its_source_offer (hmstools.licence.tests.test_licence.RegisterSchema.test_a_separate_gpl_container_needs_its_source_offer) ... ok
+test_every_conditional_rule_of_the_policy_is_a_valid_rule (hmstools.licence.tests.test_licence.RegisterSchema.test_every_conditional_rule_of_the_policy_is_a_valid_rule) ... ok
+test_field_values (hmstools.licence.tests.test_licence.RegisterSchema.test_field_values) ... ok
+test_required_fields (hmstools.licence.tests.test_licence.RegisterSchema.test_required_fields) ... ok
+test_the_real_register_is_well_formed (hmstools.licence.tests.test_licence.RegisterSchema.test_the_real_register_is_well_formed) ... ok
+test_top_level_shape (hmstools.licence.tests.test_licence.RegisterSchema.test_top_level_shape) ... ok
+test_unknown_fields_such_as_an_approver_are_refused (hmstools.licence.tests.test_licence.RegisterSchema.test_unknown_fields_such_as_an_approver_are_refused) ... ok
+test_aliases_and_unmapped_names (hmstools.licence.tests.test_licence.Shipped.test_aliases_and_unmapped_names) ... ok
+test_allowlist (hmstools.licence.tests.test_licence.Shipped.test_allowlist) ... ok
+test_boost_bsl_is_not_the_business_source_licence (hmstools.licence.tests.test_licence.Shipped.test_boost_bsl_is_not_the_business_source_licence) ... ok
+test_build_only_licences_are_not_shipped (hmstools.licence.tests.test_licence.Shipped.test_build_only_licences_are_not_shipped) ... ok
+test_conditional_licence (hmstools.licence.tests.test_licence.Shipped.test_conditional_licence) ... ok
+test_denylist_in_every_scope (hmstools.licence.tests.test_licence.Shipped.test_denylist_in_every_scope) ... ok
+test_denylisted_wording_in_licence_names (hmstools.licence.tests.test_licence.Shipped.test_denylisted_wording_in_licence_names) ... ok
+test_gpl_in_build_only_tools_is_acceptable (hmstools.licence.tests.test_licence.Shipped.test_gpl_in_build_only_tools_is_acceptable) ... ok
+test_gpl_in_shipped_code_is_denied (hmstools.licence.tests.test_licence.Shipped.test_gpl_in_shipped_code_is_denied) ... ok
+test_or_takes_the_best_option_and_takes_the_worst (hmstools.licence.tests.test_licence.Shipped.test_or_takes_the_best_option_and_takes_the_worst) ... ok
+test_unknown_scope_defaults_to_shipped (hmstools.licence.tests.test_licence.Shipped.test_unknown_scope_defaults_to_shipped) ... ok
+test_canonical_form_ignores_operand_order_and_nesting (hmstools.licence.tests.test_licence.Spdx.test_canonical_form_ignores_operand_order_and_nesting) ... ok
+test_errors (hmstools.licence.tests.test_licence.Spdx.test_errors) ... ok
+test_free_form_names_are_not_expressions (hmstools.licence.tests.test_licence.Spdx.test_free_form_names_are_not_expressions) ... ok
+test_parentheses_and_lower_case_operators (hmstools.licence.tests.test_licence.Spdx.test_parentheses_and_lower_case_operators) ... ok
+test_precedence_and_with (hmstools.licence.tests.test_licence.Spdx.test_precedence_and_with) ... ok
+test_clinical_safety_owns_the_safety_paths (hmstools.repo.tests.test_hygiene.CodeOwners.test_clinical_safety_owns_the_safety_paths) ... ok
+test_every_module_has_an_owner_line (hmstools.repo.tests.test_hygiene.CodeOwners.test_every_module_has_an_owner_line) ... ok
+test_module_paths_resolve_to_their_squad (hmstools.repo.tests.test_hygiene.CodeOwners.test_module_paths_resolve_to_their_squad) ... ok
+test_placeholder_handles_and_header (hmstools.repo.tests.test_hygiene.CodeOwners.test_placeholder_handles_and_header) ... ok
+test_settings (hmstools.repo.tests.test_hygiene.EditorConfig.test_settings) ... ok
+test_lf_everywhere_and_binary_types (hmstools.repo.tests.test_hygiene.GitAttributes.test_lf_everywhere_and_binary_types) ... ok
+test_contract_entries (hmstools.repo.tests.test_hygiene.GitIgnore.test_contract_entries) ... ok
+test_extends_defaults_and_allowlists_only_fixture_paths (hmstools.repo.tests.test_hygiene.Gitleaks.test_extends_defaults_and_allowlists_only_fixture_paths) ... ok
+test_exactly_the_section_3_6_fields (hmstools.repo.tests.test_hygiene.PullRequestTemplate.test_exactly_the_section_3_6_fields) ... ok
+test_a_byte_order_mark_does_not_hide_the_title (hmstools.repo.tests.test_repo.AdrTemplate.test_a_byte_order_mark_does_not_hide_the_title) ... ok
+test_date_line_needs_a_source_field (hmstools.repo.tests.test_repo.AdrTemplate.test_date_line_needs_a_source_field) ... ok
+test_date_must_be_a_calendar_date (hmstools.repo.tests.test_repo.AdrTemplate.test_date_must_be_a_calendar_date) ... ok
+test_exactly_one_status_and_one_date_line (hmstools.repo.tests.test_repo.AdrTemplate.test_exactly_one_status_and_one_date_line) ... ok
+test_headings_must_be_level_2_with_the_b1_text (hmstools.repo.tests.test_repo.AdrTemplate.test_headings_must_be_level_2_with_the_b1_text) ... ok
+test_headings_once_each_and_in_b1_order (hmstools.repo.tests.test_repo.AdrTemplate.test_headings_once_each_and_in_b1_order) ... ok
+test_other_level_2_sections_and_fenced_examples (hmstools.repo.tests.test_repo.AdrTemplate.test_other_level_2_sections_and_fenced_examples) ... ok
+test_provisional_rule_still_applies (hmstools.repo.tests.test_repo.AdrTemplate.test_provisional_rule_still_applies) ... ok
+test_real_adr_header_passes (hmstools.repo.tests.test_repo.AdrTemplate.test_real_adr_header_passes) ... ok
+test_status_and_date_must_sit_in_the_header (hmstools.repo.tests.test_repo.AdrTemplate.test_status_and_date_must_sit_in_the_header) ... ok
+test_status_must_be_the_whole_value (hmstools.repo.tests.test_repo.AdrTemplate.test_status_must_be_the_whole_value) ... ok
+test_the_template_itself_passes (hmstools.repo.tests.test_repo.AdrTemplate.test_the_template_itself_passes) ... ok
+test_title_line_must_be_first_and_in_b1_form (hmstools.repo.tests.test_repo.AdrTemplate.test_title_line_must_be_first_and_in_b1_form) ... ok
+test_title_number_must_match_the_file (hmstools.repo.tests.test_repo.AdrTemplate.test_title_number_must_match_the_file) ... ok
+test_allowed_branch_names (hmstools.repo.tests.test_repo.Branches.test_allowed_branch_names) ... ok
+test_forbidden_words_fail_even_in_valid_shapes (hmstools.repo.tests.test_repo.Branches.test_forbidden_words_fail_even_in_valid_shapes) ... ok
+test_other_branch_names_fail (hmstools.repo.tests.test_repo.Branches.test_other_branch_names_fail) ... ok
+test_refs_outside_branches_are_not_branches (hmstools.repo.tests.test_repo.Branches.test_refs_outside_branches_are_not_branches) ... ok
+test_registered_tenant_in_branch_name_fails (hmstools.repo.tests.test_repo.Branches.test_registered_tenant_in_branch_name_fails) ... ok
+test_remote_tracking_branches_are_checked (hmstools.repo.tests.test_repo.Branches.test_remote_tracking_branches_are_checked) ... ok
+test_binary_attribute_and_crlf_attribute_are_respected (hmstools.repo.tests.test_repo.Crlf.test_binary_attribute_and_crlf_attribute_are_respected) ... ok
+test_crlf_in_tracked_file_fails (hmstools.repo.tests.test_repo.Crlf.test_crlf_in_tracked_file_fails) ... ok
+test_crlf_in_untracked_text_file_fails (hmstools.repo.tests.test_repo.Crlf.test_crlf_in_untracked_text_file_fails) ... ok
+test_ignored_files_are_not_checked (hmstools.repo.tests.test_repo.Crlf.test_ignored_files_are_not_checked) ... ok
+test_lone_lf_passes (hmstools.repo.tests.test_repo.Crlf.test_lone_lf_passes) ... ok
+test_nul_bytes_mark_a_file_binary (hmstools.repo.tests.test_repo.Crlf.test_nul_bytes_mark_a_file_binary) ... ok
+test_plan_of_record_crlf_is_a_warning_not_an_error (hmstools.repo.tests.test_repo.Crlf.test_plan_of_record_crlf_is_a_warning_not_an_error) ... ok
+test_checkresult_json_shape (hmstools.repo.tests.test_repo.GoodRepository.test_checkresult_json_shape) ... ok
+test_fixture_passes_every_rule (hmstools.repo.tests.test_repo.GoodRepository.test_fixture_passes_every_rule) ... ok
+test_blocking_now_items_ignores_nested_lines (hmstools.repo.tests.test_repo.Helpers.test_blocking_now_items_ignores_nested_lines) ... ok
+test_plan_of_record_paths (hmstools.repo.tests.test_repo.Helpers.test_plan_of_record_paths) ... ok
+test_exactly_ten_items_passes (hmstools.repo.tests.test_repo.Limits.test_exactly_ten_items_passes) ... ok
+test_missing_blocking_now_list_fails (hmstools.repo.tests.test_repo.Limits.test_missing_blocking_now_list_fails) ... ok
+test_more_than_ten_blocking_items_fails (hmstools.repo.tests.test_repo.Limits.test_more_than_ten_blocking_items_fails) ... ok
+test_status_line_limit (hmstools.repo.tests.test_repo.Limits.test_status_line_limit) ... ok
+test_table_rows_are_counted (hmstools.repo.tests.test_repo.Limits.test_table_rows_are_counted) ... ok
+test_a_script_git_does_not_track_fails (hmstools.repo.tests.test_repo.Modes.test_a_script_git_does_not_track_fails) ... ok
+test_a_script_stored_without_the_executable_bit_fails (hmstools.repo.tests.test_repo.Modes.test_a_script_stored_without_the_executable_bit_fails) ... ok
+test_executable_entry_scripts_pass (hmstools.repo.tests.test_repo.Modes.test_executable_entry_scripts_pass) ... ok
+test_the_index_counts_not_the_last_commit (hmstools.repo.tests.test_repo.Modes.test_the_index_counts_not_the_last_commit) ... ok
+test_a_status_with_an_approval_appended_fails (hmstools.repo.tests.test_repo.Required.test_a_status_with_an_approval_appended_fails) ... ok
+test_adr_001_and_009_must_stay_provisional (hmstools.repo.tests.test_repo.Required.test_adr_001_and_009_must_stay_provisional) ... ok
+test_adr_beyond_the_baseline_is_checked_too (hmstools.repo.tests.test_repo.Required.test_adr_beyond_the_baseline_is_checked_too) ... ok
+test_adr_file_name_must_follow_the_pattern (hmstools.repo.tests.test_repo.Required.test_adr_file_name_must_follow_the_pattern) ... ok
+test_adr_numbers_without_a_gap (hmstools.repo.tests.test_repo.Required.test_adr_numbers_without_a_gap) ... ok
+test_adr_without_required_heading_fails (hmstools.repo.tests.test_repo.Required.test_adr_without_required_heading_fails) ... ok
+test_adr_without_status_or_date_fails (hmstools.repo.tests.test_repo.Required.test_adr_without_status_or_date_fails) ... ok
+test_bold_status_and_date_lines_are_accepted (hmstools.repo.tests.test_repo.Required.test_bold_status_and_date_lines_are_accepted) ... ok
+test_duplicate_adr_number_fails (hmstools.repo.tests.test_repo.Required.test_duplicate_adr_number_fails) ... ok
+test_every_adr_is_linked_from_the_index (hmstools.repo.tests.test_repo.Required.test_every_adr_is_linked_from_the_index) ... ok
+test_missing_adr_fails (hmstools.repo.tests.test_repo.Required.test_missing_adr_fails) ... ok
+test_missing_adr_index_fails (hmstools.repo.tests.test_repo.Required.test_missing_adr_index_fails) ... ok
+test_missing_control_file_fails (hmstools.repo.tests.test_repo.Required.test_missing_control_file_fails) ... ok
+test_title_source_and_heading_order_are_checked_through_the_rule (hmstools.repo.tests.test_repo.Required.test_title_source_and_heading_order_are_checked_through_the_rule) ... ok
+test_unknown_status_fails (hmstools.repo.tests.test_repo.Required.test_unknown_status_fails) ... ok
+test_dependency_and_build_directories_are_skipped (hmstools.repo.tests.test_repo.Tenants.test_dependency_and_build_directories_are_skipped) ... ok
+test_files_outside_the_scanned_roots_are_not_checked (hmstools.repo.tests.test_repo.Tenants.test_files_outside_the_scanned_roots_are_not_checked) ... ok
+test_hostname_in_frontend_config_fails (hmstools.repo.tests.test_repo.Tenants.test_hostname_in_frontend_config_fails) ... ok
+test_identifier_inside_a_longer_word_does_not_match (hmstools.repo.tests.test_repo.Tenants.test_identifier_inside_a_longer_word_does_not_match) ... ok
+test_missing_registry_is_an_environment_error (hmstools.repo.tests.test_repo.Tenants.test_missing_registry_is_an_environment_error) ... ok
+test_names_match_across_spaces_hyphens_and_underscores (hmstools.repo.tests.test_repo.Tenants.test_names_match_across_spaces_hyphens_and_underscores) ... ok
+test_pattern_catches_unregistered_synthetic_identifier (hmstools.repo.tests.test_repo.Tenants.test_pattern_catches_unregistered_synthetic_identifier) ... ok
+test_registered_identifier_in_backend_code_fails_with_line (hmstools.repo.tests.test_repo.Tenants.test_registered_identifier_in_backend_code_fails_with_line) ... ok
+test_environment_error_exits_2_with_json (hmstools.safety.tests.test_cli.CliInProcessTest.test_environment_error_exits_2_with_json) ... ok
+test_failing_check_exits_1_with_json_last_line (hmstools.safety.tests.test_cli.CliInProcessTest.test_failing_check_exits_1_with_json_last_line) ... ok
+test_check_json_on_the_real_repository (hmstools.safety.tests.test_cli.CliProcessTest.test_check_json_on_the_real_repository) ... ok
+test_missing_subcommand_is_a_usage_error (hmstools.safety.tests.test_cli.CliProcessTest.test_missing_subcommand_is_a_usage_error) ... ok
+test_unknown_option_is_a_usage_error (hmstools.safety.tests.test_cli.CliProcessTest.test_unknown_option_is_a_usage_error) ... ok
+test_a_change_hidden_from_git_status_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_a_change_hidden_from_git_status_fails) ... ok
+test_a_gpg_entry_does_not_match_an_ssh_signature_of_the_same_text (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_a_gpg_entry_does_not_match_an_ssh_signature_of_the_same_text) ... ok
+test_a_message_cannot_pose_as_a_signed_commit (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_a_message_cannot_pose_as_a_signed_commit) ... ok
+test_ai_co_author_trailer_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_ai_co_author_trailer_fails) ... ok
+test_an_incomplete_entry_is_not_a_signer (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_an_incomplete_entry_is_not_a_signer) ... ok
+test_bad_signature_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_bad_signature_fails) ... ok
+test_every_commit_touching_the_record_must_be_by_a_listed_key (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_every_commit_touching_the_record_must_be_by_a_listed_key) ... ok
+test_every_commit_touching_the_record_must_be_signed (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_every_commit_touching_the_record_must_be_signed) ... ok
+test_git_missing_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_git_missing_fails) ... ok
+test_good_signature_by_a_listed_key_passes (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_good_signature_by_a_listed_key_passes) ... ok
+test_good_signature_by_a_subkey_of_a_listed_primary_key_passes (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_good_signature_by_a_subkey_of_a_listed_primary_key_passes) ... ok
+test_good_signature_of_unknown_validity_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_good_signature_of_unknown_validity_fails) ... ok
+test_human_co_author_is_fine (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_human_co_author_is_fine) ... ok
+test_key_the_agent_generated_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_key_the_agent_generated_fails) ... ok
+test_line_endings_alone_are_not_a_change (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_line_endings_alone_are_not_a_change) ... ok
+test_never_committed_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_never_committed_fails) ... ok
+test_no_listed_signer_means_no_record_counts (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_no_listed_signer_means_no_record_counts) ... ok
+test_not_a_repository_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_not_a_repository_fails) ... ok
+test_record_name_must_be_the_signers_name (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_record_name_must_be_the_signers_name) ... ok
+test_record_outside_the_repository_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_record_outside_the_repository_fails) ... ok
+test_record_role_must_be_listed_for_the_signer (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_record_role_must_be_listed_for_the_signer) ... ok
+test_signer_key_must_be_the_signing_key (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_signer_key_must_be_the_signing_key) ... ok
+test_ssh_signature_by_a_listed_key_passes (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_ssh_signature_by_a_listed_key_passes) ... ok
+test_uncommitted_changes_fail (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_uncommitted_changes_fail) ... ok
+test_unsigned_commit_fails (hmstools.safety.tests.test_git_authentication.RecordAuthenticationTest.test_unsigned_commit_fails) ... ok
+test_a_change_of_signers_starts_the_approvals_again (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_change_of_signers_starts_the_approvals_again) ... ok
+test_a_change_of_unknown_validity_fails (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_change_of_unknown_validity_fails) ... ok
+test_a_change_signed_by_a_listed_key_is_trusted (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_change_signed_by_a_listed_key_is_trusted) ... ok
+test_a_change_signed_by_a_listed_subkey_is_trusted (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_change_signed_by_a_listed_subkey_is_trusted) ... ok
+test_a_change_with_an_ai_trailer_fails (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_change_with_an_ai_trailer_fails) ... ok
+test_a_comment_edit_carries_a_further_approval (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_comment_edit_carries_a_further_approval) ... ok
+test_a_criss_cross_merge_combines_the_approvals_of_both_lines (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_criss_cross_merge_combines_the_approvals_of_both_lines) ... ok
+test_a_criss_cross_merge_with_a_line_that_settled_the_conflict_needs_nothing (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_criss_cross_merge_with_a_line_that_settled_the_conflict_needs_nothing) ... ok
+test_a_criss_cross_merge_without_approvals_stays_in_conflict (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_criss_cross_merge_without_approvals_stays_in_conflict) ... ok
+test_a_key_cannot_add_itself (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_key_cannot_add_itself) ... ok
+test_a_key_listed_on_every_side_counts_whatever_its_roles (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_key_listed_on_every_side_counts_whatever_its_roles) ... ok
+test_a_later_merge_of_a_third_line_needs_its_approval_too (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_later_merge_of_a_third_line_needs_its_approval_too) ... ok
+test_a_line_on_which_the_list_never_held_a_key_does_not_count (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_line_on_which_the_list_never_held_a_key_does_not_count) ... ok
+test_a_line_that_settled_the_conflict_does_not_discard_a_later_signed_change (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_line_that_settled_the_conflict_does_not_discard_a_later_signed_change) ... ok
+test_a_listed_signer_can_fix_an_invalid_list (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_listed_signer_can_fix_an_invalid_list) ... ok
+test_a_listed_signer_can_sign_over_an_unsigned_change (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_listed_signer_can_sign_over_an_unsigned_change) ... ok
+test_a_listing_that_is_not_commit_ids_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_listing_that_is_not_commit_ids_trusts_no_one) ... ok
+test_a_merge_cannot_bring_in_a_key_anchored_on_another_line (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_cannot_bring_in_a_key_anchored_on_another_line) ... ok
+test_a_merge_of_diverging_versions_needs_a_key_listed_on_every_side (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_of_diverging_versions_needs_a_key_listed_on_every_side) ... ok
+test_a_merge_of_lines_without_keys_needs_no_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_of_lines_without_keys_needs_no_signature) ... ok
+test_a_merge_signed_by_a_key_listed_on_every_side_is_trusted (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_signed_by_a_key_listed_on_every_side_is_trusted) ... ok
+test_a_merge_signed_by_one_side_is_settled_by_the_other (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_signed_by_one_side_is_settled_by_the_other) ... ok
+test_a_merge_that_approves_nothing_settles_on_the_approvals_its_lines_gave (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_that_approves_nothing_settles_on_the_approvals_its_lines_gave) ... ok
+test_a_merge_that_keeps_an_older_side_cannot_restore_a_removed_key (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_that_keeps_an_older_side_cannot_restore_a_removed_key) ... ok
+test_a_merge_that_keeps_the_newest_side_needs_no_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_that_keeps_the_newest_side_needs_no_signature) ... ok
+test_a_merge_that_keeps_the_version_in_conflict_approves_nothing (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_merge_that_keeps_the_version_in_conflict_approves_nothing) ... ok
+test_a_message_cannot_pose_as_another_commit (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_message_cannot_pose_as_another_commit) ... ok
+test_a_permissive_committed_schema_does_not_let_an_incomplete_entry_through (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_permissive_committed_schema_does_not_let_an_incomplete_entry_through) ... ok
+test_a_removed_key_cannot_be_restored_without_a_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_removed_key_cannot_be_restored_without_a_signature) ... ok
+test_a_revert_of_the_merge_does_not_settle_it (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_revert_of_the_merge_does_not_settle_it) ... ok
+test_a_reverted_unsigned_change_leaves_the_list_trusted (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_reverted_unsigned_change_leaves_the_list_trusted) ... ok
+test_a_shallow_clone_with_listed_keys_fails (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_shallow_clone_with_listed_keys_fails) ... ok
+test_a_shallow_clone_without_keys_only_warns (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_shallow_clone_without_keys_only_warns) ... ok
+test_a_side_approves_the_signers_it_already_trusts (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_side_approves_the_signers_it_already_trusts) ... ok
+test_a_side_that_lists_no_key_approves_only_a_list_without_keys (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_side_that_lists_no_key_approves_only_a_list_without_keys) ... ok
+test_a_signed_removal_of_every_key_allows_a_new_anchor (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_signed_removal_of_every_key_allows_a_new_anchor) ... ok
+test_a_signed_removal_of_every_key_is_not_undone_by_a_merge (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_signed_removal_of_every_key_is_not_undone_by_a_merge) ... ok
+test_a_symbolic_link_on_the_path_of_the_list_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_symbolic_link_on_the_path_of_the_list_trusts_no_one) ... ok
+test_a_verifier_program_the_repository_sets_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_verifier_program_the_repository_sets_trusts_no_one) ... ok
+test_a_version_under_a_committed_schema_that_is_not_one_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_version_under_a_committed_schema_that_is_not_one_trusts_no_one) ... ok
+test_a_version_without_its_schema_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_a_version_without_its_schema_trusts_no_one) ... ok
+test_an_anchor_with_an_ai_trailer_is_rejected (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_anchor_with_an_ai_trailer_is_rejected) ... ok
+test_an_approval_given_on_a_parallel_line_does_not_reopen_a_settled_conflict (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_approval_given_on_a_parallel_line_does_not_reopen_a_settled_conflict) ... ok
+test_an_approval_withdrawn_on_another_line_does_not_count_after_a_merge (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_approval_withdrawn_on_another_line_does_not_count_after_a_merge) ... ok
+test_an_empty_list_needs_no_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_empty_list_needs_no_signature) ... ok
+test_an_invalid_committed_list_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_invalid_committed_list_trusts_no_one) ... ok
+test_an_invalid_list_before_the_anchor_can_be_fixed (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_invalid_list_before_the_anchor_can_be_fixed) ... ok
+test_an_invalid_list_is_not_a_new_anchor (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_invalid_list_is_not_a_new_anchor) ... ok
+test_an_octopus_merge_needs_the_approval_of_every_side (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_octopus_merge_needs_the_approval_of_every_side) ... ok
+test_an_unreadable_history_trusts_no_one (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_unreadable_history_trusts_no_one) ... ok
+test_an_unsigned_change_after_the_anchor_fails (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_unsigned_change_after_the_anchor_fails) ... ok
+test_an_unsigned_merge_of_diverging_versions_fails_until_a_key_on_every_side_signs (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_unsigned_merge_of_diverging_versions_fails_until_a_key_on_every_side_signs) ... ok
+test_an_unsigned_removal_of_every_key_cannot_start_a_new_anchor (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_an_unsigned_removal_of_every_key_cannot_start_a_new_anchor) ... ok
+test_deleting_the_list_needs_a_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_deleting_the_list_needs_a_signature) ... ok
+test_git_runs_without_grafts_replace_refs_or_the_commit_graph (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_git_runs_without_grafts_replace_refs_or_the_commit_graph) ... ok
+test_merged_lines_that_each_withdrew_every_key_allow_a_new_anchor (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_merged_lines_that_each_withdrew_every_key_allow_a_new_anchor) ... ok
+test_merged_lines_with_the_same_signers_in_different_texts_need_a_listed_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_merged_lines_with_the_same_signers_in_different_texts_need_a_listed_signature) ... ok
+test_merges_of_a_line_the_agent_anchored_fail_closed (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_merges_of_a_line_the_agent_anchored_fail_closed) ... ok
+test_merging_an_old_side_again_after_the_conflict_is_settled_needs_nothing (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_merging_an_old_side_again_after_the_conflict_is_settled_needs_nothing) ... ok
+test_no_file_and_no_history (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_no_file_and_no_history) ... ok
+test_outside_a_repository_no_signer_is_trusted (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_outside_a_repository_no_signer_is_trusted) ... ok
+test_records_are_checked_against_the_trusted_list (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_records_are_checked_against_the_trusted_list) ... ok
+test_repository_paths_are_taken_lexically (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_repository_paths_are_taken_lexically) ... ok
+test_the_agent_alone_cannot_settle_a_conflict (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_the_agent_alone_cannot_settle_a_conflict) ... ok
+test_the_first_key_is_a_trust_anchor_and_is_reported (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_the_first_key_is_a_trust_anchor_and_is_reported) ... ok
+test_the_same_version_on_every_side_needs_no_signature (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_the_same_version_on_every_side_needs_no_signature) ... ok
+test_the_working_tree_schema_does_not_judge_committed_versions (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_the_working_tree_schema_does_not_judge_committed_versions) ... ok
+test_uncommitted_changes_are_not_trusted (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_uncommitted_changes_are_not_trusted) ... ok
+test_unsigned_unlisted_trailer_and_invalid_changes_approve_nothing_in_a_conflict (hmstools.safety.tests.test_git_authentication.TrustChainTest.test_unsigned_unlisted_trailer_and_invalid_changes_approve_nothing_in_a_conflict) ... ok
+test_counts_keep_their_shape_when_rules_cannot_run (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_counts_keep_their_shape_when_rules_cannot_run) ... ok
+test_duplicate_yaml_key_rejected (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_duplicate_yaml_key_rejected) ... ok
+test_malformed_yaml (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_malformed_yaml) ... ok
+test_missing_hazard_log (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_missing_hazard_log) ... ok
+test_missing_plan_is_an_environment_error (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_missing_plan_is_an_environment_error) ... ok
+test_missing_schema (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_missing_schema) ... ok
+test_schema_that_is_not_a_valid_schema (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_schema_that_is_not_a_valid_schema) ... ok
+test_schema_that_is_not_json (hmstools.safety.tests.test_hazard_log_rules.FileTest.test_schema_that_is_not_json) ... ok
+test_control_number_must_match_its_hazard (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_control_number_must_match_its_hazard) ... ok
+test_duplicate_control_id (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_duplicate_control_id) ... ok
+test_duplicate_hazard_id (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_duplicate_hazard_id) ... ok
+test_duplicate_seeded_hazard (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_duplicate_seeded_hazard) ... ok
+test_missing_seeded_hazard (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_missing_seeded_hazard) ... ok
+test_seeded_hazard_wording_must_match_plan (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_seeded_hazard_wording_must_match_plan) ... ok
+test_unknown_seeded_hazard_reference (hmstools.safety.tests.test_hazard_log_rules.IdentifierTest.test_unknown_seeded_hazard_reference) ... ok
+test_clause_without_control (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_clause_without_control) ... ok
+test_covers_unknown_clause (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_covers_unknown_clause) ... ok
+test_dropped_clause (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_dropped_clause) ... ok
+test_each_si21_label_has_its_own_entry (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_each_si21_label_has_its_own_entry) ... ok
+test_enforced_in_must_match_plan (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_enforced_in_must_match_plan) ... ok
+test_missing_si (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_missing_si) ... ok
+test_null_seeded_hazard_needs_a_note (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_null_seeded_hazard_needs_a_note) ... ok
+test_preamble_control_required (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_preamble_control_required) ... ok
+test_quoting_entry_lists_exactly_one_invariant (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_quoting_entry_lists_exactly_one_invariant) ... ok
+test_sac_mapped_to_the_si_must_be_listed (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_sac_mapped_to_the_si_must_be_listed) ... ok
+test_seeded_mapping_must_match_plan (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_seeded_mapping_must_match_plan) ... ok
+test_sensitivity_label_needs_si21 (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_sensitivity_label_needs_si21) ... ok
+test_si18_keeps_no_seeded_hazard (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_si18_keeps_no_seeded_hazard) ... ok
+test_si_listed_but_not_quoted (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_si_listed_but_not_quoted) ... ok
+test_si_quoted_twice (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_si_quoted_twice) ... ok
+test_weakened_invariant_text (hmstools.safety.tests.test_hazard_log_rules.InvariantCoverageTest.test_weakened_invariant_text) ... ok
+test_real_repository_passes (hmstools.safety.tests.test_hazard_log_rules.RealFilesTest.test_real_repository_passes) ... ok
+test_sandbox_copy_of_the_real_log_passes (hmstools.safety.tests.test_hazard_log_rules.RealFilesTest.test_sandbox_copy_of_the_real_log_passes) ... ok
+test_backlog_without_ids_fails (hmstools.safety.tests.test_hazard_log_rules.ReferenceTest.test_backlog_without_ids_fails) ... ok
+test_backlog_yaml_is_the_source_when_present (hmstools.safety.tests.test_hazard_log_rules.ReferenceTest.test_backlog_yaml_is_the_source_when_present) ... ok
+test_complete_backlog_yaml_passes (hmstools.safety.tests.test_hazard_log_rules.ReferenceTest.test_complete_backlog_yaml_passes) ... ok
+test_module_must_be_in_the_module_map (hmstools.safety.tests.test_hazard_log_rules.ReferenceTest.test_module_must_be_in_the_module_map) ... ok
+test_owner_must_be_a_module_squad (hmstools.safety.tests.test_hazard_log_rules.ReferenceTest.test_owner_must_be_a_module_squad) ... ok
+test_unknown_feature_id_with_appendix_a_fallback (hmstools.safety.tests.test_hazard_log_rules.ReferenceTest.test_unknown_feature_id_with_appendix_a_fallback) ... ok
+test_initial_risk_level_must_match_matrix (hmstools.safety.tests.test_hazard_log_rules.RiskTest.test_initial_risk_level_must_match_matrix) ... ok
+test_proposed_residual_risk_level_must_match_matrix (hmstools.safety.tests.test_hazard_log_rules.RiskTest.test_proposed_residual_risk_level_must_match_matrix) ... ok
+test_vocabulary_must_equal_schema_enumeration (hmstools.safety.tests.test_hazard_log_rules.RiskTest.test_vocabulary_must_equal_schema_enumeration) ... ok
+test_malformed_hazard_id (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_malformed_hazard_id) ... ok
+test_semantic_checks_skipped_when_schema_fails (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_semantic_checks_skipped_when_schema_fails) ... ok
+test_unknown_control_state (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_unknown_control_state) ... ok
+test_unknown_control_type (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_unknown_control_type) ... ok
+test_unknown_field_rejected (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_unknown_field_rejected) ... ok
+test_unknown_sac (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_unknown_sac) ... ok
+test_unknown_status (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_unknown_status) ... ok
+test_verified_by_needs_kind_prefix (hmstools.safety.tests.test_hazard_log_rules.SchemaTest.test_verified_by_needs_kind_prefix) ... ok
+test_complete_verified_control_passes (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_complete_verified_control_passes) ... ok
+test_fully_implemented_hazard_status_passes (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_fully_implemented_hazard_status_passes) ... ok
+test_implemented_needs_implemented_in (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_implemented_needs_implemented_in) ... ok
+test_planned_control_with_evidence_warns (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_planned_control_with_evidence_warns) ... ok
+test_status_controls_implemented_needs_every_control_implemented (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_status_controls_implemented_needs_every_control_implemented) ... ok
+test_status_controls_verified_needs_every_control_verified (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_status_controls_verified_needs_every_control_verified) ... ok
+test_verified_with_empty_implemented_in (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_verified_with_empty_implemented_in) ... ok
+test_verified_with_empty_verified_by (hmstools.safety.tests.test_hazard_log_rules.StateTest.test_verified_with_empty_verified_by) ... ok
+test_all_21_invariants_with_enforcement_and_hazard_mapping (hmstools.safety.tests.test_plan.ParsePlanTest.test_all_21_invariants_with_enforcement_and_hazard_mapping) ... ok
+test_modules_and_features (hmstools.safety.tests.test_plan.ParsePlanTest.test_modules_and_features) ... ok
+test_sac_mapping (hmstools.safety.tests.test_plan.ParsePlanTest.test_sac_mapping) ... ok
+test_seeded_hazards_h1_to_h15 (hmstools.safety.tests.test_plan.ParsePlanTest.test_seeded_hazards_h1_to_h15) ... ok
+test_truncated_plan_is_a_parse_error (hmstools.safety.tests.test_plan.ParsePlanTest.test_truncated_plan_is_a_parse_error) ... ok
+test_a_cited_section_18_5_suite_is_not_called_missing (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_a_cited_section_18_5_suite_is_not_called_missing) ... ok
+test_dose_check_gap_before_the_dose_engine_is_stated_and_left_to_the_cso (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_dose_check_gap_before_the_dose_engine_is_stated_and_left_to_the_cso) ... ok
+test_dose_check_overclaim_stays_corrected (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_dose_check_overclaim_stays_corrected) ... ok
+test_every_entry_has_a_nightly_property_control_with_both_section_18_3_counts (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_every_entry_has_a_nightly_property_control_with_both_section_18_3_counts) ... ok
+test_every_open_question_the_log_cites_exists (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_every_open_question_the_log_cites_exists) ... ok
+test_readme_tightenings_table_lists_exactly_the_recorded_tightenings (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_readme_tightenings_table_lists_exactly_the_recorded_tightenings) ... ok
+test_si14_day0_baseline_needs_a_measured_ppv_or_a_human_approved_exception (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_si14_day0_baseline_needs_a_measured_ppv_or_a_human_approved_exception) ... ok
+test_si14_registry_gate_keeps_all_four_requirements (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_si14_registry_gate_keeps_all_four_requirements) ... ok
+test_transfusion_fallback_makes_no_automated_comparison (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_transfusion_fallback_makes_no_automated_comparison) ... ok
+test_unsourced_mechanisms_are_recorded_as_tightenings (hmstools.safety.tests.test_seeded_content.SeededContentTest.test_unsourced_mechanisms_are_recorded_as_tightenings) ... ok
+test_a_change_signed_by_a_listed_key_is_trusted (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_change_signed_by_a_listed_key_is_trusted) ... ok
+test_a_committed_rejection_missing_from_the_working_tree_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_committed_rejection_missing_from_the_working_tree_fails) ... ok
+test_a_good_signature_of_unknown_validity_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_good_signature_of_unknown_validity_fails) ... ok
+test_a_key_cannot_add_itself (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_key_cannot_add_itself) ... ok
+test_a_key_the_agent_generated_is_not_enough (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_key_the_agent_generated_is_not_enough) ... ok
+test_a_listed_key_signing_a_matching_record_passes (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_listed_key_signing_a_matching_record_passes) ... ok
+test_a_listed_signer_cannot_sign_in_another_persons_name (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_listed_signer_cannot_sign_in_another_persons_name) ... ok
+test_a_record_commit_with_an_ai_trailer_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_record_commit_with_an_ai_trailer_fails) ... ok
+test_a_rejection_removed_in_a_commit_still_withdraws (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_rejection_removed_in_a_commit_still_withdraws) ... ok
+test_a_rejection_the_list_does_not_back_withdraws_nothing_and_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_rejection_the_list_does_not_back_withdraws_nothing_and_fails) ... ok
+test_a_removed_acceptance_authorises_nothing (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_removed_acceptance_authorises_nothing) ... ok
+test_a_shallow_clone_cannot_show_the_list_is_trusted (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_shallow_clone_cannot_show_the_list_is_trusted) ... ok
+test_a_signature_by_a_subkey_matches_the_listed_primary_key (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_signature_by_a_subkey_matches_the_listed_primary_key) ... ok
+test_a_signed_rejection_withdraws_the_acceptance_until_a_record_supersedes_it (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_a_signed_rejection_withdraws_the_acceptance_until_a_record_supersedes_it) ... ok
+test_an_uncommitted_record_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_an_uncommitted_record_fails) ... ok
+test_an_unsigned_change_to_the_list_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_an_unsigned_change_to_the_list_fails) ... ok
+test_an_unsigned_record_commit_fails (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_an_unsigned_record_commit_fails) ... ok
+test_the_listed_role_must_cover_the_record_role (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_the_listed_role_must_cover_the_record_role) ... ok
+test_the_shipped_empty_list_authorises_nothing (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_the_shipped_empty_list_authorises_nothing) ... ok
+test_the_shipped_empty_list_says_so_without_records (hmstools.safety.tests.test_signed_commits.GpgSignedRecordTest.test_the_shipped_empty_list_says_so_without_records) ... ok
+test_a_branch_from_before_a_signed_change_merges_without_a_signature (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_branch_from_before_a_signed_change_merges_without_a_signature) ... ok
+test_a_commit_message_cannot_pose_as_a_signed_change_of_the_list (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_commit_message_cannot_pose_as_a_signed_change_of_the_list) ... ok
+test_a_merge_cannot_bring_in_a_key_anchored_on_another_line (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_merge_cannot_bring_in_a_key_anchored_on_another_line) ... ok
+test_a_merge_cannot_restore_a_removed_key (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_merge_cannot_restore_a_removed_key) ... ok
+test_a_merge_of_diverging_signed_versions_needs_a_key_both_sides_list (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_merge_of_diverging_signed_versions_needs_a_key_both_sides_list) ... ok
+test_a_merge_that_keeps_an_unsigned_version_of_a_record_fails (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_merge_that_keeps_an_unsigned_version_of_a_record_fails) ... ok
+test_a_record_brought_in_by_an_unsigned_merge_counts (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_record_brought_in_by_an_unsigned_merge_counts) ... ok
+test_a_record_changed_behind_git_status_fails (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_record_changed_behind_git_status_fails) ... ok
+test_a_record_commit_message_cannot_pose_as_a_signed_commit (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_record_commit_message_cannot_pose_as_a_signed_commit) ... ok
+test_a_schema_change_cannot_untrust_a_committed_anchor (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_schema_change_cannot_untrust_a_committed_anchor) ... ok
+test_a_symbolic_link_cannot_redirect_the_list (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_symbolic_link_cannot_redirect_the_list) ... ok
+test_a_symbolic_link_cannot_redirect_the_signoffs_directory (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_symbolic_link_cannot_redirect_the_signoffs_directory) ... ok
+test_a_verifier_program_set_in_the_repository_trusts_no_one (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_a_verifier_program_set_in_the_repository_trusts_no_one) ... ok
+test_grafts_do_not_hide_an_unsigned_commit_of_a_record (hmstools.safety.tests.test_signed_commits.HistoryShapeTest.test_grafts_do_not_hide_an_unsigned_commit_of_a_record) ... ok
+test_a_criss_cross_merge_combines_the_approvals_of_both_lines (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_a_criss_cross_merge_combines_the_approvals_of_both_lines) ... ok
+test_a_criss_cross_merge_with_an_ai_trailer_settles_on_the_approvals_given (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_a_criss_cross_merge_with_an_ai_trailer_settles_on_the_approvals_given) ... ok
+test_a_line_that_settled_the_conflict_does_not_discard_a_later_signed_change (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_a_line_that_settled_the_conflict_does_not_discard_a_later_signed_change) ... ok
+test_a_revert_of_the_merge_does_not_settle_it (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_a_revert_of_the_merge_does_not_settle_it) ... ok
+test_a_routine_signed_merge_does_not_approve_the_list (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_a_routine_signed_merge_does_not_approve_the_list) ... ok
+test_a_settled_merge_lets_records_by_the_settled_signers_count (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_a_settled_merge_lets_records_by_the_settled_signers_count) ... ok
+test_an_octopus_merge_needs_the_approval_of_every_side (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_an_octopus_merge_needs_the_approval_of_every_side) ... ok
+test_grafts_do_not_hide_the_humans_anchor (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_grafts_do_not_hide_the_humans_anchor) ... ok
+test_probe_1_an_unsigned_merge_keeping_both_keys_fails (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_probe_1_an_unsigned_merge_keeping_both_keys_fails) ... ok
+test_probe_2_an_unsigned_merge_keeping_the_side_fails (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_probe_2_an_unsigned_merge_keeping_the_side_fails) ... ok
+test_probe_3_a_merge_keeping_main_signed_by_a_fails_until_the_other_side_approves (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_probe_3_a_merge_keeping_main_signed_by_a_fails_until_the_other_side_approves) ... ok
+test_probe_4_a_union_merge_signed_by_a_fails_until_the_other_side_approves (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_probe_4_a_union_merge_signed_by_a_fails_until_the_other_side_approves) ... ok
+test_probe_5_an_agent_anchor_with_no_human_anchor_is_reported (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_probe_5_an_agent_anchor_with_no_human_anchor_is_reported) ... ok
+test_the_agent_alone_cannot_settle_the_merge (hmstools.safety.tests.test_signed_commits.MergeConflictTest.test_the_agent_alone_cannot_settle_the_merge) ... ok
+test_a_listed_ssh_key_signing_a_matching_record_passes (hmstools.safety.tests.test_signed_commits.SshSignedRecordTest.test_a_listed_ssh_key_signing_a_matching_record_passes) ... ok
+test_an_ssh_key_the_list_does_not_hold_fails (hmstools.safety.tests.test_signed_commits.SshSignedRecordTest.test_an_ssh_key_the_list_does_not_hold_fails) ... ok
+test_an_ssh_key_this_host_does_not_trust_fails (hmstools.safety.tests.test_signed_commits.SshSignedRecordTest.test_an_ssh_key_this_host_does_not_trust_fails) ... ok
+test_an_ssh_signed_change_to_the_list_is_trusted (hmstools.safety.tests.test_signed_commits.SshSignedRecordTest.test_an_ssh_signed_change_to_the_list_is_trusted) ... ok
+test_a_key_is_listed_once (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_a_key_is_listed_once) ... ok
+test_a_valid_list_passes_and_is_counted (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_a_valid_list_passes_and_is_counted) ... ok
+test_an_entry_needs_a_role (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_an_entry_needs_a_role) ... ok
+test_malformed_ssh_fingerprint_fails (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_malformed_ssh_fingerprint_fails) ... ok
+test_missing_schema_means_no_signer_is_trusted (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_missing_schema_means_no_signer_is_trusted) ... ok
+test_short_or_lower_case_gpg_fingerprint_fails (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_short_or_lower_case_gpg_fingerprint_fails) ... ok
+test_the_list_is_not_a_record (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_the_list_is_not_a_record) ... ok
+test_the_shipped_file_lists_no_signer (hmstools.safety.tests.test_signoff_gate.AllowedSignersFileTest.test_the_shipped_file_lists_no_signer) ... ok
+test_accepted_record_does_not_authorise_a_triage (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_accepted_record_does_not_authorise_a_triage) ... ok
+test_accepted_record_does_not_authorise_an_approval (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_accepted_record_does_not_authorise_an_approval) ... ok
+test_approved_record_does_not_authorise_a_triage (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_approved_record_does_not_authorise_a_triage) ... ok
+test_approved_record_does_not_authorise_an_acceptance (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_approved_record_does_not_authorise_an_acceptance) ... ok
+test_decision_for_each_field (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_decision_for_each_field) ... ok
+test_record_without_a_decision_is_invalid_and_authorises_nothing (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_record_without_a_decision_is_invalid_and_authorises_nothing) ... ok
+test_triaged_record_does_not_authorise_an_acceptance (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_triaged_record_does_not_authorise_an_acceptance) ... ok
+test_triaged_record_does_not_authorise_an_accepted_status (hmstools.safety.tests.test_signoff_gate.DecisionKindTest.test_triaged_record_does_not_authorise_an_accepted_status) ... ok
+test_accepted_status_with_signoff_passes (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_accepted_status_with_signoff_passes) ... ok
+test_accepted_status_without_signoff (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_accepted_status_without_signoff) ... ok
+test_cso_triage_date_must_match_record (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_cso_triage_date_must_match_record) ... ok
+test_cso_triage_partly_filled (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_cso_triage_partly_filled) ... ok
+test_cso_triage_with_record_passes (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_cso_triage_with_record_passes) ... ok
+test_cso_triage_without_record (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_cso_triage_without_record) ... ok
+test_filled_accepted_by_without_record (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_filled_accepted_by_without_record) ... ok
+test_generic_approval_key_anywhere_in_the_log (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_generic_approval_key_anywhere_in_the_log) ... ok
+test_git_authenticator_rejects_a_record_outside_git (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_git_authenticator_rejects_a_record_outside_git) ... ok
+test_matching_record_passes (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_matching_record_passes) ... ok
+test_record_for_a_different_field_does_not_count (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_record_for_a_different_field_does_not_count) ... ok
+test_record_for_a_different_subject_does_not_count (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_record_for_a_different_subject_does_not_count) ... ok
+test_rejected_record_authorises_nothing (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_rejected_record_authorises_nothing) ... ok
+test_returned_record_authorises_nothing (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_returned_record_authorises_nothing) ... ok
+test_risk_vocabulary_approved_by_needs_a_signoff (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_risk_vocabulary_approved_by_needs_a_signoff) ... ok
+test_risk_vocabulary_confirmed_needs_a_signoff (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_risk_vocabulary_confirmed_needs_a_signoff) ... ok
+test_risk_vocabulary_confirmed_with_a_cso_record_passes (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_risk_vocabulary_confirmed_with_a_cso_record_passes) ... ok
+test_unauthenticated_record_does_not_count (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_unauthenticated_record_does_not_count) ... ok
+test_value_must_match_the_record (hmstools.safety.tests.test_signoff_gate.HazardLogGateTest.test_value_must_match_the_record) ... ok
+test_a_list_approval_fails (hmstools.safety.tests.test_signoff_gate.MalformedBlockAndLocationTest.test_a_list_approval_fails) ... ok
+test_a_spec_in_a_subdirectory_is_scanned (hmstools.safety.tests.test_signoff_gate.MalformedBlockAndLocationTest.test_a_spec_in_a_subdirectory_is_scanned) ... ok
+test_a_text_approval_in_a_spec_fails (hmstools.safety.tests.test_signoff_gate.MalformedBlockAndLocationTest.test_a_text_approval_in_a_spec_fails) ... ok
+test_a_text_triage_fails_even_where_no_schema_applies (hmstools.safety.tests.test_signoff_gate.MalformedBlockAndLocationTest.test_a_text_triage_fails_even_where_no_schema_applies) ... ok
+test_an_empty_approval_is_not_filled (hmstools.safety.tests.test_signoff_gate.MalformedBlockAndLocationTest.test_an_empty_approval_is_not_filled) ... ok
+test_signed_by_in_a_later_safety_artefact (hmstools.safety.tests.test_signoff_gate.OtherArtefactGateTest.test_signed_by_in_a_later_safety_artefact) ... ok
+test_a_record_for_the_approval_block_authorises_the_status (hmstools.safety.tests.test_signoff_gate.RiskVocabularyRoleTest.test_a_record_for_the_approval_block_authorises_the_status) ... ok
+test_a_required_list_without_the_cso_still_needs_the_cso (hmstools.safety.tests.test_signoff_gate.RiskVocabularyRoleTest.test_a_required_list_without_the_cso_still_needs_the_cso) ... ok
+test_changing_the_required_roles_voids_the_record (hmstools.safety.tests.test_signoff_gate.RiskVocabularyRoleTest.test_changing_the_required_roles_voids_the_record) ... ok
+test_required_roles_are_part_of_the_content_version (hmstools.safety.tests.test_signoff_gate.RiskVocabularyRoleTest.test_required_roles_are_part_of_the_content_version) ... ok
+test_risk_vocabulary_roles_always_start_with_the_cso (hmstools.safety.tests.test_signoff_gate.RiskVocabularyRoleTest.test_risk_vocabulary_roles_always_start_with_the_cso) ... ok
+test_acceptance_needs_the_cso_role (hmstools.safety.tests.test_signoff_gate.RoleTest.test_acceptance_needs_the_cso_role) ... ok
+test_generic_field_without_roles_accepts_any_listed_role (hmstools.safety.tests.test_signoff_gate.RoleTest.test_generic_field_without_roles_accepts_any_listed_role) ... ok
+test_role_is_a_role_id (hmstools.safety.tests.test_signoff_gate.RoleTest.test_role_is_a_role_id) ... ok
+test_triage_needs_the_cso_role (hmstools.safety.tests.test_signoff_gate.RoleTest.test_triage_needs_the_cso_role) ... ok
+test_ai_trailer_pattern (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_ai_trailer_pattern) ... ok
+test_empty_values_are_not_filled (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_empty_values_are_not_filled) ... ok
+test_iter_record_files_ignores_other_files (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_iter_record_files_ignores_other_files) ... ok
+test_missing_signoff_schema_means_no_record_counts (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_missing_signoff_schema_means_no_record_counts) ... ok
+test_roles_come_from_the_field (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_roles_come_from_the_field) ... ok
+test_subject_is_the_nearest_object_with_an_id (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_subject_is_the_nearest_object_with_an_id) ... ok
+test_the_real_signoff_directory_holds_no_record (hmstools.safety.tests.test_signoff_gate.ScanUnitTest.test_the_real_signoff_directory_holds_no_record) ... ok
+test_duplicate_record_id (hmstools.safety.tests.test_signoff_gate.SignoffRecordTest.test_duplicate_record_id) ... ok
+test_file_name_must_equal_id (hmstools.safety.tests.test_signoff_gate.SignoffRecordTest.test_file_name_must_equal_id) ... ok
+test_invalid_record_fails_schema (hmstools.safety.tests.test_signoff_gate.SignoffRecordTest.test_invalid_record_fails_schema) ... ok
+test_record_without_filled_field_warns (hmstools.safety.tests.test_signoff_gate.SignoffRecordTest.test_record_without_filled_field_warns) ... ok
+test_approval_needs_a_record_for_every_required_role (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_approval_needs_a_record_for_every_required_role) ... ok
+test_approval_of_an_earlier_spec_version_does_not_count (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_approval_of_an_earlier_spec_version_does_not_count) ... ok
+test_approval_record_must_name_an_existing_record (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_approval_record_must_name_an_existing_record) ... ok
+test_approval_with_a_record_for_every_required_role_passes (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_approval_with_a_record_for_every_required_role_passes) ... ok
+test_approval_without_required_roles_cannot_be_authorised (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_approval_without_required_roles_cannot_be_authorised) ... ok
+test_clean_spec_passes (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_clean_spec_passes) ... ok
+test_filled_approval_without_record (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_filled_approval_without_record) ... ok
+test_record_for_hazard_does_not_approve_a_state_machine (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_record_for_hazard_does_not_approve_a_state_machine) ... ok
+test_record_role_outside_approval_required_does_not_count (hmstools.safety.tests.test_signoff_gate.StateMachineGateTest.test_record_role_outside_approval_required_does_not_count) ... ok
+test_a_declared_version_is_used_as_it_is (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_a_declared_version_is_used_as_it_is) ... ok
+test_acceptance_is_void_when_control_evidence_changes (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_acceptance_is_void_when_control_evidence_changes) ... ok
+test_acceptance_of_an_older_version_does_not_count (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_acceptance_of_an_older_version_does_not_count) ... ok
+test_content_version_ignores_key_order_and_human_fields (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_content_version_ignores_key_order_and_human_fields) ... ok
+test_record_without_a_subject_version_is_invalid (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_record_without_a_subject_version_is_invalid) ... ok
+test_triage_is_void_when_a_control_is_reworded (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_triage_is_void_when_a_control_is_reworded) ... ok
+test_triage_is_void_when_the_initial_risk_is_rerated (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_triage_is_void_when_the_initial_risk_is_rerated) ... ok
+test_triage_survives_control_progress (hmstools.safety.tests.test_signoff_gate.SubjectVersionTest.test_triage_survives_control_progress) ... ok
+test_a_dangling_supersedes_ends_when_a_later_record_supersedes_it (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_dangling_supersedes_ends_when_a_later_record_supersedes_it) ... ok
+test_a_record_cannot_supersede_itself (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_record_cannot_supersede_itself) ... ok
+test_a_record_for_another_subject_cannot_end_a_rejection (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_record_for_another_subject_cannot_end_a_rejection) ... ok
+test_a_record_that_supersedes_the_rejection_authorises_again (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_record_that_supersedes_the_rejection_authorises_again) ... ok
+test_a_rejection_of_a_parent_field_withdraws_the_field (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_rejection_of_a_parent_field_withdraws_the_field) ... ok
+test_a_rejection_of_another_field_withdraws_nothing (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_rejection_of_another_field_withdraws_nothing) ... ok
+test_a_rejection_of_another_version_withdraws_nothing (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_rejection_of_another_version_withdraws_nothing) ... ok
+test_a_rejection_that_supersedes_the_acceptance_withdraws_it (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_rejection_that_supersedes_the_acceptance_withdraws_it) ... ok
+test_a_rejection_withdraws_an_acceptance_of_the_same_version (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_rejection_withdraws_an_acceptance_of_the_same_version) ... ok
+test_a_return_by_one_panel_is_not_ended_by_another_role (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_return_by_one_panel_is_not_ended_by_another_role) ... ok
+test_a_return_by_one_panel_withdraws_the_approval_at_that_version (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_return_by_one_panel_withdraws_the_approval_at_that_version) ... ok
+test_a_return_withdraws_an_approval (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_return_withdraws_an_approval) ... ok
+test_a_superseded_record_no_longer_backs_its_value (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_superseded_record_no_longer_backs_its_value) ... ok
+test_a_superseded_record_stays_withdrawn_when_its_replacement_is_replaced (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_superseded_record_stays_withdrawn_when_its_replacement_is_replaced) ... ok
+test_a_withdrawn_record_raises_no_unfilled_warning (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_a_withdrawn_record_raises_no_unfilled_warning) ... ok
+test_an_unauthenticated_record_withdraws_nothing (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_an_unauthenticated_record_withdraws_nothing) ... ok
+test_another_person_in_the_same_role_ends_a_rejection (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_another_person_in_the_same_role_ends_a_rejection) ... ok
+test_another_role_cannot_end_a_rejection (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_another_role_cannot_end_a_rejection) ... ok
+test_supersedes_must_name_a_record_that_is_here (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_supersedes_must_name_a_record_that_is_here) ... ok
+test_superseding_a_record_of_another_subject_is_an_error_until_superseded (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_superseding_a_record_of_another_subject_is_an_error_until_superseded) ... ok
+test_withdrawals_check_supersedes_against_every_record_with_the_id (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_withdrawals_check_supersedes_against_every_record_with_the_id) ... ok
+test_withdrawals_unit (hmstools.safety.tests.test_signoff_gate.WithdrawalTest.test_withdrawals_unit) ... ok
+test_example_as_written_fails_on_exactly_the_four_added_fields (hmstools.safety.tests.test_template_b2.AppendixB2Test.test_example_as_written_fails_on_exactly_the_four_added_fields) ... ok
+test_example_is_read_from_the_plan (hmstools.safety.tests.test_template_b2.AppendixB2Test.test_example_is_read_from_the_plan) ... ok
+test_example_with_the_four_fields_passes_the_whole_check (hmstools.safety.tests.test_template_b2.AppendixB2Test.test_example_with_the_four_fields_passes_the_whole_check) ... ok
+test_a_mandatory_text_field_cannot_be_blank (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_a_mandatory_text_field_cannot_be_blank) ... ok
+test_hazard_description_is_required (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_hazard_description_is_required) ... ok
+test_initial_risk_basis_is_required (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_initial_risk_basis_is_required) ... ok
+test_planned_verification_cannot_be_empty (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_planned_verification_cannot_be_empty) ... ok
+test_planned_verification_is_required (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_planned_verification_is_required) ... ok
+test_proposed_residual_risk_needs_a_basis (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_proposed_residual_risk_needs_a_basis) ... ok
+test_risk_control_option_is_required (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_risk_control_option_is_required) ... ok
+test_risk_control_option_takes_only_the_section_10_1_options (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_risk_control_option_takes_only_the_section_10_1_options) ... ok
+test_text_with_surrounding_whitespace_still_passes (hmstools.safety.tests.test_template_b2.MandatoryFieldsTest.test_text_with_surrounding_whitespace_still_passes) ... ok
+test_every_tool_source_compiles (hmstools.tests.test_sources_compile.SourcesCompileTest.test_every_tool_source_compiles) ... ok
+
+----------------------------------------------------------------------
+Ran 775 tests in 851.543s
+
+OK
+exit=0

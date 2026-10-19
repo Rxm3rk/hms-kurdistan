@@ -1,0 +1,26 @@
+docs(programme): WP-0.7 status after slices S5a and S5b
+
+STATUS.md now records the checkpoint of S5a (f8153a0, the patient
+banner) and S5b (9756d2c, sign and co-sign, command palette and density
+control), each committed alone after its own fast-tier run; S5a's run
+was on the S5a tree with S5b's files moved out of the worktree. No slice
+is in flight; the next step is the WSL fast-tier run of record at
+9756d2c, then S6 and S7 for the demo milestone, with S9 and S10 beside
+them. Next free numbers: OQ-163, KA-044 (the last of WP-0.7's KA
+range), DN-034. The items S5a and S5b handed on (KA-043's catalogue
+keys, the §2.3 re-authentication wording for the CSO under DN-027, the
+S6 wiring, the S7 browser checks, S12's verified_by) are listed.
+
+Backlog: no feature changes state (PLT-UX-01, PLT-UX-02, PLT-UX-03 and
+KRI-LOC-01 stay in-progress), so BACKLOG.md is not re-rendered.
+
+Checks: `sh tools/ci/run fast --no-evidence` PASS on the Windows host
+(not evidence of record), 8 of 8 steps, tests=2054, failures=0
+(python 688, backend 66, frontend 1300). The host was at 100% CPU from
+other sessions: python-unit-tests took 2310 s and was not stopped at its
+nominal 900 s limit, which earlier runs today did enforce (noted for
+the CI runner's owner; not investigated here).
+
+Hazards: none; a status record only.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

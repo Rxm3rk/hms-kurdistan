@@ -1,0 +1,114 @@
+1. Git index. The index holds six mode-only changes (100644→100755, blobs unchanged): backend/gradlew, tools/ci/run, tools/hms, tools/doctor, tools/bootstrap and tools/host/provision-ubuntu.sh. Commit them together with the unstaged comment edits to tools/bootstrap (line 3) and tools/host/provision-ubuntu.sh (header lines 5-12). Do not reset the index. If it is reset, re-run `git update-index --chmod=+x backend/gradlew tools/ci/run tools/hms tools/doctor tools/bootstrap tools/host/provision-ubuntu.sh`. If the index is lost, COMMANDS.md:14 ('Git stores the entry scripts … as executable') becomes false. core.filemode=false here, so `git add` keeps 100755. After the commit, in the WSL clone, check `git ls-files -s` and `ls -l` on the six files. Then run the direct forms the review saw fail: `backend/gradlew -p backend --version`, `tools/ci/run fast --list` and `tools/doctor --tier fast`.
+
+2. docs/adr/README.md:5 (tools group; closes the R-12 gap). Replace 'No ADR claims a guard result.' with: 'No ADR claims a guard result beyond a stored CI record it cites (ADR-010 and ADR-020 cite `docs/program/evidence/ci/2026-10-18-fast-d3e14de.json`).' The rest of the line stays.
+
+3. The wrong frontend command, in files I do not own (the verifier's other problem 1). COMMANDS.md:95, frontend/README.md:26-28 and evidence/ci/2026-10-18-gates-bite.md:44 all say this form stops with ERR_PNPM_BAD_PM_VERSION from the repository root.
+   (a) docs/adr/ADR-019-clients.md:42: replace '(`corepack pnpm --dir frontend run fast`, created in WP-0.1)' with '(`corepack pnpm run fast`, run from `frontend/`, created in WP-0.1)'.
+   (b) tools/licence/README.md:20-21 (licence group): replace '`corepack pnpm --dir frontend licenses list --json --prod > build/pnpm-prod.json` then' with 'from `frontend/`, `corepack pnpm --filter @hms/i18n licenses list --json --prod > ../build/pnpm-prod.json`, then' (the form COMMANDS.md §3 gives; `licenses list --prod` at the workspace root lists nothing).
+   (c) Optionally, align ADR-002:24 and :83 to `sh backend/gradlew -p backend fastTier`.
+
+4. DECISIONS-NEEDED.md entries I do not own (R-03):
+   (a) Line 5: after 'The commands below are for the human to run.', add 'DN-001 records the one deviation: on the human's instruction of 18 October 2026 the build agent carried out the host steps itself (§3.4 item 9).'
+   (b) Line 16: replace '(the Linux build host was provisioned at the human's instruction)' with '(on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9)'.
+   I did not touch DN-014 or the 'Next to block' text; both come from the hazard-log group. My only edit to the file in this pass is DN-001's hello-world bullet (line 54).
+
+5. R-06, evidence (your part). When you replace or rename `docs/program/evidence/ci/2026-10-18-gates-bite.md` and `docs/program/evidence/backlog/2026-10-18-spot-check.md`, update the references:
+   - docs/program/COMMANDS.md §6, the last two table rows;
+   - backend/README.md, the 'Quality gates' paragraph, which should then name the new record and its SHA;
+   - when records exist for the 10⁶-sequence run, the licence checks and the provisioning second run, replace 'no stored record' in COMMANDS.md §1 (provisioning row) and §4 (the 10⁶ row) with the record paths.
+   Find any other references with `git grep -n 'gates-bite\|spot-check.md'`. After the next WSL fast run at the new SHA, the COMMANDS.md cells that say 'WSL at `d3e14de` … (the record)' can be moved to the new record, or left as they are, since they stay true.
+
+6. STATUS.md needs no number change. It already names OQ-108…OQ-116 and OQ-117…OQ-119, exactly the numbers used.
+
+7. Regression check suggestion (tools group, repo check). Add a rule or test asserting that `git ls-files -s` gives 100755 for the six entry scripts, with a failing fixture holding a 100644 entry. I own no code, so I added no test.
+
+8. provision-ubuntu.sh behaviour. Unchanged, as instructed. Recommended changes for a human decision (§3.4 item 9):
+   - pin and check the Docker, Kubernetes and Corretto key fingerprints;
+   - verify rustup-init against its published SHA-256 and pin the Rust toolchain;
+   - make `apt-get -y upgrade` opt-in;
+   - verify the signature of Node's SHASUMS256.txt.
+
+9. Host use in this pass. Windows host:
+   - repo check, backlog check and safety check, all PASS (safety exit 0; the earlier crash is gone in the current tree);
+   - repo tests (Ran 67, OK) and backlog tests (Ran 109, OK);
+   - `bash -n` on the provisioning script.
+   WSL host, read-only and not evidence of record: `docker image ls hello-world` and `docker ps -a --filter ancestor=hello-world`. No network fetches in this pass.
+
+10. New record numbers used: OQ-108 to OQ-119 only. No DN number used.
+
+---- VERIFIER OTHER PROBLEMS ----
+1. The same wrong frontend command that R-02 fixed in WP-0.1.md:19 is still in two files this group does not own, and the fixer's notes_for_lead do not mention them. COMMANDS.md:95 and frontend/README.md:26-28 say this form stops with ERR_PNPM_BAD_PM_VERSION when run from the repository root:
+- docs/adr/ADR-019-clients.md:42 gives `corepack pnpm --dir frontend run fast`.
+- tools/licence/README.md:21 gives `corepack pnpm --dir frontend licenses list --json --prod > build/pnpm-prod.json`.
+The lead should align them with the run-from-`frontend/` form.
+
+2. ADR-002 still gives the direct `backend/gradlew -p backend fastTier` at lines 24 and 83 (the fixer's note 6). It works only after the mode change is committed.
+
+3. The R-02 mode change exists only in the index. If the index is reset before the commit, all six 100755 entries are lost, and COMMANDS.md:14 ('Git stores the entry scripts … as executable') becomes false. The lead must commit the staged mode changes together with the unstaged comment edits to tools/bootstrap and tools/host/provision-ubuntu.sh, then check `git ls-files -s` and `ls -l` in the WSL clone.
+
+4. No edits outside the group's files were found. docs/program/reviews/WP-0.1.md is unmodified, docs/program/evidence/** is untouched, and WORK-PACKAGES.md changed only at line 32. In DECISIONS-NEEDED.md, the group changed only DN-001 to DN-004, DN-006 and the DN-006 Context sentence; the "Next to block" DN-014 mention and the DN-014 entry come from the hazard-log group. The record numbers used are OQ-108 to OQ-119 only, with no collisions; OQ-106 and OQ-107 exist only on wp/0.2-environments.
+
+5. Checks I re-ran on the Windows host:
+- `sh tools/hms repo check` → repo: PASS (text_files_checked=344, crlf_files=0, adrs_total=28, adrs_valid=28, branches=3, blocking_now_items=2, status_lines=37). The fixer saw 347 files; the difference comes from the other agents editing at the same time.
+- `sh tools/hms backlog check` → backlog: PASS (rows=236, features=234).
+- `sh -n tools/bootstrap` and `bash -n tools/host/provision-ubuntu.sh` → OK.
+
+I did not run the unit tests: this group changed no code.
+
+6. The MSI and image hashes in DN-001 are genuine. I recomputed them from the retained files and confirmed them against GitHub's release digest and DistributionInfo.json (read-only GETs).
+
+---- FINAL FINDINGS ----
+
+[R-02] resolved
+NOTE: Executable bit set in the index for backend/gradlew and the five entry scripts (100755); COMMANDS.md, backend/README.md and WP-0.1.md give the same `sh backend/gradlew` and `corepack pnpm run fast` (from frontend/) commands.
+RESIDUAL: Not verified on Linux yet; the lead checks after the commit. ADR-002:24 and :83 (not my file) still give the direct `backend/gradlew` form. It works once the bit is committed.
+FILES: backend/gradlew (mode only), tools/ci/run (mode only), tools/hms (mode only), tools/doctor (mode only), tools/bootstrap (mode; comment at line 3), tools/host/provision-ubuntu.sh (mode; header comments), docs/program/COMMANDS.md, backend/README.md, docs/program/work-packages/WP-0.1.md
+TESTS: Windows host (Git Bash): `git ls-files -s` on the six paths → 100755 each. Nothing was run on Linux: the mode change reaches the WSL clone only after the lead commits.
+
+[R-03] resolved
+NOTE: tools/host/README.md now says that on the human's recorded instruction the build agent ran the provisioning itself, a recorded deviation from §3.4 item 9 (DN-001).
+RESIDUAL: DECISIONS-NEEDED.md lines 5 and 16 are not my entries; the suggested text is in notes_for_lead.
+FILES: tools/host/README.md, docs/program/work-packages/WP-0.1.md
+TESTS: Windows host: `sh tools/hms repo check` → repo: PASS.
+
+[R-06] partly
+NOTE: COMMANDS.md:3 and every Checked cell now say which commands ran, where, and which WSL record covers them; the evidence re-runs and renames are left to the lead.
+RESIDUAL: The evidence part is left to the lead, as instructed: re-run the spot check and the plant matrix at a committed SHA in the WSL clone, rename them to `<date>-<test>-<shortsha>`, and store the licence-check output. The references in my files then need updating (list in notes_for_lead). I did not touch docs/program/evidence/**.
+FILES: docs/program/COMMANDS.md
+TESTS: Windows host: read the step commands, host and dirty fields of evidence/ci/2026-10-18-fast-d3e14de.json with .tools/venv/Scripts/python.exe -I. Eight steps, all PASS, host Ubuntu 24.04.5 WSL2, dirty=false. `sh tools/hms repo check` → repo: PASS (text_files_checked=344, crlf_files=0, adrs_total=28, adrs_valid=28, branches=3, blocking_now_items=2, status_lines=37).
+
+[R-08] resolved
+NOTE: OQ-108 to OQ-116 keep open the nine Appendix A rows whose note records a difference from K; a sweep of all 236 rows found no others.
+RESIDUAL: None. Final numbers: OQ-108 to OQ-116.
+FILES: docs/program/OPEN-QUESTIONS.md
+TESTS: Windows host: `sh tools/hms backlog check` → backlog: PASS (hazard_log_entries=27, features_with_hazards=101, hazard_links=237, rows=236, features=234, part_rows=2, …, wp_references_not_mapped=1). Backlog unit tests: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools/hmstools/backlog/tests -t tools` → Ran 109 tests, OK.
+
+[R-09] resolved
+NOTE: WORK-PACKAGES.md:32 now says the dev-cell items can only be attempted on a lite cell and stay open, without weakening the criterion.
+RESIDUAL: None.
+FILES: docs/program/WORK-PACKAGES.md
+TESTS: Windows host: `sh tools/hms repo check` → repo: PASS.
+
+[R-11] resolved
+NOTE: The script header, the host README, COMMANDS.md and DN-001 to DN-004 state exactly what was verified and what was trusted on TLS; DN-001 itemises every system-wide change by script line, and DN-001 and DN-006 record both mirror fetches as §3.7 deviations with full SHA-256s.
+RESIDUAL: The script's behaviour is unchanged, as instructed. The recommended behaviour changes are in notes_for_lead.
+FILES: tools/host/provision-ubuntu.sh (header comments only), docs/program/DECISIONS-NEEDED.md (DN-001 only in this pass), tools/host/README.md, docs/program/COMMANDS.md
+TESTS: Windows host: `bash -n tools/host/provision-ubuntu.sh` → OK. `git diff -U0` → no non-comment line changed. Header line widths: 109/155/80/115/114/118/116/115/112/115/95, with line 13 still `set -euo pipefail`. No CR in the file. WSL host, read-only, not evidence of record: `docker image ls hello-world` → hello-world:latest 11a3eb1597e8 present; `docker ps -a --filter ancestor=hello-world` → 0 containers. `sh tools/hms repo check` → PASS.
+
+[R-12] partly
+NOTE: tools/README.md, tools/bootstrap:3, frontend/README.md:71, README.md:9, ADR-010 and ADR-020 now match what exists; docs/adr/README.md:5 and :83 are left to the tools group.
+RESIDUAL: docs/adr/README.md:5 (sentence) and :83 (the out-of-scope bullet) are the tools group's or the lead's; until line 5 changes, the index and ADR-010/ADR-020 disagree.
+FILES: tools/README.md, tools/bootstrap (line 3 comment only), frontend/README.md, README.md, docs/adr/ADR-010-workflow-temporal.md, docs/adr/ADR-020-configuration-content-as-code.md
+TESTS: Windows host: `sh tools/bootstrap --help` → choices {all,jdk,gradle,gitleaks,venv,frontend,env,requirements-lock}. `sh tools/hms repo check` → repo: PASS (adrs_total=28, adrs_valid=28). Repo unit tests: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools/hmstools/repo/tests -t tools` → Ran 67 tests, OK.
+
+[R-16] resolved
+NOTE: OQ-117 to OQ-119 hold the ADR-016 and ADR-017 reopen-trigger differences from BP §7.2 and ADR-001's interim C9 reading, and each ADR names its OQ.
+RESIDUAL: None.
+FILES: docs/program/OPEN-QUESTIONS.md, docs/adr/ADR-016-regulated-module-segregation.md, docs/adr/ADR-017-cds.md, docs/adr/ADR-001-core-data-option-a.md
+TESTS: Windows host: `sh tools/hms repo check` → repo: PASS (adrs_total=28, adrs_valid=28).
+
+[O-8] resolved
+NOTE: The closed DN-001 to DN-004 and DN-006 entries no longer read 'Blocks: now'.
+RESIDUAL: None.
+FILES: docs/program/DECISIONS-NEEDED.md (DN-001 to DN-004, DN-006 only)
+TESTS: Windows host: `sh tools/hms repo check` → PASS, blocking_now_items=2.

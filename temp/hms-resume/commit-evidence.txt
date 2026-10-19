@@ -1,0 +1,21 @@
+chore(programme): WP-0.1 evidence of record; hand over for review
+
+The gates of record for WP-0.1, run in the WSL clone (Ubuntu 24.04.5, the
+Linux build host) at d3e14de on a clean tree:
+
+- docs/program/evidence/ci/2026-10-18-fast-d3e14de.json: tools/ci/run fast
+  PASS, 8 of 8 steps, 972 tests (392 Python, 66 backend, 514 frontend),
+  0 failures, 0 skipped, no secret-scan findings, 69 s, cell none.
+- docs/program/evidence/doctor/2026-10-18-d3e14de.txt and .json:
+  tools/doctor, 18 items OK; RAM (9.7 GiB in the WSL VM) and free disk
+  (36.4 GiB on C:, which holds the WSL2 virtual disk) below the [P]
+  guides, so no cell profile yet.
+
+Also: DN-013 (free disk on C:), STATUS.md (last green, verified results,
+next step), WORK-PACKAGES.md (WP-0.1 state: review) and the COMMANDS.md
+"Checked" column for the WSL runs, including the documented gate one-liner,
+which passed as written.
+
+No feature ID, SI or hazard control changes state in this commit.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

@@ -1,0 +1,9 @@
+# safety-check
+# command: sh tools/hms safety check --json
+# cwd: .
+# result: PASS (exit code 0)
+
+WARN   seeded hazards with no hazard entry yet: H7, H9, H11, H15
+WARN   22 SACs have no hazard entry yet (§18.1): SAC-07, SAC-09, SAC-10, SAC-18, SAC-23, SAC-25, SAC-27, SAC-28, SAC-32, SAC-36, SAC-37, SAC-38, SAC-39, SAC-40, SAC-42, SAC-43, SAC-44, SAC-46, SAC-48, SAC-49, SAC-52, SAC-53
+safety: PASS (hazards=27, controls=193, controls_planned=193, controls_implemented=0, controls_verified=0, sis_covered=21, seeded_hazards=15, sensitivity_label_entries=6, sacs_referenced=31, feature_ids_known=234, feature_source_backlog_yaml=1, signoff_records=0, state_machine_specs=0, approval_fields_filled=0)
+{"check": "safety", "counts": {"approval_fields_filled": 0, "controls": 193, "controls_implemented": 0, "controls_planned": 193, "controls_verified": 0, "feature_ids_known": 234, "feature_source_backlog_yaml": 1, "hazards": 27, "sacs_referenced": 31, "seeded_hazards": 15, "sensitivity_label_entries": 6, "signoff_records": 0, "sis_covered": 21, "state_machine_specs": 0}, "errors": [], "ok": true, "warnings": ["seeded hazards with no hazard entry yet: H7, H9, H11, H15", "22 SACs have no hazard entry yet (§18.1): SAC-07, SAC-09, SAC-10, SAC-18, SAC-23, SAC-25, SAC-27, SAC-28, SAC-32, SAC-36, SAC-37, SAC-38, SAC-39, SAC-40, SAC-42, SAC-43, SAC-44, SAC-46, SAC-48, SAC-49, SAC-52, SAC-53"]}

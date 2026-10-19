@@ -1,0 +1,12 @@
+
+(process:18936): Pango-CRITICAL **: 08:14:54.948: pango_font_describe_with_absolute_size: assertion 'font != NULL' failed
+
+(process:18936): Pango-CRITICAL **: 08:14:54.948: pango_font_description_get_size: assertion 'desc != NULL' failed
+
+(process:18936): Pango-CRITICAL **: 08:14:54.948: pango_font_description_unset_fields: assertion 'desc != NULL' failed
+
+(process:18936): Pango-CRITICAL **: 08:14:54.948: pango_font_description_hash: assertion 'desc != NULL' failed
+
+(process:18936): Pango-CRITICAL **: 08:14:54.949: pango_font_get_hb_font: assertion 'PANGO_IS_FONT (font)' failed
+
+(process:18936): Pango-CRITICAL **: 08:14:54.949: pango_font_get_hb_font: assertion 'PANGO_IS_FONT (font)' failed

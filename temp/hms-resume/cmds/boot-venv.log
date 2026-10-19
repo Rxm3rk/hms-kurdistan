@@ -1,0 +1,2 @@
+bootstrap: venv: reusing .tools/venv (matches tools/requirements.txt)
+bootstrap: done; load the environment with: eval "$(sh tools/bootstrap env)"

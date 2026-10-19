@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 810" width="100%" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="11.5" role="img" aria-label="Diagram of the lite cell: three k3s server nodes, the services planned on them, the local signed image registry, and why the first prototype failed">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g fill="currentColor">
+    <text x="14" y="24" font-size="16" font-weight="700">The lite cell: a 3-node server cluster on this laptop, shaped like a hospital's on-site cell</text>
+    <text x="14" y="43" font-size="11" opacity="0.8">From deploy/site-cell/cell.yaml and the WP-0.2 plan (worktree wp02, 19 Oct 2026). The cluster itself is not running yet: the old prototype was deleted.</text>
+  </g>
+
+  <!-- upstream publishers -->
+  <rect x="684" y="56" width="272" height="46" rx="6" fill="#8a8a8a" fill-opacity="0.10" stroke="#8a8a8a" stroke-width="1.2"/>
+  <g fill="currentColor">
+    <text x="696" y="75" font-weight="700">Upstream publishers (internet)</text>
+    <text x="696" y="92" font-size="10.5">docker.io · ghcr.io · quay.io · reg.kyverno.io · gcr.io</text>
+  </g>
+  <line x1="820" y1="102" x2="820" y2="144" stroke="currentColor" stroke-width="1.4" marker-end="url(#ah)"/>
+  <text x="828" y="126" font-size="10.5" fill="currentColor">copied once, by exact digest</text>
+
+  <!-- WSL VM -->
+  <rect x="12" y="112" width="956" height="486" rx="10" fill="none" stroke="currentColor" stroke-opacity="0.55" stroke-width="1.4"/>
+  <text x="24" y="130" font-size="11" font-weight="700" fill="currentColor" opacity="0.85">Windows laptop › WSL2 Ubuntu 24.04 VM (10 GB memory) › Docker Engine</text>
+
+  <!-- cluster (planned) -->
+  <rect x="28" y="140" width="640" height="446" rx="8" fill="#8a8a8a" fill-opacity="0.05" stroke="#8a8a8a" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="40" y="158" font-weight="700" fill="currentColor">k3d cluster of three k3s servers (planned, slice S2)</text>
+
+  <rect x="44" y="168" width="608" height="30" rx="5" fill="none" stroke="#8a8a8a" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="56" y="187" fill="currentColor">k3d load balancer: the admin tools keep working when any one server is down</text>
+
+  <!-- nodes -->
+  <g>
+    <rect x="44" y="210" width="192" height="104" rx="6" fill="#3b7dd8" fill-opacity="0.08" stroke="#3b7dd8" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <rect x="252" y="210" width="192" height="104" rx="6" fill="#3b7dd8" fill-opacity="0.08" stroke="#3b7dd8" stroke-width="1.3" stroke-dasharray="6 4"/>
+    <rect x="460" y="210" width="192" height="104" rx="6" fill="#3b7dd8" fill-opacity="0.08" stroke="#3b7dd8" stroke-width="1.3" stroke-dasharray="6 4"/>
+  </g>
+  <g fill="currentColor">
+    <text x="56" y="230" font-weight="700" font-size="12.5">server-0</text>
+    <text x="56" y="248">k3s v1.35.9, server + worker</text>
+    <text x="56" y="264">embedded etcd member</text>
+    <text x="56" y="280">3 GiB memory cap</text>
+    <text x="264" y="230" font-weight="700" font-size="12.5">server-1</text>
+    <text x="264" y="248">k3s v1.35.9, server + worker</text>
+    <text x="264" y="264">embedded etcd member</text>
+    <text x="264" y="280">3 GiB memory cap</text>
+    <text x="472" y="230" font-weight="700" font-size="12.5">server-2</text>
+    <text x="472" y="248">k3s v1.35.9, server + worker</text>
+    <text x="472" y="264">embedded etcd member</text>
+    <text x="472" y="280">3 GiB memory cap</text>
+  </g>
+  <g fill="#c77d12" font-weight="600" font-size="11">
+    <text x="56" y="302">fixed IP: to be set (S2)</text>
+    <text x="264" y="302">fixed IP: to be set (S2)</text>
+    <text x="472" y="302">fixed IP: to be set (S2)</text>
+  </g>
+
+  <!-- services -->
+  <text x="44" y="336" font-weight="700" fill="currentColor">Services planned on the cell (slice in brackets; versions pinned in cell.yaml)</text>
+  <g fill="#8a8a8a" fill-opacity="0.06" stroke="#8a8a8a" stroke-width="1.2" stroke-dasharray="5 4">
+    <rect x="44" y="346" width="192" height="58" rx="5"/>
+    <rect x="252" y="346" width="192" height="58" rx="5"/>
+    <rect x="460" y="346" width="192" height="58" rx="5"/>
+    <rect x="44" y="412" width="192" height="58" rx="5"/>
+    <rect x="252" y="412" width="192" height="58" rx="5"/>
+    <rect x="460" y="412" width="192" height="58" rx="5"/>
+    <rect x="44" y="478" width="192" height="58" rx="5"/>
+    <rect x="252" y="478" width="192" height="58" rx="5"/>
+    <rect x="460" y="478" width="192" height="58" rx="5"/>
+  </g>
+  <g fill="currentColor" font-size="10.5">
+    <text x="54" y="363" font-size="12" font-weight="700">PostgreSQL 18.6 × 3 [S4]</text>
+    <text x="54" y="379">via CloudNativePG 1.30.1</text>
+    <text x="54" y="394">a save waits for 1 of 2 standbys</text>
+
+    <text x="262" y="363" font-size="12" font-weight="700">Kafka 4.2.0 [S6]</text>
+    <text x="262" y="379">via Strimzi 1.0.1 (KRaft mode)</text>
+    <text x="262" y="394">1 broker here, 3 on the dev cell</text>
+
+    <text x="470" y="363" font-size="12" font-weight="700">Keycloak 26.8.1 [S6]</text>
+    <text x="470" y="379">via the Keycloak Operator</text>
+    <text x="470" y="394">staff sign-in</text>
+
+    <text x="54" y="429" font-size="12" font-weight="700">Temporal 1.32.1 [S6]</text>
+    <text x="54" y="445">4 services, 1 copy each</text>
+    <text x="54" y="460">long-running workflows</text>
+
+    <text x="262" y="429" font-size="12" font-weight="700">OpenFGA v1.18.3 [S6]</text>
+    <text x="262" y="445">who may see which record</text>
+    <text x="262" y="460">run from our own template</text>
+
+    <text x="470" y="429" font-size="12" font-weight="700">Valkey 9.1.2 [S6]</text>
+    <text x="470" y="445">cache only, 64 MB, no disk</text>
+    <text x="470" y="460">official image</text>
+
+    <text x="54" y="495" font-size="12" font-weight="700">SeaweedFS 4.48 [S5]</text>
+    <text x="54" y="511">file store that can lock files</text>
+    <text x="54" y="526" fill="#3b7dd8" font-weight="600">lock test already committed</text>
+
+    <text x="262" y="495" font-size="12" font-weight="700">Kyverno 1.19.1 [S3]</text>
+    <text x="262" y="511">gate: refuses any unsigned</text>
+    <text x="262" y="526">image, checked offline</text>
+
+    <text x="470" y="495" font-size="12" font-weight="700">OTel collector [S6]</text>
+    <text x="470" y="511">0.163.1, allowlist only</text>
+    <text x="470" y="526">no patient data in it</text>
+  </g>
+  <text x="44" y="558" font-size="10.5" fill="currentColor" opacity="0.85">Memory plan (provisional, to be measured): about 5.4 GiB for the cell.</text>
+  <text x="44" y="573" font-size="10.5" fill="currentColor" opacity="0.85">“cell up” refuses to start under 6.5 GiB free memory; image pulls stop under 15 GiB free on C:.</text>
+
+  <!-- registry (built, uncommitted) -->
+  <rect x="684" y="146" width="272" height="150" rx="6" fill="#2e9e5b" fill-opacity="0.10" stroke="#2e9e5b" stroke-width="1.6"/>
+  <g fill="currentColor">
+    <text x="696" y="166" font-weight="700" font-size="12.5">Local image registry</text>
+    <text x="696" y="184">CNCF Distribution 3.1.2</text>
+    <text x="696" y="200">name k3d-hms-registry.localhost:5000</text>
+    <text x="696" y="216">reachable on 127.0.0.1:5000 only</text>
+    <text x="696" y="232">network hms-registry 10.213.0.0/24</text>
+    <text x="696" y="248">the nodes may pull only from here</text>
+  </g>
+  <text x="696" y="268" font-size="10.5" font-weight="600" fill="#2e9e5b">Code written (uncommitted);</text>
+  <text x="696" y="283" font-size="10.5" font-weight="600" fill="#2e9e5b">tried in WSL, not yet a record</text>
+  <line x1="684" y1="262" x2="654" y2="262" stroke="currentColor" stroke-width="1.4" marker-end="url(#ah)"/>
+
+  <!-- signing -->
+  <line x1="820" y1="296" x2="820" y2="314" stroke="currentColor" stroke-width="1.4" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <rect x="684" y="316" width="272" height="128" rx="6" fill="#2e9e5b" fill-opacity="0.10" stroke="#2e9e5b" stroke-width="1.6"/>
+  <g fill="currentColor">
+    <text x="696" y="336" font-weight="700" font-size="12.5">Offline signing</text>
+    <text x="696" y="354">cosign 3.1.3, no public log</text>
+    <text x="696" y="370">network hms-cell-offline 10.213.1.0/24</text>
+    <text x="696" y="386">internal: no route to the internet</text>
+    <text x="696" y="402">key pair kept outside the repository</text>
+  </g>
+  <text x="696" y="428" font-size="10.5" font-weight="600" fill="#2e9e5b">Code written (uncommitted)</text>
+
+  <!-- pins -->
+  <rect x="684" y="456" width="272" height="130" rx="6" fill="#2e9e5b" fill-opacity="0.10" stroke="#2e9e5b" stroke-width="1.6"/>
+  <g fill="currentColor">
+    <text x="696" y="476" font-weight="700" font-size="12.5">Pin file: cell.yaml</text>
+    <text x="696" y="494">24 images + 3 tools, by digest</text>
+    <text x="696" y="510">5 charts + 2 manifests, by SHA-256</text>
+    <text x="696" y="526">“cell lint” checks it in every fast run</text>
+  </g>
+  <text x="696" y="546" font-size="10.5" font-weight="600" fill="#d0453a">lint fails on 2 licences (PostgreSQL,</text>
+  <text x="696" y="561" font-size="10.5" font-weight="600" fill="#d0453a">BusyBox) until the owner decides</text>
+  <text x="696" y="577" font-size="10.5" font-weight="600" fill="#2e9e5b">Uncommitted (new file)</text>
+
+  <!-- prototype failure -->
+  <rect x="12" y="612" width="956" height="160" rx="10" fill="#d0453a" fill-opacity="0.05" stroke="#d0453a" stroke-width="1.3"/>
+  <text x="24" y="632" font-weight="700" font-size="12.5" fill="currentColor">Why the first prototype died (18 Oct; deleted 19 Oct), and the fix</text>
+
+  <rect x="28" y="644" width="214" height="72" rx="6" fill="none" stroke="#d0453a" stroke-width="1.2"/>
+  <g fill="currentColor">
+    <text x="38" y="663" font-weight="700">1. WSL switched off when idle</text>
+    <text x="38" y="680">5 times between 17:47 and 21:40</text>
+    <text x="38" y="697">= power cut to all 3 nodes</text>
+  </g>
+  <line x1="242" y1="680" x2="264" y2="680" stroke="currentColor" stroke-width="1.4" marker-end="url(#ah)"/>
+
+  <rect x="266" y="644" width="238" height="72" rx="6" fill="none" stroke="#d0453a" stroke-width="1.2"/>
+  <g fill="currentColor">
+    <text x="276" y="663" font-weight="700">2. Nodes restarted in another order</text>
+    <text x="276" y="680">server-0: 172.18.0.2 became .3</text>
+    <text x="276" y="697">server-1: 172.18.0.3 became .2</text>
+  </g>
+  <line x1="504" y1="680" x2="526" y2="680" stroke="currentColor" stroke-width="1.4" marker-end="url(#ah)"/>
+
+  <rect x="528" y="644" width="220" height="72" rx="6" fill="none" stroke="#d0453a" stroke-width="1.2"/>
+  <g fill="currentColor">
+    <text x="538" y="663" font-weight="700">3. etcd called the wrong peers</text>
+    <text x="538" y="680">no majority (quorum) formed</text>
+    <text x="538" y="697">cluster API never came back</text>
+  </g>
+  <line x1="748" y1="680" x2="770" y2="680" stroke="currentColor" stroke-width="1.4" marker-end="url(#ah)"/>
+
+  <rect x="772" y="644" width="184" height="88" rx="6" fill="#2e9e5b" fill-opacity="0.10" stroke="#2e9e5b" stroke-width="1.3" stroke-dasharray="6 4"/>
+  <g fill="currentColor">
+    <text x="782" y="663" font-weight="700">Fix (planned)</text>
+    <text x="782" y="680">fixed node IPs (S2)</text>
+    <text x="782" y="697">nightly full-restart test</text>
+    <text x="782" y="714">keeper process keeps WSL on</text>
+  </g>
+  <text x="28" y="742" font-size="10.5" fill="currentColor" opacity="0.9">Restart test: kill all three nodes, start them in reverse order. It passes only if the cluster API is ready within 300 s,</text>
+  <text x="28" y="757" font-size="10.5" fill="currentColor" opacity="0.9">every node keeps its address, and all three PostgreSQL copies agree.</text>
+
+  <!-- legend -->
+  <g font-size="10.5" fill="currentColor">
+    <rect x="14" y="784" width="22" height="12" rx="2" fill="#2e9e5b" fill-opacity="0.15" stroke="#2e9e5b" stroke-width="1.4"/>
+    <text x="42" y="794">solid green: code written, not yet committed</text>
+    <rect x="300" y="784" width="22" height="12" rx="2" fill="none" stroke="#8a8a8a" stroke-width="1.3" stroke-dasharray="4 3"/>
+    <text x="328" y="794">dashed: planned, not built</text>
+    <text x="500" y="794" fill="#3b7dd8" font-weight="600">blue text: committed on the branch</text>
+    <text x="720" y="794" fill="#c77d12" font-weight="600">amber: open item</text>
+  </g>
+</svg>

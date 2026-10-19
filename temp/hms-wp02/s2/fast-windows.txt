@@ -1,0 +1,4 @@
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)
+      1 [main] sh 198596 dofork: child -1 - forked process 888 died unexpectedly, retry 0, exit code 0xC0000142, errno 11
+C:/Users/Surface/AppData/Local/Temp/hms-lock/heavy.sh: fork: retry: Resource temporarily unavailable
+heavy.sh: waiting for a slot (wp03 pid=173944 since=2026-10-19T13:02:57+03:00;)

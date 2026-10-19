@@ -1,0 +1,6 @@
+# sbom
+# command: (not built: CycloneDX SBOM generation and the licence check on it)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# CycloneDX SBOM generation and the licence check on it: not built yet; WP-0.9 builds it. Counted as a failure (fail closed).
+

@@ -1,0 +1,8 @@
+# Synthetic test fixture for the tools/hmstools/safety tests (provenance: synthetic); shape of BUILD-PROMPT Appendix B.3, abridged.
+machine: medication-administration
+approval: {status: requested, required: [pharmacist-panel, nurse-panel, cso], approved_by: [], record: SO-2099-0099}
+version: 1
+owner: medications
+states: [scheduled, completed, not-done, entered-in-error]
+terminal: [completed, not-done, entered-in-error]
+invariants: [SI-01, SI-02, SI-12, SI-13, SI-15]

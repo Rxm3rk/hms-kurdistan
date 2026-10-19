@@ -1,0 +1,6 @@
+# mutation-tests
+# command: (not built: Mutation tests (PIT) on touched Tier 2 code)
+# cwd: .
+# result: NOT-BUILT (exit code None)
+# Mutation tests (PIT) on touched Tier 2 code: not built yet; WP-1.5 (first Tier 2 sidecar) builds it. Counted as a failure (fail closed).
+

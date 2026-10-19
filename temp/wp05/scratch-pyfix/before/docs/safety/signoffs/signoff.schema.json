@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hms:schema:safety:signoff:1",
+  "title": "HMS Kurdistan human sign-off record",
+  "description": "One YAML file per record under docs/safety/signoffs/, named <id>.yaml, added by a named human in a git commit signed with a key listed for them in allowed-signers.yaml (BUILD-PROMPT.md §3.5; docs/safety/signoffs/README.md). The build agent never writes these files. `sh tools/hms safety check` validates every record against this schema, checks that every commit touching it has a good signature by a listed key whose holder has the record's name and role, and matches each filled approval field to a record with the same subject and field, the decision that field needs, the subject's current version and a role the field accepts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "subject", "subject_version", "field", "role", "name", "date", "statement", "decision", "authentication"],
+  "properties": {
+    "id": {
+      "description": "SO-<year>-<4-digit sequence>; the file name is <id>.yaml.",
+      "type": "string",
+      "pattern": "^SO-[0-9]{4}-[0-9]{4}$"
+    },
+    "subject": {
+      "description": "The artefact the sign-off is about: a hazard id (HAZ-0005), a control id (CTRL-0005-9), a state-machine name (medication-administration), risk-vocabulary, or another artefact id.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "subject_version": {
+      "description": "The version of the subject that was decided on; the record authorises its field only while the subject is at this version. A subject with its own version field (a state-machine spec, Appendix B.3) uses that value. Any other subject (a hazard entry, a control, risk-vocabulary) uses its content version, sha256: and 64 hex digits, which the check computes and prints (docs/safety/signoffs/README.md, \"Subject version\").",
+      "oneOf": [
+        {"type": "integer", "minimum": 0},
+        {"type": "string", "pattern": "^(sha256:[0-9a-f]{64}|[0-9A-Za-z][0-9A-Za-z._-]*)$"}
+      ]
+    },
+    "field": {
+      "description": "The approval field this record authorises, as a dotted path inside the subject, for example residual_risk.accepted_by, cso_triage, approval.approved_by. A record for a parent path (cso_triage) authorises its children (cso_triage.by, cso_triage.date).",
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*(\\.[a-z_][a-z0-9_]*)*$"
+    },
+    "role": {
+      "description": "The role id in which the person signs, as approval.required uses it (Appendix B.3), for example cso, pharmacist-panel, nurse-panel. It must be one of the roles allowed-signers.yaml lists for the signer, and one the field accepts: cso for residual_risk.accepted_by, a hazard status accepted and cso_triage; a role in approval.required for an approval block.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "description": "The full name of the person who signs, exactly as allowed-signers.yaml lists the holder of the signing key. The value written into the approval field must equal this name (or the record id).",
+      "type": "string",
+      "minLength": 1
+    },
+    "date": {
+      "description": "Date of the decision (YYYY-MM-DD). A filled cso_triage.date must equal it.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "format": "date"
+    },
+    "statement": {
+      "description": "What exactly is approved, accepted or triaged, in the signer's words, including any conditions.",
+      "type": "string",
+      "minLength": 1
+    },
+    "decision": {
+      "description": "The outcome. Each authorising decision authorises only its own kind of field: 'accepted' authorises residual_risk.accepted_by (and with it a hazard status accepted) and any other accepted_by key; 'triaged' authorises cso_triage and any triaged_by key; 'approved' authorises an approval block (approval.approved_by, approval.record, approval.status), a risk_vocabulary.status other than proposed, and any other approved_by or signed_by key. 'rejected' and 'returned' authorise nothing, and withdraw every record for the same subject at the same subject_version whose field is this field, a parent or a child of it, until a record supersedes them (docs/safety/signoffs/README.md, \"Superseding and withdrawing\").",
+      "enum": ["approved", "accepted", "triaged", "rejected", "returned"]
+    },
+    "evidence": {
+      "description": "Optional references to the evidence reviewed (paths, test-run records, review reports).",
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "supersedes": {
+      "description": "Optional id of an earlier record this one replaces; that record then authorises nothing, whatever either decides. It must be another record that the check accepts.",
+      "type": "string",
+      "pattern": "^SO-[0-9]{4}-[0-9]{4}$"
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method"],
+      "properties": {
+        "method": {
+          "description": "MVP: the record is added in a git commit signed by the named person with a key listed for them in allowed-signers.yaml (a GPG or SSH signature that git reports as good, %G? = G). Other methods need an ADR.",
+          "const": "signed-git-commit"
+        },
+        "signer_key": {
+          "description": "Optional fingerprint of the signing key. If given, it must be the key that signed every commit touching the record (git %GF, or %GP for a GPG subkey).",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "notes": {"type": "string", "minLength": 1}
+  }
+}

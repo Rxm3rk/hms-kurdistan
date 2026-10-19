@@ -1,0 +1,59 @@
+feat(design-system): WP-0.7 S5b sign and co-sign, command palette and density control
+
+Slice S5b of WP-0.7 builds design-system §2.3 to §2.5 in
+frontend/packages/design-system/src/{sign,command-palette,density}.
+
+What S5b adds:
+- SignDialog: a view of ui-core's patient-context machine; it sends
+  only the machine's events. Review, then re-verification or
+  authentication, then the intent statement with Sign or Co-sign. On a
+  return to re-verification (signerDiffers, server refusal) the earlier
+  authentication is dropped and the signer authenticates again before
+  "This is the right patient" is enabled; Confirm is disabled without a
+  valid banner identity; focus never stays on a disabled control. A
+  timeout (30 s), an error or a malformed answer is outcome unknown, a
+  retry reuses the idempotency key, and closing while in flight shows
+  sign.outcomeUnknown. The window comes from the window's own
+  PatientContextDeps (contextDeps).
+- SignButton and signingIdentityValid; createSimulatedAuthenticator
+  (badge tap plus a 4-to-8-digit PIN for a co-sign, never stored; throws
+  in a production build unless VITE_HMS_DEMO=1).
+- CommandPalette: React Aria Autocomplete, TextField and Menu; nothing
+  highlighted on open or on new results; a chosen item runs only after
+  the palette has unmounted; Ctrl/Cmd+K by physical key, ignored while
+  another modal holds the guard; search folding ي→ی, ك→ک, ه→ە for
+  matching only; languageCommands.
+- DensityControl (RadioGroup of RadioField and RadioButton),
+  useDensityCommand and otherDensity. Stylesheets imported by
+  styles.css; exports in the package entry point; README section.
+- OQ-162 (open), DN-027 "default in use" bullet (description only, no
+  decision), KA-043 (open; the authentication step has no catalogue
+  text of its own).
+
+Tests (spec §9 names): UnitTest:sign-requires-reverification,
+UnitTest:cosign-same-pattern,
+UnitTest:sign-outcome-unknown-reuses-idempotency-key,
+UnitTest:palette-keyboard-only, UnitTest:palette-never-preselects-patient,
+UnitTest:palette-selects-patient-via-confirmation; also the
+simulated-authenticator and density-control tests. @hms/design-system
+281 tests in 22 files.
+
+Checks on the Windows host (not evidence of record), this commit's
+tree (S2 to S4, S8, S5a and S5b): `sh tools/ci/run fast --no-evidence`
+PASS, 8 of 8 steps, tests=2054, failures=0: python-unit-tests 688,
+backend-fast 66, frontend-fast 1300 (design-system 281 in 22 files,
+hal-client 365, ui-core 89, i18n 89, eslint-plugin-hms 473, web 3);
+CSS logical lint findings=0; catalogue lint PASS; repo, safety and
+backlog checks and the secret scan PASS. The sign and palette test
+files allow 20 s a test and 5 s a waitFor (set in test/sign/harness.tsx,
+OQ-162); vitest.shared.ts is unchanged. Not run: the WSL build host,
+and the real-browser checks of S7 (focus off disabled controls,
+E2E:targets-24px, E2E:sign-after-context-change-forces-re-verification).
+
+Hazards: none named in the hazard log. Spec §9 relates
+UnitTest:sign-requires-reverification and UnitTest:cosign-same-pattern
+to CTRL-0016-7 (HAZ-0016), and
+UnitTest:palette-selects-patient-via-confirmation to CTRL-0016-6
+(HAZ-0016), not named there yet. No control changes state.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
