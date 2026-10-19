@@ -1,0 +1,328 @@
+# The bed lifecycle on the bed board: available → reserved/assigned → occupied → dirty → cleaning →
+# available, with the side states blocked and closed (BUILD-PROMPT §8.4 "Bed", §9.12 "Bed board",
+# §21 WP-2.1; R11 §10.6). Template: Appendix B.3; format rules:
+# docs/specs/modules/state-machines-and-invariants.md §1 and §2.1. Explanation: bed.md beside this
+# file, with the projection to HL7 v2 table 0116 and FHIR Location.operationalStatus (R11 §10.6).
+# Approval request: DN-056 ("DN-056 item n" refers to bed.md §5).
+#
+# Recurrent lifecycle: no terminal state; available is reachable from every state (format §2.1
+# rule 6). A bed is created by the location tree (§8.2, platform-tenancy), not by an ADT command, so
+# the machine has no creation command and every bed starts in available (open question Q-B1,
+# bed.md §6).
+#
+# State names. §8.4 and R11 draw "reserved/assigned" as one state; it is `reserved` here, and a
+# reservation names one encounter that can still take a bed. "Dirty (patient left)" is `dirty`,
+# "cleaning in progress" is `cleaning`. A blocked bed carries its reason (isolation, contamination,
+# maintenance, staffing); the internal state plus the reason is authoritative, because table 0116 is
+# coarser (R11 §10.6).
+#
+# Occupancy (R11 §5 key rule; §9.12). The encounters' location histories are the single source of
+# truth for occupancy. noOverlappingOccupancy and noOpenOccupancy read occupancy periods from them; the
+# bed keeps no occupancy table of its own. The exclusion constraint (one occupant per bed at any
+# instant, §8.2, §9.12 acceptance) is checked over those periods on Occupy, Reoccupy and
+# RecordBackEnteredOccupancy, and on the encounter's side. The machines stay separate; a bed command
+# sent by an encounter transition commits in the same transaction (encounter.yaml header).
+#
+# Emergency access (DN-056 items 1 to 3). Reserve checks the §9.12 gender, isolation and pressure-alarm
+# constraints. A known mismatch, unknown isolation data and an active pressure alarm fail it; an
+# unknown patient sex and an unknown pressure signal are warnings with owned tasks, never blocks. An
+# IPC cohort declaration meets an isolation requirement. ReserveWithOverride is the audited path for
+# an emergency or for restriction data that is wrong: never a dead end at 3 a.m. SI-15 and the
+# exclusion constraint are never overridable.
+#
+# SI-15 (HAZ-0015; CTRL-0015-5). Reserving and occupying a bed is bed allocation: Reserve,
+# ReserveWithOverride, Occupy and Reoccupy carry onSiteCellConnected. Losing the internet does not make
+# the on-site cell offline. RecordBackEnteredOccupancy records a paper occupancy online after
+# recovery.
+# SI-12 (HAZ-0012; CTRL-0012-3). No predicate reads a deposit, bed-category tariff, payment, balance,
+# pre-approval or other RCM state, and no financial predicate may be added to any guard: no RCM state
+# can block an ADT command, elective admissions included.
+# SI-01 (HAZ-0001 clause b). A bed or room is never a patient identifier; a reservation names an
+# encounter, never "the patient in bed n".
+#
+# Every transition emits BedStatusChanged (ADT^A20) through emitBedStatusChanged (§8.4 "Every change
+# emits ADT^A20"). R11 draws no entry or exit path for blocked and closed, no way back from reserved
+# and no override; every such transition is proposed (§8.4; Appendix A.20 "Undrawn transitions").
+#
+# Owner adt (§5.2, §9.12). Approvers: nurse panel and bed manager (§8.4); DN-056 items 1 and 2 are also
+# put to the CSO, because they decide access to emergency care.
+machine: bed
+version: 1
+owner: adt
+approval: {status: requested, required: [nurse-panel, bed-manager], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [available, reserved, occupied, dirty, cleaning, blocked, closed]
+terminal: []
+initial: available
+predicates:   # each implemented once in hms.adt.domain.bed (BedGuards) and unit-tested
+  onSiteCellConnected: >-
+    The command was issued in a mode in which the offline matrix (data, ADR-012, CTRL-0015-3) allows
+    bed allocation. Bed allocation is allowed only in the on-site-cell mode and never in cell-lost,
+    edge-agent or mobile-offline mode (SI-15 clause b, vendor-locked). A client's mode is its mode at
+    issue, not at processing: a command issued offline and synced later fails, although the server
+    revalidates it online (SI-15 clause f). A channel that runs inside the cell (HL7 inbound, the
+    migration loader, plugins, AI agents acting through the cell's API) is in the on-site-cell mode by
+    construction. Internet or WAN loss alone never changes the mode (SI-15 clause h; §16.3 L1), so the
+    predicate does not read WAN state. An unknown mode fails. The same definition is used by the
+    encounter machine and implemented once in the adt domain.
+  reservationEncounterOpen: >-
+    The command names an encounter, and ADT reports it in planned, arrived, triaged or in-progress (a
+    state that can take a bed). An encounter on leave, discharged, finished, cancelled or entered in
+    error, or an unknown encounter or state, fails.
+  bedRestrictionsAdmitPatient: >-
+    No configured restriction of the bed (location attributes, §8.2) is known to exclude the
+    encounter's patient (§9.12 "gender and isolation constraints"). Gender: a gender-restricted bed
+    fails only when the patient's administrative sex is recorded and the tenant's configured matching
+    rule excludes it. An unknown sex (not recorded, recorded as unknown, or a patient registered on an
+    unidentified-patient alias, SAC-06), a sex the rule does not cover, or a restricted bed with no
+    configured rule does not fail; raiseBedRestrictionWarning applies. Isolation: a patient with an
+    active isolation requirement (a patient flag, §8.2) is admitted when the bed's isolation capability
+    meets that requirement, or when the bed lies in an area with an active cohort declaration of
+    infection prevention and control for that isolation kind (outbreak cohorting). An isolation
+    requirement of unknown kind, or an unknown capability of the bed when one is required, fails,
+    whatever the area's cohort declarations (ReserveWithOverride applies). The matching rules, capability kinds and cohort declarations are
+    governed configuration [HUMAN]; synthetic values in tests are NOT FOR CLINICAL USE.
+  noActivePressureAlarm: >-
+    No pressure alarm from building signals is active for the bed's room (§9.12 "isolation-room
+    pressure alarms from building signals block assignment"). A room without pressure monitoring has no
+    alarm. A monitored room whose signal state is unknown (lost or stale, as the building-signal adapter
+    reports it) has no active alarm: the reservation proceeds with raiseBedRestrictionWarning. Only an
+    active alarm fails, and ReserveWithOverride can override it.
+  overrideReasonChosen: >-
+    The user chose an override reason from the coded list clinical-emergency, ipc-approved-cohort or
+    restriction-data-wrong-or-unknown; it is never defaulted, and the command names at least one
+    restriction (gender, isolation, pressure alarm) and every restriction that would refuse the plain
+    Reserve (bedRestrictionsAdmitPatient, noActivePressureAlarm), each one being overridden. SI-15
+    (onSiteCellConnected) and the exclusion constraint are never overridable.
+  occupantMatchesReservation: >-
+    The encounter being placed on the bed is the encounter that the bed's reservation names.
+  noOverlappingOccupancy: >-
+    The occupancy period being started on this bed overlaps no location period of any other encounter
+    on this bed. For Occupy it starts at the occupying command's effective time and is open-ended; for
+    Reoccupy it is the returning encounter's reopened period, from the time the cancelled discharge or
+    transfer closed it onward; for RecordBackEnteredOccupancy it is the back-entered open period, from
+    its paper start onward. Periods are half-open [start, end); an open period has no end; periods
+    marked entered-in-error are ignored. The periods are read from the encounters' location histories
+    (R11 §5), never from a table of the bed's own (§8.2 exclusion constraint; §9.12 acceptance).
+  noOpenOccupancy: >-
+    No encounter's location history holds an open period on this bed, ignoring periods marked
+    entered-in-error: the last occupant's period was closed by a discharge or a transfer out, or voided
+    by a cancelled or reverted admission. A bed held for a patient on leave keeps an open period and
+    cannot be vacated (§9.12 "holds the bed").
+  requiredCleanRecorded: >-
+    The bed's cleaning task records a completed clean of exactly the type its job requires: terminal when the
+    last occupant had an active isolation flag or the bed was blocked for isolation or contamination
+    since its last clean, standard otherwise (ensureCleaningJob sets the type). An unknown required
+    type counts as terminal. Job types and their checklists are infection prevention and control
+    content [HUMAN] (DN-056 item 12).
+  blockReasonValid: >-
+    The block reason is one of isolation, contamination, maintenance or staffing (§8.4; R11 §10.6), and
+    the user chose it: it is never defaulted.
+  reasonEntered: >-
+    The user chose or typed a reason for this command; it is never defaulted and never blank (§9.12
+    "cancellations with a reason").
+  reservedEncounterEnded: >-
+    ADT reports the encounter the reservation names in discharged-not-closed, finished, cancelled or
+    entered-in-error, counting the state the same transaction moves it to. A system release needs no
+    user reason; the ending encounter command carries its own.
+  cleaningNeededOnReturn: >-
+    The bed must be cleaned before use when it returns from blocked or closed: it entered the current
+    out-of-use spell (consecutive blocked and closed states) from dirty or cleaning; or a block reason
+    during the spell was isolation, contamination or maintenance; or the spell's history is unknown.
+  noCleaningNeededOnReturn: >-
+    The exact complement of cleaningNeededOnReturn: the bed entered the spell from available (clean)
+    and every block reason during the spell was staffing.
+  privilegedAndAudited: >-
+    The user holds the privilege this command requires and the action is audited: the audit event
+    (actor, reason, effective and recorded time) is accepted for writing with the change; an audit that
+    cannot be written fails the predicate (Appendix B.3). Which role holds the override privilege
+    around the clock is DN-056 item 2.
+  returningOccupantWasLastOccupant: >-
+    The encounter returning to this bed is the encounter whose location period on this bed ended most
+    recently (entered-in-error ignored; a tie with another period fails); that period was closed by a discharge or a transfer that this command cancels (the
+    encounter's CancelDischarge case (a) of returnBedAvailable, or CancelTransfer); and no location
+    period of another encounter on this bed starts at or after that period's end.
+  backEnteredOccupantMatches: >-
+    The occupancy being recorded is the open-ended last period of a back-entered location history that
+    the encounter's BackEnterLocationPeriods applies in the same transaction, and it names this bed.
+effects:
+  emitBedStatusChanged: >-
+    Publishes BedStatusChanged (ADT^A20) with the new internal state, the block reason where there is
+    one, and the table 0116 projection of bed.md §3 (§8.4 "Every change emits ADT^A20"; R11 §10.6, §14).
+  raiseBedRestrictionWarning: >-
+    When the bed has a gender restriction and the patient's sex is unknown, not covered by the
+    configured rule, or no rule is configured, or when the room's pressure signal is unknown, the user
+    is warned and an owned task with an SLA goes to the bed manager (and to facilities and infection
+    prevention and control for a pressure signal). Otherwise nothing happens.
+  recordRestrictionOverride: >-
+    Records the override (reason, each restriction overridden, user, both times) and opens an owned
+    task with an SLA for the bed manager and for infection prevention and control to review it.
+  startReservationTimer: >-
+    The reservation gets an owned bed-manager review task, due at the named encounter's expected
+    arrival (for a planned encounter) or at the §9.12 bed-request-to-arrival escalation time, plus the
+    configured grace [HUMAN]. It closes when the reservation ends. A stale reservation becomes visible
+    and owned; it is never released automatically (DN-056 item 7).
+  ensureCleaningJob: >-
+    The bed has exactly one open EVS cleaning task with an owner and an SLA (SI-03 clause b): a task
+    held for this bed is resumed, otherwise one is created. Its type is terminal when the last occupant
+    had an active isolation flag or the bed was blocked for isolation or contamination since its last
+    clean, standard otherwise (§9.12 "the discharge event creates the bed-cleaning job").
+  holdCleaningJob: >-
+    An open cleaning task for this bed, if any, is put on hold with this command's reason. It is never
+    deleted and keeps its owner (SI-03); ensureCleaningJob resumes it when the bed next becomes dirty.
+  completeCleaningJob: >-
+    The bed's open cleaning task is completed, recording the clean type, who cleaned and when (§9.12
+    EVS cleaning status).
+  returnBedRequestToQueue: >-
+    The encounter's bed request that the reservation served returns to the owned bed-request queue with
+    its owner and SLA (SI-03; §9.12 "bed request → assign"): the encounter still needs a bed.
+  closeBedRequest: >-
+    The bed request that the reservation served is closed with the ending encounter's outcome.
+transitions:
+  # 0. §8.4 "available → reserved/assigned (not offline)"; R11 §10.6. Allocation, so not offline
+  # (SI-15). Gender, isolation and pressure-alarm constraints come from §9.12. No financial predicate
+  # (SI-12). 0116: U (plus the pending admit or transfer event).
+  - from: available
+    on: Reserve
+    guard: [onSiteCellConnected, reservationEncounterOpen, bedRestrictionsAdmitPatient, noActivePressureAlarm]
+    effects: [emitBedStatusChanged, raiseBedRestrictionWarning, startReservationTimer]
+    to: reserved
+    description: "§8.4 bed 'available → reserved/assigned (not offline)' (SI-15); R11 §10.6; §9.12 gender, isolation and pressure-alarm constraints."
+  # 1. PROPOSED: the audited override of the restrictions for an emergency, an IPC-approved cohort or
+  # wrong restriction data. Never overrides SI-15 or the exclusion constraint.
+  - from: available
+    on: ReserveWithOverride
+    guard: [onSiteCellConnected, reservationEncounterOpen, privilegedAndAudited, overrideReasonChosen]
+    effects: [emitBedStatusChanged, recordRestrictionOverride, startReservationTimer]
+    to: reserved
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11 §10.6): reservation overriding bed restrictions with a coded reason, audited, with an owned bed-manager and IPC task."
+  # 2. §8.4 "reserved/assigned → occupied (exclusion constraint)"; R11 §10.6. The bed side of the
+  # encounter's AdmitToBed, TransferBed or CancelDischarge case (b). 0116: O.
+  - from: reserved
+    on: Occupy
+    guard: [onSiteCellConnected, occupantMatchesReservation, noOverlappingOccupancy]
+    effects: [emitBedStatusChanged]
+    to: occupied
+    description: "§8.4 bed 'reserved/assigned → occupied (exclusion constraint)'; R11 §10.6; §8.2; §9.12 acceptance."
+  # 3. §8.4 "occupied → dirty"; R11 §10.6 "dirty (patient left)". The bed side of a discharge, a
+  # transfer out, a cancelled or reverted admission; the cleaning job opens (§9.12). 0116: H.
+  - from: occupied
+    on: Vacate
+    guard: [noOpenOccupancy]
+    effects: [emitBedStatusChanged, ensureCleaningJob]
+    to: dirty
+    description: "§8.4 bed 'occupied → dirty'; R11 §10.6 dirty (patient left); §9.12 discharge creates the cleaning job."
+  # 4. §8.4 "dirty → cleaning"; R11 §10.6 "cleaning in progress". 0116: H.
+  - from: dirty
+    on: StartCleaning
+    effects: [emitBedStatusChanged]
+    to: cleaning
+    description: "§8.4 bed 'dirty → cleaning'; R11 §10.6 cleaning in progress."
+  # 5. §8.4 "cleaning → available"; R11 §10.6. The clean recorded must be of the type the job needs
+  # (terminal after isolation or contamination; DN-056 item 12). 0116: U.
+  - from: cleaning
+    on: FinishCleaning
+    guard: [requiredCleanRecorded]
+    effects: [emitBedStatusChanged, completeCleaningJob]
+    to: available
+    description: "§8.4 bed 'cleaning → available'; R11 §10.6; §9.12 EVS cleaning status and isolation constraints."
+  # 6. PROPOSED: a user cancels a reservation (the patient goes elsewhere, the transfer is called off);
+  # the encounter still needs a bed. Nobody used the bed, so it returns to available without cleaning.
+  - from: reserved
+    on: CancelReservation
+    guard: [reasonEntered]
+    effects: [emitBedStatusChanged, returnBedRequestToQueue]
+    to: available
+    description: "Proposed (not drawn in §8.4 or R11 §10.6): reservation cancelled by a user; §9.12 cancellations with a reason."
+  # 7. PROPOSED: the system release that follows the end of the reserved encounter (encounter
+  # releaseBedReservation on Discharge, Cancel, CancelAdmission, MarkEnteredInError).
+  - from: reserved
+    on: ReleaseReservation
+    guard: [reservedEncounterEnded]
+    effects: [emitBedStatusChanged, closeBedRequest]
+    to: available
+    description: "Proposed (not drawn in §8.4 or R11 §10.6): reservation released because its encounter ended."
+  # 8. PROPOSED: entry to blocked from a bed with no patient and no reservation (DN-056 items 5, 6).
+  # 0116: I (isolation), K (contamination), C (maintenance, staffing).
+  - from: [available, dirty, cleaning]
+    on: Block
+    guard: [blockReasonValid]
+    effects: [emitBedStatusChanged, holdCleaningJob]
+    to: blocked
+    description: "Proposed (A.20; §8.4 'entry and exit paths for blocked and closed are proposed'): block with a reason; R11 §10.6 side branch blocked."
+  # 9, 10. PROPOSED: exit from blocked through cleaning unless the bed was clean and the block was for
+  # staffing only (DN-056 item 4).
+  - from: blocked
+    on: Unblock
+    guard: [cleaningNeededOnReturn]
+    effects: [emitBedStatusChanged, ensureCleaningJob]
+    to: dirty
+    description: "Proposed (A.20; §8.4): exit from blocked through dirty → cleaning before use."
+  - from: blocked
+    on: Unblock
+    guard: [noCleaningNeededOnReturn]
+    effects: [emitBedStatusChanged]
+    to: available
+    description: "Proposed (A.20; §8.4): exit from a staffing block of a clean bed straight to available."
+  # 11. PROPOSED: entry to closed from a bed with no patient and no reservation, or from blocked.
+  # 0116: C.
+  - from: [available, dirty, cleaning, blocked]
+    on: Close
+    effects: [emitBedStatusChanged, holdCleaningJob]
+    to: closed
+    description: "Proposed (A.20; §8.4): close a bed; R11 §10.6 side branch closed."
+  # 12, 13. PROPOSED: a closed bed reopens through cleaning unless it was closed clean and never
+  # blocked for anything but staffing (DN-056 item 4).
+  - from: closed
+    on: Reopen
+    guard: [cleaningNeededOnReturn]
+    effects: [emitBedStatusChanged, ensureCleaningJob]
+    to: dirty
+    description: "Proposed (A.20; §8.4): exit from closed through dirty → cleaning before use."
+  - from: closed
+    on: Reopen
+    guard: [noCleaningNeededOnReturn]
+    effects: [emitBedStatusChanged]
+    to: available
+    description: "Proposed (A.20; §8.4): exit from a bed closed while clean straight to available."
+  # 14. PROPOSED: the bed side of a cancelled discharge (encounter CancelDischarge case (a)) or a
+  # cancelled transfer, when the patient returns to the bed just released and nobody else has used it.
+  # Audited; allocation, so not offline (SI-15). A held cleaning job stays held. 0116: O.
+  - from: [dirty, cleaning]
+    on: Reoccupy
+    guard: [privilegedAndAudited, onSiteCellConnected, returningOccupantWasLastOccupant, noOverlappingOccupancy]
+    effects: [emitBedStatusChanged, holdCleaningJob]
+    to: occupied
+    description: "Proposed (not drawn in §8.4 or R11 §10.6): return of the same patient after a cancelled discharge or transfer (§8.4 encounter 'Cancel discharge', audited)."
+  # 15. PROPOSED: the bed side of a downtime back-entry: the bed in which the patient lies when the
+  # paper record ends becomes occupied. Issued online after recovery; no forward-allocation checks.
+  - from: [available, dirty, cleaning]
+    on: RecordBackEnteredOccupancy
+    guard: [privilegedAndAudited, onSiteCellConnected, backEnteredOccupantMatches, noOverlappingOccupancy]
+    effects: [emitBedStatusChanged, holdCleaningJob]
+    to: occupied
+    description: "Proposed (not drawn in §8.4 or R11 §10.6): occupancy recorded from a downtime back-entry; §9.12 downtime re-entry; §16.3 L4; SI-10."
+proposed:
+  - "reserved→available"
+  - "available→blocked"
+  - "dirty→blocked"
+  - "cleaning→blocked"
+  - "blocked→dirty"
+  - "blocked→available"
+  - "available→closed"
+  - "dirty→closed"
+  - "cleaning→closed"
+  - "blocked→closed"
+  - "closed→dirty"
+  - "closed→available"
+  - "dirty→occupied"
+  - "cleaning→occupied"
+  - "available→occupied"
+invariants: [SI-03, SI-12, SI-15]
+events: [BedStatusChanged]
+hazards: [HAZ-0001, HAZ-0003, HAZ-0012, HAZ-0015]
+sources:
+  - "BUILD-PROMPT §8.4 (Bed), §8.2 (location tree bed attributes; bed with one authority and an exclusion constraint), §8.5 (BedStatusChanged A20)"
+  - "BUILD-PROMPT §2.1 SI-01, SI-03, SI-12, SI-15; §9.12 (bed board, acceptance); §16.3; §18.4 SAC-06; §21 WP-2.1; Appendix A.20 (undrawn transitions)"
+  - "R11 §2 (Location operational status), §5 (location-history key rule), §10.6 (bed machine and table 0116 projection), §14"
