@@ -13,6 +13,8 @@ At most ten items. Answer these first.
 
 Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5).
 
+Answered on 19 October 2026: DN-040 (the human lead approved starting WP-0.3's cluster-free parts before WP-0.2, with one review pass on low-risk work). Resolved on 19 October 2026: DN-041 (the human lead deleted the host-created `t3/*` branches at 08:05).
+
 Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9) and DN-006 (confirmed).
 
 ## Host check
@@ -300,3 +302,30 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. **Keep the interim reading (default):** every interruptive rule needs a measured PPV, and each baseline rule that is to interrupt from day 0 needs an explicit exception that the CSO approves in a sign-off record. WP-1.5 builds the exception record and the promotion block.
   2. **Accept the PPV measured in the vendor's validation** of the baseline as "a measured PPV" until local telemetry measures one, recorded per rule in the registry with its source. A baseline rule with that evidence then needs no exception.
   3. **Another reading** that the CSO states; WP-1.5 builds the gate to it, and HAZ-0014's controls are changed to match.
+
+## DN-040: Start WP-0.3's cluster-free parts before WP-0.2 is done, with a lighter review on low-risk work
+
+- **Status:** answered (2026-10-19, by the human lead)
+- **Blocks:** nothing now; it records an approved deviation from §21's "Depends on" order and from WP-0.3's entry criterion "Waits on WP-0.2".
+- **Resolution:** asked in chat by the build agent and answered by the human lead (Ahmad) on 19 October 2026:
+  1. Question: "The build plan says later packages wait until the server environment is finished. Several of them don't need the cluster at all: the core libraries (IDs, clocks, money, units), the clinical state machines (orders, encounters, medication rounds), and document/label printing templates. Can I start those now, recorded as an approved deviation?" Answer: "Yes, start the cluster-free parts (Recommended)" (option text: "Work on 3 to 4 packages at once instead of 2. Anything that needs the cluster still waits; tests and safety gates are not skipped.").
+  2. Question: "Can I lighten the review on low-risk pieces (build tooling, docs, scaffolding) while keeping full review on anything patient-safety related?" Answer: "Lighter on low-risk only (Recommended)" (option text: "One review pass instead of several on tooling and scaffolding; patient-safety code (banner, dosing, identity, sign-off) keeps full review.").
+  3. Use of additional subscription accounts for parallel agents: "Yes, use all three".
+- **What it changes:** WP-0.3 starts before WP-0.2 is merged or reviewed and stacked (§21 "Entry criteria"; WP-0.3 "Depends on: WP-0.2"). The scope is limited to what needs no cluster: the module specifications, the kernel libraries (UUIDv7, `Clock`, clinical vs recorded time, `Money`, `Quantity` with UCUM), the enterprise hierarchy and the configuration chain with locks (domain level), signed configuration bundles, flags and kill switches, the task engine domain with `TaskOrphaned` timing proven on an injected clock, `WorkflowPort` (the port only), the journal's schema, migrations and repository code, the event catalogue and envelope rules, and the architecture tests.
+- **What still waits on WP-0.2 (the cell):** the Debezium → Kafka pipeline with Apicurio; the Temporal adapter; the journal-rebuild and per-patient-ordering exit tests against real PostgreSQL and Kafka; the `TaskOrphaned` chaos test; persistence-backed evidence for "a locked setting cannot be overridden below its lock". Tests that need PostgreSQL, Kafka or Temporal are written in `src/integrationTest` (merge tier) and recorded as waiting.
+- **Review policy (decision 2):** low-risk work (Gradle wiring, identifier plumbing, documentation scaffolding, test-harness plumbing) gets one independent automated review pass; patient-safety-relevant work (time and the `Clock`, clinical vs recorded time, `Quantity`/UCUM, the journal, the task engine and SI-03, kill switches and SI-19, configuration locks on safety-invariant parameters) gets at least two independent review lenses (correctness, and clinical safety/hazard), and every major finding is fixed before commit. Every review is an automated review (AI), never a human one (§3.5).
+- **Branching:** `wp/0.3-platform-kernel` is stacked on `wp/0.1-programme-bootstrap` at `09afa41` (§3.6). It merges `wp/0.2-environments` with `--no-ff` when that branch is ready, never by rebase. WP-0.5 (`wp/0.5-state-machines`) runs at the same time and may merge this branch for the `Clock` and identifier types.
+- **Who decided:** the human lead.
+
+## DN-041: Host-created `t3/*` branches fail the §3.6 branch-name rule of `tools/hms repo check`
+
+- **Status:** resolved (2026-10-19, by the human lead)
+- **Resolution:** the human lead deleted the `t3/*` branches at 08:05 on 19 October 2026 (option 2), reported to this stream by the lead at 09:20. The gate was not changed. From then on WP-0.3 runs the fast tier in its own worktree again; the scratch clone is no longer used. `git branch -a --list 't3/*'` printed nothing at 09:18.
+- **Blocked (until resolved):** every stream's fast tier on the Windows host: `sh tools/ci/run fast` failed at `repo-check` in any checkout of this repository, whatever the work.
+- **Default used until then:** WP-0.3 runs the fast tier in a single-branch scratch clone of its worktree (`git clone --single-branch --branch wp/0.3-platform-kernel`, remote removed), overlaid with the worktree's tracked and untracked files, so the clone holds only `wp/0.3-platform-kernel`. The gate itself is not changed and no branch is deleted or renamed. Every WP-0.3 fast run is labelled "Windows host, scratch clone, not evidence of record".
+- **Who decides:** the human lead.
+- **Context:** the agent host (T3 Code) creates one branch per thread, named `t3/<slug>`. On 19 October 2026 `sh tools/hms repo check` reported `t3/state-machines-invariants`, `t3/wp-0-3-platform-kernel` and `t3/wp08-documents-printing`: "does not match main, wp/<n.m>-<slug>, release/<version> or hotfix/<slug> (§3.6)". Branches are shared by every worktree of the repository, so the error appears in all of them. The records of record in the WSL clone are not affected unless those branches are fetched there.
+- **Options:**
+  1. **Keep the gate and verify in single-branch scratch clones** (default) until the `t3/*` branches are removed by the human or the host.
+  2. Delete or rename the `t3/*` branches once their threads no longer need them (a human action; the build agents never delete other branches).
+  3. Add a recorded exception for host-tool branch names to the rule (a change to a gate, so the lead's decision; §3.6 names the allowed forms).
