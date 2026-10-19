@@ -114,7 +114,7 @@ export function AmountRow({
       </dt>
       <dd className="billing-row__value">
         {sign === undefined ? null : (
-          <span className="billing-row__sign" aria-hidden="true">
+          <span className="billing-row__sign">
             {sign === 'minus' ? '−' : '+'}
           </span>
         )}

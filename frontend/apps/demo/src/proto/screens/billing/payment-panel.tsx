@@ -22,7 +22,7 @@ import {
   parseUsdCents,
   roundCash,
 } from './money.ts';
-import { AmountRow, SimulatedTag, UsdMoney } from './parts.tsx';
+import { AmountRow, SimulatedTag, UsdEquivalent, UsdMoney } from './parts.tsx';
 
 type Method = 'cash' | 'card';
 
@@ -225,7 +225,13 @@ export function PaymentPanel({
   return (
     <Card
       title={t('payTitle')}
-      subtitle={t.rich('payDue', { amount: <Money amount={due} className="billing-strong" /> })}
+      subtitle={t.rich('payDue', {
+        amount: (
+          <>
+            <Money amount={due} className="billing-strong" /> <UsdEquivalent iqd={due} />
+          </>
+        ),
+      })}
       icon="money"
       tone="accent"
       className="billing-pay"

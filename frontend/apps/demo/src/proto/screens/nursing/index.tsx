@@ -280,7 +280,7 @@ export function NursingScreen(): ReactNode {
           <Card
             key={bp.patient.id}
             className="nursing-card"
-            tone={escalation ? 'danger' : overdue > 0 ? 'warning' : undefined}
+            {...(escalation ? { tone: 'danger' as const } : overdue > 0 ? { tone: 'warning' as const } : {})}
             headingLevel={3}
             title={
               <span className="nursing-card__title">

@@ -45,6 +45,7 @@ import {
   Dialog,
   EmptyState,
   Grid,
+  IconButton,
   KeyValueList,
   Meter,
   PageHeader,
@@ -325,8 +326,8 @@ export function LabWorklistScreen(): ReactNode {
         title={<Code>{row.id}</Code>}
         subtitle={t(SECTION_KEY[row.section])}
         icon="flask"
-        tone={row.critical ? 'danger' : row.priority === 'stat' ? 'warning' : undefined}
-        actions={<Button size="sm" variant="ghost" icon="x" aria-label={t('close')} onPress={() => { setSelectedId(null); }} />}
+        tone={row.critical ? 'danger' : row.priority === 'stat' ? 'warning' : 'neutral'}
+        actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedId(null); }} />}
       >
         <div className="lw-detail">
           <PatientInline patient={patient} secondary />
@@ -839,6 +840,22 @@ export function LabWorklistScreen(): ReactNode {
   // Dialogs
   // ---------------------------------------------------------------------------------------------------------
 
+  const callItems = (call: CriticalCall): readonly { readonly id: string; readonly label: string; readonly value: ReactNode }[] => {
+    const recipient = call.recipient;
+    if (recipient.kind === 'staff') {
+      const member = findStaff(recipient.staffId);
+      return [
+        { id: 'to', label: t('colRecipient'), value: member === undefined ? '—' : <StaffName member={member} /> },
+        { id: 'phone', label: t('phone'), value: <Code>{member?.phone ?? '—'}</Code> },
+      ];
+    }
+    return [
+      { id: 'to', label: t('colRecipient'), value: personName(recipient.doctor.name, locale) },
+      { id: 'phone', label: t('phone'), value: <Code>{recipient.doctor.phone}</Code> },
+      { id: 'clinic', label: t('clinic'), value: f.text(recipient.doctor.clinic) },
+    ];
+  };
+
   const callDialog =
     callTarget === null ? null : (
       <Dialog
@@ -885,18 +902,7 @@ export function LabWorklistScreen(): ReactNode {
           <PatientInline patient={getPatient(callTarget.patientId)} />
           <KeyValueList
             columns={2}
-            items={
-              callTarget.recipient.kind === 'staff'
-                ? [
-                    { id: 'to', label: t('colRecipient'), value: (() => { const m = findStaff(callTarget.recipient.staffId); return m === undefined ? '—' : <StaffName member={m} />; })() },
-                    { id: 'phone', label: t('phone'), value: <Code>{findStaff(callTarget.recipient.staffId)?.phone ?? '—'}</Code> },
-                  ]
-                : [
-                    { id: 'to', label: t('colRecipient'), value: personName(callTarget.recipient.doctor.name, locale) },
-                    { id: 'phone', label: t('phone'), value: <Code>{callTarget.recipient.doctor.phone}</Code> },
-                    { id: 'clinic', label: t('clinic'), value: f.text(callTarget.recipient.doctor.clinic) },
-                  ]
-            }
+            items={callItems(callTarget)}
           />
           <TextInput label={t('receiverName')} value={receiver} onChange={setReceiver} isRequired description={t('receiverHint')} />
           <Checkbox isSelected={readBack} onChange={setReadBack}>

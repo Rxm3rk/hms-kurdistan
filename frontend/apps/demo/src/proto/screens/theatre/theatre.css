@@ -1,4 +1,248 @@
+/* The Operating theatres screen. Prefix: theatre-. Logical properties and design-system tokens only. */
 .theatre-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.theatre-kpis {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+
+.theatre-muted {
+  margin: 0;
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.theatre-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.theatre-inline,
+.theatre-days,
+.theatre-slots {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.theatre-cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Board: one column per theatre */
+.theatre-board {
+  display: grid;
+  gap: var(--hms-space-4);
+  overflow-x: auto;
+  align-items: start;
+}
+
+.theatre-room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-sunken);
+}
+
+.theatre-room__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.theatre-room__title {
+  margin: 0;
+  font-size: var(--hms-font-size-md);
+}
+
+.theatre-cases {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.theatre-case {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  inline-size: 100%;
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-inline-start: 4px solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-raised);
+  color: var(--hms-color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.theatre-case:focus-visible {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.theatre-case--anaesthesia {
+  border-inline-start-color: var(--hms-color-accent-border);
+}
+
+.theatre-case--surgery {
+  border-inline-start-color: var(--hms-color-danger-border);
+  box-shadow: 0 0 0 1px var(--hms-color-danger-border);
+}
+
+.theatre-case--recovery {
+  border-inline-start-color: var(--hms-color-warning-border);
+}
+
+.theatre-case--completed {
+  border-inline-start-color: var(--hms-color-success-border);
+  opacity: 0.85;
+}
+
+.theatre-case--postponed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.theatre-case__time,
+.theatre-case__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theatre-case__proc {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.theatre-dots {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-inline-start: auto;
+}
+
+.theatre-dot {
+  inline-size: 0.7rem;
+  block-size: 0.7rem;
+  border-radius: 50%;
+  border: 2px solid var(--hms-color-border-strong);
+}
+
+.theatre-dot--done {
+  border-color: var(--hms-color-success-border);
+  background: var(--hms-color-success-border);
+}
+
+/* Case dialog */
+.theatre-dialog-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.theatre-phases {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(17rem, 100%), 1fr));
+  align-items: start;
+}
+
+.theatre-phase--locked {
+  opacity: 0.65;
+}
+
+.theatre-checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.theatre-times {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.theatre-time {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  padding: var(--hms-space-3);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-sunken);
+}
+
+.theatre-time__value {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.theatre-add {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
+  align-items: end;
+  padding: var(--hms-space-3);
+  border-block-start: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.theatre-stepper {
+  display: inline-flex;
+  gap: var(--hms-space-1);
+  align-items: center;
+}
+
+.theatre-stepper__value {
+  min-inline-size: 2ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.theatre-total {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* Booking */
+.theatre-form-row {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  align-items: end;
+}
+
+.theatre-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.theatre-legend {
+  margin-block-end: var(--hms-space-2);
+  padding: 0;
+  font-weight: var(--hms-font-weight-bold);
+  font-size: var(--hms-font-size-sm);
 }

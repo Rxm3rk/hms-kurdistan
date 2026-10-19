@@ -4,7 +4,8 @@
  * approved, rejected), the amount due in IQD with the USD equivalent, payment taking and the receipts.
  * SYNTHETIC DATA ONLY, NOT FOR CLINICAL USE.
  */
-import { useState, type ReactNode } from 'react';
+import { useIsModalOpen } from '@hms/design-system';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   CHARGE_CATEGORY_LABEL,
   ENCOUNTER_TYPE_LABEL,
@@ -70,7 +71,8 @@ function InvoiceHeader({ invoice, patient, estimated, claim, onStatement }: { re
   const f = useFormat();
   const payer = getPayer(invoice.payerId);
   const encounter = encountersOf(patient.id).find((candidate) => candidate.id === invoice.encounterId);
-  const ward = encounter?.wardId === null || encounter?.wardId === undefined ? undefined : getWard(encounter.wardId);
+  const wardId = encounter?.wardId ?? null;
+  const ward = wardId === null ? undefined : getWard(wardId);
   const attending = findStaff(encounter?.attendingId);
 
   const items = [
@@ -662,6 +664,13 @@ function InvoiceView({ patient, account }: { readonly patient: Patient; readonly
   const claim = claimOf(session, invoice);
   const [receipt, setReceipt] = useState<ReceiptRequest | null>(null);
   const record = receipt?.kind === 'receipt' ? receipt.record : null;
+  // A card payment completes after a short (simulated) wait: open its receipt only if no other dialog took the
+  // window's single modal slot in the meantime (the receipt stays available in the payments list).
+  const modalOpen = useIsModalOpen();
+  const slot = useRef({ modalOpen, receiptOpen: receipt !== null });
+  useEffect(() => {
+    slot.current = { modalOpen, receiptOpen: receipt !== null };
+  }, [modalOpen, receipt]);
   const cashier = findStaff(record?.receivedById ?? SHIFT.cashierId) ?? findStaff(SHIFT.cashierId);
 
   return (
@@ -691,7 +700,9 @@ function InvoiceView({ patient, account }: { readonly patient: Patient; readonly
           invoice={invoice}
           totals={totals}
           onRecorded={(entry) => {
-            setReceipt({ kind: 'receipt', record: entry });
+            if (slot.current.receiptOpen || !slot.current.modalOpen) {
+              setReceipt({ kind: 'receipt', record: entry });
+            }
           }}
         />
         <PaymentsCard

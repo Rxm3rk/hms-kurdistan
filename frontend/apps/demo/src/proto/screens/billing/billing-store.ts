@@ -119,7 +119,7 @@ export const billingActions = {
   },
 
   withdrawExemption(invoiceId: string): void {
-    const { [invoiceId]: _removed, ...rest } = state.exemptions;
+    const rest: Record<string, ExemptionRequest> = Object.fromEntries(Object.entries(state.exemptions).filter(([id]) => id !== invoiceId));
     set({ ...state, exemptions: rest });
   },
 

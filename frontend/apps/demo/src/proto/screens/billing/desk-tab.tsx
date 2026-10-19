@@ -110,9 +110,9 @@ function sumTakings(records: readonly PaymentRecord[]): Takings {
   return { receipts: records.length, iqdTendered, changeIqd, usdCents, cashIqd, cashUsdCents, cardIqd, roundingIqd };
 }
 
-type CountKey = `iqd-${number}` | `usd-${number}`;
+type CountKey = string;
 
-export function DeskTab(): ReactNode {
+export function DeskTab({ onShowInvoice }: { readonly onShowInvoice: () => void }): ReactNode {
   const t = useT(messages);
   const f = useFormat();
   const toast = useToast();
@@ -122,7 +122,7 @@ export function DeskTab(): ReactNode {
   const { roleId, user, setRole } = useRole();
 
   const [counting, setCounting] = useState(false);
-  const [counts, setCounts] = useState<Partial<Record<CountKey, string>>>({});
+  const [counts, setCounts] = useState<Readonly<Record<CountKey, string>>>({});
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
@@ -142,21 +142,21 @@ export function DeskTab(): ReactNode {
 
   // ---- cash count ----
   const countOf = (key: CountKey): number | null => parseIqd(counts[key] ?? '');
-  const countInvalid = [...IQD_NOTES.map((note): CountKey => `iqd-${note}`), ...USD_NOTES.map((note): CountKey => `usd-${note}`)].some((key) => countOf(key) === null);
-  const countedIqd = IQD_NOTES.reduce((sum, note) => sum + note * (countOf(`iqd-${note}`) ?? 0), 0);
-  const countedUsdCents = USD_NOTES.reduce((sum, note) => sum + note * 100 * (countOf(`usd-${note}`) ?? 0), 0);
+  const countInvalid = [...IQD_NOTES.map((note): CountKey => `iqd-${String(note)}`), ...USD_NOTES.map((note): CountKey => `usd-${String(note)}`)].some((key) => countOf(key) === null);
+  const countedIqd = IQD_NOTES.reduce((sum, note) => sum + note * (countOf(`iqd-${String(note)}`) ?? 0), 0);
+  const countedUsdCents = USD_NOTES.reduce((sum, note) => sum + note * 100 * (countOf(`usd-${String(note)}`) ?? 0), 0);
   const varianceIqd = countedIqd - expectedIqd;
   const varianceUsd = countedUsdCents - expectedUsdCents;
 
   const fillSample = (): void => {
     const iqdNotes = notesFor(roundCash(expectedIqd, 'down'), IQD_NOTES);
     const usdNotes = notesFor((expectedUsdCents - (expectedUsdCents % 100)) / 100, USD_NOTES);
-    const next: Partial<Record<CountKey, string>> = {};
+    const next: Record<CountKey, string> = {};
     IQD_NOTES.forEach((note, index) => {
-      next[`iqd-${note}`] = String(iqdNotes[index] ?? 0);
+      next[`iqd-${String(note)}`] = String(iqdNotes[index] ?? 0);
     });
     USD_NOTES.forEach((note, index) => {
-      next[`usd-${note}`] = String(usdNotes[index] ?? 0);
+      next[`usd-${String(note)}`] = String(usdNotes[index] ?? 0);
     });
     setCounts(next);
   };
@@ -344,7 +344,9 @@ export function DeskTab(): ReactNode {
             selectedKey={rows.find((row) => row.patient.id === currentId)?.invoice.id ?? null}
             rowTone={(row) => (row.invoice.status === 'open' ? 'warning' : undefined)}
             onRowAction={(row) => {
-              if (row.patient.id !== currentId) {
+              if (row.patient.id === currentId) {
+                onShowInvoice();
+              } else {
                 openPatient(row.patient.id, 'billing');
               }
             }}
@@ -498,7 +500,7 @@ export function DeskTab(): ReactNode {
           <div className="billing-count">
             <fieldset className="billing-count__group">
               <legend className="billing-count__legend">{t('countIqd')}</legend>
-              {IQD_NOTES.map((note) => countField(`iqd-${note}`, note, 'IQD'))}
+              {IQD_NOTES.map((note) => countField(`iqd-${String(note)}`, note, 'IQD'))}
               <div className="billing-count__sum">
                 <span>{t('countedTotal')}</span>
                 <Money amount={countedIqd} className="billing-strong" />
@@ -506,7 +508,7 @@ export function DeskTab(): ReactNode {
             </fieldset>
             <fieldset className="billing-count__group">
               <legend className="billing-count__legend">{t('countUsd')}</legend>
-              {USD_NOTES.map((note) => countField(`usd-${note}`, note, 'USD'))}
+              {USD_NOTES.map((note) => countField(`usd-${String(note)}`, note, 'USD'))}
               <div className="billing-count__sum">
                 <span>{t('countedTotal')}</span>
                 <UsdMoney cents={countedUsdCents} className="billing-strong" />

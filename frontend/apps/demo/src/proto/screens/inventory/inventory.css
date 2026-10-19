@@ -1,4 +1,119 @@
-.inventory-screen {
+/* The inventory screen. Prefix: inv-. Logical properties and design-system tokens only. */
+.inv-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.inv-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.inv-split {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 27rem);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+.inv-split--even {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+}
+
+@media (width < 72rem) {
+  .inv-split,
+  .inv-split--even {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.inv-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3) var(--hms-space-4);
+  border-block-end: var(--hms-border-width, 1px) solid var(--hms-color-border);
+}
+
+.inv-two {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.inv-end {
+  align-items: flex-end;
+}
+
+.inv-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.inv-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.inv-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.inv-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.inv-danger {
+  color: var(--hms-color-danger-text);
+}
+
+.inv-label {
+  margin-block: 0 var(--hms-space-2);
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.inv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.inv-store--active {
+  outline: var(--hms-focus-ring-width, 2px) solid var(--hms-color-accent-bg);
+  outline-offset: -2px;
+}
+
+.inv-batches {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inv-batch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-2) var(--hms-space-3);
+  border: var(--hms-border-width, 1px) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+.inv-batch--next {
+  border-inline-start: 4px solid var(--hms-color-accent-bg);
+  background: var(--hms-color-bg-sunken);
 }

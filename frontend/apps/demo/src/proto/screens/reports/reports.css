@@ -1,4 +1,102 @@
+/* The Reports & returns screen. Prefix: rpt-. Logical properties and design-system tokens only. */
 .reports-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.rpt-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.rpt-stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rpt-inline,
+.rpt-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.rpt-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.rpt-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.rpt-danger {
+  color: var(--hms-color-danger-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.rpt-warn {
+  color: var(--hms-color-warning-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.rpt-ok {
+  color: var(--hms-color-success-text);
+}
+
+.rpt-fav {
+  color: var(--hms-color-accent-text);
+}
+
+.rpt-search {
+  flex: 1 1 16rem;
+  min-inline-size: 12rem;
+}
+
+.rpt-select {
+  min-inline-size: 12rem;
+}
+
+.rpt-json {
+  margin: 0;
+  max-block-size: 24rem;
+  overflow: auto;
+  padding: var(--hms-space-3);
+  background: var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-sm);
+  font-size: var(--hms-font-size-sm);
+  text-align: start;
+}
+
+.rpt-builder {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .rpt-builder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.rpt-builder__fields .ui-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.rpt-builder__preview {
+  min-inline-size: 0;
+}
+
+.rpt-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--hms-space-2);
 }

@@ -1,4 +1,206 @@
+/* The Intensive care screen. Prefix: icu-. Logical properties and design-system tokens only. */
 .icu-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.icu-kpis {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+
+.icu-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.icu-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.icu-toolbar,
+.icu-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.icu-cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-start;
+}
+
+.icu-cell-stack--end {
+  align-items: flex-end;
+}
+
+.icu-card-title {
+  display: inline-flex;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+/* Bed overview */
+.icu-beds {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr));
+}
+
+.icu-bed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  padding: var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-inline-start: 5px solid var(--hms-color-info-border);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-raised);
+  color: var(--hms-color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.icu-bed:focus-visible {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.icu-bed--danger {
+  border-inline-start-color: var(--hms-color-danger-border);
+}
+
+.icu-bed--warning {
+  border-inline-start-color: var(--hms-color-warning-border);
+}
+
+.icu-bed--selected {
+  border-color: var(--hms-color-accent-border);
+  box-shadow: 0 0 0 2px var(--hms-color-accent-border);
+}
+
+.icu-bed--empty {
+  border-style: dashed;
+  border-inline-start-color: var(--hms-color-border);
+  background: var(--hms-color-bg-sunken);
+  cursor: default;
+}
+
+.icu-bed__top,
+.icu-bed__scores,
+.icu-bed__support,
+.icu-bed__vitals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.icu-bed__top {
+  justify-content: space-between;
+}
+
+.icu-bed__id {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.icu-bed__dx {
+  font-size: var(--hms-font-size-sm);
+}
+
+.icu-bed__vitals {
+  font-size: var(--hms-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Flowsheet grid */
+.icu-flow-wrap {
+  overflow: auto;
+  max-block-size: 36rem;
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+}
+
+.icu-flow {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--hms-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.icu-flow th,
+.icu-flow td {
+  padding: var(--hms-space-1) var(--hms-space-2);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.icu-flow thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background: var(--hms-color-bg-sunken);
+}
+
+.icu-flow__param {
+  position: sticky;
+  inset-inline-start: 0;
+  min-inline-size: 11rem;
+  background: var(--hms-color-bg-raised);
+  text-align: start !important;
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.icu-flow thead .icu-flow__param {
+  z-index: 2;
+  background: var(--hms-color-bg-sunken);
+}
+
+.icu-flow__group th {
+  padding-block: var(--hms-space-2);
+  background: var(--hms-color-accent-bg);
+  color: var(--hms-color-accent-text);
+  text-align: start;
+}
+
+.icu-flow__cell--bad {
+  background: var(--hms-color-danger-bg);
+  color: var(--hms-color-danger-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.icu-flow__new {
+  box-shadow: inset 2px 0 0 var(--hms-color-accent-border);
+}
+
+.icu-flow__balance th,
+.icu-flow__balance td {
+  border-block-start: 2px solid var(--hms-color-border-strong);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* Hourly entry */
+.icu-entry-grid {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+
+.icu-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+}
+
+.icu-entry--bad .ui-input {
+  border-color: var(--hms-color-danger-border);
 }

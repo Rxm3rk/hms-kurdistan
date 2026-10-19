@@ -1,4 +1,192 @@
+/* The Patient messaging screen. Prefix: msg-. Logical properties and design-system tokens only. */
 .messaging-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.msg-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.msg-split {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 28rem);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .msg-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.msg-list {
+  min-inline-size: 0;
+}
+
+.msg-detail {
+  position: sticky;
+  inset-block-start: var(--hms-space-3);
+}
+
+.msg-detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.msg-actions,
+.msg-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.msg-search {
+  flex: 1 1 16rem;
+  min-inline-size: 12rem;
+}
+
+.msg-select {
+  min-inline-size: 12rem;
+}
+
+.msg-stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.msg-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.msg-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.msg-h3 {
+  margin: 0;
+  margin-block-start: var(--hms-space-2);
+  font-size: var(--hms-font-size-md);
+}
+
+.msg-var {
+  padding-inline: var(--hms-space-1);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg-sunken);
+}
+
+.msg-phone {
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-md);
+  overflow: hidden;
+  max-inline-size: 22rem;
+  margin-inline: auto;
+  inline-size: 100%;
+}
+
+.msg-phone__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  background: var(--hms-color-bg-sunken);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.msg-phone--whatsapp .msg-phone__bar {
+  background: var(--hms-color-success-bg);
+}
+
+.msg-phone--viber .msg-phone__bar {
+  background: var(--hms-color-info-bg);
+}
+
+.msg-phone__screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-3);
+  background: var(--hms-color-bg);
+  min-block-size: 8rem;
+}
+
+.msg-phone__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.msg-bubble {
+  margin: 0;
+  padding: var(--hms-space-2) var(--hms-space-3);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  max-inline-size: 90%;
+  white-space: pre-wrap;
+  text-align: start;
+  line-height: 1.5;
+}
+
+.msg-bubble--reply {
+  background: var(--hms-color-success-bg);
+  border-color: var(--hms-color-success-border);
+}
+
+.msg-audit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.msg-audit__item {
+  display: flex;
+  gap: var(--hms-space-2);
+  align-items: flex-start;
+}
+
+.msg-audit__dot {
+  flex: none;
+  inline-size: 10px;
+  block-size: 10px;
+  margin-block-start: 6px;
+  border-radius: 50%;
+  background: var(--hms-color-border-strong);
+}
+
+.msg-audit__item--otp-failed .msg-audit__dot,
+.msg-audit__item--revoked .msg-audit__dot {
+  background: var(--hms-color-danger-border);
+}
+
+.msg-audit__item--downloaded .msg-audit__dot,
+.msg-audit__item--paid .msg-audit__dot,
+.msg-audit__item--booked .msg-audit__dot,
+.msg-audit__item--otp-ok .msg-audit__dot {
+  background: var(--hms-color-success-border);
+}
+
+.msg-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+}
+
+.msg-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--hms-space-3);
 }

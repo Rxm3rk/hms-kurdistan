@@ -31,7 +31,12 @@ export function BillingScreen(): ReactNode {
   const { patient } = useClinicalPatient();
   const session = useBillingSession();
   const tabParam = useSearchParam('tab');
-  const [tab, setTab] = useState<string>(tabParam === 'desk' ? 'desk' : 'invoice');
+  const [tabState, setTabState] = useState({ patientId: patient.id, tab: tabParam === 'desk' ? 'desk' : 'invoice' });
+  // A new patient (for example opened from the desk's open invoices) lands on their invoice.
+  const tab = tabState.patientId === patient.id ? tabState.tab : 'invoice';
+  const setTab = (next: string): void => {
+    setTabState({ patientId: patient.id, tab: next });
+  };
   const accounts = useMemo(() => accountsOf(patient), [patient]);
   const cashier = findStaff(SHIFT.cashierId);
   const openCount = openInvoiceCount(session);
@@ -73,7 +78,13 @@ export function BillingScreen(): ReactNode {
             id: 'desk',
             label: t('tabDesk'),
             badge: f.number(openCount),
-            content: <DeskTab />,
+            content: (
+              <DeskTab
+                onShowInvoice={() => {
+                  setTab('invoice');
+                }}
+              />
+            ),
           },
         ]}
       />

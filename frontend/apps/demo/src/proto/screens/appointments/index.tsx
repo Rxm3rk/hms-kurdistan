@@ -698,7 +698,7 @@ export function AppointmentsScreen(): ReactNode {
         <StatTile
           label={t('kpiNoShow')}
           icon="alert"
-          tone={noShowToday > 0 ? 'warning' : undefined}
+          {...(noShowToday > 0 ? { tone: 'warning' as const } : {})}
           value={f.number(noShowToday)}
           hint={t('kpiNoShowHint', { rate: f.percent(noShowRate) })}
           onPress={() => {

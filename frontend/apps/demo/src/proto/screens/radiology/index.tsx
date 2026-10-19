@@ -331,7 +331,7 @@ export function RadiologyScreen(): ReactNode {
         title={examName(row)}
         subtitle={<Code>{row.id}</Code>}
         icon="scan"
-        tone={row.critical ? 'danger' : row.priority === 'stat' ? 'warning' : undefined}
+        tone={row.critical ? 'danger' : row.priority === 'stat' ? 'warning' : 'neutral'}
         actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedId(null); }} />}
       >
         <div className="rad-stack">
@@ -535,7 +535,7 @@ export function RadiologyScreen(): ReactNode {
           title={examName(editing)}
           subtitle={<Code>{editing.id}</Code>}
           icon="pen"
-          tone={draftCritical ? 'danger' : undefined}
+          tone={draftCritical ? 'danger' : 'neutral'}
           actions={
             <Button size="sm" icon="scan" onPress={() => { toast({ tone: 'info', title: t('toastPacs'), body: t('toastPacsBody', { id: editing.id }) }); }}>
               {t('actPacs')}

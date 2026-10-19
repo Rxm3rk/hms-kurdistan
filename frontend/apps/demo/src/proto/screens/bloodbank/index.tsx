@@ -272,7 +272,7 @@ export function BloodBankScreen(): ReactNode {
       title={<Code>{u.id}</Code>}
       subtitle={`${t(COMPONENT_KEY[u.component])} · ${u.group}`}
       icon="droplet"
-      tone={daysToExpiry(u) < 0 ? 'danger' : daysToExpiry(u) <= 3 ? 'warning' : undefined}
+      tone={daysToExpiry(u) < 0 ? 'danger' : daysToExpiry(u) <= 3 ? 'warning' : 'neutral'}
       actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedUnit(null); }} />}
     >
       <div className="bb-stack">
@@ -403,7 +403,7 @@ export function BloodBankScreen(): ReactNode {
               </>
             }
             icon="building"
-            tone={shipment.status === 'rejected' ? 'danger' : shipment.status === 'awaiting-relabel' ? 'warning' : undefined}
+            tone={shipment.status === 'rejected' ? 'danger' : shipment.status === 'awaiting-relabel' ? 'warning' : 'neutral'}
             flush
             actions={
               <span className="bb-row">
@@ -499,7 +499,7 @@ export function BloodBankScreen(): ReactNode {
         title={<Code>{r.id}</Code>}
         subtitle={`${t(COMPONENT_KEY[r.component])} × ${f.number(r.units)}`}
         icon="droplet"
-        tone={r.status === 'problem' ? 'danger' : r.priority === 'stat' ? 'warning' : undefined}
+        tone={r.status === 'problem' ? 'danger' : r.priority === 'stat' ? 'warning' : 'neutral'}
         actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedXm(null); }} />}
       >
         <div className="bb-stack">
@@ -807,7 +807,7 @@ export function BloodBankScreen(): ReactNode {
       <Grid min="12rem">
         <StatTile label={t('kpiRbc')} value={f.number(rbcAvailable.length)} unit={t('unitsUnit')} icon="droplet" tone={BLOOD_GROUPS.some((g) => rbcAvailable.filter((u) => u.group === g).length < RBC_MINIMUM[g]) ? 'warning' : 'success'} hint={t('kpiRbcHint')} onPress={() => { setTab('inventory'); setComponent('RBC'); }} />
         <StatTile label={t('kpiExpiring')} value={f.number(expiringSoon.length)} icon="clock" tone={expiringSoon.length > 0 ? 'warning' : 'success'} hint={t('kpiExpiringHint')} onPress={() => { setTab('inventory'); setComponent('all'); setGroupFilter('all'); }} />
-        <StatTile label={t('kpiXm')} value={f.number(xmOpen.length)} icon="clipboard" tone={requests.some((r) => r.status === 'problem') ? 'danger' : undefined} hint={t('kpiXmHint', { count: toRelabel.length })} onPress={() => { setTab('crossmatch'); }} />
+        <StatTile label={t('kpiXm')} value={f.number(xmOpen.length)} icon="clipboard" tone={requests.some((r) => r.status === 'problem') ? 'danger' : 'neutral'} hint={t('kpiXmHint', { count: toRelabel.length })} onPress={() => { setTab('crossmatch'); }} />
         <StatTile label={t('kpiTransfusing')} value={f.number(transfusing.length)} icon="activity" hint={t('kpiTransfusingHint')} onPress={() => { setTab('transfusion'); }} />
         <StatTile label={t('kpiReactions')} value={f.number(rxOpen.length)} icon="alert" tone={rxOpen.length > 0 ? 'danger' : 'success'} hint={t('kpiReactionsHint', { count: reactions.length })} onPress={() => { setTab('transfusion'); }} />
       </Grid>

@@ -200,7 +200,7 @@ export function InventoryScreen(): ReactNode {
         title={<Code>{item.name}</Code>}
         subtitle={<Code>{item.code}</Code>}
         icon="building"
-        tone={n < item.reorderLevel ? 'warning' : undefined}
+        tone={n < item.reorderLevel ? 'warning' : 'neutral'}
         actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedCode(null); }} />}
       >
         <div className="inv-stack">
@@ -279,7 +279,7 @@ export function InventoryScreen(): ReactNode {
             {...(lowHere > 0 ? { tone: 'warning' as const } : {})}
             hint={s.parentId === null ? t('mainStoreHint', { count: items.length }) : t('subStoreHint', { count: items.length, low: lowHere })}
             onPress={() => { setStore(s.id); }}
-            className={store === s.id ? 'inv-store--active' : undefined}
+            className={store === s.id ? 'inv-store--active' : ''}
           />
         );
       })}
@@ -351,7 +351,7 @@ export function InventoryScreen(): ReactNode {
         }
         let need = line.qty;
         const order = fefo(i.batches).map((b) => b.batch);
-        const batches = i.batches.map((b) => ({ ...b }));
+        const batches: { batch: string; expiresOn: string | null; qty: number }[] = i.batches.map((b) => ({ ...b }));
         for (const name of order) {
           const b = batches.find((x) => x.batch === name);
           if (b === undefined || need <= 0 || (daysTo(b.expiresOn) ?? 1) < 0) {
@@ -376,7 +376,7 @@ export function InventoryScreen(): ReactNode {
         title={<Code>{r.id}</Code>}
         subtitle={storeName(r.fromStoreId)}
         icon="clipboard"
-        tone={r.urgent && r.status === 'submitted' ? 'warning' : undefined}
+        tone={r.urgent && r.status === 'submitted' ? 'warning' : 'neutral'}
         actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedReq(null); }} />}
       >
         <div className="inv-stack">
@@ -711,7 +711,7 @@ export function InventoryScreen(): ReactNode {
         <StatTile label={t('kpiLow')} value={f.number(low.length)} icon="alert" tone={low.length > 0 ? 'warning' : 'success'} hint={t('kpiLowHint')} onPress={() => { setTab('stock'); setLowOnly('low'); setStore('all'); }} />
         <StatTile label={t('kpiExpiring')} value={<Money amount={expiringValue} />} icon="clock" tone={expiringValue > 0 ? 'warning' : 'success'} hint={t('kpiExpiringHint', { count: expiringBatches.length })} onPress={() => { setTab('stock'); setLowOnly('expiring'); setStore('all'); }} />
         <StatTile label={t('kpiReqs')} value={f.number(openReqs.length)} icon="clipboard" hint={t('kpiReqsHint', { count: openReqs.filter((r) => r.urgent).length })} onPress={() => { setTab('requisitions'); }} />
-        <StatTile label={t('kpiPo')} value={f.number(poAwaiting.length)} icon="receipt" tone={poAwaiting.length > 0 ? 'warning' : undefined} hint={t('kpiPoHint')} onPress={() => { setTab('po'); }} />
+        <StatTile label={t('kpiPo')} value={f.number(poAwaiting.length)} icon="receipt" tone={poAwaiting.length > 0 ? 'warning' : 'neutral'} hint={t('kpiPoHint')} onPress={() => { setTab('po'); }} />
         <StatTile label={t('kpiLeak')} value={<Money amount={leakIqd} />} icon="money" tone="danger" hint={t('kpiLeakHint', { pct: f.percent(leakShare) })} onPress={() => { setTab('leakage'); }} />
       </Grid>
       <Tabs

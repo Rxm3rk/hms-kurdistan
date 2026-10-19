@@ -214,7 +214,7 @@ export function ThermalReceipt({ patient, invoice, totals, exemption, payments, 
                   value={n(tender.valueIqd)}
                 />
               ) : (
-                <PaperRow key="iqd" indent label={t('pIqdTendered')} value={n(tender.minor)} />
+                <PaperRow key="iqd" indent label={record.method === 'cash' ? t('pIqdTendered') : t('pCard')} value={n(tender.minor)} />
               ),
             )}
             {record.changeIqd > 0 ? <PaperRow label={t('pChange')} value={n(record.changeIqd)} /> : null}

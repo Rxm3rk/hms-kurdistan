@@ -96,7 +96,7 @@ export function PharmacyScreen(): ReactNode {
   const [queue, setQueue] = useState<readonly RxItem[]>(RX_QUEUE);
   const [register, setRegister] = useState<readonly NarcoticEntry[]>(NARCOTIC_REGISTER);
   const [discrepancies, setDiscrepancies] = useState(0);
-  const [sales, setSales] = useState({ count: RETAIL_SALES_TODAY.count, iqd: RETAIL_SALES_TODAY.iqd, usd: RETAIL_SALES_TODAY.usd as number });
+  const [sales, setSales] = useState<{ readonly count: number; readonly iqd: number; readonly usd: number }>({ count: RETAIL_SALES_TODAY.count, iqd: RETAIL_SALES_TODAY.iqd, usd: RETAIL_SALES_TODAY.usd });
   const [tab, setTab] = useState('verify');
   const [view, setView] = useState<'todo' | 'all'>('todo');
   const [search, setSearch] = useState('');
@@ -221,7 +221,7 @@ export function PharmacyScreen(): ReactNode {
         title={<Code className="ph-drug ph-drug--lg">{tallMan(row.drug)}</Code>}
         subtitle={<Code>{row.id}</Code>}
         icon="pill"
-        tone={row.highAlert ? 'danger' : row.priority === 'stat' ? 'warning' : undefined}
+        tone={row.highAlert ? 'danger' : row.priority === 'stat' ? 'warning' : 'neutral'}
         actions={<IconButton icon="x" label={t('close')} onPress={() => { setSelectedId(null); }} />}
       >
         <div className="ph-stack">
@@ -645,7 +645,7 @@ export function PharmacyScreen(): ReactNode {
       <Grid min="12rem">
         <StatTile label={t('kpiPending')} value={f.number(pending.length)} icon="clipboard" tone={pending.length > 0 ? 'warning' : 'success'} hint={t('kpiPendingHint', { count: toDispense.length })} onPress={() => { setTab('verify'); }} />
         <StatTile label={t('kpiUrgent')} value={f.number(urgentPending.length)} icon="alert" tone={urgentPending.length > 0 ? 'danger' : 'success'} hint={t('kpiUrgentHint')} onPress={() => { setView('todo'); setTab('verify'); }} />
-        <StatTile label={t('kpiClarify')} value={f.number(clarify.length)} icon="phone" tone={clarify.length > 0 ? 'danger' : undefined} hint={t('kpiClarifyHint')} />
+        <StatTile label={t('kpiClarify')} value={f.number(clarify.length)} icon="phone" tone={clarify.length > 0 ? 'danger' : 'neutral'} hint={t('kpiClarifyHint')} />
         <StatTile label={t('kpiRetail')} value={<Money amount={sales.iqd} />} icon="money" hint={t('kpiRetailHint', { count: sales.count, usd: f.usd(sales.usd) })} onPress={() => { setTab('retail'); }} />
         <StatTile label={t('kpiNarcotics')} value={f.number(discrepancies)} icon="lock" tone={discrepancies > 0 ? 'danger' : 'success'} hint={t('kpiNarcoticsHint')} onPress={() => { setTab('narcotics'); }} />
       </Grid>
