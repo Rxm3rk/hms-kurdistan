@@ -38,6 +38,24 @@ import { OrdersScreen } from '../screens/orders/index.tsx';
 import { OutpatientScreen } from '../screens/outpatient/index.tsx';
 import { PatientsScreen } from '../screens/patients/index.tsx';
 import { WardScreen } from '../screens/ward/index.tsx';
+import { AppointmentsScreen } from '../screens/appointments/index.tsx';
+import { EmergencyScreen } from '../screens/emergency/index.tsx';
+import { NursingScreen } from '../screens/nursing/index.tsx';
+import { TheatreScreen } from '../screens/theatre/index.tsx';
+import { IcuScreen } from '../screens/icu/index.tsx';
+import { MaternityScreen } from '../screens/maternity/index.tsx';
+import { LabWorklistScreen } from '../screens/labworklist/index.tsx';
+import { RadiologyScreen } from '../screens/radiology/index.tsx';
+import { PharmacyScreen } from '../screens/pharmacy/index.tsx';
+import { BloodBankScreen } from '../screens/bloodbank/index.tsx';
+import { InventoryScreen } from '../screens/inventory/index.tsx';
+import { CashierScreen } from '../screens/cashier/index.tsx';
+import { InsuranceScreen } from '../screens/insurance/index.tsx';
+import { DashboardScreen } from '../screens/dashboard/index.tsx';
+import { QualityScreen } from '../screens/quality/index.tsx';
+import { StaffScreen } from '../screens/staff/index.tsx';
+import { ReportsScreen } from '../screens/reports/index.tsx';
+import { MessagingScreen } from '../screens/messaging/index.tsx';
 import { ProtoClinicalLayout } from './clinical-layout.tsx';
 import { ProtoFrame } from './frame.tsx';
 import { SCREENS, type ScreenId } from './screens.ts';
@@ -52,6 +70,24 @@ const COMPONENTS: Readonly<Record<ScreenId, RouteComponent>> = {
   emar: EmarScreen,
   lab: LabScreen,
   billing: BillingScreen,
+  appointments: AppointmentsScreen,
+  emergency: EmergencyScreen,
+  nursing: NursingScreen,
+  theatre: TheatreScreen,
+  icu: IcuScreen,
+  maternity: MaternityScreen,
+  labworklist: LabWorklistScreen,
+  radiology: RadiologyScreen,
+  pharmacy: PharmacyScreen,
+  bloodbank: BloodBankScreen,
+  inventory: InventoryScreen,
+  cashier: CashierScreen,
+  insurance: InsuranceScreen,
+  dashboard: DashboardScreen,
+  quality: QualityScreen,
+  staff: StaffScreen,
+  reports: ReportsScreen,
+  messaging: MessagingScreen,
   admin: AdminScreen,
 };
 

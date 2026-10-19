@@ -1,0 +1,4 @@
+.messaging-screen {
+  display: grid;
+  gap: var(--hms-space-4, 16px);
+}

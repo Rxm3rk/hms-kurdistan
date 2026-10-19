@@ -259,7 +259,7 @@ function CurrentPatientCard({ collapsed }: { readonly collapsed: boolean }): Rea
   );
 }
 
-const GROUP_LABEL = { hospital: 'navGroupHospital', record: 'navGroupRecord', system: 'navGroupSystem' } as const;
+const GROUP_LABEL = { hospital: 'navGroupHospital', services: 'navGroupServices', record: 'navGroupRecord', finance: 'navGroupFinance', management: 'navGroupManagement', system: 'navGroupSystem' } as const;
 
 function SideNav(): ReactNode {
   const t = useT(shellMessages);

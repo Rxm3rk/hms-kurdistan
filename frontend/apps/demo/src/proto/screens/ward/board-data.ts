@@ -387,6 +387,17 @@ export const DISCHARGES_BEFORE_NOW: Readonly<Record<WardId, number>> = BEDS.redu
   { 'med-a': 0, 'surg-b': 0, paeds: 0, icu: 0 },
 );
 
+/** Admissions earlier today (before 09:30), from the encounters. */
+export const ADMISSIONS_BEFORE_NOW: Readonly<Record<WardId, number>> = ENCOUNTERS.reduce<Record<WardId, number>>(
+  (counts, encounter) => {
+    if (encounter.type === 'inpatient' && encounter.wardId !== null && encounter.startIso.startsWith(DEMO_TODAY)) {
+      counts[encounter.wardId] += 1;
+    }
+    return counts;
+  },
+  { 'med-a': 0, 'surg-b': 0, paeds: 0, icu: 0 },
+);
+
 /** The instant used for actions taken in the demo (the clock is fixed). */
 export const ACTION_ISO: string = todayAt('09:30');
 

@@ -6,7 +6,7 @@
 import type { MessageKey } from '@hms/i18n';
 import type { IconName } from '../ui/icons.tsx';
 
-export const SCREEN_IDS = ['home', 'patients', 'outpatient', 'ward', 'chart', 'orders', 'emar', 'lab', 'billing', 'admin'] as const;
+export const SCREEN_IDS = ['home', 'patients', 'outpatient', 'ward', 'chart', 'orders', 'emar', 'lab', 'billing', 'admin', 'appointments', 'emergency', 'nursing', 'theatre', 'icu', 'maternity', 'labworklist', 'radiology', 'pharmacy', 'bloodbank', 'inventory', 'cashier', 'insurance', 'dashboard', 'quality', 'staff', 'reports', 'messaging'] as const;
 export type ScreenId = (typeof SCREEN_IDS)[number];
 
 export interface ScreenInfo {
@@ -29,13 +29,34 @@ export const SCREENS: Readonly<Record<ScreenId, ScreenInfo>> = {
   emar: { id: 'emar', path: '/emar', navKey: 'proto.nav.emar', icon: 'pill', clinical: true },
   lab: { id: 'lab', path: '/lab', navKey: 'proto.nav.lab', icon: 'flask', clinical: true },
   billing: { id: 'billing', path: '/billing', navKey: 'proto.nav.billing', icon: 'receipt', clinical: true },
+  appointments: { id: 'appointments', path: '/appointments', navKey: 'proto.nav.appointments', icon: 'calendar', clinical: false },
+  emergency: { id: 'emergency', path: '/emergency', navKey: 'proto.nav.emergency', icon: 'alert', clinical: false },
+  nursing: { id: 'nursing', path: '/nursing', navKey: 'proto.nav.nursing', icon: 'thermometer', clinical: false },
+  theatre: { id: 'theatre', path: '/theatre', navKey: 'proto.nav.theatre', icon: 'clock', clinical: false },
+  icu: { id: 'icu', path: '/icu', navKey: 'proto.nav.icu', icon: 'heart', clinical: false },
+  maternity: { id: 'maternity', path: '/maternity', navKey: 'proto.nav.maternity', icon: 'users', clinical: false },
+  labworklist: { id: 'labworklist', path: '/lab-worklist', navKey: 'proto.nav.labworklist', icon: 'flask', clinical: false },
+  radiology: { id: 'radiology', path: '/radiology', navKey: 'proto.nav.radiology', icon: 'scan', clinical: false },
+  pharmacy: { id: 'pharmacy', path: '/pharmacy', navKey: 'proto.nav.pharmacy', icon: 'pill', clinical: false },
+  bloodbank: { id: 'bloodbank', path: '/blood-bank', navKey: 'proto.nav.bloodbank', icon: 'droplet', clinical: false },
+  inventory: { id: 'inventory', path: '/inventory', navKey: 'proto.nav.inventory', icon: 'building', clinical: false },
+  cashier: { id: 'cashier', path: '/cashier', navKey: 'proto.nav.cashier', icon: 'money', clinical: false },
+  insurance: { id: 'insurance', path: '/insurance', navKey: 'proto.nav.insurance', icon: 'shield', clinical: false },
+  dashboard: { id: 'dashboard', path: '/dashboard', navKey: 'proto.nav.dashboard', icon: 'activity', clinical: false },
+  quality: { id: 'quality', path: '/quality', navKey: 'proto.nav.quality', icon: 'check-circle', clinical: false },
+  staff: { id: 'staff', path: '/staff', navKey: 'proto.nav.staff', icon: 'user', clinical: false },
+  reports: { id: 'reports', path: '/reports', navKey: 'proto.nav.reports', icon: 'printer', clinical: false },
+  messaging: { id: 'messaging', path: '/messaging', navKey: 'proto.nav.messaging', icon: 'phone', clinical: false },
   admin: { id: 'admin', path: '/admin', navKey: 'proto.nav.admin', icon: 'settings', clinical: false },
 };
 
-/** Navigation groups, in order: the hospital-wide screens, the patient record, administration. */
-export const NAV_GROUPS: readonly { readonly id: 'hospital' | 'record' | 'system'; readonly screens: readonly ScreenId[] }[] = [
-  { id: 'hospital', screens: ['home', 'patients', 'outpatient', 'ward'] },
+/** Navigation groups, in order: patient flow, clinical services, the patient record, finance, management, administration. */
+export const NAV_GROUPS: readonly { readonly id: 'hospital' | 'services' | 'record' | 'finance' | 'management' | 'system'; readonly screens: readonly ScreenId[] }[] = [
+  { id: 'hospital', screens: ['home', 'patients', 'appointments', 'outpatient', 'emergency', 'ward', 'nursing', 'theatre', 'icu', 'maternity'] },
+  { id: 'services', screens: ['labworklist', 'radiology', 'pharmacy', 'bloodbank', 'inventory'] },
   { id: 'record', screens: ['chart', 'orders', 'emar', 'lab', 'billing'] },
+  { id: 'finance', screens: ['cashier', 'insurance'] },
+  { id: 'management', screens: ['dashboard', 'quality', 'staff', 'reports', 'messaging'] },
   { id: 'system', screens: ['admin'] },
 ];
 

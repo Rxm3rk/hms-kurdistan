@@ -4,3 +4,279 @@
   flex-direction: column;
   gap: var(--hms-space-5);
 }
+
+/* Text helpers */
+.home-muted {
+  color: var(--hms-color-text-muted);
+}
+
+.home-small {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.home-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.home-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.home-two-line {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+}
+
+.home-two-line.home-end {
+  align-items: flex-end;
+}
+
+.home-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+/* Two columns: the main worklist and a side column; one column on a narrow screen. */
+.home-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(17rem, 1fr);
+  gap: var(--hms-space-5);
+  align-items: start;
+}
+
+@media (width < 62rem) {
+  .home-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.home-main,
+.home-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+  min-inline-size: 0;
+}
+
+/* Lists of worklist items (sign queue, tasks, payments, safety watch). */
+.home-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-3);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.home-list__item:first-child {
+  padding-block-start: 0;
+}
+
+.home-list__item:last-child {
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+.home-list__item--danger {
+  padding-inline-start: var(--hms-space-3);
+  border-inline-start: calc(3 * var(--hms-border-width)) solid var(--hms-color-danger-border);
+}
+
+.home-list__main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+}
+
+.home-list__title {
+  margin: 0;
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* Tasks: an icon in the task's tone (the text says what it is). */
+.home-task__icon {
+  flex: none;
+  margin-block-start: 0.15em;
+}
+
+.home-task--danger .home-task__icon {
+  color: var(--hms-color-danger-border);
+}
+
+.home-task--warning .home-task__icon {
+  color: var(--hms-color-warning-border);
+}
+
+.home-task--info .home-task__icon,
+.home-task--accent .home-task__icon {
+  color: var(--hms-color-info-border);
+}
+
+.home-task--neutral .home-task__icon {
+  color: var(--hms-color-text-muted);
+}
+
+/* The critical result callout */
+.home-critical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.home-critical p {
+  margin: 0;
+}
+
+.home-critical__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2) var(--hms-space-3);
+  font-size: var(--hms-font-size-lg);
+}
+
+.home-critical__value .home-muted {
+  font-size: var(--hms-font-size-sm);
+}
+
+/* Clinic status summary above the clinic table */
+.home-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-3) var(--hms-space-4);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+/* Ward census */
+.home-census {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.home-census__ward {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.home-census__ward--mine {
+  padding: var(--hms-space-3);
+  background-color: var(--hms-color-info-bg);
+  border-radius: var(--hms-radius-md);
+}
+
+.home-census__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+}
+
+.home-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1) var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.home-legend--spaced {
+  margin-block-start: var(--hms-space-4);
+}
+
+.home-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bar labels with a capacity badge */
+.home-bar-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1) var(--hms-space-2);
+}
+
+.home-chart-note {
+  margin: 0;
+}
+
+.home-chart-note:not(:first-child) {
+  margin-block-start: var(--hms-space-3);
+}
+
+/* Cashier */
+.home-rate {
+  margin: 0 0 var(--hms-space-2);
+  font-size: var(--hms-font-size-xl);
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-rate + .home-small,
+.home-small + .home-small {
+  margin: 0;
+}
+
+.home-small + .home-small {
+  margin-block-start: var(--hms-space-2);
+}
+
+.home-payment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+/* System health */
+.home-health {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-health__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-2);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.home-health__row:last-child {
+  border-block-end: 0;
+}
+
+.home-health__icon {
+  color: var(--hms-color-text-muted);
+}
+
+.home-health__text {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}

@@ -259,7 +259,7 @@ function matchWord(entry: Prepared, word: string): WordMatch | null {
       return { kind: 'similar', forms: similar };
     }
   }
-  if (/^[a-z]{2,}\d*$/u.test(word) || word.startsWith('syn')) {
+  if (word.startsWith('syn')) {
     return matchIdentifier(entry, word);
   }
   return null;
@@ -273,9 +273,10 @@ export function searchPatients(patients: readonly Patient[], query: string): Sea
   if (trimmed.length === 0) {
     return [];
   }
-  // A query of digits (with spaces, + or -) is one identifier: a phone number typed in groups.
-  const identifierOnly = /^[+\d][\d\s\-/.]*$/u.test(trimmed) && /\d/u.test(trimmed);
-  const queryWords = identifierOnly ? [trimmed] : words(foldText(trimmed));
+  // A query of digits (with spaces, + or -, optionally after SYN- or SYN-NID-) is one identifier: an MRN, a
+  // national ID, a date of birth or a phone number typed in groups.
+  const identifierOnly = /^(syn[-\s]?(nid[-\s]?)?)?[+\d][\d\s\-/.]*$/iu.test(trimmed);
+  const queryWords = identifierOnly ? [trimmed] : foldText(trimmed).split(' ').filter((word) => word.length > 0);
   const hits: SearchHit[] = [];
   for (const patient of patients) {
     const entry = prepare(patient);
@@ -351,8 +352,6 @@ export function findDuplicates(patients: readonly Patient[], draft: DraftIdentit
     const sameDob = draft.dob !== null && dobFits(draft.dob, patient);
     if (sameDob && (match === 'exact' || match === 'similar')) {
       duplicates.push(patient);
-    } else if (match !== 'partial' || sameDob) {
-      similarNames.push(patient);
     } else {
       similarNames.push(patient);
     }
