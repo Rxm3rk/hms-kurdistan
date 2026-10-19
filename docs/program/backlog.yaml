@@ -250,7 +250,7 @@
   scope: Keyboard-first design system; WCAG 2.2 AA
   kurdistan_note: Western digits for clinical numerals (K §6.2)
   placement_marked: false
-  status: spec
+  status: in-progress
   work_packages:
   - WP-0.7
   tests: []
@@ -258,6 +258,7 @@
   - HAZ-0016
   notes:
   - 'WP-0.7 S0: module specification docs/specs/modules/design-system.md (components, banner rules, number display, RTL, tests §9, message keys §10) and docs/specs/state-machines/patient-context.yaml (approval requested; every transition proposed). SI-16/SI-01/SI-05 readings DN-026 to DN-032 await the CSO. Anomalies KA-025, KA-026, KA-033, KA-036.'
+  - 'WP-0.7 S3 and S4 (037b572, ff77e46): ui-core (ClinicalNumber formatting, the banner model, the patient-context machine) and the design-system foundation (tokens, fonts, LocaleProvider, DensityProvider, Bdi, ClinicalNumber, Message, the modal stack guard). The banner, sign pattern and palette come in S5a and S5b. Anomalies KA-038, KA-039, KA-041, KA-042; choices OQ-158, OQ-160.'
 
 - id: PLT-UX-02
   group: PLT
@@ -270,7 +271,7 @@
   scope: Silent ZPL wristband/label print; scanners; badge tap; FHIRcast
   kurdistan_note: Kurdish/Arabic label shaping or raster fallback (K §9.2)
   placement_marked: false
-  status: spec
+  status: in-progress
   work_packages:
   - WP-0.7
   tests: []
@@ -280,6 +281,7 @@
   - HAZ-0016
   notes:
   - 'WP-0.7 S0: HAL contract v1 in docs/specs/hal/ (README, hal-v1.schema.json, 69 synthetic fixtures). The badge credential stays in the shell (OQ-150). hal.id.read and hal.pay.request fail closed until WP-1.2 and WP-1.9 (KA-027); Windows bundle DN-023 (KA-029); badge tap ≤2 s after WP-0.4 (KA-032). FHIRcast, in this feature''s A.1 scope, is not in WP-0.7.'
+  - 'WP-0.7 S8 (b597713): hal-client (contract schemas, Tauri, no-shell and simulated transports, capture binding) and the label-printer capture endpoint tools/simulators/label_printer/. The Tauri shell is S9. Choices OQ-157; anomaly KA-040.'
 
 - id: PLT-UX-03
   group: PLT
@@ -292,7 +294,7 @@
   scope: Arabic RTL; Hijri+Gregorian; bilingual prints; multi-script/phonetic name search
   kurdistan_note: 'Re-scoped, same size: Kurdish+Arabic RTL; Hijri optional'
   placement_marked: false
-  status: spec
+  status: in-progress
   work_packages:
   - WP-0.7 (base)
   tests: []
@@ -301,6 +303,7 @@
   - HAZ-0016
   notes:
   - 'WP-0.7 (base) S0: RTL, bidi and digit rules in docs/specs/modules/design-system.md §2.6 to §3 (Western digits throughout the staff UI, OQ-141; grouping DN-031). Hijri display, bilingual prints and multi-script phonetic name search are not in WP-0.7.'
+  - 'WP-0.7 (base) S2 and S4 (cad75ae, ff77e46): ui-intl tags with Western digits, pseudo-locales en-XA and ar-XB, the Sorani letter list, LocaleProvider setting lang and dir. Choices OQ-159.'
 
 - id: PLT-UX-04
   group: PLT
@@ -4380,7 +4383,7 @@
   scope: Sorani, Arabic, English UI; trilingual outputs
   kurdistan_note: Trilingual receipts and reports at R1
   placement_marked: false
-  status: spec
+  status: in-progress
   work_packages:
   - WP-0.7 (base)
   - WP-1.10
@@ -4390,6 +4393,7 @@
   - HAZ-0016
   notes:
   - 'WP-0.7 (base) S0: message keys in docs/specs/modules/design-system.md §10. The ckb and ar text is agent-drafted and unreviewed (DN-021, KA-031, OQ-151); trilingual outputs come with WP-1.10.'
+  - 'WP-0.7 (base) S2 (cad75ae): the 121 message keys of design-system §10 in en, ckb and ar; ckb and ar agent-drafted and marked unreviewed per key (DN-021, KA-031, OQ-151); the clinical-keys and review-marking lints.'
 
 - id: KRI-LOC-02
   group: KRI
