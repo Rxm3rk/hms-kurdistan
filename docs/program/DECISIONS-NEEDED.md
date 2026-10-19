@@ -8,10 +8,11 @@ The build agent never installs system software, enables OS features or changes s
 
 At most ten items. Answer these first.
 
-1. **DN-005** The lite cell cannot show WP-0.2's single-node-loss criterion: choose how it will be met. WP-0.2 starts now on the default.
+1. **DN-005** The lite cell as §5.1 defines it (two PostgreSQL instances) cannot show WP-0.2's single-node-loss criterion: choose how it will be met. WP-0.2 runs on the default in use since 19 October 2026, three small PostgreSQL instances inside the lite cell (option 4), with every result labelled "lite".
 2. **DN-011** No work package can merge into `main` until the merge tier exists and passes: confirm that the Phase 0 branches stack meanwhile, or choose another rule.
+3. **DN-017** The fast tier's new `cell-lint` step fails on two cell images: the PostgreSQL licence is not in `tools/licence/policy.yaml` (although §4.1 and ADR-001 name it), and k3s's BusyBox helper image (GPL-2.0) has no licence-register entry with a source offer. Choose how each is recorded.
 
-Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5).
+Next to block (not "now"): DN-013 if C: falls below 15 GiB free while WP-0.2 pulls the cell's images (29.3 GiB free on 19 October 2026); DN-015 and DN-016 if the cell's nightly runs prove unreliable on the defaults; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5).
 
 Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9) and DN-006 (confirmed).
 
@@ -172,12 +173,17 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
 
 - **Status:** open
 - **Blocks:** now: WP-0.2 starts on the default, but its exit criterion on single-node loss needs this answer
-- **Default in use:** the lite cell (§5.1: one Kafka broker, two PostgreSQL instances, no Argo CD), with every result from it labelled "lite".
+- **Default in use:** until 19 October 2026, the lite cell as §5.1 defines it (one Kafka broker, two PostgreSQL instances, no Argo CD); since then option 4 below (three small PostgreSQL instances inside the lite cell; see the update of 19 October 2026). Every result from the lite cell is labelled "lite".
 - **Update (18 October 2026, after DN-001):** `%UserProfile%\.wslconfig` gives the WSL VM 10 GB of memory, 8 processors and 8 GB of swap, which leaves about 5.6 GB for Windows. `tools/doctor` sets [P] guide thresholds for the cell profiles: the dev cell at 32 GB and 8 cores, the lite cell at 16 GB and 4 cores, and 50 GiB of free disk (OQ-094). The 10 GB VM is below the lite-cell guide too, so WP-0.2 measures what the lite cell actually uses on this host and records it before the threshold is confirmed or changed.
+- **Update (19 October 2026).** **Default in use until the human answers:** the lite cell runs three small PostgreSQL instances with quorum synchronous replication (option 4), with one Kafka broker and no Argo CD as §5.1 defines; every result from it is labelled "lite".
+  - **Why.** Two instances cannot show the single-node-loss criterion at all. Three are planned to fit the 10 GB VM: the WP-0.2 plan estimates about 5.4 GiB for the cell and 5.9 GiB for the whole VM, an estimate and not a measurement; the footprint test measures it (`docs/program/evidence/perf/`), and the figure is added here when a record exists. The change departs from §5.1's lite-cell definition by adding a PostgreSQL instance; it does not weaken any criterion.
+  - **Status of the criterion until you choose.** The node-kill evidence is recorded and labelled lite. WP-0.2's third exit criterion is reported as "shown on the lite cell (three instances, DN-005 option 4, pending)", not as met.
+  - **Your options.** Option 1: the records stay on file as indicative, and the criterion stays open (OQ-084). Options 2 and 3: the same commands run again on the larger host or on the reference cell. Option 4: you approve the three-instance lite cell and say whether its evidence meets the criterion.
+  - **What the lite evidence cannot show.** Hardware faults (the nodes share one kernel, disk and power supply), clock skew between nodes, real network latency, and RTO on reference hardware (KA-014).
 - **Who decides:** the human lead.
 - **Context:** the host has 15.6 GB RAM and 8 logical cores. BUILD-PROMPT "Before the first session" asks for at least 32 GB of RAM and 8 cores for the Linux VM; with less, the agent uses the compose profile and a lite cell. **Consequence for WP-0.2:** its exit evidence includes "killing any single node (primary or standby) keeps PostgreSQL writable with no committed transaction lost, and losing two nodes stops writes instead of degrading to asynchronous". That behaviour needs three PostgreSQL instances with quorum synchronous replication (§5.1, §16.2). A lite cell with two instances cannot show it as written. The criterion is not weakened: on a lite cell that part of WP-0.2 stays open (recorded as OQ-084).
 - **Options:**
-  1. **Accept the lite cell** (default) and leave the three-instance failover evidence open until a bigger host or the reference cell exists. Limit WSL2 so Windows keeps headroom, in `%UserProfile%\.wslconfig`:
+  1. **Accept the lite cell** (the default until 19 October 2026) and leave the three-instance failover evidence open until a bigger host or the reference cell exists. Limit WSL2 so Windows keeps headroom, in `%UserProfile%\.wslconfig`:
 
      ```ini
      [wsl2]
@@ -192,7 +198,7 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
      This is the file in use. Raising `memory` (for example to 12GB) leaves Windows less headroom; run `wsl --shutdown` after any change.
   2. **A bigger host** that can give the Linux VM at least 32 GB of RAM and 8 cores, so the full dev cell runs.
   3. **Provide the reference cell early** (DN-009) and run the cell evidence there.
-  4. Approve running three small PostgreSQL instances inside the lite cell. This departs from §5.1's lite-cell definition, so it needs the human's decision.
+  4. Approve running three small PostgreSQL instances inside the lite cell (the default in use since 19 October 2026, pending this decision). This departs from §5.1's lite-cell definition, so it needs the human's decision.
 
 ## DN-006: Confirm the project-local Windows toolchain in `.tools/`
 
@@ -282,6 +288,10 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
 - **Status:** open
 - **Blocks:** WP-0.2 (container images, the k3d cell's volumes, build caches)
 - **Default in use:** continue. WP-0.2 records how much space the lite cell takes, and stops pulling images or creating volumes if C: falls below 15 GiB free [P], so the Windows system drive never fills.
+- **Update (19 October 2026, measured on the WSL build host and the Windows host):**
+  - C: had 29.33 GiB free (31,488,036,864 bytes, `df -B1 /mnt/c` in WSL; Windows reported the same), and the WSL virtual disk `ext4.vhdx` had grown to 20.67 GiB (22,191,013,888 bytes; 8.9 GB on 18 October).
+  - Clearing the WP-0.2 prototype (the k3d cluster `hms-proto` and the five images no pin uses: RustFS 1.0.3, versitygw v1.4.1, CloudNativePG 1.27.1, the Strimzi 0.48.0 operator and Valkey 8.1) reduced Docker's images from 2.533 GB to 1.134 GB and its volumes from 3.766 GB (13 volumes) to none (`docker system df`). `df -h /mnt/c` showed 30G available both before and after (the free space before was not recorded more precisely): the virtual disk does not shrink when files inside it are deleted.
+  - The 15 GiB stop line [P] is to be enforced by the cell tooling: `cell images mirror` and `cell up` will refuse to pull or create volumes below it (WP-0.2 slices S1 and S7; not built yet). Until then the cell owner checks `df -h /mnt/c` before every pull.
 - **Who decides:** the host owner.
 - **Context:** the WSL2 virtual disk (`ext4.vhdx`, 8.9 GB on 18 October 2026) lives on C:, which has about 35 GiB free (86% used); inside WSL the virtual disk reports about 950 GiB, which is only its maximum size. `tools/doctor` therefore counts the Windows drive too and reports 36.4 GiB free on C: against its [P] guide of 50 GiB (OQ-094; `docs/program/evidence/doctor/2026-10-18-d3e14de.txt`). The only other drive, G:, has about 33 GB free, so moving the distribution there gains nothing.
 - **Options:**
@@ -300,3 +310,54 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. **Keep the interim reading (default):** every interruptive rule needs a measured PPV, and each baseline rule that is to interrupt from day 0 needs an explicit exception that the CSO approves in a sign-off record. WP-1.5 builds the exception record and the promotion block.
   2. **Accept the PPV measured in the vendor's validation** of the baseline as "a measured PPV" until local telemetry measures one, recorded per rule in the registry with its source. A baseline rule with that evidence then needs no exception.
   3. **Another reading** that the CSO states; WP-1.5 builds the gate to it, and HAZ-0014's controls are changed to match.
+
+## DN-015: WSL stops the distribution when it is idle, which powers off the whole cell [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing now; later, how reliable the cell's nightly runs are (WP-0.2's nightly chaos and cell steps, §18.7, §19.1)
+- **Default in use:** during a cell session the cell owner keeps a detached keeper process running from Windows, and stops it at the end of the session: `Start-Process -WindowStyle Hidden wsl.exe -ArgumentList '-d','Ubuntu-24.04','--exec','sleep','infinity'`. The cell is created with fixed node addresses (OQ-122), so that a termination is survivable: the cell then restarts as after a power cut (KA-022), which the restart test R1 checks. The build agent changes no WSL setting (§3.4 item 9).
+- **Who decides:** the host owner.
+- **Context:** the planning session's read-only inspection of the systemd journal found that WSL stopped the distribution five times on 18 October 2026 between 17:47 and 21:40 (`InitTerminateInstanceInternal … calling reboot(RB_POWER_OFF)`); two boots lasted only 27 s and 25 s, which fits idle termination after the last `wsl.exe` exits. Each stop kills all three k3d nodes at once. The WP-0.2 prototype cluster then came back with its node addresses swapped, and its embedded etcd lost quorum; the prototype is not evidence and was deleted on 19 October 2026. Microsoft's WSL settings page (`learn.microsoft.com/windows/wsl/wsl-config`, updated 16 October 2026) documents two idle timers in `%UserProfile%\.wslconfig`: `instanceIdleTimeout` in `[general]`, the milliseconds a distribution may be idle before it is shut down (default 15000; -1 disables it), and `vmIdleTimeout` in `[wsl2]`, the milliseconds the VM may be idle before it is shut down (default 60000; Windows 11 only).
+- **Options:**
+  1. **Keep the default** (the keeper process during cell sessions, fixed node addresses). Every termination outside a session is still a whole-cell power cut.
+  2. **Turn off idle shutdown of the distribution** in `%UserProfile%\.wslconfig`, then run `wsl --shutdown`:
+
+     ```ini
+     [general]
+     instanceIdleTimeout=-1
+     ```
+
+     The VM then keeps its memory (up to the 10 GB limit) until `wsl --shutdown` or a Windows restart. Check with `wsl --version` that the installed WSL (2.6.3 on 18 October 2026) supports the key, and Microsoft's page for its current name.
+  3. Option 2, and run the nightly tier only while the keeper process is up.
+
+## DN-016: `fs.inotify.max_user_instances` is 128 in WSL [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing now; the cell, if k3s or a pod fails with "too many open files"
+- **Default in use:** continue with 128. If k3s or a pod logs "too many open files", work on the cell stops and this item moves to "Blocking now". The build agent changes no system setting (§3.4 item 9).
+- **Who decides:** the host owner.
+- **Context:** read in WSL on 19 October 2026: `fs.inotify.max_user_instances = 128`, `fs.inotify.max_user_watches = 524288`. The three k3s nodes run as containers on the VM's one kernel, so their kubelets, containerd instances and pods share the per-user inotify instance limit; clusters of several nodes on one host are known to exhaust 128.
+- **Options:**
+  1. **Raise the limit to 512 and keep it across restarts** (in Ubuntu):
+
+     ```sh
+     sudo sysctl -w fs.inotify.max_user_instances=512
+     echo 'fs.inotify.max_user_instances = 512' | sudo tee /etc/sysctl.d/90-hms-inotify.conf
+     ```
+
+  2. **Keep 128** (default) and act only if the error appears.
+
+## DN-017: Two cell images fail the licence policy: the PostgreSQL licence is not classified, and BusyBox (GPL-2.0) has no licence-register entry
+
+- **Status:** open
+- **Blocks:** now: the fast tier's new `cell-lint` step (WP-0.2 slice S1) fails on these two images, so no commit that adds it can pass the fast tier (§3.6) until this is answered. Nothing else waits on it: the images are mirrored and signed in the lite cell's local registry, which ships nothing.
+- **Default in use:** none that passes. The lint fails closed: adding a licence to the policy, or recording a GPL component with a source offer, is stop-and-ask item 2 (§3.4), and `tools/licence/policy.yaml` says to record such a case here rather than edit the policy to make a check pass.
+- **Who decides:** the human lead.
+- **Context** (`tools/hms cell lint`, 19 October 2026, on the Windows host and the WSL build host):
+  1. **PostgreSQL.** `ghcr.io/cloudnative-pg/postgresql` (18.6, `minimal-trixie`) carries PostgreSQL itself, under the PostgreSQL Licence (SPDX `PostgreSQL`); the image's OCI label says Apache-2.0, the licence of CloudNativePG's build files. §4.1 names the PostgreSQL licence for the database, and ADR-001 says it is on the allowlist, but §4.3's allowlist does not list it and `tools/licence/policy.yaml` does not classify it, so the evaluator reports it "unmapped".
+  2. **BusyBox.** k3s's local-path provisioner starts helper pods from `rancher/mirrored-library-busybox:1.37.0` (BusyBox, GPL-2.0-only) to create and remove volume directories, so every cell that uses local-path volumes ships it. §4.3 allows GPL "only as unmodified, separate containers with a source offer", and the policy's `gpl-separate-container` rule asks for a licence-register entry with `source_offer`. busybox.net lists 1.37.0 (27 September 2024) as an unstable release, and the 1.37 line has no patch release: the version is k3s's default, not one §4.1's rule would pick, which also bears on option 2.
+  - The lint checks the licence each image declares. What is inside an image (the GPL tools inside the k3s image, OpenJDK inside Kafka and Keycloak, UBI packages) is not scanned until WP-0.9 (KA-019, OQ-133).
+- **Options:**
+  1. Add `PostgreSQL` to `allowed` in `tools/licence/policy.yaml` and to `tools/licence/ort/license-classifications.yml` (as §4.1 and ADR-001 read it), and add a licence-register entry for the BusyBox image: `component: '^pkg:docker/rancher/mirrored-library-busybox@'`, `licence: GPL-2.0-only`, `rule: gpl-separate-container`, `unmodified: true`, `source_offer:` where the product will publish BusyBox 1.37.0's source, `added_in: WP-0.2`.
+  2. As option 1 for PostgreSQL; and replace the BusyBox helper with an image under an allowlisted licence (k3s's `local-path-config` ConfigMap names the helper image), recorded as a deviation from k3s's defaults.
+  3. Another rule that the human states.

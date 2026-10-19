@@ -1,0 +1,143 @@
+[
+ {
+  "Id": "c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0",
+  "Name": "/k3d-hms-proto-server-0",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 0
+  },
+  "Config": {
+   "Image": "rancher/k3s:v1.37.1-k3s1",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-proto",
+    "k3d.role": "server"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-proto": {
+     "IPAMConfig": null,
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-proto-server-0",
+      "c0c0c0c0c0c0"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "172.18.0.1",
+     "IPAddress": "172.18.0.3",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-proto-server-0",
+      "c0c0c0c0c0c0"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "Id": "c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1",
+  "Name": "/k3d-hms-proto-server-1",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 0
+  },
+  "Config": {
+   "Image": "rancher/k3s:v1.37.1-k3s1",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-proto",
+    "k3d.role": "server"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-proto": {
+     "IPAMConfig": null,
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-proto-server-1",
+      "c1c1c1c1c1c1"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "172.18.0.1",
+     "IPAddress": "172.18.0.2",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-proto-server-1",
+      "c1c1c1c1c1c1"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "Id": "c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2c2",
+  "Name": "/k3d-hms-proto-server-2",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 0
+  },
+  "Config": {
+   "Image": "rancher/k3s:v1.37.1-k3s1",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-proto",
+    "k3d.role": "server"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-proto": {
+     "IPAMConfig": null,
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-proto-server-2",
+      "c2c2c2c2c2c2"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "172.18.0.1",
+     "IPAddress": "172.18.0.4",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-proto-server-2",
+      "c2c2c2c2c2c2"
+     ]
+    }
+   }
+  }
+ }
+]
