@@ -3,6 +3,7 @@ package hms.platform.docs.infrastructure.html
 import hms.platform.docs.api.LabelLanguage
 import hms.platform.docs.api.Refusal
 import hms.platform.docs.api.RefusalReason
+import hms.platform.docs.domain.template.Symbology
 import hms.platform.docs.infrastructure.fonts.PrintFont
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -73,8 +74,13 @@ internal object HtmlText {
 
     /**
      * The `<title>` and `<meta>` elements every print carries: creation and modification time (from the
-     * request, never the clock), the template id, version and content hash, the provenance and, for
-     * synthetic content, the notice. Null when a value holds text HTML cannot carry.
+     * request, never the clock), the template id, version and content hash, the provenance, every barcode
+     * the page carries and, for synthetic content, the notice. Null when a value holds text HTML cannot carry.
+     *
+     * The names follow the renderer satellite's fixture convention (`backend/satellites/document-renderer/README.md`):
+     * `hms.template.provenance`, and [BARCODE_PAYLOADS] as space-separated `<symbology>:<payload>` tokens
+     * (empty when there is none), which the PDF golden step decodes and compares (`GoldenImage:barcode-decodes-*`,
+     * spec §6.2). Payloads are R4 identifiers joined by `|` and `:`, so they hold no space.
      */
     fun head(meta: HtmlMetadata): String? {
         val entries =
@@ -85,7 +91,8 @@ internal object HtmlText {
                 add("hms.template.id" to meta.templateId)
                 add("hms.template.version" to meta.templateVersion.toString())
                 add("hms.template.hash" to meta.templateHash)
-                add("hms.provenance" to if (meta.synthetic) "synthetic" else "approved")
+                add("hms.template.provenance" to if (meta.synthetic) "synthetic" else "approved")
+                add(BARCODE_PAYLOADS to meta.barcodes.joinToString(" ") { "${it.symbology.yamlName}:${it.payload}" })
                 if (meta.synthetic) add("hms.notice" to SYNTHETIC_NOTICE)
             }
         val title = escape(meta.title)
@@ -105,6 +112,9 @@ internal object HtmlText {
             }
         }
     }
+
+    /** The meta element naming every barcode of the page (the satellite's golden-step convention). */
+    const val BARCODE_PAYLOADS: String = "hms.barcode.payloads"
 
     /** The synthetic-content notice (§19.4); printed visibly by the layout's `notice.synthetic` element too. */
     const val SYNTHETIC_NOTICE: String = "SYNTHETIC – NOT FOR CLINICAL USE"
@@ -126,4 +136,12 @@ data class HtmlMetadata(
     val language: LabelLanguage,
     val title: String,
     val createdAt: String,
+    /** Every barcode the page carries, in layout order (written as [HtmlText.BARCODE_PAYLOADS]). */
+    val barcodes: List<HtmlBarcode> = emptyList(),
+)
+
+/** A barcode as the metadata names it: its symbology and its exact payload. */
+data class HtmlBarcode(
+    val symbology: Symbology,
+    val payload: String,
 )

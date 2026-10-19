@@ -177,6 +177,9 @@ sealed interface FirstBandResult {
 
     /** No first-band verification is pending for this job. */
     data object NotPending : FirstBandResult
+
+    /** The audit record of the verification could not be written; nothing changed and the scan may be repeated (spec §8.3). */
+    data object AuditUnavailable : FirstBandResult
 }
 
 /** The result of [ReportPrintOutcome] (spec §8.1). */

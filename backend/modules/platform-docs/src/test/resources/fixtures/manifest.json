@@ -1,60 +1,70 @@
 {
   "identity" : "byte-fixtures",
-  "files" : [ {
-    "name" : "html-document-a4-reprint.html",
-    "sha256" : "499df40dc34279f7b6e9dcaaf7136eadf02b0a48bfc78d857581586a8812af08",
-    "template_id" : "SYN-DOCUMENT-A4",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "html-document-a4.html",
-    "sha256" : "1219a108e4bcae7a638ea7b499ac3b2053b038bfa5bbe9dc55fd25ae881c653a",
-    "template_id" : "SYN-DOCUMENT-A4",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "html-receipt.html",
-    "sha256" : "60055a69f134efd1e19d5416cc75b1b4a5291545c6c0ca662c59c7f79d0c35c8",
-    "template_id" : "SYN-RECEIPT",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "html-specimen-code128.html",
-    "sha256" : "efe1be8cb7a8406ab0346e4af19c24cf1a964b92ab0fc967f17b7fd285eb9221",
-    "template_id" : "SYN-SPECIMEN-CODE128",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "html-wristband.html",
-    "sha256" : "17fa483a422b6dbb54ba9bef02c9ec45d806368f6dc45d556137943faa3a18f6",
-    "template_id" : "SYN-WRISTBAND-ADULT",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "zpl-reprint-wristband-203.zpl",
-    "sha256" : "762d442a85b4803c4d288e427cfddec42c1428d1d6d734c0f32b983584e5441b",
-    "template_id" : "SYN-WRISTBAND-ADULT",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "zpl-text-specimen-code128-203.zpl",
-    "sha256" : "a91c9ec66a3875d10b72f2b8bacd9e6745283d86da147f8646ee4d2146832f73",
-    "template_id" : "SYN-SPECIMEN-CODE128",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "zpl-text-wristband-203.zpl",
-    "sha256" : "3e73c14e615896a6e71816a761d6db73c96748598476bed7f126f3cd903e664b",
-    "template_id" : "SYN-WRISTBAND-ADULT",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  }, {
-    "name" : "zpl-text-wristband-300.zpl",
-    "sha256" : "d662803109e86f8e1da331e936fd52ecdaf95736382182225bdf470f97b470f1",
-    "template_id" : "SYN-WRISTBAND-ADULT",
-    "template_version" : 1,
-    "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
-  } ],
+  "files" : [
+    {
+      "name" : "html-document-a4-reprint.html",
+      "sha256" : "f32d72cb6940361f5b8682b30a679dc4f7cd8ec0d4a6a418f23394805478c3eb",
+      "template_id" : "SYN-DOCUMENT-A4",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "html-document-a4.html",
+      "sha256" : "6492f29c3b2d501b8c08e3eebeb51d6457b08dbdfe42243f537c5fecdf0356b6",
+      "template_id" : "SYN-DOCUMENT-A4",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "html-receipt.html",
+      "sha256" : "85c5f6380e9a2b851b6026539ed7439cf5d3731a0063762e56fad64110d2568a",
+      "template_id" : "SYN-RECEIPT",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "html-specimen-code128.html",
+      "sha256" : "927e8636317ae7d6972be774eddc18e0f98b0bb33ed607bfa92e72f6f3439f4a",
+      "template_id" : "SYN-SPECIMEN-CODE128",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "html-wristband.html",
+      "sha256" : "2638f2997ee5e02f2c7369393482d19281f1dd9b1bed99dd1d95b967119d8adc",
+      "template_id" : "SYN-WRISTBAND-ADULT",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "zpl-reprint-wristband-203.zpl",
+      "sha256" : "762d442a85b4803c4d288e427cfddec42c1428d1d6d734c0f32b983584e5441b",
+      "template_id" : "SYN-WRISTBAND-ADULT",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "zpl-text-specimen-code128-203.zpl",
+      "sha256" : "a91c9ec66a3875d10b72f2b8bacd9e6745283d86da147f8646ee4d2146832f73",
+      "template_id" : "SYN-SPECIMEN-CODE128",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "zpl-text-wristband-203.zpl",
+      "sha256" : "3e73c14e615896a6e71816a761d6db73c96748598476bed7f126f3cd903e664b",
+      "template_id" : "SYN-WRISTBAND-ADULT",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name" : "zpl-text-wristband-300.zpl",
+      "sha256" : "d662803109e86f8e1da331e936fd52ecdaf95736382182225bdf470f97b470f1",
+      "template_id" : "SYN-WRISTBAND-ADULT",
+      "template_version" : 1,
+      "template_hash" : "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
   "human_script_review" : "requested",
   "approved_by_agent_commit" : null
 }

@@ -1,6 +1,7 @@
 package hms.platform.docs.application
 
 import hms.platform.docs.api.PrintCommand
+import hms.platform.docs.api.RefusalReason
 import hms.platform.docs.domain.audit.PrintAuditRecord
 import hms.platform.docs.domain.job.PrintJobEvent
 import hms.platform.docs.domain.template.Template
@@ -87,8 +88,14 @@ sealed interface RenderOutcome {
         override fun hashCode(): Int = pdf.contentHashCode()
     }
 
+    /**
+     * No PDF. [reason] is the refusal the print gets: `RENDERER_UNAVAILABLE` for every failure except the satellite's
+     * R8 finding (`r8-eastern-digit`), which is `EASTERN_DIGITS` (spec §3.2 R8, §7.5). [detail] is a fixed reason
+     * code, never the document's text.
+     */
     data class Failed(
         val detail: String,
+        val reason: RefusalReason = RefusalReason.RENDERER_UNAVAILABLE,
     ) : RenderOutcome
 }
 

@@ -1,0 +1,27 @@
+# Synthetic specimen tube label with the Code 128 option, NOT FOR CLINICAL USE (BUILD-PROMPT §19.4;
+# docs/specs/modules/platform-docs.md §4, §6.1): the specimen ID alone, as some analyser tube readers need; the LIS
+# may choose it (WP-1.7, OQ-240). Bars across the label width with their ten-module quiet zones, the human-readable
+# specimen ID right below them (lint rule 4). 50.8 mm × 38.1 mm, as SYN-SPECIMEN-LABEL (see its note on the size).
+# Caption texts in ckb and ar are drafted by the build agent (AI) and UNREVIEWED (spec §14; DN-021 rule).
+id: SYN-SPECIMEN-LABEL-CODE128
+version: 1
+provenance: synthetic
+kind: specimen-label
+media:
+  width_mm: 50.8
+  length_mm: 38.1
+  rotation: 0
+  printable: {x_mm: 0.5, y_mm: 0.5, w_mm: 49.8, h_mm: 37.1}
+captions:
+  approximate: {en: "Approx.", ckb: "نزیکەیی", ar: "تقريبي"}
+elements:
+  - {type: text, bind: identity.name.own, font: by-script, box: {x_mm: 0.5, y_mm: 0.5, w_mm: 49.8, h_mm: 12.4}, size_pt: {max: 11, min: 8}, max_lines: 2}
+  - {type: text, bind: identity.name.latin, font: latin, weight: bold, box: {x_mm: 0.5, y_mm: 12.9, w_mm: 49.8, h_mm: 6.1}, size_pt: {max: 8, min: 6}, max_lines: 2}
+  - {type: text, bind: identity.mrn, font: latin, direction: ltr, box: {x_mm: 0.5, y_mm: 19.0, w_mm: 22, h_mm: 3.1}, size_pt: {max: 8, min: 6}}
+  - {type: text, bind: watermark, font: latin, direction: ltr, box: {x_mm: 23, y_mm: 19.0, w_mm: 27.3, h_mm: 3.1}, size_pt: {max: 5.5, min: 4.5}}
+  - {type: text, bind: identity.birthDate, font: latin, direction: ltr, box: {x_mm: 0.5, y_mm: 22.1, w_mm: 14, h_mm: 3.1}, size_pt: {max: 8, min: 6}}
+  - {type: caption, key: approximate, font: by-label-language, box: {x_mm: 14.7, y_mm: 22.1, w_mm: 12, h_mm: 6.3}, size_pt: {max: 9, min: 8}}
+  - {type: text, bind: notice.synthetic, font: latin, box: {x_mm: 27, y_mm: 22.1, w_mm: 23.3, h_mm: 6.0}, size_pt: {max: 6, min: 4.5}, max_lines: 2}
+  - {type: barcode, bind: barcode.specimen, symbology: code128, box: {x_mm: 2.5, y_mm: 28.6, w_mm: 45.8, h_mm: 5.8}, module_mm: 0.25}
+  - {type: text, bind: specimen.id, font: latin, direction: ltr, box: {x_mm: 0.5, y_mm: 34.5, w_mm: 30, h_mm: 3.1}, size_pt: {max: 8, min: 6}}
+  - {type: text, bind: specimen.collectedAt, font: latin, direction: ltr, box: {x_mm: 31, y_mm: 34.5, w_mm: 19.3, h_mm: 3.1}, size_pt: {max: 6, min: 4.5}}

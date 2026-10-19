@@ -10,7 +10,8 @@ import hms.platform.docs.api.PrintBanner
  * (the banner layout that [DocumentHtmlWriter] writes); identity lines come from the identity rules.
  *
  * - Allergies print exactly one state: NKA, not assessed, the list, or "Allergy status unavailable".
- *   Missing, empty or contradictory data is never printed as NKA: an empty list prints as unavailable.
+ *   Missing, empty or contradictory data is never printed as NKA: an empty list, or a list with an entry
+ *   that has no substance, prints as unavailable (the same rule as the domain's `ContentRules` banner rows).
  * - Code status, isolation and weight print their display text, or "<field> unavailable"; never a default.
  * - The photo prints as text only (photos on prints: OQ-239): "No photo", or "Photo on record (not printed)".
  * - [LabelledText][hms.platform.docs.api.LabelledText] fields print their `text`; the redaction the policy
@@ -48,7 +49,7 @@ object BannerText {
             }
 
             is PrintAllergies.Listed -> {
-                if (allergies.items.isEmpty()) {
+                if (allergies.items.isEmpty() || allergies.items.any { it.substance.isBlank() }) {
                     captions.allergyStatusUnavailable
                 } else {
                     val items =

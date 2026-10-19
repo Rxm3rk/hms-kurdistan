@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>SYN self-test: receipt with Code 128</title>
+<!-- Golden-harness self-test fixture (hms_docrender/golden). SYNTHETIC – NOT FOR CLINICAL USE: every name, amount and identifier is invented.
+     The Code 128 symbol was encoded once with zxing-cpp and is inlined as SVG; the harness decodes it from the raster. -->
+<meta name="hms.template.id" content="SYN-SELFTEST-RECEIPT">
+<meta name="hms.template.version" content="1">
+<meta name="hms.template.hash" content="01772f790bad030fa8c5f79a9c38683e93b8635542c79eefad2bedbad6624cf9">
+<meta name="hms.template.provenance" content="synthetic">
+<meta name="hms.barcode.payloads" content="code128:SYN-S-000077">
+<meta name="dcterms.created" content="2026-01-01T00:00:00Z">
+<style>
+@font-face { font-family: "HMS Arabic"; font-weight: 400; src: url(hms-font:noto-sans-arabic-regular); }
+@font-face { font-family: "HMS Arabic"; font-weight: 700; src: url(hms-font:noto-sans-arabic-bold); }
+@font-face { font-family: "HMS Latin"; font-weight: 400; src: url(hms-font:noto-sans-regular); }
+@font-face { font-family: "HMS Latin"; font-weight: 700; src: url(hms-font:noto-sans-bold); }
+@page { size: 80mm 120mm; margin: 4mm; }
+body { font-family: "HMS Arabic", "HMS Latin"; font-size: 9pt; line-height: 1.7; margin: 0; }
+.latin { font-family: "HMS Latin"; direction: ltr; unicode-bidi: isolate; }
+.center { text-align: center; }
+.title { font-weight: 700; font-size: 11pt; }
+.item { display: flex; justify-content: space-between; }
+.total { font-weight: 700; border-top: 0.6pt solid #000; margin-top: 1mm; padding-top: 1mm; }
+.barcode { margin: 3mm 0 0 0; text-align: center; direction: ltr; }
+.hri { font-family: "HMS Latin"; font-size: 8pt; direction: ltr; text-align: center; }
+.notice { font-family: "HMS Latin"; font-weight: 700; font-size: 7pt; direction: ltr; text-align: center; margin-top: 2mm; }
+</style>
+</head>
+<body>
+<div class="center title">مستشفى تجريبي – وصل</div>
+<div class="center">نۆرینگەی تاقیکردنەوە</div>
+<div>المريض: شيلان أحمد كريم</div>
+<div>Shilan Ahmed Karim — <span class="latin">SYN-000123-7</span></div>
+<div>رقم الوصل: <span class="latin">SYN-R-000310</span></div>
+<div class="item"><span>فحص الدم</span><span class="latin">25,000 IQD</span></div>
+<div class="item"><span>پشکنینی خوێن</span><span class="latin">10,000 IQD</span></div>
+<div class="item total"><span>المجموع</span><span class="latin">35,000 IQD</span></div>
+<div>أمين الصندوق: <span class="latin">SYN-USER-02</span> · <span class="latin">2026-01-01 08:00</span></div>
+<div class="barcode"><svg xmlns="http://www.w3.org/2000/svg" width="50.75mm" height="12mm" viewBox="0 0 145 1" preserveAspectRatio="none" shape-rendering="crispEdges"><path fill="#000" d="M0 0h2v1h-2zM3 0h1v1h-1zM6 0h1v1h-1zM11 0h2v1h-2zM14 0h3v1h-3zM18 0h1v1h-1zM22 0h3v1h-3zM26 0h2v1h-2zM29 0h1v1h-1zM33 0h1v1h-1zM35 0h3v1h-3zM41 0h2v1h-2zM44 0h1v1h-1zM47 0h2v1h-2zM50 0h3v1h-3zM55 0h2v1h-2zM58 0h3v1h-3zM62 0h1v1h-1zM66 0h1v1h-1zM69 0h2v1h-2zM72 0h3v1h-3zM77 0h1v1h-1zM79 0h3v1h-3zM83 0h4v1h-4zM88 0h2v1h-2zM91 0h2v1h-2zM95 0h2v1h-2zM99 0h2v1h-2zM102 0h2v1h-2zM106 0h2v1h-2zM110 0h4v1h-4zM115 0h3v1h-3zM119 0h1v1h-1zM121 0h1v1h-1zM123 0h1v1h-1zM125 0h4v1h-4zM132 0h2v1h-2zM137 0h3v1h-3zM141 0h1v1h-1zM143 0h2v1h-2z"/></svg></div>
+<div class="hri">SYN-S-000077</div>
+<div class="notice">SYNTHETIC – NOT FOR CLINICAL USE</div>
+</body>
+</html>
