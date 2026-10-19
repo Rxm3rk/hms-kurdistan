@@ -1,0 +1,20 @@
+<!doctype html>
+<!--
+  The web app's page (docs/specs/modules/design-system.md §4). Text, language and direction come from the
+  app at run time: LocaleProvider sets lang and dir on <html> from the user's locale, and the title comes
+  from the catalogues. Nothing is loaded from another origin: fonts, icons and catalogues are bundled.
+  Production and demo builds add a Content-Security-Policy that allows the page's own origin only
+  (vite.config.ts).
+-->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title></title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
