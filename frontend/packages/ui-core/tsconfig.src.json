@@ -1,0 +1,10 @@
+{
+  // The shipped source alone, with no ambient types: no DOM library (tsconfig.base.json has none) and no
+  // Node.js types, so src can use only ECMAScript and its own imports and runs unchanged in the browser and
+  // in React Native (OQ-140, OQ-158). tsconfig.json adds the tests, which run in Node.js, with Node types.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["src/**/*"]
+}
