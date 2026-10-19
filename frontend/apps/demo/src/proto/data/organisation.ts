@@ -358,8 +358,23 @@ export const STAFF: readonly StaffMember[] = [
     title: { en: 'Staff nurse, Medical Ward A (nights)', ckb: 'پەرستار، قاوشی ناوەکی A (شەو)', ar: 'ممرض، ردهة الباطنية A (ليلي)' },
     departmentId: 'nursing',
     phone: '+964 750 000 9019',
+    active: true,
+    lastSignInIso: daysAgoAt(1, '19:02'),
+  },
+  {
+    id: 'SYN-STF-020',
+    name: { ckb: 'ڕێباز حسێن', ar: 'ريباز حسين', latin: 'Rebaz Hussein' },
+    prefix: DR,
+    role: 'physician',
+    title: {
+      en: 'Former resident doctor (account disabled)',
+      ckb: 'پزیشکی نیشتەجێی پێشوو (هەژمار ناچالاککراوە)',
+      ar: 'طبيب مقيم سابق (الحساب معطّل)',
+    },
+    departmentId: 'internal-medicine',
+    phone: '+964 750 000 9020',
     active: false,
-    lastSignInIso: daysAgoAt(12, '21:00'),
+    lastSignInIso: daysAgoAt(41, '16:20'),
   },
 ];
 
