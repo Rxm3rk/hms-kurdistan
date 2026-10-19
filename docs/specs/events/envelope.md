@@ -6,6 +6,8 @@ Companion specifications: the journal that carries the events (`docs/specs/modul
 
 **Status on 2026-10-19:** specification only, revised after two automated review lenses (correctness; clinical safety). The pure-Kotlin rules of §12 are built in WP-0.3 now; the transform, Debezium, Kafka, Apicurio, the dead-letter stores and the monitors wait for the cell (DN-040; §13). [P] marks this build's own choices. Open items carry local labels (OQ-E1, ADR-E1, KA-E1 and so on, §17); the integrator numbers them.
 
+**Programme numbers (19 October 2026).** OQ-E1 to OQ-E5 are OQ-172; ADR-E1 is OQ-178; HAZ-J1 is OQ-177. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Layers
 
 | Layer | What | Guarantees | Where specified |

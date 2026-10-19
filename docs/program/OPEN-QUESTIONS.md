@@ -442,3 +442,45 @@ Choices the build made where the plan of record sets no value. They bind until a
 - **Sources:** §10.1 gives the hazard record "linked features, invariants, incidents and releases"; neither §3.5 nor §10.1 says whether adding such a link is a change that a risk acceptance must cover again.
 - **Who confirms:** the CSO [HUMAN]: should a hazard's risk acceptance survive linking a release or an incident to it? No hazard is accepted yet and no entry links a release or an incident.
 - **Status:** open
+
+## (g) WP-0.3 platform specifications: open questions (19 October 2026)
+
+The WP-0.3 specifications under `docs/specs/` keep each open item under a local label in their own open-items section, with its default, options and sources. The programme numbers below group them by specification, because WP-0.3's range (OQ-170…OQ-199) is smaller than the number of items. A local label is closed by closing its line in the specification and noting it here. Items that block work are in `DECISIONS-NEEDED.md` (DN-042 to DN-044).
+
+### OQ-170: Kernel libraries (ids, time, context, money, quantity)
+- **Items:** OQ-KN1 to OQ-KN15 in `docs/specs/modules/platform-kernel.md` §19 (among them: unit equivalence and non-dose quantities, the IQD ledger scale and cash-rounding keys, exchange-rate direction, business hours and facility calendar overrides, the offset of recorded time, the feature ID of the kernel libraries, the facility default zone key).
+- **Status:** open
+
+### OQ-171: The journal-as-outbox
+- **Items:** OQ-J1 to OQ-J5 and DN-J1 in `docs/specs/modules/platform-journal.md` (row-level security in every topology, tamper evidence for journal rows, partitioning, the Debezium header placement, retroactive configuration rows; DN-J1 is a question for the WP-0.2 cell, not a blocking decision).
+- **Status:** open
+
+### OQ-172: Event envelope and catalogue
+- **Items:** OQ-E1 to OQ-E5 in `docs/specs/events/envelope.md` and OQ-C1 to OQ-C4 in `docs/specs/events/catalogue.md` (the CloudEvents `type` prefix, sensitivity labels and free text in payloads, the unnamed ADT events, `OrderVerified` and `ResultAmended` as aliases or events, owners and keys of finance and staffing events).
+- **Status:** open
+
+### OQ-173: Enterprise hierarchy and configuration chain
+- **Items:** OQ-T1 to OQ-T13 in `docs/specs/modules/platform-tenancy.md` (hierarchy shape to confirm with real master data, bed ownership between tenancy and adt, calendar levels, the clinical-tier default and its evidence check, user-level settings, every module reading configuration through the tenancy api against §5.2's dependency column).
+- **Status:** open
+
+### OQ-174: Configuration bundles, flags and kill switches
+- **Items:** OQ-CFG-1 to OQ-CFG-14 in `docs/specs/modules/platform-config.md` (who may engage and release kill switches, kill-switch propagation time, fleet-wide directives, PLAY as a dead end, author self-approval, non-safety merge conflicts, safety-relevant values in bundles, the canonical JSON subset).
+- **Status:** open
+
+### OQ-175: Task engine
+- **Items:** OQ-TK1 to OQ-TK14 in `docs/specs/modules/platform-tasks.md` (approvers of `task.yaml`, claims held by a deactivated person, SLA pause for pre-approval clocks, business-time granularity, cross-key constraints, content requests for escalation policies).
+- **Who confirms:** the CSO for the approvers of `docs/specs/state-machines/task.yaml` (approval `requested`, `approved_by: []`).
+- **Status:** open
+
+### OQ-176: Workflow port
+- **Items:** OQ-W1 to OQ-W7 in `docs/specs/modules/platform-workflow.md` (a backlog ID for the port, shared types, Temporal namespaces and payload encryption, versioning against N-1 rollback, failed workflows raising owned tasks, reconciliation after restore, the meaning of "lighter workflow persistence").
+- **Status:** open
+
+### OQ-177: Hazard candidates from the WP-0.3 specifications
+- **Items:** HC-KN1 to HC-KN6 (kernel), HAZ-J1 to HAZ-J3 (journal and events), HAZ-T1 (tenancy), the three proposed hazards of `platform-config.md` §13.2, HAZ-TK1 to HAZ-TK10 (tasks) and HAZ-W1 (workflow). Each is a proposed hazard or a new cause or control for an existing entry, written in its specification. None is in `docs/safety/hazard-log.yaml` yet; WP-0.3 adds the ones its code controls, in HAZ-0035…HAZ-0039 or as causes and controls of existing entries, with initial risk left for CSO triage.
+- **Who confirms:** the CSO [HUMAN] triages them.
+- **Status:** open
+
+### OQ-178: ADR candidates from the WP-0.3 specifications
+- **Items:** ADR-CFG-1 and ADR-CFG-2 (bundle signing and trust; change-set verification), ADR-J1 and ADR-J2 (journal), ADR-E1 (event payload schema language and compatibility mode), ADR-TK1 (how work becomes a task across the Safety Kernel boundary), ADR-W1 (workflow). WP-0.3 writes an ADR (ADR-031…ADR-034) only for a decision its code takes; the others stay here until the work package that needs them.
+- **Status:** open

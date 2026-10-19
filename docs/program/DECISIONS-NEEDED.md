@@ -11,9 +11,11 @@ At most ten items. Answer these first.
 1. **DN-005** The lite cell cannot show WP-0.2's single-node-loss criterion: choose how it will be met. WP-0.2 starts now on the default.
 2. **DN-011** No work package can merge into `main` until the merge tier exists and passes: confirm that the Phase 0 branches stack meanwhile, or choose another rule.
 
+WP-0.3's specification decisions (none blocks WP-0.3, which builds the defaults): DN-042 (the CSO: SI-10 tolerances, dose comparisons, unit-less doses, number display, entry-timing labels), DN-043 (configuration-signing key custody; SI-19 kill-switch readings), DN-044 (task-engine, tenancy and workflow readings).
+
 Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5).
 
-Answered on 19 October 2026: DN-040 (the human lead approved starting WP-0.3's cluster-free parts before WP-0.2, with one review pass on low-risk work). Resolved on 19 October 2026: DN-041 (the human lead deleted the host-created `t3/*` branches at 08:05).
+Answered on 19 October 2026: DN-040 (the human lead approved starting WP-0.3's cluster-free parts before WP-0.2; reviews now happen once, at the end of the work package, decision 4). Resolved on 19 October 2026: DN-041 (the human lead deleted the host-created `t3/*` branches at 08:05).
 
 Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9) and DN-006 (confirmed).
 
@@ -311,16 +313,18 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. Question: "The build plan says later packages wait until the server environment is finished. Several of them don't need the cluster at all: the core libraries (IDs, clocks, money, units), the clinical state machines (orders, encounters, medication rounds), and document/label printing templates. Can I start those now, recorded as an approved deviation?" Answer: "Yes, start the cluster-free parts (Recommended)" (option text: "Work on 3 to 4 packages at once instead of 2. Anything that needs the cluster still waits; tests and safety gates are not skipped.").
   2. Question: "Can I lighten the review on low-risk pieces (build tooling, docs, scaffolding) while keeping full review on anything patient-safety related?" Answer: "Lighter on low-risk only (Recommended)" (option text: "One review pass instead of several on tooling and scaffolding; patient-safety code (banner, dosing, identity, sign-off) keeps full review.").
   3. Use of additional subscription accounts for parallel agents: "Yes, use all three".
+  4. On 19 October 2026 at about 12:15, unprompted, in chat, relayed to this stream by the lead at 12:20: "I want you to abolish most of the reviews just too many of them not needed so we accelerate further work". It replaces decision 2.
 - **What it changes:** WP-0.3 starts before WP-0.2 is merged or reviewed and stacked (§21 "Entry criteria"; WP-0.3 "Depends on: WP-0.2"). The scope is limited to what needs no cluster: the module specifications, the kernel libraries (UUIDv7, `Clock`, clinical vs recorded time, `Money`, `Quantity` with UCUM), the enterprise hierarchy and the configuration chain with locks (domain level), signed configuration bundles, flags and kill switches, the task engine domain with `TaskOrphaned` timing proven on an injected clock, `WorkflowPort` (the port only), the journal's schema, migrations and repository code, the event catalogue and envelope rules, and the architecture tests.
 - **What still waits on WP-0.2 (the cell):** the Debezium → Kafka pipeline with Apicurio; the Temporal adapter; the journal-rebuild and per-patient-ordering exit tests against real PostgreSQL and Kafka; the `TaskOrphaned` chaos test; persistence-backed evidence for "a locked setting cannot be overridden below its lock". Tests that need PostgreSQL, Kafka or Temporal are written in `src/integrationTest` (merge tier) and recorded as waiting.
-- **Review policy (decision 2):** low-risk work (Gradle wiring, identifier plumbing, documentation scaffolding, test-harness plumbing) gets one independent automated review pass; patient-safety-relevant work (time and the `Clock`, clinical vs recorded time, `Quantity`/UCUM, the journal, the task engine and SI-03, kill switches and SI-19, configuration locks on safety-invariant parameters) gets at least two independent review lenses (correctness, and clinical safety/hazard), and every major finding is fixed before commit. Every review is an automated review (AI), never a human one (§3.5).
+- **Review policy (decision 4, from 19 October 2026 about 12:15; it replaces decision 2):** a deviation from BUILD-PROMPT §3.2 step 7 ("after any slice with safety impact 'yes', and at least every five sessions"). Reviews now happen once per work package, at its end. No spec reviews, per-slice reviews, multi-lens panels or fix-verification rounds. The automated gates still run, because they are tests and not reviews: unit and property tests, lints, `tools/hms repo check`, the fast tier and gitleaks. The lead runs one automated review of the whole of WP-0.3 at its end (§22 item 10), a single pass over correctness and clinical safety together that reports critical and major findings only, and they are fixed before the package counts as done. Critical or major findings still open from earlier reviews are known bugs to fix without a new review; minor findings go to the backlog or are dropped. The WP-0.3 specifications at `1b00abe` were reviewed under decision 2 before decision 4 arrived; no critical or major finding from those reviews is open.
+- **Superseded review policy (decision 2, until about 12:15):** low-risk work (Gradle wiring, identifier plumbing, documentation scaffolding, test-harness plumbing) gets one independent automated review pass; patient-safety-relevant work (time and the `Clock`, clinical vs recorded time, `Quantity`/UCUM, the journal, the task engine and SI-03, kill switches and SI-19, configuration locks on safety-invariant parameters) gets at least two independent review lenses (correctness, and clinical safety/hazard), and every major finding is fixed before commit. Every review is an automated review (AI), never a human one (§3.5).
 - **Branching:** `wp/0.3-platform-kernel` is stacked on `wp/0.1-programme-bootstrap` at `09afa41` (§3.6). It merges `wp/0.2-environments` with `--no-ff` when that branch is ready, never by rebase. WP-0.5 (`wp/0.5-state-machines`) runs at the same time and may merge this branch for the `Clock` and identifier types.
 - **Who decided:** the human lead.
 
 ## DN-041: Host-created `t3/*` branches fail the §3.6 branch-name rule of `tools/hms repo check`
 
 - **Status:** resolved (2026-10-19, by the human lead)
-- **Resolution:** the human lead deleted the `t3/*` branches at 08:05 on 19 October 2026 (option 2), reported to this stream by the lead at 09:20. The gate was not changed. From then on WP-0.3 runs the fast tier in its own worktree again; the scratch clone is no longer used. `git branch -a --list 't3/*'` printed nothing at 09:18.
+- **Resolution:** the human lead deleted the `t3/*` branches at 08:05 on 19 October 2026 (option 2), reported to this stream by the lead at 09:20. The gate was not changed. From then on the branch-name rule passes in every checkout; WP-0.3 keeps its scratch clone only to run the fast tier on exactly the content of the next commit. `git branch -a --list 't3/*'` printed nothing at 09:18.
 - **Blocked (until resolved):** every stream's fast tier on the Windows host: `sh tools/ci/run fast` failed at `repo-check` in any checkout of this repository, whatever the work.
 - **Default used until then:** WP-0.3 runs the fast tier in a single-branch scratch clone of its worktree (`git clone --single-branch --branch wp/0.3-platform-kernel`, remote removed), overlaid with the worktree's tracked and untracked files, so the clone holds only `wp/0.3-platform-kernel`. The gate itself is not changed and no branch is deleted or renamed. Every WP-0.3 fast run is labelled "Windows host, scratch clone, not evidence of record".
 - **Who decides:** the human lead.
@@ -329,3 +333,34 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. **Keep the gate and verify in single-branch scratch clones** (default) until the `t3/*` branches are removed by the human or the host.
   2. Delete or rename the `t3/*` branches once their threads no longer need them (a human action; the build agents never delete other branches).
   3. Add a recorded exception for host-tool branch names to the rule (a change to a gate, so the lead's decision; §3.6 names the allowed forms).
+
+
+## DN-042: The CSO's decisions on the kernel libraries' time and dose rules (WP-0.3 kernel spec DN-KN1 to DN-KN6)
+
+- **Status:** requested. Decided by: (empty). Date: (empty).
+- **Who decides:** the CSO [HUMAN] (§3.4 items 1 and 3: safety-invariant parameters and their readings are not the agent's to choose).
+- **Blocks:** nothing in WP-0.3, whose code refuses or labels as below; every clinical entry that needs a timing policy from Phase 1 (DN-KN1); the medications module and CDS (DN-KN2 to DN-KN5); back-entry and offline capture (DN-KN6).
+- **The six decisions,** each with its default, options and context in `docs/specs/modules/platform-kernel.md` §19 under its local label:
+  1. **DN-KN1:** values and direction of the SI-10 entry-time tolerances. Default: no vendor value; the definitions are `configurationRequired`; every entry that needs a timing policy is refused; tests use synthetic policies.
+  2. **DN-KN2:** what "audited" means in "one audited comparison API" (§6.8 #1; CTRL-0005-5). Default: every outcome carries a `ComparisonRecord` that the caller stores with its journal row and audit event; the kernel writes nothing.
+  3. **DN-KN3:** the KB comparisons of §2.1 (c), including the 10× KB-maximum hard stop (CTRL-0005-7). Default: kernel spec §10.5 as written.
+  4. **DN-KN4:** what counts as a unit-less dose, and zero rates. Default: the unity `1`, numbers without an atom and annotation-only units are refused; a dose is positive; a rate bound may be zero. A tightening of SI-05; counted doses cannot be expressed until answered.
+  5. **DN-KN5:** clinical number and unit display beyond the stated ISMP rules (grouping, separators in `ar` and `ckb`, Eastern Arabic-Indic digits). Default: `.` as separator, no grouping, ASCII input, the UCUM code as the unit.
+  6. **DN-KN6:** entry-timing labels, windows, back-entry privilege and offline capture. Default: kernel spec §6.2 as written.
+
+## DN-043: Configuration signing keys and the SI-19 kill-switch readings (WP-0.3 config spec DN-CFG-1 to DN-CFG-3)
+
+- **Status:** requested. Decided by: (empty). Date: (empty).
+- **Who decides:** the human lead for key custody (§4.3: "Production keys and any transparency log need an ADR and a [HUMAN] decision"); the CSO for the two SI-19 readings (§3.4 items 1 and 8).
+- **Blocks:** bundle activation outside tests (DN-CFG-1); R1 go-live of any clinical kill switch (DN-CFG-2); CTRL-0019-1 leaving `planned` (DN-CFG-3). Not WP-0.3's domain work, which signs with test-only keys generated at test time.
+- **The decisions** (`docs/specs/modules/platform-config.md`, open items): DN-CFG-1 production custody of the configuration-signing keys; DN-CFG-2 engaging a kill switch when no authorisation decision can be made (refuse; audited local break-glass; engage-only break-glass), no default chosen; DN-CFG-3 what "vendor-locked" means for SI-19 (default: SI-19's rules are locked, not the flag values).
+
+## DN-044: Readings of the task engine, tenancy and workflow specifications (WP-0.3 local DN-TK1 to DN-TK7, DN-T1, DN-T2, DN-W1, DN-W2)
+
+- **Status:** requested. Decided by: (empty). Date: (empty).
+- **Who decides:** the CSO for DN-TK1 to DN-TK6, DN-T1 and DN-T2 (readings of SI-03, SI-18 and CTRL-0018-1); the human lead for DN-TK7, DN-W1 and DN-W2 (an aggregate-boundary deviation from §8.2; ADR-010's guard and §5.2's dependency column, stop-and-ask item 2).
+- **Blocks:** nothing in WP-0.3, which builds the defaults; the Temporal adapter (DN-W1, DN-W2) and `rcm`'s use of workflows.
+- **The decisions,** each with its default in its spec's open-items section:
+  - `platform-tasks.md`: DN-TK1 safety timers never pause for the calendar; DN-TK2 SLA of back-entered work runs from the paper time; DN-TK3 a directory outage raises one "orphan detection blind" alarm per scope; DN-TK4 a dead-letter task's SLA breach at 5 minutes is the §6.7 alarm; DN-TK5 an unroutable terminal escalation owner keeps the routable holder and alarms the fallback queue; DN-TK6 the task engine has no kill switch (SI-03 cannot be switched off); DN-TK7 tasks are their own aggregate.
+  - `platform-tenancy.md`: DN-T1 the reading of CTRL-0018-1 (no configuration layer holds Tier 2 activation; the Register is the only switch); DN-T2 safety parameters with no coded default take their first value only from a governed bundle, and readers fail closed until then.
+  - `platform-workflow.md`: DN-W1 where workflow definitions live and in what form; DN-W2 how `rcm` and `migration` reach `WorkflowPort` and `platform-tasks`.

@@ -6,6 +6,8 @@ Companion specifications: the CloudEvents envelope and delivery rules in `docs/s
 
 **Status on 2026-10-19:** specification only, revised after two automated review lenses (correctness; clinical safety). Nothing below is built. Everything marked [P] is this build's own engineering choice, not the plan's. Open items carry local labels (OQ-J1, KA-J1, HAZ-J1, ADR-J1, DN-J1 and so on, §17); the integrator numbers them.
 
+**Programme numbers (19 October 2026).** OQ-J1 to OQ-J5 and DN-J1 are OQ-171; HAZ-J1 to HAZ-J3 are OQ-177; ADR-J1 and ADR-J2 are OQ-178; KA-J labels become KA numbers when the code that makes them true is committed. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Purpose and scope
 
 The journal is the tenant's write record. Every state change of every aggregate writes one row, in the same transaction as the change, and the row is never updated or deleted (§5.3 C; ADR-004). The same rows serve three purposes (§5.3 C; R08 §3.11 C):
