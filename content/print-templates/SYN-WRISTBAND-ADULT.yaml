@@ -1,0 +1,34 @@
+# Synthetic adult wristband, NOT FOR CLINICAL USE (BUILD-PROMPT §12.8, §19.4; docs/specs/modules/platform-docs.md §4).
+# 25.4 mm × 279.4 mm band read along its length (rotation 90): the reading frame is 279.4 × 25.4 mm, the printed
+# area 150 mm of it, clear of the clasp end and the tail. Left: the name in the patient's own script (two lines),
+# the confirmed Latin form, then MRN, date of birth and the approximate caption beside the date (R5). Middle: the
+# DataMatrix HMS1|M:|E:|B: (§6.1). Right: encounter, the minimal watermark (job short id, print time, R on a
+# reprint; DN-070) and the synthetic notice.
+# Caption texts in ckb and ar are drafted by the build agent (AI) and UNREVIEWED (spec §14; DN-021 rule).
+id: SYN-WRISTBAND-ADULT
+version: 1
+provenance: synthetic
+kind: wristband
+media:
+  width_mm: 25.4
+  length_mm: 279.4
+  rotation: 90
+  printable: {x_mm: 75, y_mm: 1.5, w_mm: 150, h_mm: 22.4}
+captions:
+  mrn: {en: "MRN", ckb: "ژمارەی تۆمار", ar: "رقم السجل"}
+  dob: {en: "DOB", ckb: "لەدایکبوون", ar: "الميلاد"}
+  approximate: {en: "Approx.", ckb: "نزیکەیی", ar: "تقريبي"}
+  encounter: {en: "Enc.", ckb: "سەردان", ar: "الزيارة"}
+elements:
+  - {type: text, bind: identity.name.own, font: by-script, weight: bold, box: {x_mm: 75, y_mm: 1.5, w_mm: 100, h_mm: 12.4}, size_pt: {max: 12, min: 8}, max_lines: 2}
+  - {type: text, bind: identity.name.latin, font: latin, weight: bold, box: {x_mm: 75, y_mm: 13.9, w_mm: 100, h_mm: 3.6}, size_pt: {max: 9, min: 6}}
+  - {type: caption, key: mrn, font: by-label-language, box: {x_mm: 75, y_mm: 17.5, w_mm: 12, h_mm: 6.4}, size_pt: {max: 7, min: 5.5}}
+  - {type: text, bind: identity.mrn, font: latin, direction: ltr, box: {x_mm: 87.5, y_mm: 17.5, w_mm: 25, h_mm: 6.4}, size_pt: {max: 9, min: 6}}
+  - {type: caption, key: dob, font: by-label-language, box: {x_mm: 113, y_mm: 17.5, w_mm: 12, h_mm: 6.4}, size_pt: {max: 7, min: 5.5}}
+  - {type: text, bind: identity.birthDate, font: latin, direction: ltr, box: {x_mm: 125.5, y_mm: 17.5, w_mm: 18, h_mm: 6.4}, size_pt: {max: 9, min: 6}}
+  - {type: caption, key: approximate, font: by-label-language, box: {x_mm: 144, y_mm: 17.5, w_mm: 14, h_mm: 6.4}, size_pt: {max: 9, min: 8}}
+  - {type: barcode, bind: barcode.wristband, symbology: datamatrix, box: {x_mm: 177, y_mm: 2, w_mm: 20.5, h_mm: 20.5}, module_mm: 0.5}
+  - {type: caption, key: encounter, font: by-label-language, box: {x_mm: 198.5, y_mm: 1.5, w_mm: 26.5, h_mm: 4.6}, size_pt: {max: 7, min: 5.5}}
+  - {type: text, bind: encounter.id, font: latin, direction: ltr, box: {x_mm: 198.5, y_mm: 6.1, w_mm: 26.5, h_mm: 3.6}, size_pt: {max: 9, min: 6}}
+  - {type: text, bind: watermark, font: latin, direction: ltr, box: {x_mm: 198.5, y_mm: 9.8, w_mm: 26.5, h_mm: 3.2}, size_pt: {max: 5.5, min: 4.5}}
+  - {type: text, bind: notice.synthetic, font: latin, box: {x_mm: 198.5, y_mm: 13.1, w_mm: 26.5, h_mm: 6.5}, size_pt: {max: 6, min: 4.5}, max_lines: 2}

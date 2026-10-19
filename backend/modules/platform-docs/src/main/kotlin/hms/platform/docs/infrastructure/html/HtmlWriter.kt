@@ -49,6 +49,7 @@ class HtmlWriter {
                 language = layout.language,
                 title = layout.templateId,
                 createdAt = createdAt,
+                barcodes = layout.barcodes.map { HtmlBarcode(it.symbology, it.payload) },
             )
         val head = HtmlText.head(meta)
         val elements = LayoutHtml.elements(layout)

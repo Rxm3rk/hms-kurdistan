@@ -39,10 +39,12 @@ class HtmlWriterTest :
             text shouldContain "<meta name=\"hms.template.id\" content=\"SYN-WRISTBAND-ADULT\">\n"
             text shouldContain "<meta name=\"hms.template.version\" content=\"1\">\n"
             text shouldContain "<meta name=\"hms.template.hash\" content=\"${WriterSamples.TEMPLATE_HASH}\">\n"
-            text shouldContain "<meta name=\"hms.provenance\" content=\"synthetic\">\n"
+            text shouldContain "<meta name=\"hms.template.provenance\" content=\"synthetic\">\n"
+            text shouldContain "<meta name=\"hms.barcode.payloads\" content=\"datamatrix:${WriterSamples.WRISTBAND_PAYLOAD}\">\n"
             text shouldContain "<meta name=\"hms.notice\" content=\"SYNTHETIC – NOT FOR CLINICAL USE\">\n"
             val approved = html(WriterSamples.wristband().copy(synthetic = false))
-            approved shouldContain "<meta name=\"hms.provenance\" content=\"approved\">\n"
+            approved shouldContain "<meta name=\"hms.template.provenance\" content=\"approved\">\n"
+            html(WriterSamples.receipt()) shouldContain "<meta name=\"hms.barcode.payloads\" content=\"\">\n"
             approved shouldNotContain "hms.notice"
         }
 

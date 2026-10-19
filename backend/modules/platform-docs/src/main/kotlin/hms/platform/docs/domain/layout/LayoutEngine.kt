@@ -377,7 +377,10 @@ private class Session(
 
             is PayloadOutcome.Built -> {
                 val box = element.box
-                val maxSize = if (element.symbology == Symbology.DATAMATRIX) min(box.wMm, box.hMm) else box.wMm
+                // The writers read maxSizeMm as a DataMatrix's largest side and as a Code 128 symbol's bar height
+                // (ZplFields, EscPosWriter, HtmlWriter); a Code 128 symbol's width is checked against the box by the
+                // print service, which can encode it (spec §4.3 rule 6, §6.2).
+                val maxSize = if (element.symbology == Symbology.DATAMATRIX) min(box.wMm, box.hMm) else box.hMm
                 barcodes += PlacedBarcode(element.symbology, payload.payload, box.xMm, top, element.moduleMm, maxSize)
                 Placement.Placed(box.hMm)
             }

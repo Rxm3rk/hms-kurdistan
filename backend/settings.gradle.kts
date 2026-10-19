@@ -25,3 +25,7 @@ include(":platform:testing")
 
 // Application modules (packages hms.<module>, BUILD-PROMPT §5.2, §6.1).
 include(":modules:platform-docs")
+
+// Satellites (packages hms.satellites.<name>). pdfa-verify is a build-only tool and never ships
+// (docs/specs/modules/platform-docs.md §1, §10).
+include(":satellites:pdfa-verify")

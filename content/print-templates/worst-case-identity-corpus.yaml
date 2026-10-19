@@ -1,0 +1,75 @@
+# The governed worst-case identity corpus of the template fit check (docs/specs/modules/platform-docs.md §4.3,
+# TemplateFitCheck; DN-069, OQ-244). SYNTHETIC, NOT FOR CLINICAL USE: every name and identifier here is invented by
+# the build agent (AI) as a plausible worst case, and the Sorani and Arabic spellings are UNREVIEWED. The hospital's
+# registration field limits and its real longest names are a content request (OQ-244); until then this file stands
+# in for them. Every patient template must fit every identity below, with the longest MRN, encounter and date of
+# birth, in every label language, at its minimum sizes, at 8, 12 and 24 dots per millimetre.
+#
+# Per script: the longest four-part names (the "Abdul-" compounds are common and long; Arabic both spaced and joined),
+# "Baby of" with a four-part mother's name plus sex and twin marker, and alias names. names keys: ckb, ar, ku_arab,
+# latin; own_form names the patient's own script.
+provenance: synthetic
+identities:
+  - label: ckb-four-part-male
+    own_form: ckb
+    names:
+      ckb: "عەبدولڕەحمان عەبدولکەریم عەبدولڕەحیم عەبدولقادر"
+      ar: "عبد الرحمن عبد الكريم عبد الرحيم عبد القادر"
+      latin: "Abdulrahman Abdulkarim Abdulrahim Abdulqadir"
+  - label: ckb-four-part-female
+    own_form: ckb
+    names:
+      ckb: "سەرگوڵ عەبدولڕەحمان عەبدولکەریم عەبدولڕەحیم"
+      latin: "Sergul Abdulrahman Abdulkarîm Abdulrehîm"
+  - label: ar-four-part-spaced
+    own_form: ar
+    names:
+      ar: "عبد الرحمن عبد الكريم عبد الرحيم عبد القادر"
+      latin: "Abd al-Rahman Abd al-Karim Abd al-Rahim Abd al-Qadir"
+  - label: ar-four-part-joined
+    own_form: ar
+    names:
+      ar: "عبدالرحمن عبدالكريم عبدالرحيم عبدالقادر"
+      latin: "Abdulrahman Abdulkarim Abdulrahim Abdulqadir"
+  - label: latin-four-part
+    own_form: latin
+    names:
+      latin: "Abdulrahman Abdulkarim Abdulrahim Abdulqadir"
+  - label: ckb-newborn-twin
+    own_form: ckb
+    newborn: true
+    names:
+      ckb: "کۆرپەی سەرگوڵ عەبدولڕەحمان عەبدولکەریم عەبدولڕەحیم کوڕ دووانەی ب"
+      latin: "Baby of Sergul Abdulrahman Abdulkarim Abdulrahim boy twin B"
+  - label: ar-newborn-twin
+    own_form: ar
+    newborn: true
+    names:
+      ar: "طفل سركول عبد الرحمن عبد الكريم عبد الرحيم ذكر التوأم ب"
+      latin: "Baby of Sergul Abdulrahman Abdulkarim Abdulrahim boy twin B"
+  - label: latin-newborn-twin
+    own_form: latin
+    newborn: true
+    names:
+      latin: "Baby of Sergul Abdulrahman Abdulkarim Abdulrahim girl twin B"
+  - label: ckb-alias
+    own_form: ckb
+    alias: true
+    names:
+      ckb: "نەناسراو پیاوی فریاکەوتن زولو 17"
+      latin: "Unknown Male Emergency Zulu 17"
+  - label: ar-alias
+    own_form: ar
+    alias: true
+    names:
+      ar: "مجهول الهوية رجل طوارئ زولو 17"
+      latin: "Unknown Male Emergency Zulu 17"
+  - label: latin-alias
+    own_form: latin
+    alias: true
+    names:
+      latin: "Unknown Male Emergency Zulu-17"
+mrns: ["SYN-00001234567-8"]
+encounters: ["SYN-E-2026-00012345"]
+birth_dates:
+  - {value: "1985-07-14", precision: day, approximate: true}
