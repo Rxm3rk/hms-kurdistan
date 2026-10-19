@@ -1,0 +1,334 @@
+# The lifecycle of one appointment (BUILD-PROMPT §8.4 "Appointment (approval: OPD panel): proposed →
+# pending → booked → checked-in/arrived → fulfilled; cancelled (by whom, why, late-cancel flag);
+# no-show; waitlist (constraints, priority, auto-offer); reschedule and modify as their own events";
+# §9.2 Scheduling; R11 §4 and §10.7). Template: BUILD-PROMPT Appendix B.3. Explanation:
+# docs/specs/state-machines/appointment.md. Approval request and every reading below: DN-057.
+# Hazards: HAZ-0001 (SI-01), HAZ-0003 (SI-03), HAZ-0012 (SI-12), HAZ-0020 (SI-20), HAZ-0021 (SI-21).
+#
+# Every predicate is a pure function of the facts the appointment aggregate will hold when it decides
+# the command (WP-0.5 spec §3.1): the appointment, its target slot, its participants' responses, its
+# waitlist entry and the competing entries, the identifiers the patient states or presents at check-in
+# with empi's answers, the linked encounter as adt and record report it, the reason chosen, the
+# tenant's configured windows and the clock reading. Each is implemented once in
+# backend/modules/scheduling, package hms.scheduling.domain.appointment. Time arrives as data (now);
+# the Friday–Saturday weekend and Kurdistan holidays (§11.7) are applied when slots and sessions are
+# generated from templates, which is not this machine.
+#
+# Readings in this file (DN-057 lists each with its options):
+# - Waitlist is a state of the appointment (R11 §4 "Appointment (status=waitlist)"; R11 §10.7).
+# - Reschedule and modify are transitions of the same appointment with their own events (§8.5
+#   SIU^S13, S14), not a cancel-and-rebook pair.
+# - Check-in and walk-in check-in are patient-affecting actions under SI-01: the name the patient
+#   states, the MRN with its check digit, and the date of birth the patient states (or the stated
+#   approximate age when the record carries the approximate-DOB flag); never confirmation of a value
+#   read from the screen (SI-01 clause d; CTRL-0001-3; the same reading as specimen.yaml).
+# - SI-03: no appointment is left open without an owner. Every transition into proposed opens an
+#   owned booking task, every transition into booked or arrived opens an owned outcome-due task, every
+#   hold expires, and a hospital-initiated cancellation returns the request for rebooking.
+#   RequestAppointment, a creation command, carries no effect in the format; its handler opens the
+#   same booking task (appointment.md).
+# - SI-20 and SI-21: patient messages go only through a channel the patient opted into (§9.30) and
+#   carry only the facility, date, time and a neutral location code; nothing that names the service,
+#   specialty, practitioner, department or reason.
+#
+# SI-12: no predicate reads a payment, deposit, bill, balance, estimate, pre-approval, coverage or any
+# other financial fact, and the facts carry none, so no money rule can refuse a booking, a check-in or
+# any other command of this machine. A hospital's pay-first policy for elective OPD visits belongs to
+# the OPD token journey (§9.2 "pay-first sites put the cashier before services"), a separate machine
+# that carries SI-12 itself, and never applies to an ED registration. An emergency patient never needs
+# an appointment: ED registration is an encounter command (adt) and does not touch this machine. A
+# refused check-in never stops emergency care: a patient who is unwell is sent to ED (appointment.md).
+# SI-15: §2.1 forbids bed and OT allocation offline, not appointment slots, so no guard reads the
+# offline mode. Offline commands are revalidated by the server (SI-15), which re-evaluates
+# slotAvailable; an identifier for a new patient comes only from a pre-allocated block (empi).
+machine: appointment
+version: 1
+owner: scheduling
+approval: {status: requested, required: [opd-panel], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [proposed, pending, booked, arrived, fulfilled, cancelled, no-show, waitlist, entered-in-error]
+terminal: [fulfilled, cancelled, no-show, entered-in-error]
+initial: proposed
+# An appointment is created as a request for a visit (FHIR R4 status proposed). A referral (§9.2),
+# a check-out follow-up (§9.3) or a desk request creates it; a walk-in is created and checked in in
+# the same domain command (CheckInWalkIn). The handler opens the owned booking task of openBookingTask.
+created_by: [RequestAppointment]
+predicates:   # each implemented once in the scheduling domain package and unit-tested
+  slotAvailable: "the command's target slot exists in the schedule of the appointment's resource, is not entered in error and ends after now (a running session counts, so a same-day booking into a session that has started is possible); and either it is free, or it is tentatively held or booked by this same appointment, or it is marked overbookable and its count of overbooked appointments is strictly less than its overbook cap (§9.2 'capped overbooking'; integers, exact comparison). A slot whose status is busy-unavailable is never available. The cap is configuration [HUMAN]; a missing cap counts as zero"
+  differentSlotRequested: "the command's target slot differs from the slot the appointment currently holds or books, so a reschedule always moves the appointment"
+  requiredParticipantsAccepted: "every participant marked required on the appointment (patient, practitioner, location, equipment; R11 §4) has the response accepted for the command's target slot (R11 §4 'AppointmentResponse: participant accept/decline'); a response given for an earlier slot does not count"
+  participantAcceptanceAwaited: "the exact complement of requiredParticipantsAccepted"
+  waitlistEntryComplete: "the appointment carries complete waitlist constraints and a priority (R11 §4 'Waitlist entry: constraints (provider, time windows), priority, auto-offer rules'): a service type; a set of acceptable providers (empty means any provider of the service); a set of acceptable locations (empty means any location); an earliest and a latest acceptable date with earliest on or before latest and latest on or after today; and a priority code from the tenant's governed waitlist-priority list [HUMAN], chosen by the user (never defaulted). Only date ranges are modelled, not time-of-day windows (DN-057 item 8)"
+  offeredSlotMatchesConstraints: "the offered slot satisfies this entry's waitlist constraints: the slot's service type equals the entry's; its provider is in the entry's provider set, or the set is empty; its location is in the entry's location set, or the set is empty; its date is on or after the earliest and on or before the latest acceptable date; and this entry has not already declined this slot, nor let an offer of it lapse after the offer's delivery was confirmed (a lapse without confirmed delivery does not count against the entry)"
+  topRankedForSlot: "among the competing waitlist entries the facts list for this slot (every other entry whose constraints match the slot, as offeredSlotMatchesConstraints reads them), none ranks before this entry. An entry ranks before another when its priority rank is lower (the rank comes from the governed priority list), or the ranks are equal and it was waitlisted earlier, or both are equal and its entry id sorts first (a total, deterministic order; DN-057 item 8). A priority code outside the governed list has no rank: this entry is then never top ranked, and a competitor without a rank ranks before it, so an entry of unknown priority is never passed over silently"
+  waitlistOffer: "the appointment is in pending because of a waitlist offer (OfferSlot), not because a booking awaits a participant's acceptance"
+  notWaitlistOffer: "the exact complement of waitlistOffer"
+  holdResponseWindowOpen: "the pending hold has a respond-by instant and now is strictly before it. The respond-by instant is fixed when the hold is created (Book into pending, OfferSlot, Reschedule into pending) from tenant configuration [HUMAN]: the offer deadline for a waitlist offer, the acceptance deadline for any other hold"
+  holdResponseWindowElapsed: "the exact complement of holdResponseWindowOpen: now is at or after the hold's respond-by instant, or the hold has none (a missing deadline lapses the hold, so a slot is never held without a limit)"
+  waitlistWindowEnded: "the waitlist entry's latest acceptable date is strictly before today (tenant-calendar date), so no slot can satisfy it any longer"
+  patientIdentifiedByTwoIdentifiers: "two identifiers of the person checking in were confirmed against the appointment's patient (SI-01 clauses a and d; CTRL-0001-3; DN-057 item 3), each from what the patient or companion states or presents, never from confirming a value the desk reads from the screen: (1) the name the patient states matches a name form of the record, by empi's cross-script matching answer (Kurdish, Arabic, Latin), never a desk judgement; and (2) the MRN with a valid check digit (empi's answer) equals the patient's MRN, where the MRN came from a card or wristband scan or was stated by the patient, or, for a patient without a card, from an empi search on the stated name and the stated date of birth that returned exactly one candidate, the appointment's patient (DN-057 item 4; several or no candidates refuse, and the patient goes to the registration desk); and (3) the date of birth the patient states equals the record's at its recorded precision, or, when the record carries the approximate-DOB flag, the approximate age or birth year the patient states matches it by empi's answer. A room, bed, token or appointment number is never an identifier. A record whose MRN or date of birth (or approximate-DOB flag) is missing fails"
+  withinCheckInWindow: "now is at or after the appointment's slot start minus the tenant's early check-in window and strictly before the end of the slot's session (the clinic session the slot belongs to, which may run past midnight for evening clinics, §9.3); the window is configuration [HUMAN], a missing window counts as zero"
+  walkInSessionOpen: "a session of the requested service (and provider, when one is requested) that accepts walk-ins is running now: now is at or after its start and strictly before its end, from the schedule (no capacity limit is applied here; a walk-in cap is not a guard of this machine)"
+  consultationCompleted: "the linked outpatient encounter (adt's answer) is not cancelled or entered in error, and either the record module reports a consultation recorded for it, or adt reports it in discharged-not-closed or finished with a disposition other than left-without-being-seen. Encounter states are the encounter machine's: planned, arrived, triaged, in-progress, on-leave, discharged-not-closed, finished, cancelled, entered-in-error; an OPD visit ends through arrived or triaged → discharged-not-closed (encounter.md Q-E2)"
+  linkedEncounterEndedWithoutConsultation: "the linked encounter (adt's answer) is cancelled or entered in error, or is in discharged-not-closed or finished with the disposition left-without-being-seen, and the record module reports no consultation recorded for it. Disjoint from consultationCompleted"
+  cancellationReasonGiven: "the command carries a cancellation reason that the acting user chose (§9.2 'reason-coded cancellations'; §8.4 'why'): a code of the tenant's governed cancellation-reason list [HUMAN], marked by the channel as chosen by the user, never prefilled, defaulted or carried over; a code that requires text (for example 'other') has non-blank text"
+  cancellingPartyRecorded: "the command records who cancelled (§8.4 'by whom'): the requesting party (patient or their representative, practitioner, hospital) and who entered it: an authenticated user (a Trust Plane answer), or for a patient's own cancellation through a front-door link, the link's verified patient session (§9.30 booking links)"
+  cancellationEndsNeed: "the cancellation ends the patient's need for this visit: the requesting party is the patient or their representative, or the reason code is one the governed list marks as ending the need (for example 'no longer clinically required'); a hospital or practitioner reason of capacity (clinic cancelled, practitioner unavailable) does not"
+  cancellationNeedsRebooking: "the exact complement of cancellationEndsNeed: a hospital or practitioner cancellation whose reason does not end the need, so the request must be rebooked (DN-057 item 6)"
+  lateCancellation: "the tenant's late-cancel window is greater than zero, the appointment has a start instant, and now is at or after that start minus the window (a cancellation after the start counts as late). A window of zero means no cancellation is ever late (§8.4 'late-cancel flag'; configuration [HUMAN]; DN-057 item 7)"
+  timelyCancellation: "the exact complement of lateCancellation"
+  noShowGraceElapsed: "the appointment has a slot end instant and now is at or after that end plus the tenant's no-show grace period (configuration [HUMAN]; a missing period counts as zero). Measured from the slot end, never its start, so a patient arriving within a session clinic's slot is never a no-show"
+  noShowReasonGiven: "the command carries a no-show reason that the acting user chose (§9.2 'reason-coded ... no-shows'): a code of the tenant's governed no-show-reason list [HUMAN] (which may include 'not contacted, reason unknown'), entered by an authenticated user, never prefilled or defaulted"
+  patientInHospital: "adt reports an encounter of the patient that is open (not discharged-not-closed, finished, cancelled or entered in error) and is an ED or inpatient encounter overlapping the slot time, so the patient could not attend. When the appointment's slot start or end is unknown, every open ED or inpatient encounter counts, so an unknown slot time never allows a no-show"
+  patientNotInHospital: "the exact complement of patientInHospital"
+  modificationKeepsSlot: "the modification changes none of the appointment's slot, start, end, scheduled resource or location (those are a reschedule) and changes at least one other attribute (reason, service type within the slot's service, notes, interpreter need, participants who are not scheduled resources, priority or constraints of a waitlist entry)"
+  privilegedAndAudited: "the user holds the privilege for this correction (a Trust Plane answer; a same-day ReverseNoShow needs only the front-desk reversal privilege, DN-057 item 9) and the action is audited: the audit record of the correction can be written with it (an audit outage refuses the command; it never runs unaudited)"
+  correctionReasonEntered: "the command carries a correction reason that the user entered (never prefilled or defaulted)"
+effects:
+  holdSlotTentatively: "the target slot is marked busy-tentative for this appointment (R11 §4 Slot status) with the hold's respond-by instant, so no other booking takes it while the hold lasts"
+  bookSlot: "the target slot is marked busy for this appointment, counting as an overbooking when the slot was already busy and overbookable"
+  releaseSlot: "the slot this appointment held or booked, if any, is released (free again, or one fewer overbooking); for a reschedule this is the old slot"
+  offerFreedSlotToWaitlist: "when a released slot is free and ends after now, the waitlist auto-offer runs for it (§9.2 'waitlists with auto-offer'): the matching entries are ranked and the top-ranked one receives OfferSlot. No offer is made for a slot that is past or blocked"
+  sendWaitlistOffer: "the offer with its respond-by time goes to the patient through a front-door channel the patient opted into (§9.30 per-channel consent), with delivery receipts; when the patient has no consented, deliverable channel, an owned task in the scheduling desk queue to telephone the patient carries the same respond-by time. Content rule (SI-20, SI-21; DN-057 item 11): facility, date, time and a neutral location code only, in the patient's language; no service type, specialty, practitioner, department, reason or clinic name; for a service that carries an SI-21 sensitivity label, no location code either"
+  scheduleReminders: "trilingual reminders for the booked slot are scheduled (§9.2) through a channel the patient opted into (§9.30), replacing any for an earlier slot; same content rule as sendWaitlistOffer (SI-20, SI-21)"
+  withdrawReminders: "every reminder scheduled for this appointment that has not been sent is withdrawn"
+  notifyPatientOfChange: "the patient is told that the hospital cancelled the visit and that it will be rebooked, through a consented channel or, when there is none, by the desk's rebooking call (openBookingTask); same content rule as sendWaitlistOffer (SI-20, SI-21)"
+  issueOpdToken: "an OPD token is issued for the appointment's service point (§9.2 'Tokens are issued at check-in'); the token journey (its own lifecycle, not this machine) takes over from here"
+  withdrawOpdToken: "the OPD token issued at check-in, if still waiting or called, is withdrawn from its queue (the token journey records why)"
+  flagLateCancellation: "the cancellation is flagged late (§8.4 'late-cancel flag'), with who cancelled; the flag is recorded and reported, attaches no charge or penalty, and never gates a later booking (DN-057 item 7)"
+  reportOutcomeToReferral: "when the appointment is based on a referral (R11 §4 'linked referral (basedOn ServiceRequest)'), its outcome (fulfilled; cancelled with reason; no-show; patient in hospital, never reported as did-not-attend; returned for rebooking; entered in error; or a reversal) is posted to the referral's owned task, so the referral owner sees it (SI-03 clause b; CTRL-0003-4; §9.2 referral tracking)"
+  openBookingTask: "an owned task 'book this request' with an SLA [HUMAN] in the scheduling desk queue (SI-03 clause b; CTRL-0003-4); it closes when the appointment leaves proposed, and escalates and alarms (TaskOrphaned) like every task. RequestAppointment's handler opens the same task"
+  openOutcomeDueTask: "an owned task in the clinic desk queue that falls due when the appointment should have an outcome: for booked, at the slot end plus the no-show grace period; for arrived, at the end of the slot's session. It replaces the appointment's earlier outcome-due task and closes when the appointment reaches a terminal state or leaves the state it was opened for (SI-03 clause b)"
+  openFollowUpContactTask: "an owned task in the scheduling desk queue to contact the patient about a visit that ended without a consultation, so the unmet need has an owner (SI-03 clause b)"
+  emitAppointmentBooked: "an AppointmentBooked event (§8.5, SIU^S12) is journaled"
+  emitAppointmentRescheduled: "an AppointmentRescheduled event (§8.5, SIU^S13) is journaled with the old and the new slot"
+  emitAppointmentModified: "an AppointmentModified event (§8.5, SIU^S14) is journaled with the changed attributes, or the corrected status with the actor and the correction reason (adt reacts to an undone check-in or an entered-in-error appointment through its own guarded command, appointment.md)"
+  emitAppointmentCancelled: "an AppointmentCancelled event (§8.5, SIU^S15) is journaled with who cancelled, the reason, the late-cancel flag and whether the request returns for rebooking"
+  emitAppointmentNoShow: "an AppointmentNoShow event (§8.5, SIU^S26) is journaled with the reason"
+  emitPatientCheckedIn: "a PatientCheckedIn event (§8.5 'PatientArrived / CheckedIn') is journaled; it projects only to SIU^S14 (filler status). adt arrives or creates-and-arrives the outpatient encounter from it and publishes PatientArrived (ADT^A04 or A10) itself, so each HL7 trigger is sent once (scheduling never calls adt synchronously, §5.2)"
+transitions:
+  # ---- Booking. Book on a request: booked at once when every required participant has accepted the
+  # slot, otherwise pending with the slot held until its respond-by time. Alternatives are disjoint:
+  # requiredParticipantsAccepted / participantAcceptanceAwaited and waitlistOffer / notWaitlistOffer
+  # are exact complements.
+  - from: proposed
+    on: Book
+    guard: [slotAvailable, requiredParticipantsAccepted]
+    effects: [bookSlot, scheduleReminders, openOutcomeDueTask, emitAppointmentBooked]
+    to: booked
+    description: "Direct booking when every required participant has accepted. Proposed edge: R11 §10.7 draws only proposed → pending → booked"
+  - from: proposed
+    on: Book
+    guard: [slotAvailable, participantAcceptanceAwaited]
+    effects: [holdSlotTentatively]
+    to: pending
+    description: "R11 §10.7 proposed → pending: the slot is held while a required participant's acceptance is awaited"
+  - from: pending
+    on: RecordAcceptance
+    guard: [slotAvailable, requiredParticipantsAccepted, holdResponseWindowOpen, notWaitlistOffer]
+    effects: [bookSlot, scheduleReminders, openOutcomeDueTask, emitAppointmentBooked]
+    to: booked
+    description: "R11 §10.7 pending → booked: the last required participant accepted before the hold lapsed"
+  - from: pending
+    on: RecordAcceptance
+    guard: [slotAvailable, requiredParticipantsAccepted, holdResponseWindowOpen, waitlistOffer]
+    effects: [bookSlot, scheduleReminders, openOutcomeDueTask, emitAppointmentBooked]
+    to: booked
+    proposed: true
+    description: "The patient accepted a waitlist offer before its respond-by time. Proposed (it shares the drawn pending → booked edge; the waitlist is this build's addition)"
+  - from: pending
+    on: RecordAcceptance
+    guard: [participantAcceptanceAwaited, holdResponseWindowOpen]
+    to: pending
+    description: "A participant accepted but another required participant has not yet. Proposed self-loop"
+  - from: pending
+    on: RecordDecline
+    guard: [waitlistOffer]
+    effects: [releaseSlot, offerFreedSlotToWaitlist]
+    to: waitlist
+    description: "The patient declined a waitlist offer: the entry returns to the waitlist and the slot goes to the next entry. Proposed"
+  - from: pending
+    on: RecordDecline
+    guard: [notWaitlistOffer]
+    effects: [releaseSlot, offerFreedSlotToWaitlist, openBookingTask]
+    to: proposed
+    description: "A required participant declined the held slot: the request returns to proposed with an owned booking task. Proposed"
+  - from: pending
+    on: ExpireHold
+    guard: [holdResponseWindowElapsed, waitlistOffer]
+    effects: [releaseSlot, offerFreedSlotToWaitlist]
+    to: waitlist
+    description: "A waitlist offer lapsed: the entry returns to the waitlist (the lapse counts against it only after confirmed delivery). Proposed"
+  - from: pending
+    on: ExpireHold
+    guard: [holdResponseWindowElapsed, notWaitlistOffer]
+    effects: [releaseSlot, offerFreedSlotToWaitlist, openBookingTask]
+    to: proposed
+    description: "A hold awaiting acceptance lapsed: the slot is released and the request returns to proposed with an owned booking task. Proposed"
+  # ---- Waitlist (§8.4 'waitlist (constraints, priority, auto-offer)'; §9.2 'waitlists with auto-offer').
+  - from: proposed
+    on: AddToWaitlist
+    guard: [waitlistEntryComplete]
+    to: waitlist
+    description: "No acceptable slot is free: the request waits with its constraints and priority. Proposed (R11 lists waitlist as a status and draws no edge)"
+  - from: waitlist
+    on: OfferSlot
+    guard: [slotAvailable, offeredSlotMatchesConstraints, topRankedForSlot]
+    effects: [holdSlotTentatively, sendWaitlistOffer]
+    to: pending
+    description: "Auto-offer (or a desk offer through the same command): the top-ranked matching entry is offered a freed slot, held until the patient answers or the offer lapses. Proposed"
+  - from: waitlist
+    on: ExpireWaitlistEntry
+    guard: [waitlistWindowEnded]
+    effects: [openBookingTask]
+    to: proposed
+    description: "The entry's acceptable dates have passed: the request returns to proposed with an owned task to contact the patient and rebook, re-waitlist or cancel; the need is never dropped silently. Proposed"
+  # ---- Modify (§8.4 'modify as its own event'): any change except the slot; the state is kept.
+  - {from: proposed, on: Modify, guard: [modificationKeepsSlot], effects: [emitAppointmentModified], to: proposed, description: "Proposed self-loop"}
+  - {from: pending, on: Modify, guard: [modificationKeepsSlot], effects: [emitAppointmentModified], to: pending, description: "Proposed self-loop"}
+  - {from: booked, on: Modify, guard: [modificationKeepsSlot], effects: [emitAppointmentModified], to: booked, description: "Proposed self-loop"}
+  - from: waitlist
+    on: Modify
+    guard: [modificationKeepsSlot, waitlistEntryComplete]
+    effects: [emitAppointmentModified]
+    to: waitlist
+    description: "A change of the entry's constraints or priority keeps the entry complete. Proposed self-loop"
+  # ---- Reschedule (§8.4 'reschedule as its own event'): the same appointment moves to another slot.
+  - from: booked
+    on: Reschedule
+    guard: [slotAvailable, differentSlotRequested, requiredParticipantsAccepted]
+    effects: [releaseSlot, bookSlot, offerFreedSlotToWaitlist, scheduleReminders, openOutcomeDueTask, emitAppointmentRescheduled]
+    to: booked
+    description: "Proposed self-loop"
+  - from: booked
+    on: Reschedule
+    guard: [slotAvailable, differentSlotRequested, participantAcceptanceAwaited]
+    effects: [releaseSlot, holdSlotTentatively, offerFreedSlotToWaitlist, withdrawReminders, emitAppointmentRescheduled]
+    to: pending
+    description: "The new slot awaits a required participant's acceptance; a decline or a lapse returns the request to proposed with an owned booking task. Proposed"
+  - from: pending
+    on: Reschedule
+    guard: [slotAvailable, differentSlotRequested, notWaitlistOffer]
+    effects: [releaseSlot, holdSlotTentatively, offerFreedSlotToWaitlist, emitAppointmentRescheduled]
+    to: pending
+    description: "A held slot is exchanged for another before acceptance; a waitlist offer is declined instead, never rescheduled. Proposed self-loop"
+  # ---- Cancel (§8.4 'cancelled (by whom, why, late-cancel flag)'). Cancel ends the need; a hospital
+  # or practitioner cancellation for capacity returns the request for rebooking (CancelForRebooking).
+  - from: [proposed, pending, booked, waitlist]
+    on: Cancel
+    guard: [cancellationReasonGiven, cancellingPartyRecorded, cancellationEndsNeed, timelyCancellation]
+    effects: [releaseSlot, offerFreedSlotToWaitlist, withdrawReminders, reportOutcomeToReferral, emitAppointmentCancelled]
+    to: cancelled
+    description: "R11 §10.7 lists cancelled and draws no edge to it: every edge is proposed"
+  - from: [proposed, pending, booked, waitlist]
+    on: Cancel
+    guard: [cancellationReasonGiven, cancellingPartyRecorded, cancellationEndsNeed, lateCancellation]
+    effects: [releaseSlot, offerFreedSlotToWaitlist, withdrawReminders, flagLateCancellation, reportOutcomeToReferral, emitAppointmentCancelled]
+    to: cancelled
+    description: "A cancellation inside the late-cancel window is flagged. Proposed"
+  - from: [pending, booked]
+    on: CancelForRebooking
+    guard: [cancellationReasonGiven, cancellingPartyRecorded, cancellationNeedsRebooking]
+    effects: [releaseSlot, offerFreedSlotToWaitlist, withdrawReminders, notifyPatientOfChange, openBookingTask, reportOutcomeToReferral, emitAppointmentCancelled]
+    to: proposed
+    description: "The hospital or practitioner cannot keep the visit (clinic cancelled, practitioner unavailable): the booking is cancelled, the patient is told, and the request returns to proposed with an owned rebooking task. Proposed"
+  # ---- Arrival, no-show and fulfilment.
+  - from: booked
+    on: CheckIn
+    guard: [patientIdentifiedByTwoIdentifiers, withinCheckInWindow]
+    effects: [issueOpdToken, openOutcomeDueTask, emitPatientCheckedIn]
+    to: arrived
+    description: "R11 §10.7 booked → checked-in/arrived. No payment guard (SI-12; header)"
+  - from: proposed
+    on: CheckInWalkIn
+    guard: [patientIdentifiedByTwoIdentifiers, walkInSessionOpen]
+    effects: [issueOpdToken, openOutcomeDueTask, emitPatientCheckedIn]
+    to: arrived
+    description: "A walk-in is created and checked in in one domain command into a running session (§9.2 'Tokens are issued at check-in'); the same SI-01 guard as a booked check-in. Proposed (DN-057 item 5)"
+  - from: booked
+    on: MarkNoShow
+    guard: [noShowGraceElapsed, noShowReasonGiven, patientNotInHospital]
+    effects: [withdrawReminders, reportOutcomeToReferral, emitAppointmentNoShow]
+    to: no-show
+    description: "R11 §10.7 lists noshow and draws no edge to it. Never for a patient in an open ED or inpatient encounter. Proposed"
+  - from: booked
+    on: RecordPatientInHospital
+    guard: [patientInHospital]
+    effects: [releaseSlot, withdrawReminders, openBookingTask, reportOutcomeToReferral, emitAppointmentCancelled]
+    to: proposed
+    description: "The patient is in ED or admitted at the slot time: never a no-show; the booking is cancelled and the request returns for rebooking; the referral learns 'patient in hospital'. Proposed"
+  - from: arrived
+    on: Fulfil
+    guard: [consultationCompleted]
+    effects: [reportOutcomeToReferral]
+    to: fulfilled
+    description: "R11 §10.7 checked-in/arrived → fulfilled"
+  - from: arrived
+    on: RecordVisitEnded
+    guard: [linkedEncounterEndedWithoutConsultation]
+    effects: [withdrawOpdToken, openFollowUpContactTask, reportOutcomeToReferral, emitAppointmentCancelled]
+    to: cancelled
+    description: "The linked encounter ended without a consultation (cancelled, entered in error, or left without being seen): cancelled with a system reason and a follow-up contact task. Proposed"
+  - from: arrived
+    on: RecordLeftBeforeSeen
+    guard: [cancellationReasonGiven, cancellingPartyRecorded]
+    effects: [withdrawOpdToken, openFollowUpContactTask, reportOutcomeToReferral, emitAppointmentCancelled]
+    to: cancelled
+    description: "The desk records that a checked-in patient left before being seen; cancelled with the reason, not a no-show, because the patient came. Proposed"
+  # ---- Audited corrections.
+  - from: arrived
+    on: UndoCheckIn
+    guard: [privilegedAndAudited, correctionReasonEntered]
+    effects: [withdrawOpdToken, openOutcomeDueTask, emitAppointmentModified]
+    to: booked
+    description: "A check-in recorded in error is undone; adt marks the encounter entered in error through its own guarded command (encounter proposed #15, arrived → entered-in-error) or raises an HIM task when clinical content exists. Proposed"
+  - from: no-show
+    on: ReverseNoShow
+    guard: [privilegedAndAudited, correctionReasonEntered]
+    effects: [openOutcomeDueTask, reportOutcomeToReferral, emitAppointmentModified]
+    to: booked
+    description: "A no-show recorded in error (the patient came late) is reversed, so check-in can follow. Leaves a terminal state, so it is privileged and audited (spec §1.2). Proposed"
+  - from: "*"
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, correctionReasonEntered]
+    effects: [releaseSlot, withdrawReminders, withdrawOpdToken, reportOutcomeToReferral, emitAppointmentModified]
+    to: entered-in-error
+    description: "R11 §4 lists entered-in-error among the ten R4 statuses; R11 §10.7 draws no edge. Proposed from every state"
+# Everything R11 §10.7 does not draw (R11 draws proposed → pending → booked → checked-in/arrived →
+# fulfilled and lists cancelled, noshow and waitlist without edges). The waitlist acceptance on the
+# drawn pending → booked edge carries its own proposed: true.
+proposed:
+  - "proposed→booked"
+  - "pending→pending"
+  - "pending→waitlist"
+  - "pending→proposed"
+  - "proposed→waitlist"
+  - "waitlist→pending"
+  - "waitlist→proposed"
+  - "proposed→proposed"
+  - "booked→booked"
+  - "waitlist→waitlist"
+  - "booked→pending"
+  - "proposed→cancelled"
+  - "pending→cancelled"
+  - "booked→cancelled"
+  - "waitlist→cancelled"
+  - "booked→proposed"
+  - "proposed→arrived"
+  - "booked→no-show"
+  - "arrived→cancelled"
+  - "arrived→booked"
+  - "no-show→booked"
+  - "*→entered-in-error"
+invariants: [SI-01, SI-03, SI-12, SI-20, SI-21]
+events: [AppointmentBooked, AppointmentRescheduled, AppointmentModified, AppointmentCancelled, AppointmentNoShow, PatientCheckedIn]   # §8.5; PatientCheckedIn is this build's reading of §8.5 'PatientArrived / CheckedIn' (appointment.md)
+hazards: [HAZ-0001, HAZ-0003, HAZ-0012, HAZ-0020, HAZ-0021]
+sources:
+  - "BUILD-PROMPT §8.4 (Appointment; approval: OPD panel)"
+  - "BUILD-PROMPT §9.2 (Scheduling: capped overbooking, waitlists with auto-offer, reason-coded cancellations and no-shows, trilingual reminders; tokens issued at check-in; referral tracking); §9.3 (check-out follow-up; evening clinics)"
+  - "BUILD-PROMPT §9.30 (per-channel consent, delivery receipts, no clinical content in message bodies; booking links)"
+  - "R11 §4 (Appointment, Slot, AppointmentResponse, Waitlist entry, Queue token); R11 §10.7 (Appointment)"
+  - "BUILD-PROMPT §8.5 and R11 §14 (AppointmentBooked / Rescheduled / Modified / Cancelled / NoShow; PatientArrived / CheckedIn)"
+  - "BUILD-PROMPT §2.1 SI-01, SI-03, SI-12, SI-15, SI-20, SI-21; §5.2 (scheduling owns resources, slots, appointments, OPD tokens and queues, referrals intake); hazard-log CTRL-0001-3, CTRL-0003-4"
+  - "docs/specs/state-machines/encounter.yaml and encounter.md (states; proposed #10 arrived/triaged → discharged-not-closed; Q-E1, Q-E2; E-9)"
+  - "BUILD-PROMPT §11.7 (calendars); §21 row 1.3"

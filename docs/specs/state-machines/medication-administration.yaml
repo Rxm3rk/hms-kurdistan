@@ -1,0 +1,259 @@
+# Medication administration, one instance per scheduled dose (BUILD-PROMPT §8.4 "Medication
+# administration, per scheduled dose"; §9.10 eMAR and BCMA; R11 §10.3 and R11 §9 "Safety
+# invariants (server-enforced)"). Template and first draft: BUILD-PROMPT Appendix B.3; this file
+# completes the draft against §8.4. Explanation: docs/specs/state-machines/medication-administration.md.
+# Hazards: HAZ-0001 (SI-01), HAZ-0002 (SI-02), HAZ-0003 (SI-03), HAZ-0005 (SI-05), HAZ-0010 (SI-10),
+# HAZ-0012 (SI-12), HAZ-0013 (SI-13), HAZ-0015 (SI-15) in docs/safety/hazard-log.yaml.
+#
+# Every predicate is a pure function of the facts the MAR aggregate holds when it decides the
+# command (WP-0.5 spec §3.1); each is implemented once in backend/modules/medications, package
+# hms.medications.domain.medicationadministration. Readings of the SIs beyond their text are the
+# numbered items of decision DN-053 (this machine's approval request); the defaults below are the
+# safest readings that neither let harm through nor block urgent care.
+#
+# Knowledge time (DN-053 item 9). For a command issued online, every fact about the order, the
+# patient, the formulary and the privileges is the server's state when it receives the command. For
+# a command issued offline (mobile offline BCMA, edge-agent mode, a lost on-site cell), they are the
+# state the device or edge agent held when the user issued it, together with the mode and the outage
+# in which it was issued, all from the command's offline envelope (as order.yaml reads
+# notOfflineWithoutFullCds); an unknown value fails. What the server learns later (an order
+# discontinued meanwhile) never refuses a recorded dose: it raises an owned task. Facts about other
+# doses of the same order (firstDoseOfOrder) are read under the order's schedule serialisation, so
+# two concurrent commands cannot both see "no earlier dose".
+#
+# Scans. A command carries the wristband and product scans of its own scan session. The command
+# handler journals every scan read for a dose, also those of refused commands, as facts of the dose
+# (the dose's scan log); productNotIdentified and wristbandScanUnusable read that log, so a refused
+# mismatch can never be bypassed by an override that simply omits the scan (DN-053 item 3).
+#
+# SI-12: no guard reads a payment, deposit, bill, pre-authorisation, counter or any other financial
+# fact, and the facts carry none, so no money rule can refuse or delay any dose, time-critical or not.
+# Charging is downstream (CTRL-0012-3, CTRL-0012-6). No not-done reason is financial.
+# SI-05: no predicate does dose arithmetic. The quantity comparisons are exact comparisons of two
+# independently entered quantities in the same UCUM unit (§2.1 clause b); nothing multiplies a unit
+# count by a strength or a volume by a concentration, converts a unit or rounds. The late-dose and
+# double-check windows are schedule-time arithmetic, not dose arithmetic.
+machine: medication-administration
+version: 1
+owner: medications
+approval: {status: requested, required: [pharmacist-panel, nurse-panel, cso], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [scheduled, in-progress, completed, not-done, stopped, entered-in-error]
+terminal: [completed, not-done, stopped, entered-in-error]
+initial: scheduled
+# §8.4 "(start) | Dose falls due". The medications module creates the order's MAR schedule in the
+# order-sign transaction (§9.5 'MAR schedule'; order.yaml createMarSchedule; open question ORD-Q2),
+# so doses exist while the order is pending verification; before verification a dose can be given
+# only through the verification override. §9.10's "schedules generated from verified orders" reads
+# otherwise: the conflict is DN-053 item 1. The late-dose window is fixed at creation.
+created_by: [DoseFallsDue]
+predicates:   # each implemented once in the medications domain package and unit-tested
+  # ---- The order (order.yaml states: draft, pending-verification, active, on-hold, completed,
+  # revoked, entered-in-error; verification status: pending, returned, verified)
+  activeVerifiedOrder: "the dose's order is a medication order for the dose's patient, its order.yaml state is active and its verification status is verified (SI-02 clause a; CTRL-0002-3)"
+  orderAwaitingVerification: "the dose's order is a medication order for the dose's patient, its order.yaml state is pending-verification and its verification status is pending. A status of returned (returned to the prescriber for any reason: Verify with a control set A mismatch, or ReturnToPrescriber) never satisfies it, so a returned order allows no override. Disjoint from activeVerifiedOrder (one state, one status)"
+  emergencyOverrideListed: "the order's orderable is on the governed emergency and first-dose override list (SAC-24, CTRL-0002-6; content [HUMAN], synthetic samples NOT FOR CLINICAL USE); false when the orderable is unknown or the list is absent"
+  firstDoseOfOrder: "no other dose of this order, or of any order in its replaces chain (R11 §7 replaces), is in-progress, completed or stopped, or is entered-in-error after having been in-progress, completed or stopped; read under the order's schedule serialisation (DN-053 item 4); false when that read cannot be made (an unknown fails)"
+  orderAdministrable: "the dose's order is in order.yaml state pending-verification or active"
+  orderOnHold: "the dose's order is in order.yaml state on-hold"
+  orderEnded: "the dose's order is in order.yaml state completed, revoked (discontinued or replaced) or entered-in-error: the orders module's answer"
+  infusionOrder: "the order is an infusion order (it carries a rate; MED-INF-01), so the dose starts as in-progress (§8.4 'in-progress (infusions) or completed')"
+  notInfusionOrder: "the exact complement of infusionOrder"
+  fixedDoseOrder: "the order's dose is one value with a UCUM unit, not a range. A range dose (for example 2 to 4 mg) cannot be compared without a range comparison that §2.1 allows only for titration rates (clause d), so it is refused with this predicate named until DN-053 item 6 is decided"
+  # ---- The people and the time
+  administeringUserPrivileged: "the user issuing the command is an authenticated human user (never a system, interface, migration-loader, plugin or AI principal) who holds the administration privilege for the order's route and drug class (§9.26; a Trust Plane answer; for an offline command, as authenticated on the device). An unknown privilege requirement fails (DN-053 item 13)"
+  authenticatedClinicalUser: "the user issuing the command is an authenticated human user with any clinical role at the facility (a Trust Plane answer). It never fails because a privilege configuration row is missing, so nothing configurable blocks completing or stopping an infusion"
+  clinicalTimeContemporaneous: "the dose's clinical time is the command's issue time (the scan session's time on the issuing device, from the envelope; no user-entered time), and that issue time is not later than the server's receipt time plus the governed clock-skew allowance (content [HUMAN]; a missing allowance is zero). A dose given earlier and documented now is a back-entry (BackEnterAdministration, SI-10)"
+  # ---- SI-01 (two identifiers, never room or bed; the reading shared with specimen.yaml)
+  wristbandScanMatches: "the command's wristband scan was read from a patient wristband, never a bed, room, chart or other location label (SI-01 clause b; CTRL-0001-4); its barcode decodes to an MRN (and the encounter); the identity service confirms the MRN's check digit and that the MRN is the dose's patient's current MRN (CTRL-0001-7); and the patient's record holds at least one name form and a date of birth or the approximate-DOB flag, which the channel shows for confirmation (SI-01 clauses a and d). A merged or retired MRN of the same patient is refused (re-banding; see wristbandScanUnusable)"
+  wristbandScanUnusable: "the command carries no wristband scan that matches: none was read, the barcode was unreadable, or it decoded a merged or retired MRN of this same patient (identity service). False when any wristband scan in the dose's scan log (this command's included) decoded an MRN that the identity service does not confirm, with a valid check digit, as this patient's: another patient's MRN, or one it gives no answer for (a wrong-patient scan is a hard stop no override passes); and false when the command's scan matches. Disjoint from wristbandScanMatches"
+  manualTwoIdentifiersConfirmed: "the user keyed the patient's MRN, whose check digit is valid and which the identity service confirms as the dose's patient's current MRN, and keyed the date of birth, which equals the record's (or confirmed the approximate-DOB flag the record carries); the channel showed the banner with the photo, every name form, the MRN and the date of birth at its recorded precision (SAC-01, SAC-02). B.3's twoIdentifiersConfirmed, used only where the wristband scan cannot be (DN-053 item 5)"
+  # ---- The product (identity), then the quantity (SAF: identity and amount are separate)
+  productIdentityMatches: "the command's product scan identified a product through the brand master (GTIN or in-house label) that is the order's product: for a verified order, a product on its verified product line or on a dispense record for this patient and this order; for an order awaiting verification, a product the governed brand-master mapping lists for the order's orderable (same drug, form and route). A different drug, form, route or strength identity fails, and so does a lot whose expiry date is known and before the dose's clinical date. An unknown expiry (a linear barcode without lot or expiry, and no stock record) does not fail: it is shown and recorded with the dose (DN-053 item 2)"
+  productNotIdentified: "the command's product scan is absent or identified no product (no scan, unreadable, or not mapped in the brand master), and the dose's scan log holds no scan that identified a product failing productIdentityMatches unless a pharmacist has since cleared it. So a refused wrong-product, wrong-strength or expired-lot scan blocks the product-scan override for the dose (DN-053 item 3). Disjoint from productIdentityMatches (the command's scan identified a product, or not)"
+  administeredAmountMatchesOrder: "the user entered the amount given (an empty field, never prefilled with the ordered dose), and it equals the order's dose exactly in the same UCUM unit (§2.1 clause b: two independently entered quantities). A unit mismatch is a mismatch (1000 mg against 1 g fails), and the command handler then raises an order-review task (§2.1 clause b). No count, strength, volume or concentration is multiplied (DN-053 item 6)"
+  infusionContentMatchesOrder: "the labelled content of the identified product, or of the supply the command names, equals exactly, in the same UCUM units, the amount and volume (or concentration) of the order's verified product line, or for an order awaiting verification the order's own ordered content (§2.1 clause b; MED-INF-01). The rate is not compared here: rate checks are titration (§2.1 clause d), outside this machine"
+  patientSuppliedCleared: "the supply being given is bound to this patient and order (SI-12 clauses d and e; CTRL-0012-7, CTRL-0012-8): (a) a dispense record for this patient and this order that lists the scanned product and, when the scanned label is a pharmacy or in-house label, is the record that label names; (b) ward stock of a product of the order's orderable that governed configuration lists as stocked on the patient's unit (a bare GTIN of a product the unit does not stock is not cleared); or (c) a patient-supplied item only through its own pharmacy relabel, scanned, naming this patient, with its lifecycle at administrable (received, identified, expiry-checked, relabelled and flagged, §9.10). A patient-supplied item is never accepted without the scan of its relabel, so never on the product-scan override (DN-053 item 11)"
+  highAlertCheckSatisfied: "the dose is not high-alert, or an independent double check is recorded for it (SI-13; CTRL-0013-3, CTRL-0013-4). The dose is high-alert when the formulary flag of the order's orderable or of the identified product is set, or the order's flag is unknown (fails closed). The check names this dose and the product scanned in this command (product and lot), or on the product-scan override the supply the command names; it was recorded after that scan and no longer before the command than the governed double-check window (content [HUMAN], with a vendor default the CSO sets); and it was recorded by a second user who is not the administering user, authenticated in their own right (badge and PIN) and privileged to double-check, who attested that patient, product and dose agree with the order (DN-053 item 12)"
+  offlineAllowed: "the mode in which the command was issued (from its offline envelope; ADR-012, CTRL-0015-3) is online; or that mode is offline and the order's pharmacist verification time is strictly before the start of that outage, as recorded by the device or edge agent (SI-15; CTRL-0015-9). Losing the internet or the WAN alone leaves an on-site cell online (SI-15 last sentence); only a lost on-site cell, edge-agent mode or mobile offline mode is offline. An unknown mode, verification time or outage start fails"
+  # ---- Overrides (SI-02 clause b): the reason, and its list per replaced check
+  overrideReasonEntered: "the command carries an override reason entered by the administering user and marked by the channel adapter as chosen by the user, never prefilled, defaulted or carried over from another dose (SI-02 clause b; CTRL-0002-4). The channel adapter owns that mark; a channel with no human chooser (API client, interface, migration loader, plugin, AI agent) supplies none, so the predicate fails"
+  reasonOnScanOverrideList: "the override reason's code is on the governed product-scan override list (content [HUMAN])"
+  reasonOnVerificationOverrideList: "the override reason's code is on the governed pre-verification (emergency and first-dose) override list (content [HUMAN])"
+  reasonOnIdentityOverrideList: "the override reason's code is on the governed wristband-failure override list (content [HUMAN])"
+  # ---- Not done, late doses, records after the fact, correction
+  notDoneReasonValid: "the command carries a not-done reason that the user chose (the channel adapter's mark; never prefilled or defaulted), entered by the acting user, whose code is one of held, refused, missed, npo or off-unit (§8.4 'Not done (held, refused, missed, NPO, off unit) | Reason required'). 'missed' means not given; a dose the user reports as given is back-entered, never recorded as missed"
+  lateDoseWindowElapsed: "the clock reading in the facts is later than the dose's due time plus its late-dose window, and the dose has not been flagged late yet. The window is fixed at creation from governed configuration (configurable, tighter for time-critical drugs; content [HUMAN]), or the vendor default window the CSO sets where the tenant has none; it is never zero by omission (DN-053 item 14)"
+  issuedOfflineAndSynced: "the command arrived through mobile or edge-agent sync with an authentic offline envelope (device-signed) whose mode at issue is offline; a command issued online, or with a missing or unauthenticated envelope, fails"
+  backEntryDocumented: "the command records a dose given off the system (paper during downtime or a cell loss, or in an emergency without scans): it references the downtime or paper record, carries the paper's clinical time and the performer named on it, the clinical time is not later than the server's receipt time, the user chose a back-entry reason (never defaulted), and the entry is labelled back-entry (SI-10 clauses b and c; CTRL-0010-4, CTRL-0010-5)"
+  privilegedAndAudited: "the user holds the privilege that governed configuration requires for this command (marking an administration entered in error, or back-entry), a Trust Plane answer (§9.26), and the audit record of the command can be written with it; an audit outage refuses the command, it never runs unaudited. B.3's name, required on every exit from a terminal state (WP-0.5 spec §1.2); worded as in order.yaml"
+  errorReasonEntered: "the user chose an entered-in-error reason from the governed list (content [HUMAN]), never defaulted (§6.5)"
+effects:
+  emitMedicationAdministered: "a MedicationAdministered event (§8.5, RAS^O17) is journaled for the dose with its status (the target state: in-progress, completed or stopped), clinical time and recorded time (SI-10), the performer, the scan evidence (wristband and product scans, or the override and its sub-cause), the amount entered, an unknown expiry where there was one, the double checker where one was required, any stop reason the user entered, labels (offline, back-entry) and the linked order (R11 §9)"
+  emitMedicationNotGiven: "a MedicationNotGiven event (§8.5) is journaled with the reason (the one the user chose, or the system reason order-ended or order-on-hold), the user or the system, and the time"
+  reportOverride: "a journaled MedicationAdministrationOverridden event (§8.5) names the kind (product scan, with its sub-cause: no scan, unreadable or not mapped; verification; wristband failure; offline revalidation failed; back-entry), the reason, the user, the unit, the dose and the order; it feeds scan-failure analytics and the overrides-by-user-and-unit dashboard (SI-02 clause c; SAC-21; CTRL-0002-5)"
+  createPharmacistReviewTask: "an owned pharmacist review task for the order is created, due within 4 h of the dose's clinical time, escalated and orphan-alarmed like every task (SI-05 fallback set; §10.3 A item 4; SAC-24; CTRL-0002-6, CTRL-0005-12). The 4 h limit is vendor-locked: a tenant may shorten it and never lengthen it (CTRL-0005-1)"
+  createWristbandReprintTask: "an owned task to reprint and replace the patient's wristband with the current MRN goes to the nurse responsible for the patient, with an SLA (SI-01; SI-03 clause b)"
+  createAdministrationReviewTask: "an owned task with an SLA goes to the prescriber and the pharmacist to review a dose recorded after the fact (offline revalidation failed, or back-entry), naming every check that failed or could not run (§9.10 mobile offline BCMA; CTRL-0015-9; SI-03 clause b)"
+  createInfusionStopTask: "an owned, escalated task goes to the nurse responsible for the patient to stop the running infusion of an ended order, or to confirm with the prescriber that it continues (SI-03 clause b)"
+  flagLateDose: "the dose is marked late on the eMAR and an owned task goes to the nurse responsible for the patient (§9.10 late-dose windows). It never blocks or delays a give"
+transitions:
+  # ---- The normal path: every check holds.
+  - from: scheduled
+    on: Give
+    guard: [administeringUserPrivileged, activeVerifiedOrder, notInfusionOrder, fixedDoseOrder, clinicalTimeContemporaneous, wristbandScanMatches, productIdentityMatches, administeredAmountMatchesOrder, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [emitMedicationAdministered]
+    to: completed
+    description: "§8.4 'Start / give' for a non-infusion dose. Proposed edge: R11 §10.3 draws only the outcomes after in-progress"
+  - from: scheduled
+    on: StartInfusion
+    guard: [administeringUserPrivileged, activeVerifiedOrder, infusionOrder, clinicalTimeContemporaneous, wristbandScanMatches, productIdentityMatches, infusionContentMatchesOrder, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [emitMedicationAdministered]
+    to: in-progress
+    description: "§8.4 'Start / give' for an infusion; R11 §10.3 scheduled → in-progress (infusion started)"
+  # ---- Overrides (SI-02 'or a documented override'). Each replaces exactly one check and keeps every
+  # other one; each is reported. The alternatives of a command are pairwise disjoint: the order
+  # predicates read one state and status, productIdentityMatches and productNotIdentified read whether
+  # the command's scan identified a product, and wristbandScanMatches and wristbandScanUnusable read
+  # whether the command's wristband scan matched.
+  - from: scheduled
+    on: GiveWithOverride
+    guard: [administeringUserPrivileged, activeVerifiedOrder, notInfusionOrder, fixedDoseOrder, clinicalTimeContemporaneous, wristbandScanMatches, productNotIdentified, administeredAmountMatchesOrder, overrideReasonEntered, reasonOnScanOverrideList, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [reportOverride, emitMedicationAdministered]
+    to: completed
+    description: "Product-scan override: the order is active and verified, no product was identified and no mismatch is on the dose's scan log. Proposed edge"
+  - from: scheduled
+    on: GiveWithOverride
+    guard: [administeringUserPrivileged, orderAwaitingVerification, emergencyOverrideListed, firstDoseOfOrder, notInfusionOrder, fixedDoseOrder, clinicalTimeContemporaneous, wristbandScanMatches, productIdentityMatches, administeredAmountMatchesOrder, overrideReasonEntered, reasonOnVerificationOverrideList, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [reportOverride, createPharmacistReviewTask, emitMedicationAdministered]
+    to: completed
+    description: "Verification override: the emergency and first-dose path before pharmacist verification (§8.4 order table 'emergency/first-dose override path with review ≤4 h'; SAC-24). Never offline: offlineAllowed needs a verification before the outage. Proposed edge"
+  - from: scheduled
+    on: GiveWithOverride
+    guard: [administeringUserPrivileged, activeVerifiedOrder, notInfusionOrder, fixedDoseOrder, clinicalTimeContemporaneous, wristbandScanUnusable, manualTwoIdentifiersConfirmed, productIdentityMatches, administeredAmountMatchesOrder, overrideReasonEntered, reasonOnIdentityOverrideList, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [reportOverride, createWristbandReprintTask, emitMedicationAdministered]
+    to: completed
+    proposed: true
+    description: "Wristband-failure override (B.3 twoIdentifiersConfirmed; DN-053 item 5): the wristband cannot be scanned or carries a non-current MRN; the two identifiers are keyed and checked instead. Proposed transition"
+  - from: scheduled
+    on: StartInfusionWithOverride
+    guard: [administeringUserPrivileged, activeVerifiedOrder, infusionOrder, clinicalTimeContemporaneous, wristbandScanMatches, productNotIdentified, infusionContentMatchesOrder, overrideReasonEntered, reasonOnScanOverrideList, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [reportOverride, emitMedicationAdministered]
+    to: in-progress
+    description: "Product-scan override for an infusion start"
+  - from: scheduled
+    on: StartInfusionWithOverride
+    guard: [administeringUserPrivileged, orderAwaitingVerification, emergencyOverrideListed, firstDoseOfOrder, infusionOrder, clinicalTimeContemporaneous, wristbandScanMatches, productIdentityMatches, infusionContentMatchesOrder, overrideReasonEntered, reasonOnVerificationOverrideList, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [reportOverride, createPharmacistReviewTask, emitMedicationAdministered]
+    to: in-progress
+    description: "Verification override for an infusion start (emergency and first-dose path)"
+  - from: scheduled
+    on: StartInfusionWithOverride
+    guard: [administeringUserPrivileged, activeVerifiedOrder, infusionOrder, clinicalTimeContemporaneous, wristbandScanUnusable, manualTwoIdentifiersConfirmed, productIdentityMatches, infusionContentMatchesOrder, overrideReasonEntered, reasonOnIdentityOverrideList, highAlertCheckSatisfied, patientSuppliedCleared, offlineAllowed]
+    effects: [reportOverride, createWristbandReprintTask, emitMedicationAdministered]
+    to: in-progress
+    proposed: true
+    description: "Wristband-failure override for an infusion start. Proposed transition on a drawn edge"
+  # ---- Doses that happened without the live checks: recorded, never dropped or falsely 'missed'.
+  - from: scheduled
+    on: RecordOfflineAdministration
+    guard: [issuedOfflineAndSynced, administeringUserPrivileged, notInfusionOrder]
+    effects: [reportOverride, createAdministrationReviewTask, emitMedicationAdministered]
+    to: completed
+    description: "Sync handler only: an offline-issued give that the server's revalidation refused (SI-15 'revalidated by the server'; CTRL-0015-9 'never dropped'). Proposed edge"
+  - from: scheduled
+    on: RecordOfflineAdministration
+    guard: [issuedOfflineAndSynced, administeringUserPrivileged, infusionOrder]
+    effects: [reportOverride, createAdministrationReviewTask, emitMedicationAdministered]
+    to: in-progress
+    proposed: true
+    description: "Sync handler only: an offline-issued infusion start that the server's revalidation refused. Proposed transition on a drawn edge"
+  - from: scheduled
+    on: BackEnterAdministration
+    guard: [privilegedAndAudited, backEntryDocumented, manualTwoIdentifiersConfirmed]
+    effects: [reportOverride, createAdministrationReviewTask, emitMedicationAdministered]
+    to: completed
+    description: "SI-10 back-entry of a dose given on paper or without scans, keeping the paper's clinical time, labelled (§16.3; §18.5 #7). Proposed edge"
+  # ---- Not done (held, refused, missed, NPO, off unit): reason chosen, never defaulted.
+  - from: scheduled
+    on: NotDone
+    guard: [administeringUserPrivileged, notDoneReasonValid]
+    effects: [emitMedicationNotGiven]
+    to: not-done
+    description: "§8.4 'Not done'. Proposed edge: R11 draws not-done only after in-progress"
+  - from: in-progress
+    on: NotDone
+    guard: [administeringUserPrivileged, notDoneReasonValid]
+    effects: [emitMedicationNotGiven]
+    to: not-done
+    description: "§8.4 'Not done' from in-progress; R11 §10.3"
+  # ---- After an infusion start (R11 §10.3). §8.4 gives no guard; only an authenticated clinical user
+  # is required, never a configurable privilege, so nothing configurable blocks stopping an infusion.
+  - from: in-progress
+    on: Complete
+    guard: [authenticatedClinicalUser]
+    effects: [emitMedicationAdministered]
+    to: completed
+    description: "§8.4 'Complete'; R11 §10.3"
+  - from: in-progress
+    on: Stop
+    guard: [authenticatedClinicalUser]
+    effects: [emitMedicationAdministered]
+    to: stopped
+    description: "§8.4 'Stop'; R11 §10.3. A stop reason and the amount given may be entered and are journaled; neither is required"
+  # ---- The order ended or is held (system commands from the orders module; SI-03).
+  - from: scheduled
+    on: OrderEnded
+    guard: [orderEnded]
+    effects: [emitMedicationNotGiven]
+    to: not-done
+    description: "The order was completed, discontinued, replaced or entered in error: the dose closes with the system reason order-ended (order.yaml closeOpenFulfilment). Not a user default, so SI-02 clause b does not apply. Proposed edge"
+  - from: in-progress
+    on: OrderEnded
+    guard: [orderEnded]
+    effects: [createInfusionStopTask]
+    to: in-progress
+    description: "The order of a running infusion ended: an owned task to stop it or confirm it. Proposed edge"
+  # ---- Late dose (§8.4 '(start)' row: late-dose windows configurable, tighter for time-critical
+  # drugs). A flag, never a block: no give guard reads the window. Sent by the scheduler.
+  - from: scheduled
+    on: LateDoseWindowElapsed
+    guard: [lateDoseWindowElapsed, orderAdministrable]
+    effects: [flagLateDose]
+    to: scheduled
+    description: "The late-dose window elapsed for an administrable order: flag the dose and raise an owned task. Proposed edge"
+  - from: scheduled
+    on: LateDoseWindowElapsed
+    guard: [lateDoseWindowElapsed, orderOnHold]
+    effects: [emitMedicationNotGiven]
+    to: not-done
+    description: "The window elapsed while the order was on hold (order.yaml suspendFulfilment): the dose closes with the system reason order-on-hold and raises no late-dose task (DN-053 item 15). Proposed edge"
+  # ---- Correction (§8.4 'any | Mark error | Audited'). "*" includes the terminal completed, not-done
+  # and stopped, so the guard carries privilegedAndAudited (WP-0.5 spec §1.2).
+  - from: "*"
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, errorReasonEntered]
+    to: entered-in-error
+    description: "§8.4 'any → Mark error (audited)'. Proposed: R11 §10.3 draws entered-in-error only after in-progress"
+# Edges R11 §10.3 does not draw ("scheduled (due) → in-progress → completed | not-done | stopped |
+# entered-in-error"), awaiting panel approval (§8.4, A.20 "Undrawn transitions"). Transitions new to
+# this build on a drawn edge carry `proposed: true`.
+proposed:
+  - "scheduled→completed"
+  - "scheduled→not-done"
+  - "scheduled→scheduled"
+  - "in-progress→in-progress"
+  - "*→entered-in-error"
+invariants: [SI-01, SI-02, SI-03, SI-05, SI-10, SI-12, SI-13, SI-15]
+events: [MedicationAdministered, MedicationNotGiven, MedicationAdministrationOverridden]
+hazards: [HAZ-0001, HAZ-0002, HAZ-0003, HAZ-0005, HAZ-0010, HAZ-0012, HAZ-0013, HAZ-0015]
+sources:
+  - "BUILD-PROMPT §8.4 (medication administration table; the order table's emergency/first-dose override path with review ≤4 h; '[activeVerifiedOrder, twoIdentifiersConfirmed, productScanMatches]')"
+  - "BUILD-PROMPT Appendix B.3 (first draft of this machine)"
+  - "BUILD-PROMPT §2.1 SI-01, SI-02, SI-03, SI-05 (and the dose-arithmetic definition), SI-10, SI-12, SI-13, SI-15"
+  - "BUILD-PROMPT §9.5 (order-sign transaction incl. MAR schedule); §9.10 (eMAR, BCMA, mobile offline BCMA, time-critical doses, patient-supplied medicines, dispensing, infusion model); §9.26 (privileges)"
+  - "BUILD-PROMPT §10.3 A (extended Dose Engine fallback: review within 4 h of any dose given before verification); §16.3 (downtime back-entry)"
+  - "BUILD-PROMPT §18.4 SAC-01, SAC-02, SAC-20 to SAC-24; §18.5 #3 and #7; §21 row 3.3; Appendix A.20 'Undrawn transitions'"
+  - "R11 §7 (replaces), §9 (administration attributes; five server-enforced invariants) and §10.3 (medication administration per scheduled dose)"
+  - "docs/specs/state-machines/order.yaml (states, verification status, createMarSchedule, returnToPrescriber, suspendFulfilment, closeOpenFulfilment)"
+  - "docs/safety/hazard-log.yaml: CTRL-0001-4, CTRL-0001-7, CTRL-0002-3 to CTRL-0002-6, CTRL-0005-1, CTRL-0005-12, CTRL-0010-4, CTRL-0010-5, CTRL-0012-3, CTRL-0012-6 to CTRL-0012-8, CTRL-0013-3, CTRL-0013-4, CTRL-0015-3, CTRL-0015-9"

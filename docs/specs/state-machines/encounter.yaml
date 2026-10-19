@@ -1,0 +1,664 @@
+# The encounter lifecycle: arrival, triage, admission to a bed, transfers and bed swaps, leave of
+# absence, discharge with a disposition, administrative close, downtime back-entry, corrections and
+# the audited reversals (BUILD-PROMPT §8.4 "Encounter", §9.12, §9.14, §9.18, §21 WP-2.1; R11 §5 and
+# §10.1). Template: Appendix B.3; format rules: docs/specs/modules/state-machines-and-invariants.md §1
+# and §2.1. Explanation: encounter.md beside this file. Approval request: DN-051 (its items are the
+# readings and policy choices below; "DN-051 item n" refers to encounter.md §6).
+#
+# States. R11 §10.1 asks for the richer R4-style internal states plus a "discharged-not-closed"
+# sub-state, so that the R4 and the R5/R6 status sets can both be projected without loss; §8.4 uses
+# that sub-state. `finished` is the administratively closed encounter (R5/R6 `completed`);
+# `discharged-not-closed` is the clinically discharged one whose coding and charging are still open
+# (R5/R6 `discharged`). An outpatient or ED visit that never takes a bed passes through planned,
+# arrived (and triaged, where triage applies) and ends in discharged-not-closed and finished through
+# the proposed Discharge from arrived or triaged; it never reaches in-progress (encounter.md §1).
+#
+# SI-12 (HAZ-0012; CTRL-0012-3, CTRL-0012-4). No predicate of this machine reads a bill, balance,
+# deposit, payment, tariff, package, estimate, pre-approval or any other RCM state, and no financial
+# predicate may be added to any guard. Creating an encounter (ED quick registration included) is a
+# creation command with no guard; it works offline and takes its encounter number only from a
+# pre-allocated downtime block (SI-15 clause c, CTRL-0015-6, enforced by the identifier service, not
+# here). AdmitToBed and every Discharge carry no financial predicate; the disposition is a clinical
+# choice that can always be made. The only money-adjacent step, AdministrativeClose, comes after the
+# clinical discharge, reads coding and charge capture (never payment, never an RCM state) and only
+# closes the record administratively.
+#
+# SI-15 (HAZ-0015; CTRL-0015-3, CTRL-0015-5). Every command that places a patient in a bed going
+# forward (AdmitToBed, TransferBed, SwapBeds and its override, CancelTransfer, every CancelDischarge
+# that restores a bed) is bed allocation and carries onSiteCellConnected: refused when issued while
+# the on-site cell is lost, in edge-agent mode or in mobile offline mode. Losing the internet does not
+# make the on-site cell offline, so the predicate never reads WAN state. Releasing commands (leave,
+# return, every Discharge, cancellations) stay possible offline. Downtime back-entry records what
+# happened on paper and is issued online after recovery.
+#
+# SI-01 (HAZ-0001). Every command except AdministrativeClose affects a patient, so it carries
+# patientIdentityConfirmed (two identifiers, never a room, bed or location); a swap also carries
+# swapPartnerIdentityConfirmed (DN-051 item 10).
+#
+# SI-17 and SI-03 (HAZ-0017, HAZ-0003). Every transition that ends the stay (each Discharge, Cancel,
+# CancelAdmission, MarkEnteredInError) carries routePendingResultsToOwnedQueues (or, for a wrong
+# patient, routeToIdentityCorrectionQueue) and notifyOrdersOfEncounterEnd. Routing is an effect, never
+# a guard: it cannot block the discharge.
+#
+# SI-10 (HAZ-0010). Every command carries an effective (clinical) time and a recorded time. The
+# location history is written at the effective time; the recorded time is kept beside it. Ordinary
+# late entry is checked by the bitemporal journal and command handler (CTRL-0010-4); the explicit
+# back-entry and correction commands below carry privilegedAndAudited (DN-051 item 8).
+#
+# Location history (R11 §5 key rule; §9.12). The encounter's location history is the single source of
+# truth for bed occupancy, census, patient-days, bed-day charges, isolation tracking and outbreak line
+# lists. The bed machine (bed.yaml) reads occupancy from it and keeps no occupancy table. The machines
+# stay separate. An encounter transition and the bed commands its effects send commit in one
+# transaction. For a command that allocates a bed, a refused bed command refuses the encounter
+# command. For a command that releases a bed or ends the stay, a refused bed command never refuses the
+# encounter command: it opens an owned bed-manager reconciliation task (DN-051 item 21).
+#
+# Owner adt (§5.2, §9.12). Approvers: nurse panel, HIM and CSO (§8.4). Every reading of an SI and
+# every policy choice is an item of DN-051; the defaults below are the stricter readings that neither
+# let harm through nor block an emergency admission, transfer or discharge.
+machine: encounter
+version: 1
+owner: adt
+approval: {status: requested, required: [nurse-panel, him, cso], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [planned, arrived, triaged, in-progress, on-leave, discharged-not-closed, finished, cancelled, entered-in-error]
+terminal: [finished, cancelled, entered-in-error]
+initial: planned
+# §8.4 "(start) Pre-admit / schedule → planned"; R11 §10.1 "[*] --> planned: pre-admit / scheduled".
+# An unscheduled arrival (ED quick registration, OPD walk-in) is created in planned and arrives in the
+# same domain command (open question, encounter.md §7).
+created_by: [PreAdmit, Schedule]
+predicates:   # each implemented once in hms.adt.domain.encounter (EncounterGuards) and unit-tested
+  patientIdentityConfirmed: >-
+    The command carries two identifiers of the patient it affects, as the identity service confirms
+    them for this command: the MRN with a valid check digit, plus the date of birth at its recorded
+    precision or the approximate-DOB flag (SI-01 clause e). A room, bed or location is never accepted
+    as an identifier (SI-01 clause b; CTRL-0001-4), whatever channel the command comes from: a command
+    that presents one as a patient identifier fails, even beside two valid identifiers. The
+    identifiers may be confirmed against the record on screen; no wristband scan is required, so the
+    predicate can always be met for a correctly selected patient, including one registered on an
+    unidentified-patient alias with the approximate-DOB flag (SAC-06). The identity service's answer
+    is read as a fact (another module owns it); an unknown answer fails.
+  swapPartnerIdentityConfirmed: >-
+    The command carries two identifiers of the swap partner's patient confirmed as in
+    patientIdentityConfirmed. The partner is chosen as a patient, never as "the patient in bed n".
+  triageRecordComplete: >-
+    The command carries a triage record that names the tenant's configured triage scale, a level that
+    is one of that scale's configured levels, a chief complaint (a code or original text, not blank),
+    the triage time and the triaging user (§8.4 "scale, complaint, vitals, time"; R11 §5), and, for
+    each vital sign the tenant's triage form marks as required, either a value with its time or
+    "not obtained" with a reason the user chose (for example too unstable, refused, in arrest; the
+    reason list is governed content [HUMAN]). An empty required vital-sign list is valid
+    configuration. Only an absent scale configuration fails (§9.14: the scale is chosen by the
+    hospital). Synthetic configurations in tests are NOT FOR CLINICAL USE.
+  onSiteCellConnected: >-
+    The command was issued in a mode in which the offline matrix (data, ADR-012, CTRL-0015-3) allows
+    bed allocation. Bed allocation is allowed only in the on-site-cell mode and never in cell-lost,
+    edge-agent or mobile-offline mode (SI-15 clause b, vendor-locked). A client's mode is its mode at
+    issue, not at processing: a command issued offline and synced later fails, although the server
+    revalidates it online (SI-15 clause f). A channel that runs inside the cell (HL7 inbound, the
+    migration loader, plugins, AI agents acting through the cell's API) is in the on-site-cell mode by
+    construction. Internet or WAN loss alone never changes the mode (SI-15 clause h; §16.3 L1), so the
+    predicate does not read WAN state. An unknown mode fails. The same definition is used by the bed
+    machine and implemented once in the adt domain.
+  targetBedAssignedToEncounter: >-
+    The command's target bed is in the bed machine's reserved state and its reservation names this
+    encounter (§8.4 bed "available → reserved/assigned → occupied"; §9.12 "bed request → assign →
+    ready → arrival"). The bed's state and reservation are facts read from the bed aggregate.
+  targetBedFreeForNewPeriod: >-
+    The new location period on the target bed, starting at the command's effective time and open-ended,
+    overlaps no location period of any other encounter on that bed. Periods are half-open [start, end);
+    an open period has no end; periods marked entered-in-error are ignored. Occupancy is read only from
+    the encounters' location histories (R11 §5 key rule), never from a separate table (§8.2 "one
+    authority and an exclusion constraint against double occupancy"; §9.12 acceptance).
+  bedSwapPairValid: >-
+    The command names a swap partner: an encounter other than this one, in the in-progress state, with
+    no open leave entry, whose only open bed period is on the command's target bed, and that target bed
+    differs from this encounter's current bed. The effective time is later than the start of the
+    partner's open period, and no location period of a third encounter on either bed overlaps the time
+    from the effective time onward. Both open periods close and both swapped periods open at the same
+    instant in one command, so neither bed has two occupants at any instant (§8.4 "Transfer / swap
+    bed"; §8.5 bed swap A17).
+  swappedBedsAdmitBothPatients: >-
+    Each bed of the swap admits the patient moving into it under the same rule as the bed machine's
+    bedRestrictionsAdmitPatient (gender restriction, isolation capability, IPC cohort declarations),
+    and neither bed's room has an active pressure alarm (as bed noActivePressureAlarm). As there, a
+    known mismatch or unknown isolation data fails (the override path SwapBedsWithOverride applies);
+    an unknown patient sex, a gender rule that does not cover the patient, or an unknown pressure
+    signal does not fail and raises raiseBedRestrictionWarning (§9.12 "gender and isolation
+    constraints", "pressure alarms ... block assignment").
+  overrideReasonChosen: >-
+    The user chose an override reason from the coded list clinical-emergency, ipc-approved-cohort or
+    restriction-data-wrong-or-unknown; it is never defaulted, and the command names at least one
+    restriction and every restriction the swap fails under swappedBedsAdmitBothPatients (each one
+    being overridden); with no swap to evaluate the predicate fails. SI-15 (onSiteCellConnected) and
+    the exclusion constraint are never overridable.
+  effectiveTimeAfterLocationStart: >-
+    The command's effective (clinical) time is later than the start of every open entry of this
+    encounter's location history: its open bed period and, while on leave, its open leave entry. For a
+    back-entry (a command that carries paper periods), the effective time is the start of its first
+    paper period. With no open entry the
+    predicate fails. So no period or leave entry ever ends at or before its start, and the history
+    stays in clinical-time order (R11 §5; §8.1 P2). The recorded time plays no part (SI-10). A wrong
+    earlier time is corrected with CorrectLocationTime, never by recording a false later one.
+  dispositionChosen: >-
+    The user chose the discharge disposition from the tenant's governed disposition list or, when that
+    list is missing or empty, from the vendor baseline list (home, died, left-without-being-seen,
+    against-medical-advice, transfer-out, admitted-elsewhere; §9.14 "discharge, admit, transfer out,
+    AMA, LWBS"; §9.18 "the discharge order with disposition"). It is never defaulted. It is never a
+    money fact. Because a baseline list always exists, the predicate can always be met.
+  returnBedAvailable: >-
+    For a cancelled discharge that restores a bed, the command's target bed is either (a) the bed whose
+    period the discharge closed, now in the bed machine's dirty or cleaning state, with no location
+    period of another encounter on it from the discharge's effective time onward: the patient returns
+    to that bed, the closed period is reopened and a held cleaning job stays held; or (b) another bed
+    whose reservation names this encounter and on which the new period, from the command's effective
+    time and open-ended, overlaps no other encounter's period (as targetBedFreeForNewPeriod). Any
+    other target bed fails.
+  dischargedFromBed: >-
+    The discharge being cancelled was fired from in-progress (the patient was in a bed, not on leave).
+  dischargedFromLeave: >-
+    The discharge being cancelled was fired from on-leave. Mutually exclusive with dischargedFromBed
+    and dischargedBeforeAdmission; an unknown origin makes all three false (the cancellation is
+    refused and HIM corrects the record).
+  dischargedBeforeAdmission: >-
+    The discharge being cancelled was fired from arrived or triaged (a departure before admission).
+  triageRecorded: >-
+    The encounter holds a triage record that is not entered-in-error.
+  noTriageRecorded: >-
+    The exact complement of triageRecorded.
+  previousBedAvailable: >-
+    For a cancelled transfer: the bed whose period the encounter's last transfer closed is in the bed
+    machine's dirty or cleaning state, and no location period of another encounter on it starts at or
+    after that transfer's effective time or overlaps the time from it onward (entered-in-error
+    ignored); the patient returns to it and its period is reopened.
+  correctedTimesConsistent: >-
+    The command names one boundary of this encounter's location history (the start or end of a bed
+    period or leave entry) and a new effective time for it; the end of an open entry cannot be named.
+    A boundary shared by two consecutive bed periods (a transfer instant) moves for both periods, so
+    no gap opens. After the change every entry still has start before end, the bed periods and the
+    leave entries each stay in their order with no overlap between consecutive ones, every entry
+    starts no earlier than the encounter's arrival, and no changed interval overlaps a location
+    period of another encounter on the same bed (entered-in-error ignored).
+  backEntryPeriodsWellFormed: >-
+    The command carries one or more paper location periods, each with a bed, a start and, except for
+    the last, an end, each labelled as downtime entry with the reference of its paper source (SI-10
+    clause c; CTRL-0010-5; SAC-47). Every bounded period has start before end; the periods are
+    consecutive (each starts exactly where the previous one ends), so they do not overlap one
+    another; they all lie within one downtime spell that the site record
+    holds (cell loss, edge-agent or mobile-offline spell) and end before the command's recorded time;
+    the first starts no earlier than the encounter's arrival. The last period is open-ended (the bed
+    the patient lay in when the paper record ends; a discharge on paper is then entered with Discharge
+    at its paper time).
+  backEntryPeriodsFree: >-
+    No back-entered period, each checked over its own interval only (bounded ones as [start, end), the
+    last from its start onward), overlaps a location period of another encounter on that bed, other
+    back-entries included (entered-in-error ignored); and the bed of the last period is not reserved
+    for another encounter, blocked or closed now. An unknown state of that bed, or periods without a
+    bed or a start, count as a conflict. Forward-allocation checks (reservation, restrictions,
+    pressure alarms) are not applied: those decisions were taken on paper.
+  backEntryPeriodsConflict: >-
+    The exact complement of backEntryPeriodsFree.
+  errorReasonChosen: >-
+    The user chose the reason for marking the encounter in error from the coded list wrong-patient,
+    duplicate-encounter or registered-in-error; it is never defaulted (§9.12 "cancellations with a
+    reason"; §8.4 "Audited").
+  wrongPatientError: >-
+    The chosen error reason is wrong-patient: the encounter was recorded on this patient but the care
+    was given to another patient.
+  notWrongPatientError: >-
+    The exact complement of wrongPatientError.
+  replacementEncounterReady: >-
+    The command names the encounter of the patient who actually received the care: a different
+    patient's encounter in arrived or triaged, whose two identifiers are confirmed as in
+    patientIdentityConfirmed, with no open bed period, and on whose behalf every location period of
+    this encounter can be re-created at its original times without overlapping any other encounter's
+    period (entered-in-error ignored, this encounter's own periods excluded).
+  handOverPeriodValid: >-
+    This command is the second half, in the same transaction, of a wrong-patient CancelAdmission that
+    names this encounter as its replacement: the periods it receives are exactly that encounter's
+    location periods with their original times, and none overlaps another encounter's period
+    (entered-in-error ignored).
+  codingAndChargingComplete: >-
+    The encounter's coding is complete (the record module's HIM coding queue holds no open coding task
+    for it) and its charge capture is complete (the journal holds every charge event the encounter's
+    clinical activity owes, bed-days to the discharge time included, written to the outbox). These are
+    the answers of the record module and the journal, read here as facts; an unknown answer fails. The
+    predicate never reads payment or any RCM state: an unpaid balance, an unpaid deposit, or a missing
+    or denied pre-approval never makes it false (SI-12; CTRL-0012-3). It acts only after the clinical
+    discharge, which it never blocks.
+  reasonEntered: >-
+    The user chose or typed a reason for this command; it is never defaulted and never blank (§9.12
+    "cancellations with a reason").
+  privilegedAndAudited: >-
+    The user holds the privilege this command requires and the action is audited: the audit event
+    (actor, reason, effective and recorded time) is accepted for writing with the change; an audit that
+    cannot be written fails the predicate (Appendix B.3; §8.4 "Audited"; §9.12; CTRL-0010-4). The
+    privilege per command is governed configuration: back-entry and time correction need supervisor
+    rights (§9.12 "back-dated events only with supervisor rights"); cancelling a discharge whose
+    disposition is died, or not known not to be died, needs the separate death-reversal privilege
+    (DN-051 items 8, 16 and 19).
+effects:
+  appendLocationPeriod: >-
+    Closes the encounter's open bed period, if any, at the command's effective time and opens a period
+    on the target bed at the same instant, as one location-history change with its recorded time kept
+    separately (§8.4 "Appends a location-history period"; R11 §5; SI-10). The bed machine receives
+    Occupy for the target bed and, when a period closed, Vacate for the old bed.
+  swapLocationPeriods: >-
+    Closes the open bed periods of this encounter and of its swap partner and opens each on the other's
+    bed at the same effective time, in one change of both location histories (§8.4 "swap bed"; A17).
+    Both beds stay occupied; neither is vacated.
+  raiseBedRestrictionWarning: >-
+    When a bed of the swap has a gender restriction and the incoming patient's sex is unknown or not
+    covered by the configured rule, or a room's pressure signal is unknown, the user is warned and an
+    owned task with an SLA goes to the bed manager (and to facilities and infection prevention and
+    control for a pressure signal). Otherwise nothing happens.
+  recordRestrictionOverride: >-
+    Records the override (reason, each restriction overridden, user, both times) and opens an owned
+    task with an SLA for the bed manager and for infection prevention and control to review it.
+  revertLastTransfer: >-
+    Marks the period opened by the encounter's last transfer entered-in-error (kept, never deleted)
+    and reopens the period that transfer closed. The bed machine receives Reoccupy for the previous bed
+    and Vacate for the bed of the cancelled period (occupied → dirty, the safer path).
+  recordLeaveStart: >-
+    Appends a leave entry to the location history from the effective time. The bed period stays open,
+    so the bed stays held and counts as occupied for the exclusion constraint (§9.12 "holds the bed").
+    Medications is told; each dose that falls due during the leave is recorded as not-done with reason
+    off-unit or covered by a recorded leave supply, never silently suspended (§9.12 "suspends due
+    times"; §8.4 medication administration "Not done (... off unit)").
+  recordLeaveReturn: >-
+    Closes the open leave entry at the effective time; the held bed period continues; medications is
+    told the leave ended (§9.12 "records the return").
+  closeLocationPeriod: >-
+    Closes the open bed period, and an open leave entry, at the discharge's effective time. The bed
+    machine receives Vacate (occupied → dirty), which opens the bed-cleaning job (§9.12 "the discharge
+    event creates the bed-cleaning job").
+  routePendingResultsToOwnedQueues: >-
+    Through the results routing service, and idempotently per item and per end of stay: every result
+    of the encounter's orders that is not final goes to the pending-at-discharge queue (the result
+    machine's RecordPatientDischarged); every final result not yet acknowledged gets pending-at-discharge
+    work in the results inbox; and every order with no result yet (not collected, not performed, a
+    send-out not received) gets a pending-at-discharge item. Each has a responsible clinician and an SLA
+    and is listed with its owner for the discharge summary (SI-17 clause a; §9.18 acceptance;
+    CTRL-0017-3; SI-03 clause b). Routing never blocks the transition: when no named owner resolves,
+    the item goes to the discharging service's pool queue and raises TaskOrphaned (SI-03 clause c).
+  notifyOrdersOfEncounterEnd: >-
+    Every active order of the encounter gets an owned task for the responsible clinician to
+    discontinue, convert or continue it, and medications is told that scheduled doses stop falling due
+    for the ward after the effective time; nothing is discontinued or marked not given silently (SI-03
+    clause a; order open question ORD-Q8).
+  actOnDisposition: >-
+    Acts on the chosen disposition: for died, medications stops every scheduled dose, scheduling gets
+    an owned task to cancel future appointments, death registration starts (WP-2.5 SPC-DTH-01) and
+    patient messaging is suppressed; for left-without-being-seen and against-medical-advice, the owner
+    of the pending-results items gets an owned task to recall the patient; for transfer-out, the
+    transfer summary is an owned task until acknowledged (§9.18).
+  releaseBedReservation: >-
+    Any bed reservation naming this encounter is released by the bed machine's ReleaseReservation
+    (reserved → available), which needs no user reason because the encounter has ended; the bed
+    request is closed with this encounter's outcome.
+  dissociateDevices: >-
+    Every device associated with the patient for this encounter (at the bed or, before admission, in
+    the department) ends its association at the effective time, audited, so that no later value is
+    charted to this patient (SAC-53; §9.19 "automatic dissociation on discharge or transfer"). For a
+    swap, both patients' devices; for a wrong-patient correction, the devices are dissociated from the
+    wrong record and an owned task asks the nurse to re-associate them to the real patient.
+  flagOtherOpenBedPeriod: >-
+    When the patient also has an open bed period in another encounter (entered-in-error ignored), the
+    command proceeds, the user is warned, and an owned HIM reconciliation task with an SLA names both
+    encounters; never a silent pass.
+  restoreLocationAfterCancelledDischarge: >-
+    Restores a bed period for the cancelled discharge: in case (a) of returnBedAvailable the period the
+    discharge closed is reopened (the bed machine receives Reoccupy, dirty or cleaning → occupied); in
+    case (b) a new period opens on the reserved bed at the command's effective time (the bed machine
+    receives Occupy). After a discharge from leave the leave entry is reopened too. The as-was view
+    keeps the discharge and its cancellation (§8.1 P3).
+  reclaimRoutedResults: >-
+    The pending-at-discharge items this discharge created return to the inpatient responsible
+    clinician, and each queue owner is told the discharge was cancelled.
+  reverseDispositionActions: >-
+    The actions of actOnDisposition are reversed as owned tasks (a reversed death tells death
+    registration, scheduling and patient messaging); none is reversed silently.
+  reopenAdministrativeClose: >-
+    Reverses the administrative close: the encounter's coding and charge capture are reopened, and HIM
+    and RCM learn of it through DischargeCancelled.
+  voidBedPeriods: >-
+    Marks the encounter's bed periods and leave entries entered-in-error (kept, never deleted); the
+    encounter and its clinical record stay valid. The bed it occupied receives Vacate (occupied →
+    dirty). Census and bed charges recompute.
+  voidLocationHistory: >-
+    Marks every location period and leave entry of the encounter entered-in-error; they are kept, never
+    deleted (§8.1 P3), and census, patient-days and bed charges derived from them are recomputed (R11
+    §5). The bed the encounter occupied receives Vacate (occupied → dirty), the safer path, because a
+    patient may have used it.
+  handOverLocationHistory: >-
+    For a wrong-patient admission: marks this encounter's location entries entered-in-error and, in the
+    same transaction, the replacement encounter receives ReceiveBedHandOver with the same periods at
+    their original times. The open bed period passes over without a Vacate: the bed stays occupied.
+  receiveHandedOverPeriods: >-
+    Opens on this encounter the location periods handed over by the wrong-patient correction, with
+    their original times and a link to the corrected encounter.
+  routeToIdentityCorrectionQueue: >-
+    Every result, pending order, scheduled dose, note and specimen of the encounter goes to the
+    identity-correction queue owned by HIM and the laboratory, with the ordering clinician informed;
+    never to ordinary follow-up as this patient's results (R11 §15 item 7: results are never silently
+    re-attached without review; HAZ-0001).
+  correctLocationBoundary: >-
+    Changes the named boundary's clinical time. The old value stays in the as-was view with both
+    recorded times (SI-10 clause b; CTRL-0010-4); census, patient-days and bed charges recompute. No bed
+    state changes.
+  applyBackEnteredPeriods: >-
+    Closes the open bed period, if any, at the first paper period's start and appends the paper
+    periods at their paper times, labelled downtime entry, with the recorded time kept (SI-10 clause
+    c). The bed machine receives RecordBackEnteredOccupancy for the bed of the last period (unless it
+    is the current bed) and Vacate for a bed this encounter no longer occupies.
+  openLocationReconciliationTask: >-
+    The paper periods are kept as an unapplied downtime record in the location reconciliation queue,
+    owned by HIM and the bed manager with an SLA, naming every conflicting period; the encounter and
+    the bed board are unchanged until the task resolves it (CTRL-0010-6).
+  emitPatientArrived: "Publishes PatientArrived (ADT^A04 or A10; §8.5)."
+  emitEncounterAdmitted: "Publishes EncounterAdmitted (ADT^A01; §8.5) at the effective time."
+  emitPatientTransferred: "Publishes PatientTransferred (ADT^A02; §8.5) at the effective time."
+  emitPatientDischarged: "Publishes PatientDischarged (ADT^A03; §8.5) with the disposition."
+  emitAdmissionCancelled: "Publishes AdmissionCancelled (ADT^A11; §8.5)."
+  emitDischargeCancelled: "Publishes DischargeCancelled (ADT^A13; §8.5)."
+transitions:
+  # 0. §8.4 "planned | Arrive | — | arrived"; R11 §10.1 "planned --> arrived: patient arrives".
+  - from: planned
+    on: Arrive
+    guard: [patientIdentityConfirmed]
+    effects: [emitPatientArrived]
+    to: arrived
+    description: "§8.4 encounter row 'Arrive'; R11 §10.1 planned → arrived."
+  # 1. §8.4 "planned | Cancel | — | cancelled"; R11 §10.1. Reason from §9.12. Pre-admission tests and
+  # orders still need owners (SI-17, SI-03).
+  - from: planned
+    on: Cancel
+    guard: [patientIdentityConfirmed, reasonEntered]
+    effects: [releaseBedReservation, routePendingResultsToOwnedQueues, notifyOrdersOfEncounterEnd]
+    to: cancelled
+    description: "§8.4 encounter row 'Cancel'; R11 §10.1 planned → cancelled; reason from §9.12."
+  # 2. §8.4 "arrived | Triage | Triage record (scale, complaint, vitals, time) | triaged"; R11 §10.1.
+  # Re-triage appends a triage record and is not a transition (encounter.md §7).
+  - from: arrived
+    on: Triage
+    guard: [patientIdentityConfirmed, triageRecordComplete]
+    to: triaged
+    description: "§8.4 encounter row 'Triage'; R11 §10.1 arrived → triaged; R11 §5 triage record."
+  # 3. §8.4 "arrived, triaged | Admit to bed | No bed allocation offline (SI-15); no deposit rule
+  # blocks ED registration or emergency orders (SI-12) | in-progress"; R11 §10.1. SI-12 is met by the
+  # absence of any financial predicate. The bed's restrictions were checked (or overridden, audited)
+  # when it was reserved.
+  - from: [arrived, triaged]
+    on: AdmitToBed
+    guard: [onSiteCellConnected, patientIdentityConfirmed, targetBedAssignedToEncounter, targetBedFreeForNewPeriod]
+    effects: [appendLocationPeriod, flagOtherOpenBedPeriod, emitEncounterAdmitted]
+    to: in-progress
+    description: "§8.4 encounter row 'Admit to bed' (SI-15, SI-12); R11 §10.1 arrived → in_progress and triaged → in_progress; exclusion constraint §8.2, §9.12."
+  # 4. §8.4 "in-progress | Transfer / swap bed | Appends a location-history period | in-progress":
+  # the transfer to another bed reserved (and so checked) for this encounter.
+  - from: in-progress
+    on: TransferBed
+    guard: [onSiteCellConnected, patientIdentityConfirmed, effectiveTimeAfterLocationStart, targetBedAssignedToEncounter, targetBedFreeForNewPeriod]
+    effects: [appendLocationPeriod, dissociateDevices, emitPatientTransferred]
+    to: in-progress
+    description: "§8.4 encounter row 'Transfer / swap bed' (transfer); §9.12 transfers; §9.19 dissociation; R11 §5."
+  # 5. The same §8.4 row, the swap: two in-progress patients exchange beds in one command (A17), with
+  # the same bed restrictions a transfer meets through Reserve. No §8.5 event name (Q-E4).
+  - from: in-progress
+    on: SwapBeds
+    guard: [onSiteCellConnected, patientIdentityConfirmed, swapPartnerIdentityConfirmed, effectiveTimeAfterLocationStart, bedSwapPairValid, swappedBedsAdmitBothPatients]
+    effects: [swapLocationPeriods, raiseBedRestrictionWarning, dissociateDevices]
+    to: in-progress
+    description: "§8.4 encounter row 'Transfer / swap bed' (swap); §8.5 bed swap A17; §9.12 gender and isolation constraints."
+  # 6. PROPOSED: the audited override of the swap's bed restrictions, as bed ReserveWithOverride.
+  - from: in-progress
+    on: SwapBedsWithOverride
+    guard: [onSiteCellConnected, patientIdentityConfirmed, swapPartnerIdentityConfirmed, effectiveTimeAfterLocationStart, bedSwapPairValid, privilegedAndAudited, overrideReasonChosen]
+    effects: [swapLocationPeriods, recordRestrictionOverride, dissociateDevices]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): swap overriding bed restrictions with a coded reason, audited; SI-15 and the exclusion constraint are not overridable."
+  # 7. PROPOSED: cancel a transfer recorded by mistake (HL7 A12), so no false period stays in the
+  # single source of truth. No §8.5 event name (Q-E4).
+  - from: in-progress
+    on: CancelTransfer
+    guard: [privilegedAndAudited, reasonEntered, onSiteCellConnected, patientIdentityConfirmed, previousBedAvailable]
+    effects: [revertLastTransfer, dissociateDevices]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): cancel transfer; §9.12 cancellations with a reason; R11 §5 ADT event log."
+  # 8. §8.4 "in-progress | Leave → return | — | on-leave → in-progress"; R11 §10.1. The bed stays held
+  # (§9.12). No §8.5 event name for A21 (Q-E4).
+  - from: in-progress
+    on: StartLeave
+    guard: [patientIdentityConfirmed, effectiveTimeAfterLocationStart]
+    effects: [recordLeaveStart, dissociateDevices]
+    to: on-leave
+    description: "§8.4 encounter row 'Leave → return' (leave); R11 §10.1 in_progress → onleave; §9.12 leave of absence."
+  # 9. R11 §10.1 "onleave --> in_progress: returns". Back to the held bed: no allocation. A return to
+  # another bed is this return followed by TransferBed. No §8.5 event name for A22 (Q-E4).
+  - from: on-leave
+    on: ReturnFromLeave
+    guard: [patientIdentityConfirmed, effectiveTimeAfterLocationStart]
+    effects: [recordLeaveReturn]
+    to: in-progress
+    description: "§8.4 encounter row 'Leave → return' (return); R11 §10.1 onleave → in_progress; §9.12."
+  # 10. §8.4 "in-progress | Discharge | Never blocked by bill, deposit or pre-approval (SI-12); pending
+  # results routed to owned queues (SI-17) | discharged-not-closed"; R11 §10.1. No financial
+  # predicate; discharge clearance runs in parallel (§9.12). A death is a discharge with disposition
+  # died.
+  - from: in-progress
+    on: Discharge
+    guard: [patientIdentityConfirmed, dispositionChosen, effectiveTimeAfterLocationStart]
+    effects: [closeLocationPeriod, routePendingResultsToOwnedQueues, notifyOrdersOfEncounterEnd, actOnDisposition, dissociateDevices, releaseBedReservation, emitPatientDischarged]
+    to: discharged-not-closed
+    description: "§8.4 encounter row 'Discharge' (SI-12, SI-17); R11 §10.1 in_progress → finished with the discharged-not-closed sub-state; §9.12; §9.18 disposition."
+  # 11. PROPOSED: discharge from leave (does not return, or is discharged from leave), without
+  # recording a return that did not happen. Same terms as #10.
+  - from: on-leave
+    on: Discharge
+    guard: [patientIdentityConfirmed, dispositionChosen, effectiveTimeAfterLocationStart]
+    effects: [closeLocationPeriod, routePendingResultsToOwnedQueues, notifyOrdersOfEncounterEnd, actOnDisposition, dissociateDevices, releaseBedReservation, emitPatientDischarged]
+    to: discharged-not-closed
+    description: "Proposed (not drawn in §8.4 or R11 §10.1): discharge from leave; the §8.4 discharge row's SI-12 and SI-17 terms apply unchanged."
+  # 12. PROPOSED: departure before admission (ED discharge home, left without being seen, against
+  # medical advice, transfer out, an OPD visit ending). Without it such an encounter could end only
+  # through a false admission.
+  - from: [arrived, triaged]
+    on: Discharge
+    guard: [patientIdentityConfirmed, dispositionChosen]
+    effects: [routePendingResultsToOwnedQueues, notifyOrdersOfEncounterEnd, actOnDisposition, dissociateDevices, releaseBedReservation, emitPatientDischarged]
+    to: discharged-not-closed
+    description: "Proposed (not drawn in §8.4 or R11 §10.1): departure before admission; §9.14 disposition (discharge, AMA, LWBS, transfer out); SI-17."
+  # 13. §8.4 "discharged-not-closed | Administrative close (coding and charging done) | — | finished";
+  # R11 §10.1 projection. The only money-adjacent step: reads coding and charge capture, never
+  # payment or RCM state (SI-12). No patient-affecting effect, so no identity predicate.
+  - from: discharged-not-closed
+    on: AdministrativeClose
+    guard: [codingAndChargingComplete]
+    to: finished
+    description: "§8.4 encounter row 'Administrative close (coding and charging done)'; R11 §10.1 projection discharged → completed."
+  # 14. §8.4 "finished | Cancel discharge | Audited | in-progress"; R11 §10.1. Leaves a terminal
+  # state, so privilegedAndAudited (format §1.2). Putting the patient back in a bed is allocation.
+  - from: finished
+    on: CancelDischarge
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, onSiteCellConnected, returnBedAvailable, dischargedFromBed]
+    effects: [restoreLocationAfterCancelledDischarge, reclaimRoutedResults, reverseDispositionActions, reopenAdministrativeClose, emitDischargeCancelled]
+    to: in-progress
+    description: "§8.4 encounter row 'Cancel discharge' (audited); R11 §10.1 finished → in_progress; SI-15 for the bed."
+  # 15. PROPOSED: the same cancellation of a discharge from leave returns the patient to leave, so a
+  # patient still away never appears in bed.
+  - from: finished
+    on: CancelDischarge
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, onSiteCellConnected, returnBedAvailable, dischargedFromLeave]
+    effects: [restoreLocationAfterCancelledDischarge, reclaimRoutedResults, reverseDispositionActions, reopenAdministrativeClose, emitDischargeCancelled]
+    to: on-leave
+    description: "Proposed (not drawn in §8.4 or R11 §10.1): cancel a discharge from leave back to on-leave; terms of the §8.4 'Cancel discharge' row."
+  # 16. PROPOSED: cancel discharge before the administrative close, where most mistaken discharges are
+  # noticed. R11 §10.1's finished includes the discharged-not-closed sub-state, so R11 arguably draws
+  # it; it stays proposed because §8.4 does not.
+  - from: discharged-not-closed
+    on: CancelDischarge
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, onSiteCellConnected, returnBedAvailable, dischargedFromBed]
+    effects: [restoreLocationAfterCancelledDischarge, reclaimRoutedResults, reverseDispositionActions, emitDischargeCancelled]
+    to: in-progress
+    description: "Proposed (not drawn in §8.4; arguably in R11 §10.1's finished): cancel discharge before the administrative close."
+  # 17. PROPOSED: as #15, before the administrative close.
+  - from: discharged-not-closed
+    on: CancelDischarge
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, onSiteCellConnected, returnBedAvailable, dischargedFromLeave]
+    effects: [restoreLocationAfterCancelledDischarge, reclaimRoutedResults, reverseDispositionActions, emitDischargeCancelled]
+    to: on-leave
+    description: "Proposed (not drawn in §8.4 or R11): cancel a discharge from leave before the administrative close."
+  # 18, 19. PROPOSED: cancel a departure before admission recorded by mistake (the patient is still in
+  # the department), back to arrived or triaged. No bed is involved, so no SI-15 guard.
+  - from: discharged-not-closed
+    on: CancelDischarge
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, dischargedBeforeAdmission, noTriageRecorded]
+    effects: [reclaimRoutedResults, reverseDispositionActions, emitDischargeCancelled]
+    to: arrived
+    description: "Proposed (not drawn in §8.4 or R11): cancel a departure before admission, back to arrived."
+  - from: discharged-not-closed
+    on: CancelDischarge
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, dischargedBeforeAdmission, triageRecorded]
+    effects: [reclaimRoutedResults, reverseDispositionActions, emitDischargeCancelled]
+    to: triaged
+    description: "Proposed (not drawn in §8.4 or R11): cancel a departure before admission, back to triaged."
+  # 20, 21. PROPOSED: a reversed decision to admit (HL7 A11 cancel-admit returns to the pre-admit
+  # status): only the bed periods are voided; the ED attendance, its triage, orders and results stay
+  # valid.
+  - from: in-progress
+    on: RevertAdmission
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, noTriageRecorded]
+    effects: [voidBedPeriods, dissociateDevices, emitAdmissionCancelled]
+    to: arrived
+    description: "Proposed (not drawn in §8.4 or R11): revert admission to arrived; R11 §5 cancel-admit; §8.1 P3; §9.14 first-class timestamps."
+  - from: in-progress
+    on: RevertAdmission
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, triageRecorded]
+    effects: [voidBedPeriods, dissociateDevices, emitAdmissionCancelled]
+    to: triaged
+    description: "Proposed (not drawn in §8.4 or R11): revert admission to triaged."
+  # 22. §8.4 "in-progress | Cancel admission | Audited | entered-in-error"; R11 §10.1. For a duplicate
+  # encounter or an encounter registered in error. Pending results still need owners (SI-03, SI-17).
+  - from: in-progress
+    on: CancelAdmission
+    guard: [privilegedAndAudited, patientIdentityConfirmed, errorReasonChosen, notWrongPatientError]
+    effects: [voidLocationHistory, routePendingResultsToOwnedQueues, notifyOrdersOfEncounterEnd, dissociateDevices, releaseBedReservation, emitAdmissionCancelled]
+    to: entered-in-error
+    description: "§8.4 encounter row 'Cancel admission' (audited); R11 §10.1 in_progress → entered_in_error; §8.1 P3."
+  # 23. PROPOSED variant of the same row for a wrong patient: the bed period passes to the real
+  # patient's encounter without a Vacate, and the record goes to identity correction, not follow-up.
+  - from: in-progress
+    on: CancelAdmission
+    guard: [privilegedAndAudited, patientIdentityConfirmed, errorReasonChosen, wrongPatientError, replacementEncounterReady]
+    effects: [handOverLocationHistory, routeToIdentityCorrectionQueue, dissociateDevices, releaseBedReservation, emitAdmissionCancelled]
+    to: entered-in-error
+    proposed: true
+    description: "Proposed variant of §8.4 'Cancel admission' for a wrong patient; R11 §15 item 7; HAZ-0001."
+  # 24, 25. PROPOSED: an encounter registered in error before admission. No §8.5 event name (Q-E4).
+  - from: [arrived, triaged]
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, patientIdentityConfirmed, errorReasonChosen, notWrongPatientError]
+    effects: [releaseBedReservation, routePendingResultsToOwnedQueues, notifyOrdersOfEncounterEnd, dissociateDevices]
+    to: entered-in-error
+    description: "Proposed (not drawn in §8.4 or R11 §10.1): registration in error before admission; §8.1 P3."
+  - from: [arrived, triaged]
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, patientIdentityConfirmed, errorReasonChosen, wrongPatientError]
+    effects: [releaseBedReservation, routeToIdentityCorrectionQueue, dissociateDevices]
+    to: entered-in-error
+    description: "Proposed (not drawn in §8.4 or R11 §10.1): registration on the wrong patient before admission; R11 §15 item 7."
+  # 26. PROPOSED: the real patient's encounter receives the bed periods of a wrong-patient correction
+  # (#23) in the same transaction; the bed stays occupied.
+  - from: [arrived, triaged]
+    on: ReceiveBedHandOver
+    guard: [patientIdentityConfirmed, handOverPeriodValid]
+    effects: [receiveHandedOverPeriods, flagOtherOpenBedPeriod, emitEncounterAdmitted]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): admission by hand-over from a wrong-patient encounter; R11 §5; §9.12 exclusion."
+  # 27 to 31. PROPOSED: downtime back-entry of bed periods that happened on paper (§9.12 "downtime
+  # re-entry keeping clinical time"; §16.3 L4; SAC-47; SI-10 clause c). Issued online after recovery,
+  # with supervisor rights; exclusion over each paper interval only; a conflict goes to an owned
+  # reconciliation task instead of a bare refusal.
+  - from: [arrived, triaged]
+    on: BackEnterLocationPeriods
+    guard: [onSiteCellConnected, privilegedAndAudited, patientIdentityConfirmed, backEntryPeriodsWellFormed, backEntryPeriodsFree]
+    effects: [applyBackEnteredPeriods, flagOtherOpenBedPeriod, emitEncounterAdmitted]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): back-entered admission from paper; §9.12; §16.3 L4; SI-10; CTRL-0010-5."
+  - from: arrived
+    on: BackEnterLocationPeriods
+    guard: [onSiteCellConnected, privilegedAndAudited, patientIdentityConfirmed, backEntryPeriodsWellFormed, backEntryPeriodsConflict]
+    effects: [openLocationReconciliationTask]
+    to: arrived
+    description: "Proposed (not drawn in §8.4 or R11): conflicting back-entry kept for reconciliation; CTRL-0010-6."
+  - from: triaged
+    on: BackEnterLocationPeriods
+    guard: [onSiteCellConnected, privilegedAndAudited, patientIdentityConfirmed, backEntryPeriodsWellFormed, backEntryPeriodsConflict]
+    effects: [openLocationReconciliationTask]
+    to: triaged
+    description: "Proposed (not drawn in §8.4 or R11): conflicting back-entry kept for reconciliation; CTRL-0010-6."
+  - from: in-progress
+    on: BackEnterLocationPeriods
+    guard: [onSiteCellConnected, privilegedAndAudited, patientIdentityConfirmed, effectiveTimeAfterLocationStart, backEntryPeriodsWellFormed, backEntryPeriodsFree]
+    effects: [applyBackEnteredPeriods, flagOtherOpenBedPeriod, emitPatientTransferred]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): back-entered transfers from paper; §9.12; SI-10; CTRL-0010-5."
+  - from: in-progress
+    on: BackEnterLocationPeriods
+    guard: [onSiteCellConnected, privilegedAndAudited, patientIdentityConfirmed, effectiveTimeAfterLocationStart, backEntryPeriodsWellFormed, backEntryPeriodsConflict]
+    effects: [openLocationReconciliationTask]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): conflicting back-entry kept for reconciliation; CTRL-0010-6."
+  # 32 to 34. PROPOSED: correct the clinical time of a location boundary, privileged and audited
+  # back-dating with both times kept (SI-10 clause b; CTRL-0010-4), so a wrong earlier time never
+  # forces a false later one. No §8.5 event name (Q-E4).
+  - from: in-progress
+    on: CorrectLocationTime
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, correctedTimesConsistent]
+    effects: [correctLocationBoundary]
+    to: in-progress
+    proposed: true
+    description: "Proposed (not drawn in §8.4 or R11): location time correction; SI-10; §9.12 back-dated events with supervisor rights."
+  - from: on-leave
+    on: CorrectLocationTime
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, correctedTimesConsistent]
+    effects: [correctLocationBoundary]
+    to: on-leave
+    description: "Proposed (not drawn in §8.4 or R11): location time correction during leave."
+  - from: discharged-not-closed
+    on: CorrectLocationTime
+    guard: [privilegedAndAudited, reasonEntered, patientIdentityConfirmed, correctedTimesConsistent]
+    effects: [correctLocationBoundary]
+    to: discharged-not-closed
+    description: "Proposed (not drawn in §8.4 or R11): location time correction before the administrative close (census and charges)."
+proposed:
+  - "on-leave→discharged-not-closed"
+  - "arrived→discharged-not-closed"
+  - "triaged→discharged-not-closed"
+  - "discharged-not-closed→in-progress"
+  - "finished→on-leave"
+  - "discharged-not-closed→on-leave"
+  - "discharged-not-closed→arrived"
+  - "discharged-not-closed→triaged"
+  - "in-progress→arrived"
+  - "in-progress→triaged"
+  - "arrived→entered-in-error"
+  - "triaged→entered-in-error"
+  - "arrived→arrived"
+  - "triaged→triaged"
+  - "on-leave→on-leave"
+  - "discharged-not-closed→discharged-not-closed"
+invariants: [SI-01, SI-03, SI-10, SI-12, SI-15, SI-17]
+events: [PatientArrived, EncounterAdmitted, PatientTransferred, PatientDischarged, AdmissionCancelled, DischargeCancelled]
+hazards: [HAZ-0001, HAZ-0003, HAZ-0010, HAZ-0012, HAZ-0015, HAZ-0017]
+sources:
+  - "BUILD-PROMPT §8.4 (Encounter table), §8.2 (Access and flow: encounter, location history, bed exclusion constraint), §8.3, §8.5"
+  - "BUILD-PROMPT §2.1 SI-01, SI-03, SI-10, SI-12, SI-15, SI-17; §9.12 (ADT, beds, patient flow); §9.14 (ED registration, disposition); §9.18 (discharge with disposition, results pending at discharge); §9.19 (device dissociation); §16.3; §18.4 SAC-06, SAC-47, SAC-53; §21 WP-2.1"
+  - "R11 §5 (encounters and the location-history key rule), §10.1 (encounter machine and R5/R6 projection), §14 (events), §15 item 7"
