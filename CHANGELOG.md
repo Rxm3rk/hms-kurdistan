@@ -8,3 +8,4 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Rel
 
 ### Added
 - WP-0.1 programme bootstrap (internal only; no user-visible change yet): repository layout, programme control files, Phase 0 plan and work-package files, backlog generated from Appendix A, seeded hazard log with planned controls, baseline ADRs, build skeletons and the fast CI tier.
+- WP-0.8 documents and printing, cluster-free parts (internal only; nothing prints in a hospital yet): the `platform-docs` specification, print templates as content, the layout engine with the never-truncate fit rule, ZPL (`^GF` raster and `^PA` text mode), ESC/POS and HTML writers, the PDF/A renderer satellite in library form, golden-image and byte-fixture harnesses, the font-coverage test for every Sorani letter, the print audit and watermark model, and the S7-K printer test kit. All templates and samples are synthetic, NOT FOR CLINICAL USE.
