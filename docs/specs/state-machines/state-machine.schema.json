@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hms.invalid/schemas/state-machine.schema.json",
+  "title": "HMS executable state-machine specification",
+  "description": "One docs/specs/state-machines/<machine>.yaml per machine (BUILD-PROMPT.md §8.4, Appendix B.3). The keys of B.3 plus the optional keys initial, created_by, effects, hazards and sources (decision DN-059). Read with the loader of tools/hmstools/statemachines, which reads every key as written (YAML 1.1 would read the key 'on' as true). The semantic rules (unknown predicates, determinism, reachability, liveness, terminal exits, approvers, generated files, approval content) are in docs/specs/modules/state-machines-and-invariants.md §2.1 and are checked by `sh tools/hms statemachines check`.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["machine", "version", "owner", "approval", "states", "terminal", "predicates", "transitions", "invariants", "events"],
+  "properties": {
+    "machine": {
+      "description": "Kebab-case machine name; equals the file name without .yaml.",
+      "$ref": "#/$defs/kebab"
+    },
+    "version": {
+      "description": "Raised on every change once a sign-off record exists for the current version (KA-013).",
+      "type": "integer",
+      "minimum": 1
+    },
+    "owner": {
+      "description": "The owning module of BUILD-PROMPT §5.2.",
+      "$ref": "#/$defs/kebab"
+    },
+    "approval": {
+      "description": "Written only from a human sign-off record (§3.5): until then status requested, approved_by empty and record null. The safety gate (tools/hms safety check) enforces it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "required", "approved_by", "record"],
+      "properties": {
+        "status": {"type": "string", "enum": ["requested", "approved", "rejected", "returned"]},
+        "required": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/kebab"}
+        },
+        "approved_by": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "record": {"type": ["string", "null"]}
+      }
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/kebab"}
+    },
+    "terminal": {
+      "description": "States in which the lifecycle has ended; may be empty for a recurrent lifecycle.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/kebab"}
+    },
+    "initial": {
+      "description": "The state a new instance starts in; default states[0].",
+      "$ref": "#/$defs/kebab"
+    },
+    "created_by": {
+      "description": "Commands that create an instance (the §8.4 '(start)' rows). They have no transition.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/command"}
+    },
+    "predicates": {
+      "description": "Predicate name -> description. Each is implemented once in the owner's domain package and unit-tested.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/camel"},
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "effects": {
+      "description": "Effect name -> description: an obligation a transition places on the domain (§8.4 'Guard / effect').",
+      "type": "object",
+      "propertyNames": {"$ref": "#/$defs/camel"},
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "transitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "on", "to"],
+        "properties": {
+          "from": {
+            "description": "A state, a list of states, or \"*\" (every state except this transition's to).",
+            "oneOf": [
+              {"$ref": "#/$defs/kebab"},
+              {"const": "*"},
+              {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/kebab"}}
+            ]
+          },
+          "on": {"$ref": "#/$defs/command"},
+          "guard": {
+            "description": "Predicate names; all must hold.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"$ref": "#/$defs/camel"}
+          },
+          "effects": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"$ref": "#/$defs/camel"}
+          },
+          "to": {"$ref": "#/$defs/kebab"},
+          "proposed": {
+            "description": "true marks this transition as proposed even when its edge is drawn by the sources (for example a denial that shares its edge with a drawn approval). A transition is proposed when this flag is true or its edge is in the top-level proposed list.",
+            "const": true
+          },
+          "description": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "proposed": {
+      "description": "Edges R11 does not draw, awaiting panel approval: \"<from>→<to>\", or \"*→<to>\" for a \"*\" transition.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^(\\*|[a-z][a-z0-9]*(-[a-z0-9]+)*)→[a-z][a-z0-9]*(-[a-z0-9]+)*$"}
+    },
+    "invariants": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^SI-(0[1-9]|1[0-9]|2[01])$"}
+    },
+    "events": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$"}
+    },
+    "hazards": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^HAZ-[0-9]{4}$"}
+    },
+    "sources": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "$defs": {
+    "kebab": {"type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"},
+    "camel": {"type": "string", "pattern": "^[a-z][A-Za-z0-9]*$"},
+    "command": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$"}
+  }
+}

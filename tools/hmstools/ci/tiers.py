@@ -24,7 +24,9 @@ from .runner import FAIL, PASS, CommandStep, Context, FunctionStep, NotBuiltStep
 TIERS = ("fast", "merge", "nightly", "release")
 FRESH_TOLERANCE_S = 5.0  # filesystem timestamp granularity
 
-BACKEND_JUNIT = [("backend", "**/build/test-results/**/*.xml")]
+# The tests/invariants and tests/scenarios Gradle projects build under tests/<name>/build, outside backend/
+# (docs/specs/modules/state-machines-and-invariants.md §7).
+BACKEND_JUNIT = [("backend", "**/build/test-results/**/*.xml"), ("tests", "**/build/test-results/**/*.xml")]
 FRONTEND_JUNIT = [("frontend/reports/junit", "*.xml")]
 
 
@@ -202,6 +204,9 @@ def fast_steps(root: Path) -> list[Step]:
             display_argv=[shown_python, *unittest_args],
         ),
         CommandStep("safety-check", ["sh", "tools/hms", "safety", "check", "--json"], check_json=True, timeout=300),
+        CommandStep(
+            "state-machines-check", ["sh", "tools/hms", "statemachines", "check", "--json"], check_json=True, timeout=300,
+        ),
         CommandStep("backlog-check", ["sh", "tools/hms", "backlog", "check", "--json"], check_json=True, timeout=300),
         CommandStep(
             "backend-fast", gradle, timeout=1800, prepare=clear_junit(BACKEND_JUNIT),
