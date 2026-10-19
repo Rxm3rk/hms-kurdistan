@@ -14,6 +14,7 @@ the last stdout line is one JSON object `{check, ok, counts, errors, warnings}`.
 | `sh tools/hms repo check` | Repository rules: no CRLF, programme files and ADRs present, tenant-identifier and branch-per-tenant detectors, size limits, entry scripts in git's index and stored as executable |
 | `sh tools/hms licence check --sbom F \| --pnpm F` | The licence policy (see `tools/licence/README.md`) |
 | `sh tools/hms backlog check`, `sh tools/hms safety check` | Backlog and hazard-log checks (their own packages) |
+| `.tools/venv/Scripts/python.exe -I tools/s7k/s7k.py <list\|send\|font-download\|patterns\|form\|check-form>` | The S7-K printer test kit (§11.1, §18.9): the test files per printer DPI, a raw port-9100 sender that refuses any address that is not loopback or private, the result form and its checker (see `tools/s7k/README.md`). Written in WP-0.8 and never run against a physical printer [HUMAN: printers]. Stdlib only, except `check-form` |
 
 Unit tests: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools -t tools -p "test_*.py"`
 (on Linux `.tools/venv/bin/python`). Configuration data lives in `tools/config/` (tenant identifiers) and

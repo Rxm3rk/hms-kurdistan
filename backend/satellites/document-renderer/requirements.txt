@@ -1,0 +1,62 @@
+# The full dependency closure of requirements.in, every wheel pinned by SHA-256 (BUILD-PROMPT.md §4.3).
+# Install only with:  pip install --require-hashes --no-deps --only-binary=:all: -r requirements.txt
+# (bootstrap.py does this). Binary packages list two hashes: the CPython 3.12 win_amd64 wheel first, then the
+# manylinux x86_64 wheel; pip takes the one for the platform. Pure-Python packages have one py3-none-any wheel.
+# Every hash was checked against a fresh download from files.pythonhosted.org and the PyPI JSON digest on
+# 19 October 2026. Licences: LICENCES.md.
+
+brotli==1.2.0 \
+    --hash=sha256:b35c13ce241abdd44cb8ca70683f20c0c079728a36a996297adb5334adfc1c44 \
+    --hash=sha256:072e7624b1fc4d601036ab3f4f27942ef772887e876beff0301d261210bca97f
+    # via fonttools[woff]
+cffi==2.1.1 \
+    --hash=sha256:f53e442b08449d42821fa4a4fba000095af9f62742a500f978a9f557ec44339a \
+    --hash=sha256:c1453022f490d2459a11819d83ad1d586e9ff65a12ac3e705ffebd46d3685dcf
+    # via weasyprint
+cssselect2==0.10.1 \
+    --hash=sha256:25cc4494d55985d6a6da359be48da6ce98c28dcbafa2314c383ace3fc32ec868
+    # via weasyprint
+fonttools==4.67.0 \
+    --hash=sha256:2bfab2f5d1d255dec82f4bd082a1c10e77df808e42210890f50a9c30bf91570e \
+    --hash=sha256:eb3c98cac93aac4b9f6e3ce2008325340b234cc9b0338ca6b513f31962a1e278
+    # via weasyprint (fonttools[woff]); also the satellite's character-map check
+pillow==13.0.0 \
+    --hash=sha256:ff3fe9eb621fbb9db4c4be33ab946f6bac5f98ab50ca8d3260503653656c961b \
+    --hash=sha256:42d63be3af4f9b951b199b0a9d23365d37ab14687e6d77b74940432c8515c4ca
+    # via weasyprint; also the golden step's PNG files
+pycparser==3.11 \
+    --hash=sha256:51d5a8ba2be0bbe440b99d2112604c95bbbc3c2748a64260186c541e1729cd80
+    # via cffi
+pydyf==0.13.0 \
+    --hash=sha256:85b28a3af8c35e6fe1415f2b3f1d6851cb3b52f53592c2cda4db9a00a8979677
+    # via weasyprint
+pypdfium2==5.14.0 \
+    --hash=sha256:149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06 \
+    --hash=sha256:11f281613fa22313d9c7ab89947665e84eccf8ebe40e1198a84a88352305648d
+    # via requirements.in (golden rasteriser)
+pyphen==0.18.1 \
+    --hash=sha256:0aa9051e15928cecadd4c632cea0258ba57215b2a197a39baa46abcdb0f47e84
+    # via weasyprint
+tinycss2==1.5.1 \
+    --hash=sha256:3415ba0f5839c062696996998176c4a3751d18b7edaaeeb658c9ce21ec150661
+    # via weasyprint, cssselect2
+tinyhtml5==2.1.0 \
+    --hash=sha256:6e11cfff38515834268daf89d5f85bbde0b6dd02e8d9e212d1385c2289b89f0a
+    # via weasyprint
+weasyprint==70.0 \
+    --hash=sha256:5043e55e38d2a2af2b2b871e869697b1f65dad5f8b4a3677961d04ceacf9c5fe
+    # via requirements.in
+webencodings==0.6.1 \
+    --hash=sha256:7fab6269c8bf237c657876b52058ccb182e861518d1c695c1a9aaa8c1c105d5b
+    # via tinyhtml5, tinycss2, cssselect2
+zopfli==0.4.3 \
+    --hash=sha256:921c2c9907f4364963848da5ad194b46d68865e07fdb975d04fd09bc42d47357 \
+    --hash=sha256:769875152d0625c46707bcca57d4b2233fe653482067acd55fbf6ec525cb9bdc
+    # via fonttools[woff]
+zstandard==0.25.0 ; sys_platform == "win32" \
+    --hash=sha256:ffef5a74088f1e09947aecf91011136665152e0b4b359c42be3373897fb39b01
+    # via requirements.in (bootstrap.py, Windows only)
+zxing-cpp==3.1.1 \
+    --hash=sha256:29f98a91148171460b47a942d137ecc90c4b8097636f23cca65263a56bb025d3 \
+    --hash=sha256:9cf67341949946307d086b302cefd453fb47bc6d6ddc7d088839e9481982757b
+    # via requirements.in (golden barcode decoder)

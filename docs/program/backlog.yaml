@@ -277,6 +277,10 @@
   - HAZ-0001
   - HAZ-0011
   - HAZ-0016
+  - HAZ-0045
+  - HAZ-0046
+  - HAZ-0047
+  - HAZ-0049
   notes: []
 
 - id: PLT-UX-03
@@ -297,6 +301,7 @@
   hazards:
   - HAZ-0001
   - HAZ-0016
+  - HAZ-0045
   notes: []
 
 - id: PLT-UX-04
@@ -596,6 +601,7 @@
   - HAZ-0025
   - HAZ-0026
   - HAZ-0027
+  - HAZ-0048
   notes: []
 
 - id: TRU-PRV-02
@@ -641,6 +647,7 @@
   - HAZ-0025
   - HAZ-0026
   - HAZ-0027
+  - HAZ-0048
   notes: []
 
 - id: TRU-AUD-02
@@ -773,6 +780,7 @@
   hazards:
   - HAZ-0001
   - HAZ-0015
+  - HAZ-0049
   notes: []
 
 - id: TRU-BCP-03
@@ -3606,6 +3614,10 @@
   - HAZ-0025
   - HAZ-0026
   - HAZ-0027
+  - HAZ-0045
+  - HAZ-0046
+  - HAZ-0047
+  - HAZ-0048
   notes: []
 
 - id: INT-ABDM-01

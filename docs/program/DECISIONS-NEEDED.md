@@ -11,7 +11,7 @@ At most ten items. Answer these first.
 1. **DN-005** The lite cell cannot show WP-0.2's single-node-loss criterion: choose how it will be met. WP-0.2 starts now on the default.
 2. **DN-011** No work package can merge into `main` until the merge tier exists and passes: confirm that the Phase 0 branches stack meanwhile, or choose another rule.
 
-Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5).
+Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5). WP-0.8 (on `wp/0.8-documents-printing`): DN-066 before the renderer ships; DN-067 for PDF golden images of record in WSL; DN-068 to DN-074, the CSO's print readings, before any hospital template is used.
 
 Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9) and DN-006 (confirmed).
 
@@ -300,3 +300,104 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. **Keep the interim reading (default):** every interruptive rule needs a measured PPV, and each baseline rule that is to interrupt from day 0 needs an explicit exception that the CSO approves in a sign-off record. WP-1.5 builds the exception record and the promotion block.
   2. **Accept the PPV measured in the vendor's validation** of the baseline as "a measured PPV" until local telemetry measures one, recorded per rule in the registry with its source. A baseline rule with that evidence then needs no exception.
   3. **Another reading** that the CSO states; WP-1.5 builds the gate to it, and HAZ-0014's controls are changed to match.
+
+## DN-065: WP-0.8 starts its cluster-free parts before its dependencies are met (approved deviation)
+
+- **Status:** answered (2026-10-19)
+- **Blocks:** nothing now; it records why WP-0.8 runs early and what still waits.
+- **Default in use:** the human lead's answers below.
+- **Who decides:** the human lead (Ahmad). Answered in chat on 19 October 2026, to questions from the build agent:
+  1. "The build plan says later packages wait until the server environment is finished. Several of them don't need the cluster at all: the core libraries (IDs, clocks, money, units), the clinical state machines (orders, encounters, medication rounds), and document/label printing templates. Can I start those now, recorded as an approved deviation?" Answer: "Yes, start the cluster-free parts (Recommended)" (option text: "Work on 3 to 4 packages at once instead of 2. Anything that needs the cluster still waits; tests and safety gates are not skipped.")
+  2. "Can I lighten the review on low-risk pieces (build tooling, docs, scaffolding) while keeping full review on anything patient-safety related?" Answer: "Lighter on low-risk only (Recommended)" (option text: "One review pass instead of several on tooling and scaffolding; patient-safety code (banner, dosing, identity, sign-off) keeps full review.")
+  3. Use of additional subscription accounts for parallel agents: "Yes, use all three".
+- **Context:** §21 says a work package starts when the packages in its "Depends on" column are merged or reviewed and stacked, and WP-0.8 depends on WP-0.3, which depends on WP-0.2 (`WORK-PACKAGES.md`, note 3). `docs/program/work-packages/WP-0.8.md` lists the entry criteria as not met. Answer 1 approves a deviation from §21's "Depends on" order and from WP-0.8's "Waits on" entry criteria, limited to what needs no cluster.
+- **What WP-0.8 builds now (branch `wp/0.8-documents-printing`, stacked on `wp/0.1-programme-bootstrap` at `09afa41`):** the `platform-docs` specification; the template engine, the layout and fit rule, the ZPL (text and `^GF` raster), ESC/POS and HTML writers; the PDF/A renderer satellite in library form on the Windows host; the golden-image harness; the font-coverage test; trilingual synthetic samples; the S7-K printer test kit; the print audit and watermark model and its events. It uses no container, no k3d and nothing in WSL.
+- **What still waits:** persistence of print jobs and first-band state, the print spool and event publication through the outbox (the cell, WP-0.2, and the kernel, WP-0.3); the policy enforcement point and the BALP audit store (WP-0.4; until then every production print is refused); the satellite's container image (written, not built); S7-K on physical printers [HUMAN: printers]. The branch merges `wp/0.2-environments` and `wp/0.3-platform-kernel` with `--no-ff` when they are ready, and `wp/0.7-design-system` (the label-printer capture simulator, §3.7) late, at a committed SHA.
+- **Review policy (answer 2):** harness plumbing, CI wiring and documentation get one independent automated review pass; wristband and label content (SI-01 two identifiers, names in both scripts, barcode content, no truncation), Sorani and Arabic shaping, and print audit get at least two independent lenses (correctness, and clinical safety and hazards), with every major finding fixed before commit. An AI review is recorded as "automated review (AI)", never as a human review (§3.5).
+- **Options:** none open; the answers are recorded. A human may withdraw the deviation, and WP-0.8 then stops at its last commit.
+
+## DN-066: Licences of the document renderer's libraries that the allowlist does not name
+
+- **Status:** open
+- **Blocks:** shipping the document renderer satellite to a site (its container image, built when the cell exists; WP-0.8 does not ship it). Nothing in WP-0.8 is blocked: on the build host the renderer runtime is build-only.
+- **Default in use:** the renderer runtime is used only on the build host, for tests and golden images, and is recorded as build-only (§4.3 checks build-only tools for use restrictions only; none of these has one). No shipped artefact contains these components until a human decides.
+- **Who decides:** the human lead (§3.4 item 2: a dependency outside the licence allowlist).
+- **Context:** the satellite (`backend/satellites/document-renderer`, ADR-038) uses WeasyPrint (BSD-3-Clause) and its Python dependencies, most of them on the §4.3 allowlist. Several licences are not named on it: Pillow, which WeasyPrint requires, is MIT-CMU (an HPND-style permissive licence); FreeType, inside the Pillow and pypdfium2 wheels and the Windows runtime, is FTL (a BSD-style licence with a credit clause) or GPL-2.0-or-later; libpng, bzip2 and fontconfig in the Windows runtime use their own permissive licences; cffi is MIT-0. The Windows runtime (MSYS2 UCRT64 packages) also holds glib, Pango, fribidi and gettext's libintl (LGPL, allowlisted) and the GCC runtime libraries (GPL-3.0 with the GCC Runtime Library Exception). In the planned container, Pango, HarfBuzz, FreeType and fontconfig come from the distribution's packages, which §4.3 allows as unmodified operating-system packages; Pillow would still be a Python wheel. `backend/satellites/document-renderer/LICENCES.md` lists every component.
+- **Options:**
+  1. **Add MIT-CMU, MIT-0 and FTL (and the libpng, bzip2 and fontconfig licences) to the allowlist (recommended):** all are permissive with attribution and no use restriction. Record them in `tools/licence/policy.yaml` and the ORT classifications.
+  2. Ship the renderer as a separate container with the distribution's packages only and Pillow from the distribution (`python3-pil`), so it counts as an operating-system package.
+  3. Keep the renderer build-only and decide again at S7-K.
+
+## DN-067: The renderer runtime on the Linux build host (system packages)
+
+- **Status:** open
+- **Blocks:** the PDF golden images of record (the nightly `golden-image-print` step in the WSL clone). The Windows host runs them as "Windows host, not evidence of record".
+- **Default in use:** the PDF goldens run only on the Windows host from a project-local runtime (`backend/satellites/document-renderer/bootstrap.py --target build/docrender-runtime`); in the WSL clone the step fails closed with "renderer runtime missing".
+- **Who decides:** the host owner (§3.4 item 9: installing system software).
+- **Context:** WeasyPrint needs the Pango libraries. On Windows the bootstrap fetches pinned MSYS2 packages into a project-local directory; on Ubuntu 24.04 the supported route is the distribution's packages, which need administrator rights. Golden images are kept per renderer identity (spec §10), so the Linux runtime gets its own approved set.
+- **Options:**
+  1. **Install the packages in the WSL distribution (recommended):** `sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fontconfig`, then in the WSL clone `.tools/venv/bin/python -I backend/satellites/document-renderer/bootstrap.py` (the Python wheels are project-local).
+  2. Run the PDF goldens of record only in the renderer's container once the cell exists (WP-0.2), with Windows-host runs until then.
+
+## DN-068: What a label, wristband or receipt shows of the patient's identity, and SI-16 on them [HUMAN]
+
+- **Status:** open
+- **Blocks:** not WP-0.8's samples; real templates (content requests, OQ-238) need it before any hospital use.
+- **Default in use (the stricter readings, spec §3.2 and §4.3):**
+  1. Labels and wristbands print the name in the patient's own form and the Latin transliteration (SI-01 c), and no third form (for example the Arabic form of a Kurdish patient); documents' banners print every recorded form. For a patient whose own form is Latin, the name prints once.
+  2. The Latin form must be registrar-confirmed (CTRL-0001-6, a tightening already proposed).
+  3. The date of birth prints at its recorded precision with the approximate-DOB marker `~` before the date (for example `~1985-07`) and the "Approx." caption whenever it is approximate or less precise than a day (`≈` is not used: neither pinned font has U+2248).
+  4. Every patient print needs the identity service's confirmation of the MRN's check digit (SI-01 "MRN (with check digit)"); without the identity service (WP-1.2) prints are refused.
+  5. The specimen label's default barcode carries the specimen ID and the MRN (two identifiers, SAC-04); the LIS may choose a Code 128 of the specimen ID alone for analysers that need it (OQ-240), which leaves the second identifier in text only.
+  6. SI-16's banner "on every … print" is read as: clinical **documents** (A4, A5) carry the full print banner (allergies with NKA distinct from not assessed, code status, isolation, dated weight, photo or "No photo", the name forms); **wristbands, specimen labels and receipts** carry SI-01's identifiers only, because the banner's fields do not fit a 25 mm band or a tube label and are not that print's purpose. This narrows the letter of SI-16 and is the CSO's to accept or reject. On documents the banner prints "Photo on record (not printed)" or "No photo" (no photo is printed yet, OQ-239), and the banner's sensitivity indicators (CTRL-0016-3) wait for the policy point (WP-0.4).
+  7. Banner allergies and the dated weight are never redacted on a document, because SI-16 requires them on every clinical print, although an allergy can imply an SI-21-labelled condition (for example an abacavir hypersensitivity). The CSO decides whether SI-21 redaction applies to banner allergies.
+- **Who decides:** the CSO [HUMAN].
+- **Options:** (a) accept the defaults; (b) all three name forms on every patient print (as the design system's banner default, DN-029 on `wp/0.7-design-system`); (c) some banner elements (for example an allergy marker) on wristbands, which also needs the alert-band decision (OQ-238); (d) another reading the CSO states.
+
+## DN-069: When identity text does not fit a label [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing in WP-0.8; the hospital's templates and the downtime procedure need it before any hospital use.
+- **Default in use:** identity text is never truncated (§12.8, SI-01). It shrinks to the larger of the template's minimum and the legibility minimum (Arabic script 8 pt at 8 dots/mm and 7 pt at 12 or more; Latin 6 pt [P], OQ-243) and wraps onto the template's maximum lines; if it still does not fit, the print is refused and the screen names the next step: a larger or alternate template where the hospital configured one, otherwise the hospital's downtime procedure. Every patient template must fit a governed worst-case corpus at its minimum sizes in the fast tier (OQ-244), so refusals in use should be rare.
+- **Who decides:** the CSO [HUMAN], with the nursing and laboratory leads for the templates.
+- **Options:** (a) accept the default; (b) automatic fallback to a configured alternate template (for example an adult band for a newborn whose name does not fit), always under the same rules; (c) other legibility minimums after S7-K; (d) another rule the CSO states (never truncation).
+
+## DN-070: The DP-8 watermark on labels and wristbands [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing now.
+- **Default in use (the stricter reading, spec §8.5):** documents carry the full watermark (user, staff ID, time, MRN, job ID) on every page and a diagonal "REPRINT" on reprints; receipts carry the full line; wristbands and specimen labels carry a minimal mark (the job's short ID and the print time, "R" on a reprint) away from the barcode; tokens, which carry no patient data, none. DP-8 says "print and PDF watermarking (user, time, patient)".
+- **Who decides:** the CSO with the hospital's privacy lead [HUMAN].
+- **Options:** (a) accept the default; (b) no mark on wristbands and labels (audit only), which is looser than the letter of DP-8; (c) the full watermark on labels too, where space allows.
+
+## DN-071: Reprints, copies and duplicate wristbands [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing now.
+- **Default in use (the stricter reading, spec §8.6):** a reason is required on every reprint of any patient print; a wristband prints one copy at a time; a second wristband request for the same patient and encounter while a band is issued counts as a reprint; a reprint after an unknown outcome cancels formats still queued in the printer (`~JA`); the wristband barcode carries a band serial so that a later scan can reject a superseded band; a merge, identity correction or encounter change asks for a "replace wristband" task (built later).
+- **Who decides:** the CSO with the nursing lead [HUMAN].
+- **Options:** (a) accept the defaults; (b) allow spare wristband copies for named areas (for example the delivery suite) with their own audit; (c) require a reason only for wristbands; (d) require a reason for more than one copy of a specimen label (the default allows up to 10, one per tube).
+
+## DN-072: First-band scan verification: what triggers it and what it blocks [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing now; the scan path through the HAL is later work.
+- **Default in use (the stricter reading, spec §6.3):** §12.8 says "the first band after any template or printer change is scan-verified". A change is any change of the template's id, version or content hash, or of the printer's serial, firmware, output mode, resolution, loaded media or resident fonts. Until the first band on a new key is verified, further wristbands on that key are refused; an unknown state counts as "verification required". Verification needs the scanned payload to equal the expected payload exactly and the user's on-screen confirmation that the printed name forms, MRN and date of birth match; a mismatch blocks the key and asks for a task to remove the band from the patient; the key is unblocked only when a user records that the mismatched band was removed and the printer and template were checked (audited reset). A refused or failed first job releases the pending state; a first job with an unknown outcome keeps it until the user verifies that band or states on screen that no band came out (audited).
+- **Who decides:** the CSO [HUMAN].
+- **Options:** (a) accept the defaults; (b) verify without blocking further bands (a warning only), which is looser; (c) a narrower list of triggers; (d) a reset after a mismatch only by a named role (for example the unit's nurse in charge).
+
+## DN-073: Unknown, alias, newborn and VIP-alias patients on prints [HUMAN]
+
+- **Status:** open
+- **Blocks:** nothing in WP-0.8; registration (WP-1.2) and the maternity work (R2b) need it.
+- **Default in use:** every patient print needs a date-of-birth value (exact, or an approximate estimate with the `~` marker); a patient with none is refused. Alias names ("Trauma Zulu-17") need the own form and the Latin form like any name. Newborn names ("Baby of …", with the sex and a twin marker) are never truncated and follow the same rules; no mother link is printed yet.
+- **Who decides:** the CSO with the emergency and maternity leads [HUMAN].
+- **Options:** (a) for unknown patients, allow the approximate-DOB flag with no estimate; (b) print the mother's MRN on newborn bands (a content item, linked bands, §9.17); (c) rules for VIP and other SI-21 alias bands; (d) accept the defaults.
+
+## DN-074: Printing when the policy decision point cannot be reached, and ZPL text mode before S7-K [HUMAN]
+
+- **Status:** open
+- **Blocks:** the downtime print path (WP-1.13); nothing in WP-0.8.
+- **Default in use:** until WP-0.4 builds the policy decision point, production wiring refuses every print (fail closed, spec §8.4). EN-4 (§13.1) wants downtime printing of wristbands, specimen labels and the MAR to work with the core down, which needs a rule for printing without a reachable policy point. Separately, as a tightening of this build, identity text goes to a printer in ZPL text mode only after S7-K passed that model and firmware with the pinned fonts; every other printer gets the `^GF` raster.
+- **Who decides:** the CSO with the hospital's privacy lead [HUMAN] for the downtime rule; the text-mode rule is a recorded tightening that the CSO may remove.
+- **Options:** (a) during a declared downtime, allow wristband and label prints for patients on the unit's cached census, with full audit on reconnection; (b) keep refusing and rely on pre-printed downtime bands; (c) another rule. For the print architecture with the core down (§12.8: the shell caches templates and prints to USB): (i) the shell prints only output this module pre-rendered (the unit's census and wristband queue), which cannot cover patients registered during the outage; (ii) a shell-side layout engine that reproduces these rules exactly, tested against the same goldens; (iii) the site edge agent or a cell node runs this module during a core outage. WP-1.13 decides with the CSO.
