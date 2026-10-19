@@ -10,6 +10,8 @@ Sources: §2.1 SI-03, SI-10 and the preamble; §2.2 rules 1, 2, 3, 6 and 7; §3.
 
 **Labels.** [P] marks this build's own engineering choices, which the sources do not dictate. Open items carry local labels (`OQ-TK1`, `DN-TK1`, `KA-TK1`, `HAZ-TK1`, `ADR-TK1`, `CR-TK1`). The integrator numbers them; §14 lists them all.
 
+**Programme numbers (19 October 2026).** DN-TK1 to DN-TK7 are DN-044; OQ-TK1 to OQ-TK14 are OQ-175; HAZ-TK1 to HAZ-TK10 are OQ-177; ADR-TK1 is OQ-178; KA-TK labels become KA numbers when the code that makes them true is committed. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Purpose and scope
 
 SI-03 says: "Every order reaches a terminal state. Every task, result, message, letter and referral has an owner and an SLA. Unowned work raises `TaskOrphaned` within 5 minutes. Seam messages to a hospital still on paper or legacy systems are owned tasks" (§2.1). Its "Enforced in" column names the task engine. This module is that engine.

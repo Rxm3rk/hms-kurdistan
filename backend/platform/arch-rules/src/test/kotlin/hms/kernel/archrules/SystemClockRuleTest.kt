@@ -2,6 +2,8 @@ package hms.kernel.archrules
 
 import hms.archfixtures.clock.compliant.domain.UsesInjectedClock
 import hms.archfixtures.clock.compliant.infrastructure.SystemClockProvider
+import hms.archfixtures.clock.compliant.kernel.journal.infrastructure.JournalAdapterCreatesClock
+import hms.archfixtures.clock.compliant.kernel.time.KernelTimeUsesInjectedClock
 import hms.archfixtures.clock.violating.domain.CallsCalendarGetInstance
 import hms.archfixtures.clock.violating.domain.CallsClockSystemDefaultZone
 import hms.archfixtures.clock.violating.domain.CallsClockSystemUtc
@@ -25,12 +27,18 @@ import hms.archfixtures.clock.violating.domain.CallsZonedDateTimeNow
 import hms.archfixtures.clock.violating.domain.ConstructsDate
 import hms.archfixtures.clock.violating.domain.ConstructsGregorianCalendar
 import hms.archfixtures.clock.violating.domain.MarksKotlinMonotonicTime
+import hms.archfixtures.clock.violating.kernel.journal.JournalModelReadsClock
+import hms.archfixtures.clock.violating.kernel.journal.inmemory.InMemoryJournalReadsClock
+import hms.archfixtures.clock.violating.kernel.time.KernelTimeReadsClock
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 
-/** Rule (d): domain code never reads the system clock; it is given a Clock (BUILD-PROMPT §6.2). */
+/**
+ * Rule (d), `ArchTest:no-now-in-domain`: domain code never reads the system clock; it is given a Clock (BUILD-PROMPT
+ * §6.2). platform-kernel.md §11 extends it to the kernel libraries and the journal's pure model.
+ */
 class SystemClockRuleTest {
     private val violatingRoot = "hms.archfixtures.clock.violating"
     private val compliantRoot = "hms.archfixtures.clock.compliant"
@@ -67,6 +75,14 @@ class SystemClockRuleTest {
             }
         }
 
+    @TestFactory
+    fun `no-now-in-domain fails on kernel libraries and the journal model reading the system clock`(): List<DynamicTest> =
+        listOf(KernelTimeReadsClock::class, JournalModelReadsClock::class, InMemoryJournalReadsClock::class).map { fixture ->
+            dynamicTest(fixture.java.simpleName) {
+                assertRuleFails(HmsArchitectureRules.domainDoesNotReadTheSystemClock(violatingRoot), importFixtures(fixture), fixture)
+            }
+        }
+
     @Test
     fun `passes on domain code that uses an injected Clock and on infrastructure that creates the system clock`() {
         assertRulePasses(
@@ -74,6 +90,8 @@ class SystemClockRuleTest {
             importFixturePackage(compliantRoot),
             UsesInjectedClock::class,
             SystemClockProvider::class,
+            KernelTimeUsesInjectedClock::class,
+            JournalAdapterCreatesClock::class,
         )
     }
 }

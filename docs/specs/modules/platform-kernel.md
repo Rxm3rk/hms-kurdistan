@@ -12,6 +12,8 @@ Revision 2 adds `hms.kernel.context` and the cross-cutting typed ids (D1), makes
 
 ---
 
+**Programme numbers (19 October 2026).** DN-KN1 to DN-KN6 are DN-042; OQ-KN1 to OQ-KN15 are OQ-170; HC-KN1 to HC-KN6 are OQ-177; KA-KN labels become KA numbers when the code that makes them true is committed. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Purpose and scope
 
 These five libraries are the shared kernel that every module uses for identifiers, time, the command context, money and measured quantities. They do no I/O and read no system clock. They hold no shared mutable state, except the id generator's counter. They depend on nothing outside the JDK, the Kotlin standard library and other kernel libraries: never on an application module or a framework [P]. Every application module may import them (§5.2; arch rule (b) always allows `hms.kernel..`).
@@ -109,7 +111,7 @@ Production wiring [P]: `app-hms` provides to every module exactly one `java.time
 - If the counter would pass `0xFFF`, the generator moves its logical timestamp one millisecond ahead and reseeds.
 - `rand_b` is 62 fresh random bits for every id.
 - **Clock going backwards:** the generator keeps a logical timestamp `max(clock.millis(), last)`. When the clock steps back, ids continue from the last timestamp with the counter, so ids from one generator stay strictly increasing. The generator never sleeps.
-- **Range:** a clock reading below 0 or above 2⁴⁸ − 1 ms throws `IllegalStateException`. That is a programming or clock fault, not a business outcome. For a clock in range the generator never fails.
+- **Range:** a clock reading below 0 or above 2⁴⁸ − 1 ms throws `IllegalStateException`. That is a programming or clock fault, not a business outcome. For a clock in range the generator never fails, with one exception: at the last millisecond (2⁴⁸ − 1) a counter rollover has no next millisecond to borrow, so it also throws `IllegalStateException` (the year 10889; found while building the slice).
 - The guarantee is per generator instance (one per JVM, section 4). Ids from different nodes are unique, not totally ordered. **An id's timestamp is never a recorded or clinical time, and id order is never event order**; the journal orders by aggregate version and recorded time (sibling journal specification) [P].
 - **Thread safety:** one lock guards the state (last timestamp, counter) and the draw of the random bits. So a `RandomGenerator` that is not thread-safe (`SplittableRandom` in tests, section 8) is still used safely [P].
 
@@ -503,7 +505,7 @@ The kernel reads no configuration. `EntryTimePolicySource` (section 7.6) is the 
 - **No value yet.** No value exists until DN-KN1 is answered [P]. The resolver then answers `NotConfigured`, the classifier answers `Refused(TIMING_POLICY_NOT_CONFIGURED)`, and the journal refuses the append. Mechanism and tests: section 16.
 - **WP-0.3 effect.** No WP-0.3 event type is `CLINICAL_CAPTURED`, and no WP-0.3 entry needs a policy: task rows use `ValidTimeInput.AtRecording`, and a task's `performedAt` is payload data (`platform-tasks` specification). A later entry that needs a policy is refused in production until DN-KN1 is answered. Tests use synthetic policies built through the factory with `ContentProvenance.SYNTHETIC` and `EnvironmentClass.TEST`.
 - **Resolution.** The policy is resolved for the context's tenant and facility, at `AsOf.latest(recorded instant)`.
-- **Strictness direction (D12).** For each of the four tolerances this build proposes that a smaller duration is stricter: it flags more entries as back-dated or late, and refuses more future times [P]. A smaller future, lateness or offline tolerance also refuses more device and offline data, which is safe only because a refused channel entry goes to an owned queue (section 6.2). The CSO confirms the direction (DN-KN1). Each definition's `Strictness` comparator is checked against this direction by `PropertyTest:entry-time-tolerance-strictness-direction`, using synthetic ordered pairs (a zero duration is stricter than any positive one; of two positive durations, the shorter is stricter). These pairs are test samples, not values.
+- **Strictness direction (D12).** For each of the four tolerances this build proposes that a smaller duration is stricter: it flags more entries as back-dated or late, and refuses more future times [P]. A smaller future, lateness or offline tolerance also refuses more device and offline data, which is safe only because a refused channel entry goes to an owned queue (section 6.2). The CSO confirms the direction (DN-KN1). Each definition's `Strictness` comparator is checked against this direction by `PropertyTest:entry-time-tolerance-strictness-direction`, using synthetic ordered pairs (a zero duration is stricter than any positive one; of two positive durations, the shorter is stricter). These pairs are test samples, not values. The property is written when the owning module registers the four definitions with tenancy's `Strictness` (after DN-KN1); WP-0.3's time slice has no definition to run it against, and no test pretends otherwise.
 
 ### 6.4 `BusinessCalendar`
 

@@ -8,6 +8,8 @@ Sources: BUILD-PROMPT §2.1 (SI-02, SI-03, SI-12, SI-19), §2.2 rules 1, 3 and 6
 
 **Labels.** [P] marks this build's own engineering choices. Local labels (OQ-W, DN-W, KA-W, HAZ-W, ADR-W) are numbered by the integrator (D9). "D1" to "D17" are the integrator's WP-0.3 decisions.
 
+**Programme numbers (19 October 2026).** DN-W1 and DN-W2 are DN-044; OQ-W1 to OQ-W7 are OQ-176; HAZ-W1 is OQ-177; ADR-W1 is OQ-178; KA-W1 becomes a KA number when the code that makes it true is committed. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Purpose and scope
 
 `platform-workflow` owns `WorkflowPort` and the Temporal adapter (§5.2). It orchestrates long-running processes that last hours to months, with timers and human steps: discharge, pre-approval, claims, migration and cutover (§4.2 ADR-010; §7 item 6). Temporal is used only behind the port (§4.1).

@@ -1,6 +1,9 @@
 package hms.archfixtures.purity.violating.domain
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.apicurio.archfixtures.ApicurioStandIn
+import io.cloudevents.CloudEvent
+import io.debezium.archfixtures.DebeziumStandIn
 import io.temporal.client.WorkflowClient
 import jakarta.inject.Provider
 import org.apache.kafka.clients.producer.Producer
@@ -41,4 +44,18 @@ class UsesTemporal(
 
 class UsesKafka(
     val producer: Producer<String, String>,
+)
+
+// D7 widens the list with CloudEvents, Debezium and Apicurio (platform-kernel.md §11).
+
+class UsesCloudEvents(
+    val event: CloudEvent,
+)
+
+class UsesDebezium(
+    val change: DebeziumStandIn,
+)
+
+class UsesApicurio(
+    val schema: ApicurioStandIn,
 )
