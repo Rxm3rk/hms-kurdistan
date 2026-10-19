@@ -29,8 +29,21 @@ Tests import `@hms/design-system/testing` for a guard of their own (`createModal
 mode) and `ModalStackTestProvider`. Both throw in production builds, so an application has one guard per
 window.
 
-The banner, the sign and co-sign pattern, the command palette and the density control arrive with slices
-S5a and S5b.
+## Patient banner (WP-0.7 slice S5a)
+
+| Export                             | What it does                                                                                                                                                                                                                                                                                                                                                              | Spec         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `PatientBanner`                    | The one patient banner: identity, allergies (NKA, not assessed, unavailable or every item whole), code status, isolation and the dated weight with its source, through `ClinicalNumber`; an error state that still renders every field; `data-error-state`, `data-signing-blocked` and `data-identity-incomplete` from ui-core's banner model; an optional `actions` slot | §2.1, OQ-161 |
+| `PatientIdentity`                  | The photo, every name form (own script first, each labelled, a missing form shown as missing), the MRN, the date of birth at its precision with the approximate-DOB flag and "Identity incomplete"; reused by the switch confirmation, the re-verification step, the palette and the chooser                                                                              | §2.1, §2.2   |
+| `PatientPhoto`                     | The photo with its alt text, or "No photo" when it is absent, invalid or fails to load                                                                                                                                                                                                                                                                                    | §2.1         |
+| `BannerStatus`, `BANNER_STATUSES`  | Each banner status with its own text, icon shape and tone, so colour is never the only carrier                                                                                                                                                                                                                                                                            | §2.1, §6.5   |
+| `StatusIcon`, `ICON_SHAPES`        | Inline SVG icons, `aria-hidden`, never mirrored, with outlines distinct within a field                                                                                                                                                                                                                                                                                    | §2.1         |
+| `GovernedLabel`, `useBannerLocale` | A governed label isolated with its own `lang` and `dir`, with "Not translated" when it falls back to another locale                                                                                                                                                                                                                                                       | §2.1 rule 6  |
+
+The banner's stylesheet is `banner/banner.css`, imported by `styles.css`: logical properties and tokens only,
+and nothing that cuts text (no ellipsis, line clamp, fixed height, hidden overflow or `nowrap`).
+
+The sign and co-sign pattern, the command palette and the density control arrive with slice S5b.
 
 ## Tests
 
@@ -51,6 +64,10 @@ S5a and S5b.
   change.
 - `clinical-number.test.tsx`, `density-provider.test.tsx` and `message.test.tsx` cover `ClinicalNumber`, `Bdi`,
   `DensityProvider` and `Message` in the DOM.
+- `test/banner/` (slice S5a): `UnitTest:banner-renders-every-field`, `UnitTest:banner-missing-data-visible`,
+  `UnitTest:banner-identifiers-never-room-or-bed`, `UnitTest:colour-not-only-carrier`, `UnitTest:bidi-isolation`
+  and `UnitTest:banner-long-names-wrap` (its unit part; jsdom has no layout, so the narrowest width is checked
+  in `E2E:visual` and `E2E:pseudo-locale`).
 
 Rendering in a real browser (computed direction, the fonts actually used, axe, screenshots) is tested with
 Playwright in `apps/web` (slice S7), not here.

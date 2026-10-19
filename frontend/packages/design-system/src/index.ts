@@ -4,8 +4,8 @@
  * `import '@hms/design-system/styles.css'`.
  *
  * Slice S4 (the foundation): LocaleProvider, DensityProvider, Bdi, ClinicalNumber, Message, Modal and its
- * stack guard. Slices S5a and S5b add the banner, the sign and co-sign pattern, the command palette and the
- * density control, and export them here.
+ * stack guard. Slice S5a adds the patient banner; slice S5b the sign and co-sign pattern, the command palette
+ * and the density control.
  */
 export { Bdi, type BdiDirection, type BdiProps } from './bdi/bdi.tsx';
 export { ClinicalNumber, type ClinicalNumberProps } from './clinical-number/clinical-number.tsx';
@@ -48,3 +48,28 @@ export {
   type LocaleProviderProps,
   type MessageErrorReport,
 } from './providers/locale-provider.tsx';
+// Slice S5a: the patient banner (§2.1) and PatientIdentity, which the switch confirmation, the re-verification
+// step, the palette's patient results and the patient chooser reuse.
+export {
+  BANNER_STATUSES,
+  BannerStatus,
+  GovernedLabel,
+  ICON_SHAPES,
+  PatientBanner,
+  PatientIdentity,
+  PatientPhoto,
+  StatusIcon,
+  useBannerLocale,
+  type BannerStatusField,
+  type BannerStatusId,
+  type BannerStatusProps,
+  type BannerStatusSpec,
+  type GovernedLabelProps,
+  type IconShape,
+  type PatientBannerProps,
+  type PatientIdentityModel,
+  type PatientIdentityProps,
+  type PatientPhotoProps,
+  type StatusIconProps,
+  type StatusTone,
+} from './banner/index.ts';
