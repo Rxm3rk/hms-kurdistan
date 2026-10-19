@@ -6,6 +6,7 @@ Entry criteria:
 - WP-0.3 merged, or reviewed and stacked (§3.6, §21).
 - The printer capture endpoint exists under `tools/simulators/<party>` with contract fixtures (§3.7).
 - Not met yet: waits on WP-0.3, which waits on WP-0.2.
+- State: in-progress since 19 October 2026 on `wp/0.8-documents-printing` (stacked on `wp/0.1-programme-bootstrap` at `09afa41`), cluster-free parts only. Starting before the entry criteria are met is a deviation from §21 approved by the human lead (DN-065). What needs the cell (persistence, the print spool, the outbox), the Trust Plane (the policy enforcement point, the BALP audit store) or physical printers still waits; tests that need a container are written and recorded as waiting for the cell. The printer capture simulator exists on `wp/0.7-design-system` (`b597713`) and is merged late, at a committed SHA.
 Deliverables:
 - A template engine: HTML templates rendered to PDF/A, with documents and labels generated from one source (§7 item 11, §12.4).
 - The PDF/A renderer satellite with HarfBuzz-grade shaping for Sorani and Arabic. Candidates: a WeasyPrint container or headless Chromium; spike S7-K decides by golden-image tests on the target printers, so the choice stays accepted-provisional (§4.1).

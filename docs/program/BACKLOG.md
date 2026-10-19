@@ -44,7 +44,7 @@ Statuses (§3.1): `todo`, `spec`, `in-progress`, `built` (Definition of Done ite
 
 ### Hazards
 
-101 of 234 feature IDs are named by at least one entry of `docs/safety/hazard-log.yaml` (27 entries in all); the Hazards column lists those entries. The other 133 are named by no entry yet, which does not mean that they carry no hazard.
+101 of 234 feature IDs are named by at least one entry of `docs/safety/hazard-log.yaml` (32 entries in all); the Hazards column lists those entries. The other 133 are named by no entry yet, which does not mean that they carry no hazard.
 
 ### Placements marked [P]
 
@@ -108,8 +108,8 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 | `PLT-CFG-03` | Forms engine | L | R1 | B | todo | WP-1.1 | — | — |
 | `PLT-CFG-04` | Extension SDK | M | P2 | B | todo | Phase 5 | — | — |
 | `PLT-UX-01` | Design system | M | R1 | B | todo | WP-0.7 | — | HAZ-0016 |
-| `PLT-UX-02` | Workstation shell | M | R1 | B | todo | WP-0.7 | — | HAZ-0001, HAZ-0011, HAZ-0016 |
-| `PLT-UX-03` | i18n / RTL | L | R1 | B | todo | WP-0.7 (base) | — | HAZ-0001, HAZ-0016 |
+| `PLT-UX-02` | Workstation shell | M | R1 | B | todo | WP-0.7 | — | HAZ-0001, HAZ-0011, HAZ-0016, HAZ-0045, HAZ-0046, HAZ-0047, HAZ-0049 |
+| `PLT-UX-03` | i18n / RTL | L | R1 | B | todo | WP-0.7 (base) | — | HAZ-0001, HAZ-0016, HAZ-0045 |
 | `PLT-UX-04` | Mobile app framework | L | R2b | B | todo | WP-3.3 | — | HAZ-0002, HAZ-0004, HAZ-0013, HAZ-0015, HAZ-0016 |
 | `PLT-OPS-01` | Cells | XL | R1 | B | todo | WP-1.13 | — | HAZ-0020 |
 | `PLT-OPS-02` | On-prem install | L | R1 | B | todo | WP-1.13 | — | — |
@@ -129,16 +129,16 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 | `TRU-IAM-01` | SSO/MFA | L | R1 | B+I | todo | WP-0.4 | — | — |
 | `TRU-IAM-02` | RBAC/ABAC | L | R1 | B | todo | WP-0.4 | — | HAZ-0010, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027 |
 | `TRU-IAM-03` | Break-the-glass | S | R1 | B | todo | WP-0.4 | — | HAZ-0021, HAZ-0027 |
-| `TRU-PRV-01` | Sensitivity labels | M | R1 | B | todo | WP-0.4 | — | HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027 |
+| `TRU-PRV-01` | Sensitivity labels | M | R1 | B | todo | WP-0.4 | — | HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027, HAZ-0048 |
 | `TRU-PRV-02` | Consent management | M | R1 | B | todo | WP-1.2 | — | HAZ-0021 |
-| `TRU-AUD-01` | BALP audit | M | R1 | B | todo | WP-0.4 | — | HAZ-0010, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027 |
+| `TRU-AUD-01` | BALP audit | M | R1 | B | todo | WP-0.4 | — | HAZ-0010, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027, HAZ-0048 |
 | `TRU-AUD-02` | Privacy monitoring | M | P2 | B+I | todo | Phase 5 | — | — |
 | `TRU-KEY-01` | Per-tenant KMS | M | R1 | B+I | todo | WP-0.4 (base); WP-1.13 (full) | — | HAZ-0020 |
 | `TRU-SEC-01` | Secure SDLC | M | R1 | B | todo | WP-0.9 | — | — |
 | `TRU-SEC-02` | ISO 27001 + SOC 2 | L | R1 | B | todo | WP-1.13 | — | — |
 | `TRU-SEC-03` | Market attestations | M | R1 | B | todo | WP-1.13 | — | — |
 | `TRU-BCP-01` | Read-only continuity | L | R1 | B | todo | WP-1.13 | — | HAZ-0010, HAZ-0015 |
-| `TRU-BCP-02` | Downtime ID blocks | M | R1 | B | todo | WP-1.13 | — | HAZ-0001, HAZ-0015 |
+| `TRU-BCP-02` | Downtime ID blocks | M | R1 | B | todo | WP-1.13 | — | HAZ-0001, HAZ-0015, HAZ-0049 |
 | `TRU-BCP-03` | Back-entry | L | R1 | B | todo | WP-1.13 | — | HAZ-0010, HAZ-0015 |
 | `TRU-BCP-04` | Immutable backups | L | R1 | B | todo | WP-1.13 | — | HAZ-0020 |
 | `TRU-BCP-05` | Code-Dark drills | S | R1 | B | todo | WP-1.13 | — | HAZ-0010 |
@@ -343,7 +343,7 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 |---|---|---|---|---|---|---|---|---|
 | `INT-ENG-01` | HL7 v2 engine | L | R1 | B+I | todo | WP-1.1b (base); WP-1.12 (full) | — | HAZ-0003, HAZ-0008, HAZ-0021 |
 | `INT-FHIR-01` | FHIR façade | L | R1 | B+I | todo | WP-1.12 (read); Phase 1.1 (FHIR SMART, Bulk and Subscriptions) | — | HAZ-0008, HAZ-0021 |
-| `INT-DOC-01` | Documents | M | R1 | B | todo | WP-1.12 | — | HAZ-0001, HAZ-0006, HAZ-0016, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027 |
+| `INT-DOC-01` | Documents | M | R1 | B | todo | WP-1.12 | — | HAZ-0001, HAZ-0006, HAZ-0016, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027, HAZ-0045, HAZ-0046, HAZ-0047, HAZ-0048 |
 | `INT-ABDM-01` | ABDM | L | DROPPED-K | B | todo | — | — | — |
 | `INT-SEHE-01` | SeHE | M | DROPPED-K | B | todo | — | — | — |
 | `INT-UAE-01` | UAE HIEs | L | DROPPED-K | B | todo | — | — | — |

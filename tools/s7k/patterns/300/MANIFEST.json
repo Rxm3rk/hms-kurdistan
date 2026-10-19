@@ -1,0 +1,180 @@
+{
+  "dpi": 300,
+  "files": [
+    {
+      "bytes": 1272,
+      "dpi": 300,
+      "file": "s7k-bc01-barcodes-300.zpl",
+      "items": [
+        "BC-01",
+        "BC-02",
+        "BC-03",
+        "ZT-09"
+      ],
+      "purpose": "Native ^BX DataMatrix at 0.5 and 0.25 mm in the engine's form and ^BC Code 128, each with its payload in plain text",
+      "sha256": "d205042bdb7057e6b8be803fe4dfcd87edf92cc8dfa5d5488376d82e75e2bdbe"
+    },
+    {
+      "bytes": 4,
+      "dpi": null,
+      "file": "s7k-cfg-01-host-identification.zpl",
+      "items": [
+        "CFG-01"
+      ],
+      "purpose": "~HI: the printer replies with model, firmware, dots per mm and memory (send with --read-reply)",
+      "sha256": "8a3e85eb8dc7fb366900398cfeb9547dba4cf1497b62e268e9d24cd7db20fb87"
+    },
+    {
+      "bytes": 10,
+      "dpi": null,
+      "file": "s7k-cfg-02-host-configuration.zpl",
+      "items": [
+        "CFG-01"
+      ],
+      "purpose": "^HH: the printer replies with its configuration label as text (send with --read-reply)",
+      "sha256": "bff1e915bfe399509e43ab63f868c01bbd211523fa70e3ac474ed50cfe02db6b"
+    },
+    {
+      "bytes": 4,
+      "dpi": null,
+      "file": "s7k-cfg-03-print-configuration-label.zpl",
+      "items": [
+        "CFG-01"
+      ],
+      "purpose": "~WC: the printer prints its configuration label (photograph it)",
+      "sha256": "f06405b448f349281b0eb2ee4ab6b55d6c6754169e93a1ec1d18b699721dc19c"
+    },
+    {
+      "bytes": 15,
+      "dpi": null,
+      "file": "s7k-cfg-04-print-directory-e.zpl",
+      "items": [
+        "FNT-01"
+      ],
+      "purpose": "^WD: the printer prints the directory of drive E: (check the downloaded fonts and their sizes)",
+      "sha256": "41669da601400388fd909530ca59f9436daeacf561279ef13a1accb102c70a61"
+    },
+    {
+      "bytes": 25,
+      "dpi": null,
+      "file": "s7k-cfg-05-host-directory-listing.zpl",
+      "items": [
+        "FNT-01"
+      ],
+      "purpose": "^HW: the printer replies with its resident object listing, names and sizes, for R: (the default) and E: (send with --read-reply; copy it into printer.resident_font_listing)",
+      "sha256": "b7cd38f1ac103fb7f0926b3d309f0bb9b1902674565d58f6123bc79152ad3b1b"
+    },
+    {
+      "bytes": 277,
+      "dpi": null,
+      "file": "s7k-ep01-escpos-selftest.bin",
+      "items": [
+        "EP-01"
+      ],
+      "purpose": "ESC/POS: Latin lines, a feed and a partial cut on an 80 mm receipt or token printer",
+      "sha256": "9f0d802042f694524a6c666a76372f99835ab71ae95e4fa2d2aef390bc4090d4"
+    },
+    {
+      "bytes": 584,
+      "dpi": 300,
+      "file": "s7k-ja01-cancel-then-print-300.zpl",
+      "items": [
+        "JA-01"
+      ],
+      "purpose": "~JA followed by one label in the same job: does the label print once?",
+      "sha256": "9f87fc412d6654653405d2fd317d8582eb1030ae1546d1e5119bc067a5cb5dd1"
+    },
+    {
+      "bytes": 29103,
+      "dpi": 300,
+      "file": "s7k-reference.html",
+      "items": [
+        "ZT-01",
+        "ZT-02",
+        "ZT-05",
+        "ZT-06",
+        "ZT-08",
+        "ZT-10"
+      ],
+      "purpose": "Reference page for the ZT patterns: open it in a browser with the font files beside it",
+      "sha256": "56839881b8aa40f71f7a7c6b439f0b1480827a3586f604e6101e6195bbff7bf3"
+    },
+    {
+      "bytes": 5980,
+      "dpi": 300,
+      "file": "s7k-zt01-sorani-chart-300.zpl",
+      "items": [
+        "ZT-01",
+        "ZT-03",
+        "ZT-04",
+        "ZT-09"
+      ],
+      "purpose": "ZPL text mode: every Sorani letter alone, initial, medial and final, with beh as the joining partner",
+      "sha256": "176026596d8cdc144e3cc126fd215148c669695e15f7cec4aa30ac8cac4805da"
+    },
+    {
+      "bytes": 6848,
+      "dpi": 300,
+      "file": "s7k-zt02-variants-300.zpl",
+      "items": [
+        "ZT-02",
+        "ZT-03",
+        "ZT-04",
+        "ZT-09"
+      ],
+      "purpose": "ZPL text mode: the Arabic and Kurdish forms of yeh, kaf and heh; heh doachashmee, alef maksura, teh marbuta, hamza forms, Arabic-only letters, lam-alef, lam with small v and alef, ZWNJ, ZWJ, the Arabic comma, sample words, the bold fonts and the Latin letters of transliterated names",
+      "sha256": "b29bc52b69ac29e11c0c29963ca07b2515f94037a722dbcfe981d349ee1b2a8b"
+    },
+    {
+      "bytes": 3012,
+      "dpi": 300,
+      "file": "s7k-zt03-bidi-300.zpl",
+      "items": [
+        "ZT-03",
+        "ZT-05",
+        "ZT-06",
+        "ZT-07",
+        "ZT-09"
+      ],
+      "purpose": "ZPL text mode: a Sorani name with a Latin MRN, a date and a digit-only identifier, in their own fields and in one RTL field; the field-data escape checks",
+      "sha256": "b55f1afec6e30e724b76ec8522278ca66e8b39fc7602958e4dad190aa6b80452"
+    },
+    {
+      "bytes": 8893,
+      "dpi": 300,
+      "file": "s7k-zt04-legibility-300.zpl",
+      "items": [
+        "ZT-03",
+        "ZT-08",
+        "ZT-09"
+      ],
+      "purpose": "ZPL text mode: the dot-differentiated letters beh teh theh noon yeh peh, the Kurdish minimal pairs and the Latin identifiers from 6 to 12 pt",
+      "sha256": "7334d46adb1433f1f648d0819a25f171f5661c1e3c9dfdd576bdd9ce745a7f58"
+    },
+    {
+      "bytes": 3329,
+      "dpi": 300,
+      "file": "s7k-zt05-engine-lines-300.zpl",
+      "items": [
+        "ZT-03",
+        "ZT-09",
+        "ZT-10",
+        "ZT-11"
+      ],
+      "purpose": "ZPL text mode in the engine writer's form: identifiers at 100% and 95% of a one-line ^FB box, the 90-degree wristband frame, and the ^A@ height calibration",
+      "sha256": "62ed5d3e451b610b2524d93cbe48f7e22288fcfc9e79da4a49b1fc241745b7dd"
+    }
+  ],
+  "kit": "hms-s7k",
+  "kit_version": "0.2.0",
+  "notice": "SYNTHETIC - NOT FOR CLINICAL USE",
+  "options": {
+    "arabic_bold_font": "E:NSARABB.TTF",
+    "arabic_font": "E:NSARAB.TTF",
+    "latin_bold_font": "E:NSLATNB.TTF",
+    "latin_font": "E:NSLATN.TTF",
+    "length_mm": 152.4,
+    "width_mm": 101.6
+  },
+  "provenance": "synthetic"
+}

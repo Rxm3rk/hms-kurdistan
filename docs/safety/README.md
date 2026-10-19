@@ -65,7 +65,7 @@ The seeded entries also use these fields. `seeded_hazard` is a B.2 field and req
 
 ### Tightenings
 
-A tightening adds to an invariant and never replaces a clause; it is allowed and must be recorded (§3.4 item 1). Each one below is recorded in the control's `notes` (CTRL-0021-5 records it in its description). Every row but the last is a proposal of this build [P], which the CSO confirms or removes [HUMAN]. The last row is not a proposal of this build: the plan itself adds the employee-as-patient label (§13.1 AZ-3), and it is listed because it goes beyond the SI-21 text.
+A tightening adds to an invariant and never replaces a clause; it is allowed and must be recorded (§3.4 item 1). Each one below is recorded in the control's `notes` (CTRL-0021-5 records it in its description). Every row but the CTRL-0021-5 row is a proposal of this build [P], which the CSO confirms or removes [HUMAN]. The last row is not a proposal of this build: the plan itself adds the employee-as-patient label (§13.1 AZ-3), and it is listed because it goes beyond the SI-21 text.
 
 | Control | Tightening | What the sources say |
 |---|---|---|
@@ -75,6 +75,11 @@ A tightening adds to an invariant and never replaces a clause; it is allowed and
 | CTRL-0014-5 | Promotion of a go-live bundle is blocked while a baseline rule has neither a measured PPV nor that exception | §19.4 validates content bundles before promotion but names no such rule |
 | CTRL-0016-5 | The banner fitness function also covers mobile views and print templates, with a template linter for prints | §6.8 item 6 makes the banner a fitness function on clinical routes only; §2.1 SI-16 and §9.4 require the banner on every mobile view and print, and the §9.4 acceptance asks for a banner test on every clinical route and print, but they name no linter for print templates (the §9.30 linter checks message bodies) |
 | CTRL-0016-6 | A confirmation before another patient replaces the window's patient context | §2.1 SI-16, §6.5, §7 item 20 and §21 WP-0.7 name one patient context per window and patient-context management, but no confirmation step |
+| CTRL-0045-3 | Every patient template must fit a governed worst-case identity corpus at its minimum sizes, and identity text has legibility minimums per script and resolution (DN-069, OQ-243, OQ-244) | §12.8 and §18.9 require newborn and long names never to be truncated and golden images per printer; they name no corpus check or minimum size |
+| CTRL-0045-4 | Identity text goes to a printer in ZPL text mode only after S7-K passed that model and firmware with the pinned fonts; otherwise the module rasterises it (`^GF`) (DN-074) | §4.1 allows `^PA` text mode on Zebra firmware V60.14/V50.14 or later, with the raster as the fallback where a printer cannot shape |
+| CTRL-0046-3 | Until the first wristband after a change is scan-verified, further wristbands on that template and printer are refused; the trigger list and an on-screen visual check are added (DN-072) | §12.8: "the first band after any template or printer change is scan-verified"; it does not say what the verification blocks |
+| CTRL-0048-3 | Wristbands and specimen labels carry a minimal watermark (job short ID and print time) (DN-070) | §13.1 DP-8 asks for "print and PDF watermarking (user, time, patient)" and does not say how it applies to labels |
+| CTRL-0049-1 | One copy per wristband; a reason on every reprint of a patient print; a second wristband for the same patient and encounter counts as a reprint (DN-071) | §12.8 and the HAL contract make a reprint an explicit, audited request; neither limits copies nor names a reason |
 | CTRL-0021-5 | The employee-as-patient label beside the six SI-21 labels | From the plan, not a proposal of this build: §13.1 AZ-3 adds it ("SI-21 labels, plus employee-as-patient") |
 
 The list holds the three mechanisms that the WP-0.1 review found unrecorded (R-19), the interim SI-14 reading planned in answer to R-04 (`docs/program/reviews/WP-0.1.md`), the banner checks of CTRL-0016-5, found on the same reasoning when the R-19 fix was verified, and the employee label; it does not come from a re-check of every control against its sources.

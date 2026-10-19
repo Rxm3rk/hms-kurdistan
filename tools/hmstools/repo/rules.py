@@ -273,9 +273,12 @@ def check_required(root: Path, result: CheckResult) -> None:
     index = index_path.read_text(encoding="utf-8", errors="replace") if index_path.is_file() else None
     if index is None:
         result.errors.append(f"adr: {ADR_INDEX} (the ADR index) is missing")
+    reserved = reserved_adr_numbers(index) if index is not None else set()
     good = 0
     for number in range(1, highest + 1):
         matches = found.get(number, [])
+        if not matches and number in reserved and number not in ADR_NUMBERS:
+            continue  # held by a parallel branch and listed under "Reserved numbers" in the index
         if not matches:
             reason = "§4.2 baseline" if number in ADR_NUMBERS else f"ADR numbers run without a gap up to ADR-{highest:03d}"
             result.errors.append(f"adr: docs/adr/ADR-{number:03d}-*.md is missing ({reason})")
@@ -292,6 +295,33 @@ def check_required(root: Path, result: CheckResult) -> None:
             good += 1
     result.counts.update({"required_files_present": present, "adrs_total": highest, "adrs_valid": good})
 
+
+
+RESERVED_HEADING = re.compile(r"^## Reserved numbers\s*$", re.M)
+RESERVED_RANGE = re.compile(r"^- ADR-(\d{3})(?: to ADR-(\d{3}))?:", re.M)
+
+
+def reserved_adr_numbers(index: str) -> set[int]:
+    """ADR numbers the index lists under "## Reserved numbers", one bullet per number or range.
+
+    Parallel work-package branches each hold their own range of ADR numbers; on one branch the numbers of
+    the others are missing until the branches merge. A missing number is accepted only while it is listed
+    here; the baseline ADR-001 to ADR-028 can never be reserved.
+    """
+    heading = RESERVED_HEADING.search(index)
+    if heading is None:
+        return set()
+    section = index[heading.end():]
+    following = re.search(r"^## ", section, re.M)
+    if following is not None:
+        section = section[: following.start()]
+    numbers: set[int] = set()
+    for match in RESERVED_RANGE.finditer(section):
+        first = int(match.group(1))
+        last = int(match.group(2) or first)
+        if last >= first:
+            numbers.update(range(first, last + 1))
+    return numbers
 
 # --------------------------------------------------------------------------- (c) tenant identifiers
 

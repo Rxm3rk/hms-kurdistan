@@ -1,0 +1,108 @@
+^XA
+^FX HMS S7-K kit 0.2.0 ZT02 page 1 of 4 203 dpi synthetic
+^CI28
+^PW813
+^LL1219
+^LH0,0
+^PA1,1,1,1
+^FO24,24^A0N,25,25^FB765,1,6,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO24,57^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS S7-K kit 0.2.0 | ZT02 variants | 203 dpi | page 1/4 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO24,110^GB765,2,2^FS
+^FO24,124^A0N,20,20^FB304,4,5,L,0^FH\^FDU+064A YEH (D) Arabic form; isolated and final must differ from the Kurdish form^FS
+^FO344,124^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDي  يب  بيب  بي^FS
+^FO24,231^A0N,20,20^FB304,4,5,L,0^FH\^FDU+06CC FARSI YEH (D) Kurdish form; isolated and final must differ from the Arabic form^FS
+^FO344,231^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDی  یب  بیب  بی^FS
+^FO24,338^A0N,20,20^FB304,4,5,L,0^FH\^FDU+0643 KAF (D) Arabic form; isolated and final must differ from the Kurdish form^FS
+^FO344,338^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDك  كب  بكب  بك^FS
+^FO24,445^A0N,20,20^FB304,4,5,L,0^FH\^FDU+06A9 KEHEH (D) Kurdish form; isolated and final must differ from the Arabic form^FS
+^FO344,445^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDک  کب  بکب  بک^FS
+^FO24,552^A0N,20,20^FB304,4,5,L,0^FH\^FDU+0647 HEH (D) Arabic form; isolated and final must differ from the Kurdish form^FS
+^FO344,552^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDه  هب  بهب  به^FS
+^FO24,659^A0N,20,20^FB304,4,5,L,0^FH\^FDU+06D5 AE (R) [K] Kurdish form; isolated and final must differ from the Arabic form^FS
+^FO344,659^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDە  ەب  بەب  بە^FS
+^FO24,766^A0N,20,20^FB304,2,5,L,0^FH\^FDU+06BE HEH DOACHASHMEE (D)^FS
+^FO344,766^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDھ  ھب  بھب  بھ^FS
+^FO24,855^A0N,20,20^FB304,1,5,L,0^FH\^FDU+0649 ALEF MAKSURA (D)^FS
+^FO344,855^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDى  ىب  بىب  بى^FS
+^FO24,944^A0N,20,20^FB304,1,5,L,0^FH\^FDU+0629 TEH MARBUTA (R)^FS
+^FO344,944^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDة  ةب  بةب  بة^FS
+^FO24,1033^A0N,20,20^FB304,1,5,L,0^FH\^FDU+0621 HAMZA (U)^FS
+^FO344,1033^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDء  ءب  بءب  بء^FS
+^PQ1
+^XZ
+^XA
+^FX HMS S7-K kit 0.2.0 ZT02 page 2 of 4 203 dpi synthetic
+^CI28
+^PW813
+^LL1219
+^LH0,0
+^PA1,1,1,1
+^FO24,24^A0N,25,25^FB765,1,6,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO24,57^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS S7-K kit 0.2.0 | ZT02 variants | 203 dpi | page 2/4 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO24,110^GB765,2,2^FS
+^FO24,124^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0623 ALEF WITH HAMZA ABOVE (R)^FS
+^FO344,124^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDأ  أب  بأب  بأ^FS
+^FO24,213^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0625 ALEF WITH HAMZA BELOW (R)^FS
+^FO344,213^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDإ  إب  بإب  بإ^FS
+^FO24,302^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0622 ALEF WITH MADDA ABOVE (R)^FS
+^FO344,302^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDآ  آب  بآب  بآ^FS
+^FO24,391^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0624 WAW WITH HAMZA ABOVE (R)^FS
+^FO344,391^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDؤ  ؤب  بؤب  بؤ^FS
+^FO24,480^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0626 YEH WITH HAMZA ABOVE (D)^FS
+^FO344,480^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDئ  ئب  بئب  بئ^FS
+^FO24,569^A0N,20,20^FB304,2,5,L,0^FH\^FDU+062B THEH (D) Arabic names^FS
+^FO344,569^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDث  ثب  بثب  بث^FS
+^FO24,658^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0630 THAL (R) Arabic names^FS
+^FO344,658^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDذ  ذب  بذب  بذ^FS
+^FO24,747^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0635 SAD (D) Arabic names^FS
+^FO344,747^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDص  صب  بصب  بص^FS
+^FO24,836^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0636 DAD (D) Arabic names^FS
+^FO344,836^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDض  ضب  بضب  بض^FS
+^FO24,925^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0637 TAH (D) Arabic names^FS
+^FO344,925^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDط  طب  بطب  بط^FS
+^FO24,1014^A0N,20,20^FB304,2,5,L,0^FH\^FDU+0638 ZAH (D) Arabic names^FS
+^FO344,1014^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDظ  ظب  بظب  بظ^FS
+^PQ1
+^XZ
+^XA
+^FX HMS S7-K kit 0.2.0 ZT02 page 3 of 4 203 dpi synthetic
+^CI28
+^PW813
+^LL1219
+^LH0,0
+^PA1,1,1,1
+^FO24,24^A0N,25,25^FB765,1,6,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO24,57^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS S7-K kit 0.2.0 | ZT02 variants | 203 dpi | page 3/4 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO24,110^GB765,2,2^FS
+^FO24,124^A0N,20,20^FB304,4,5,L,0^FH\^FDlam-alef ligatures (mandatory): la, beh-la, la-hamza above, la-hamza below, la-madda^FS
+^FO344,124^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDلا  بلا  لأ  لإ  لآ^FS
+^FO24,231^A0N,20,20^FB304,4,5,L,0^FH\^FDLAM WITH SMALL V + alef: lv-a, beh-lv-a and two synthetic words; the v mark stays on the lam^FS
+^FO344,231^A@N,34,34,E:NSARAB.TTF^FB445,3,9,R,0^FH\^FDڵا  بڵا  ئاڵا  هەڵاڵە^FS
+^FO24,363^A0N,20,20^FB304,3,5,L,0^FH\^FDZWNJ U+200C: the first pair joins, the second pair must not join^FS
+^FO344,363^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDبب  ب‌ب^FS
+^FO24,452^A0N,20,20^FB304,4,5,L,0^FH\^FDZWJ U+200D: beh+ZWJ shows the initial form, ZWJ+beh the final form, beh+ZWJ+beh the medial^FS
+^FO344,452^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDب‍  ‍ب  ب‍ب^FS
+^FO24,559^A0N,20,20^FB304,2,5,L,0^FH\^FDU+060C Arabic comma between two beh^FS
+^FO344,559^A@N,34,34,E:NSARAB.TTF^FB445,2,9,R,0^FH\^FDب، ب^FS
+^FO24,648^A0N,20,20^FB304,3,5,L,0^FH\^FDsample words holding all ten Kurdish letters (synthetic)^FS
+^FO344,648^A@N,34,34,E:NSARAB.TTF^FB445,3,9,R,0^FH\^FDژیان ڤەژین گوڵ چرۆ پێشڕەو^FS
+^FO24,780^A0N,20,20^FB304,3,5,L,0^FH\^FDthe same words in the bold font (E:NSARABB.TTF)^FS
+^FO344,780^A@N,34,34,E:NSARABB.TTF^FB445,3,9,R,0^FH\^FDژیان ڤەژین گوڵ چرۆ پێشڕەو^FS
+^FO24,912^A0N,20,20^FB304,4,5,L,0^FH\^FDLatin font: the letters of transliterated Kurdish names and a synthetic Latin name^FS
+^FO344,912^A@N,34,34,E:NSLATN.TTF^FB445,3,9,L,0^FH\^FDç ê î û ş Ç Ê Î Û Ş  Aram Rêbwar^FS
+^PQ1
+^XZ
+^XA
+^FX HMS S7-K kit 0.2.0 ZT02 page 4 of 4 203 dpi synthetic
+^CI28
+^PW813
+^LL1219
+^LH0,0
+^PA1,1,1,1
+^FO24,24^A0N,25,25^FB765,1,6,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO24,57^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS S7-K kit 0.2.0 | ZT02 variants | 203 dpi | page 4/4 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO24,110^GB765,2,2^FS
+^FO24,124^A0N,20,20^FB304,3,5,L,0^FH\^FDthe same in the bold Latin font (E:NSLATNB.TTF)^FS
+^FO344,124^A@N,34,34,E:NSLATNB.TTF^FB445,3,9,L,0^FH\^FDç ê î û ş Ç Ê Î Û Ş  Aram Rêbwar^FS
+^PQ1
+^XZ
