@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -359,6 +360,190 @@ class JunitSteps(Fixture):
         self.assertEqual(report.record["steps"][0]["result"], FAIL)
         self.assertEqual(report.record["steps"][0]["counts"]["tests"], 1)
 
+    def test_backend_globs_include_the_tests_projects(self) -> None:
+        # tests/invariants and tests/scenarios build outside backend/ (state-machines-and-invariants.md §7).
+        stale = self.root / "tests" / "scenarios" / "build" / "test-results" / "test" / "TEST-old.xml"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("<testsuite>" + "<testcase name='x'/>" * 50 + "</testsuite>", encoding="utf-8")
+        target = self.root / "tests" / "invariants" / "build" / "test-results" / "propertyTest" / "TEST-si.xml"
+        writer = (
+            f"import pathlib; p = pathlib.Path({str(target)!r}); p.parent.mkdir(parents=True, exist_ok=True); "
+            "p.write_text(\"<testsuite><testcase name='a'/><testcase name='b'/></testsuite>\")"
+        )
+        step = CommandStep(
+            "backend-fast", py(writer), prepare=tiers.clear_junit(tiers.BACKEND_JUNIT),
+            evaluate=tiers.evaluate_junit(tiers.BACKEND_JUNIT, "fake gradle"),
+        )
+        outcome = self.run_steps([step]).record["steps"][0]
+        self.assertEqual(outcome["result"], PASS)
+        self.assertEqual(outcome["counts"]["tests"], 2)
+        self.assertFalse(stale.exists())
+
+
+    def test_backend_fast_records_the_sequence_and_si_counts(self) -> None:
+        # state-machines-and-invariants.md §7: the backend-fast record adds pbt_sequences, si_spec_layer_holds and
+        # si_domain_not_built, read from this run's counts and SI status files (stale ones are deleted first).
+        stale = self.root / "backend" / "modules" / "adt" / "build" / "pbt-counts" / "propertyTest" / "old.json"
+        stale.parent.mkdir(parents=True)
+        stale.write_text(json.dumps({"name": "old", "sequences": 999}), encoding="utf-8")
+        writer = f"""
+            import json, pathlib
+            root = pathlib.Path({str(self.root)!r})
+            def put(rel, data):
+                p = root / rel; p.parent.mkdir(parents=True, exist_ok=True); p.write_text(data, encoding="utf-8")
+            put("backend/x/build/test-results/test/TEST-a.xml", "<testsuite><testcase name='a'/></testsuite>")
+            put("backend/modules/adt/build/pbt-counts/propertyTest/encounter.json", json.dumps({{"name": "encounter", "sequences": 1000, "steps": 9000, "result": "pass"}}))
+            put("tests/invariants/build/pbt-counts/propertyTest/SI-02.json", json.dumps({{"name": "SI-02", "sequences": 1000, "steps": 7000, "result": "pass"}}))
+            put("tests/invariants/build/si-status/SI-01.json", json.dumps({{"si": "SI-01", "spec_layer": "NONE", "domain_layer": "NOT-BUILT"}}))
+            put("tests/invariants/build/si-status/SI-02.json", json.dumps({{"si": "SI-02", "spec_layer": "HOLDS", "domain_layer": "NOT-BUILT"}}))
+        """
+        step = CommandStep(
+            "backend-fast", py(writer), prepare=tiers.clear_junit(tiers.BACKEND_JUNIT + tiers.PBT_COUNTS + tiers.SI_STATUS),
+            evaluate=tiers.with_backend_counts(tiers.evaluate_junit(tiers.BACKEND_JUNIT, "fake gradle")),
+        )
+        report = self.run_steps([step])
+        outcome = report.record["steps"][0]
+        self.assertEqual(outcome["result"], PASS)
+        self.assertFalse(stale.exists())
+        self.assertEqual({k: outcome["counts"][k] for k in ("tests", "pbt_runs", "pbt_sequences", "pbt_steps", "si_status_files",
+                                                            "si_spec_layer_holds", "si_domain_not_built")},
+                         {"tests": 1, "pbt_runs": 2, "pbt_sequences": 2000, "pbt_steps": 16000, "si_status_files": 2,
+                          "si_spec_layer_holds": 1, "si_domain_not_built": 2})
+        saved = json.loads(report.evidence_path.read_text(encoding="utf-8"))
+        self.assertEqual(saved["steps"][0]["counts"]["pbt_sequences"], 2000)
+
+    def test_si_domain_layer_runs_the_real_si_status(self) -> None:
+        repo = Path(__file__).resolve().parents[4]
+        step = CommandStep("si-domain-layer", [sys.executable, "-I", str(repo / "tools" / "hms.py"), "statemachines", "si-status",
+                                               "--require-domain", "--json"], check_json=True)
+        outcome = self.run_steps([step]).record["steps"][0]
+        self.assertEqual(outcome["counts"]["entries"], 21)
+        if outcome["counts"]["domain_not_built"]:
+            self.assertEqual(outcome["result"], FAIL)
+            self.assertIn(f"{outcome['counts']['domain_not_built']} SI domain layer(s) NOT-BUILT", outcome["message"])
+        else:
+            self.assertEqual(outcome["result"], PASS)
+
+
+class Wp05Evaluators(unittest.TestCase):
+    """The nightly steps of state-machines-and-invariants.md §7, evaluated on files written here (no build runs)."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        self.ctx = Context(root=self.root, run_dir=self.root / "logs", env={})
+        tiers.clear_junit(tiers.BACKEND_JUNIT + tiers.PBT_COUNTS + tiers.SI_STATUS)(self.ctx)
+
+    def put(self, rel: str, data: object) -> Path:
+        path = self.root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(data if isinstance(data, str) else json.dumps(data), encoding="utf-8")
+        return path
+
+    def counts_file(self, name: str, sequences: object = 1_000_000, result: str = "pass", where: str = "backend/modules/adt") -> Path:
+        return self.put(f"{where}/build/pbt-counts/propertyTest/{name}.json",
+                        {"name": name, "machine": name, "budget": sequences, "sequences": sequences, "steps": 10, "result": result})
+
+    def junit(self, failures: int = 0) -> None:
+        cases = "<testcase name='a'/>" + "<testcase name='b'><failure/></testcase>" * failures
+        self.put("backend/modules/adt/build/test-results/propertyTest/TEST-p.xml", f"<testsuite>{cases}</testsuite>")
+
+    def property_1e6(self, code: int = 0):  # noqa: ANN201
+        return tiers.evaluate_property_1e6(self.ctx, code, "", "")
+
+    def test_property_1e6_passes_and_records_each_count(self) -> None:
+        self.junit()
+        self.counts_file("encounter")
+        self.counts_file("SI-02", where="tests/invariants")
+        outcome = self.property_1e6()
+        self.assertEqual(outcome.result, PASS, outcome.message)
+        self.assertEqual((outcome.counts["pbt_runs"], outcome.counts["pbt_sequences"]), (2, 2_000_000))
+        self.assertEqual(sorted((r["name"], r["sequences"], r["file"]) for r in outcome.counts["pbt_sequences_per_test"]),
+                         [("SI-02", 1_000_000, "tests/invariants/build/pbt-counts/propertyTest/SI-02.json"),
+                          ("encounter", 1_000_000, "backend/modules/adt/build/pbt-counts/propertyTest/encounter.json")])
+        self.assertIn("These are specification-layer models and SI properties", outcome.message)
+        self.assertIn("KA-062", outcome.message)
+
+    def test_property_1e6_fails_closed(self) -> None:
+        for arrange, code, fragment in (
+            (lambda: self.counts_file("bed", sequences=1000), 0, "1 run(s) below 1,000,000 sequences: bed (1000)"),
+            (lambda: self.counts_file("bed", sequences="many"), 0, "below 1,000,000 sequences: bed (many)"),
+            (lambda: self.counts_file("bed", result="fail"), 0, "1 run(s) did not pass: bed"),
+            (lambda: None, 0, "no sequence counts file (build/pbt-counts) written by this run"),
+            (lambda: self.put("backend/b/build/pbt-counts/propertyTest/x.json", "{"), 0, "1 counts file(s) cannot be read"),
+            (lambda: self.counts_file("bed"), 1, "exited with code 1"),
+        ):
+            with self.subTest(fragment=fragment):
+                tiers.clear_junit(tiers.BACKEND_JUNIT + tiers.PBT_COUNTS)(self.ctx)
+                self.junit()
+                arrange()
+                outcome = self.property_1e6(code)
+                self.assertEqual(outcome.result, FAIL)
+                self.assertIn(fragment, outcome.message)
+                self.assertIn("specification-layer models", outcome.message)
+        tiers.clear_junit(tiers.BACKEND_JUNIT + tiers.PBT_COUNTS)(self.ctx)
+        self.counts_file("bed")
+        self.junit(failures=1)
+        self.assertIn("JUnit XML reports failures", self.property_1e6().message)
+
+    def test_stale_counts_are_ignored(self) -> None:
+        self.junit()
+        old = self.counts_file("old")
+        os.utime(old, (time.time() - 3600, time.time() - 3600))
+        outcome = self.property_1e6()
+        self.assertEqual(outcome.result, FAIL)
+        self.assertEqual(outcome.counts["pbt_counts_stale_ignored"], 1)
+        self.assertIn("no sequence counts file", outcome.message)
+
+    def matrix(self, results: list[str], result: str | None = None, mock_kb: tuple[str, ...] = ()) -> None:
+        suites = [{"id": f"SCN-SYN-{n}", "result": r, "mock_kb": f"SCN-SYN-{n}" in mock_kb} for n, r in enumerate(results, start=1)]
+        overall = result or ("PASS" if all(r == "PASS" for r in results) else "FAIL")
+        self.put(tiers.PASS_MATRIX, {"result": overall, "counts": {"suites": len(suites),
+                                                                   "suites_not_built": results.count("NOT-BUILT")}, "suites": suites})
+
+    def test_scenario_suites_fail_while_any_suite_is_not_built(self) -> None:
+        self.matrix(["NOT-BUILT"] * 10)
+        outcome = tiers.evaluate_scenario_suites(self.ctx, 1, "", "")
+        self.assertEqual(outcome.result, FAIL)
+        self.assertIn("scenarioSuites exited with code 1", outcome.message)
+        self.assertIn("10 suite(s) NOT-BUILT (no domain binding yet; KA-064): SCN-SYN-1, SCN-SYN-2", outcome.message)
+        self.assertEqual((outcome.counts["suites"], outcome.counts["suites_not_built"], outcome.counts["suites_listed"]), (10, 10, 10))
+
+    def test_scenario_suites_pass_only_when_every_suite_passes(self) -> None:
+        self.matrix(["PASS", "PASS"], mock_kb=("SCN-SYN-1",))
+        outcome = tiers.evaluate_scenario_suites(self.ctx, 0, "", "")
+        self.assertEqual(outcome.result, PASS, outcome.message)
+        self.assertIn("Mock-KB run, not clinical evidence: SCN-SYN-1", outcome.message)
+        for results, result, code, fragment in (
+            (["PASS", "FAIL"], None, 0, "1 suite(s) failing: SCN-SYN-2"),
+            (["PASS", "NOT-BUILT"], None, 0, "1 suite(s) NOT-BUILT"),
+            (["PASS"], "PASS", 1, "scenarioSuites exited with code 1"),
+            (["PASS"], "FAIL", 0, "the matrix says 'FAIL'"),
+            ([], "PASS", 0, "the matrix lists no suite"),
+            (["SKIPPED"], None, 0, "suites with an unknown result: SKIPPED"),
+        ):
+            with self.subTest(fragment=fragment):
+                self.matrix(results, result)
+                outcome = tiers.evaluate_scenario_suites(self.ctx, code, "", "")
+                self.assertEqual(outcome.result, FAIL)
+                self.assertIn(fragment, outcome.message)
+
+    def test_scenario_suites_need_a_matrix_from_this_run(self) -> None:
+        self.assertIn("no pass matrix written by this run", tiers.evaluate_scenario_suites(self.ctx, 1, "", "").message)
+        self.matrix(["PASS"])
+        path = self.root / tiers.PASS_MATRIX
+        os.utime(path, (time.time() - 3600, time.time() - 3600))
+        self.assertIn("no pass matrix written by this run", tiers.evaluate_scenario_suites(self.ctx, 0, "", "").message)
+        path.write_text("{", encoding="utf-8")
+        self.assertIn("cannot be read", tiers.evaluate_scenario_suites(self.ctx, 0, "", "").message)
+
+    def test_the_scenario_step_clears_the_old_matrix(self) -> None:
+        self.matrix(["PASS"])
+        step = {s.name: s for s in tiers.nightly_built()}["scenario-suites"]
+        step.prepare(self.ctx)
+        self.assertFalse((self.root / tiers.PASS_MATRIX).exists())
+
 
 class UnittestStep(Fixture):
     def test_zero_tests_fail(self) -> None:
@@ -381,8 +566,8 @@ class Tiers(unittest.TestCase):
 
     def test_fast_tier_steps_in_order(self) -> None:
         names = [s.name for s in tiers.tier_steps("fast", self.ROOT)]
-        self.assertEqual(names, ["doctor-fast", "repo-check", "python-unit-tests", "safety-check", "backlog-check",
-                                 "backend-fast", "frontend-fast", "secret-scan"])
+        self.assertEqual(names, ["doctor-fast", "repo-check", "python-unit-tests", "safety-check", "state-machines-check",
+                                 "backlog-check", "backend-fast", "frontend-fast", "secret-scan"])
         self.assertFalse(any(isinstance(s, NotBuiltStep) for s in tiers.tier_steps("fast", self.ROOT)))
 
     def test_fast_commands_match_the_contract(self) -> None:
@@ -393,22 +578,46 @@ class Tiers(unittest.TestCase):
         self.assertEqual(steps["frontend-fast"].cwd, "frontend")
         self.assertEqual(steps["python-unit-tests"].argv[1:],
                          ["-I", "-m", "unittest", "discover", "-s", "tools", "-t", "tools", "-p", "test_*.py"])
-        for name in ["doctor-fast", "repo-check", "safety-check", "backlog-check"]:
+        self.assertEqual(steps["state-machines-check"].argv, ["sh", "tools/hms", "statemachines", "check", "--json"])
+        for name in ["doctor-fast", "repo-check", "safety-check", "state-machines-check", "backlog-check"]:
             self.assertIn("--json", steps[name].argv)
             self.assertTrue(steps[name].check_json)
 
     def test_other_tiers_start_with_fast_and_fail_closed(self) -> None:
         fast = [s.name for s in tiers.tier_steps("fast", self.ROOT)]
+        built_nightly = {"property-1e6", "si-domain-layer", "scenario-suites"}  # WP-0.5, spec §7
         for tier in ["merge", "nightly", "release"]:
             steps = tiers.tier_steps(tier, self.ROOT)
             self.assertEqual([s.name for s in steps[: len(fast)]], fast)
             later = steps[len(fast):]
             self.assertTrue(later)
             for step in later:
+                if tier == "nightly" and step.name in built_nightly:
+                    self.assertIsInstance(step, CommandStep)
+                    continue
                 self.assertIsInstance(step, NotBuiltStep)
-                self.assertRegex(step.work_package, r"^WP-\d+\.\d+[a-z]?\b")
+                if step.name == "property-channels":
+                    self.assertEqual(step.work_package, "each channel adapter's work package (UI command layer, API, mobile sync, "
+                                                        "HL7 inbound, migration loader, plugin effects)")
+                else:
+                    self.assertRegex(step.work_package, r"^WP-\d+\.\d+[a-z]?\b")
             names = [s.name for s in steps]
             self.assertEqual(len(names), len(set(names)), tier)
+
+    def test_nightly_wp05_steps_in_section_19_1_order(self) -> None:
+        fast = len(tiers.tier_steps("fast", self.ROOT))
+        steps = tiers.tier_steps("nightly", self.ROOT)[fast:]
+        self.assertEqual([s.name for s in steps][:5], ["cell-check", "property-1e6", "si-domain-layer", "property-channels", "scenario-suites"])
+        by_name = {s.name: s for s in steps}
+        self.assertEqual(by_name["property-1e6"].argv, ["sh", "backend/gradlew", "-p", "backend", "propertyTest",
+                                                        "-Phms.pbt.sequences=1000000", "--no-build-cache", "--console=plain"])
+        self.assertGreaterEqual(by_name["property-1e6"].timeout, 4 * 3600)
+        self.assertEqual(by_name["si-domain-layer"].argv, ["sh", "tools/hms", "statemachines", "si-status", "--require-domain", "--json"])
+        self.assertTrue(by_name["si-domain-layer"].check_json)
+        self.assertEqual(by_name["scenario-suites"].argv, ["sh", "backend/gradlew", "-p", "backend", ":tests:scenarios:scenarioSuites",
+                                                           "--console=plain"])
+        self.assertNotIn("WP-0.5", {s.work_package for s in steps if isinstance(s, NotBuiltStep)})  # the replaced rows are gone
+        self.assertEqual(tiers.PASS_MATRIX, "tests/scenarios/build/reports/scenarios/pass-matrix.json")
 
     def test_section_19_1_contents_are_listed(self) -> None:
         merge = {s.name for s in tiers.tier_steps("merge", self.ROOT)}
@@ -417,7 +626,7 @@ class Tiers(unittest.TestCase):
                      "container-scan", "sbom", "coverage-gates", "mutation-tests"]:
             self.assertIn(name, merge)
         nightly = {s.name for s in tiers.tier_steps("nightly", self.ROOT)}
-        for name in ["property-1e6", "property-channels", "scenario-suites", "e2e-full", "golden-image-print",
+        for name in ["property-1e6", "si-domain-layer", "property-channels", "scenario-suites", "e2e-full", "golden-image-print",
                      "scaled-day-dev-cell", "day-300-bed", "day-1000-bed", "chaos", "restore-test", "parser-fuzzing"]:
             self.assertIn(name, nightly)
         release = {s.name for s in tiers.tier_steps("release", self.ROOT)}

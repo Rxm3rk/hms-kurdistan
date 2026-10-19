@@ -300,3 +300,44 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. **Keep the interim reading (default):** every interruptive rule needs a measured PPV, and each baseline rule that is to interrupt from day 0 needs an explicit exception that the CSO approves in a sign-off record. WP-1.5 builds the exception record and the promotion block.
   2. **Accept the PPV measured in the vendor's validation** of the baseline as "a measured PPV" until local telemetry measures one, recorded per rule in the registry with its source. A baseline rule with that evidence then needs no exception.
   3. **Another reading** that the CSO states; WP-1.5 builds the gate to it, and HAZ-0014's controls are changed to match.
+
+## DN-050: WP-0.5 starts before WP-0.3 is merged (approved deviation)
+
+- **Status:** closed (2026-10-19): approved by the human lead.
+- **Resolution:** asked in chat by the build agent and answered by the human lead (Ahmad) on 2026-10-19:
+  1. Question: "The build plan says later packages wait until the server environment is finished. Several of them don't need the cluster at all: the core libraries (IDs, clocks, money, units), the clinical state machines (orders, encounters, medication rounds), and document/label printing templates. Can I start those now, recorded as an approved deviation?" Answer: "Yes, start the cluster-free parts (Recommended)" (option text: "Work on 3 to 4 packages at once instead of 2. Anything that needs the cluster still waits; tests and safety gates are not skipped.").
+  2. Question: "Can I lighten the review on low-risk pieces (build tooling, docs, scaffolding) while keeping full review on anything patient-safety related?" Answer: "Lighter on low-risk only (Recommended)" (option text: "One review pass instead of several on tooling and scaffolding; patient-safety code (banner, dosing, identity, sign-off) keeps full review.").
+  3. Use of additional subscription accounts for parallel agents: "Yes, use all three".
+- **What it changes:** a deviation from §21's "Depends on" order (WP-0.5 depends on WP-0.3) and from the entry criteria in `docs/program/work-packages/WP-0.5.md` ("Not met yet: waits on WP-0.3, which waits on WP-0.2. The YAML specifications do not start early"), approved by the human lead. The scope is limited to what needs no cluster: the machine specifications, the generator, the generated models and their property tests, the SI scaffold and the scenario-suite framework. What still waits: every test that needs PostgreSQL, Kafka, Temporal or any container (WP-0.5 writes none), the application-command layer and the channel adapters of §18.3, and every gate of record (the lead runs them in the WSL clone). The branch `wp/0.5-state-machines` is stacked on `wp/0.1-programme-bootstrap` at `09afa41` and merges `wp/0.2-environments` and `wp/0.3-platform-kernel` (with `--no-ff`) when they are ready; until then the predicates use `java.time` types instead of the WP-0.3 kernel types (KA-061).
+- **Review policy (decision 2):** the machine specifications, their predicates and the SI scaffold get at least two independent review lenses (correctness, and clinical safety against §8.4, R11 §10 and A.20), with every major finding fixed before commit; the generator plumbing, the CI wiring and the scenario-suite framework get one independent pass. The reports go to `docs/program/reviews/WP-0.5.md`.
+- **ID ranges:** WP-0.5 uses DN-050…DN-064, OQ-200…OQ-229, KA-060…KA-074, HAZ-0040…HAZ-0044 and ADR-035…ADR-037 only (DN-061 explains why no ADR is written on this branch yet).
+- **Who decided:** the human lead.
+
+## DN-059: Additions to the Appendix B.3 state-machine format
+
+- **Status:** open
+- **Blocks:** later (the approval of each machine reads its file in this format)
+- **Default in use:** the shared schema `docs/specs/state-machines/state-machine.schema.json` accepts the B.3 keys plus six optional ones: a per-transition `proposed: true` flag (a transition that shares its edge with a drawn one, such as a payer's denial on the edge of a drawn approval, can still be put to the panel as proposed), `initial` (the state an instance starts in; default the first state), `created_by` (the "(start)" commands of §8.4), `effects` (named obligations, such as §8.4's "appends a location-history period" or "every change emits ADT^A20", so that a property test can check them), `hazards` and `sources` (traceability). Every key is read as written (the YAML 1.1 trap that turns `on` into `true`). The patient-context spec of `wp/0.7-design-system` validates against the schema unchanged. Rules the B.3 template leaves open are fixed in `docs/specs/modules/state-machines-and-invariants.md` §1.2: `"*"` means every state except the target, alternatives on one command must have mutually exclusive guards, and a transition out of a terminal state needs `privilegedAndAudited`.
+- **Who decides:** the human lead (the format); the approving panels see the result in each machine.
+- **Context:** §8.4 has a "Guard / effect" column and "(start)" rows that B.3 has no key for. Without `effects`, those obligations could live only in comments, which no test can check.
+- **Options:**
+  1. **Keep the additions (default).**
+  2. Remove them and keep effects and start commands in comments only (the patient-context style); the effect properties of the generated models then disappear.
+
+## DN-060: The T3 harness's `t3/*` branches failed `repo check` on the Windows host
+
+- **Status:** closed (2026-10-19): resolved by the human lead, who deleted the `t3/*` branches at about 08:05 Asia/Baghdad; `sh tools/hms repo check` passes again.
+- **Blocks:** nothing since it closed; until then, every Windows-host fast-tier run of every parallel stream failed at `repo-check` (not the gate of record).
+- **Who decided:** the human lead.
+- **Context:** `sh tools/hms repo check` rule (d) checks every local and remote-tracking branch against §3.6 (`main`, `wp/<n.m>-<slug>`, `release/<version>`, `hotfix/<slug>`). The T3 Code harness created a `t3/<slug>` helper branch for each parallel worktree, and the worktrees share one repository, so every stream's checkout saw them (`t3/state-machines-invariants`, `t3/wp-0-3-platform-kernel`, `t3/wp08-documents-printing` in WP-0.5's baseline run at `09afa41` on 2026-10-19). WP-0.5 renamed and deleted no branch and did not change the check.
+
+## DN-061: ADR numbers on a stacked branch
+
+- **Status:** open
+- **Blocks:** later (writing ADR-035 and ADR-036)
+- **Default in use:** WP-0.5 writes no ADR. Its engineering choices [P] are open questions OQ-201 (executable specifications with committed generated models, and predicate packages created ahead of their modules) and OQ-202 (cross-module test projects under `tests/` in the backend build). They become ADR-035 and ADR-036 once ADR-029 to ADR-034 exist on the branch (after the merges of DN-050), unless the lead decides otherwise. DN-020 on `wp/0.7-design-system` takes the same approach.
+- **Who decides:** the human lead.
+- **Context:** `sh tools/hms repo check` rule (b) requires ADR numbers without a gap from ADR-001. This branch has ADR-001 to ADR-028; ADR-029 and later are reserved for, or written on, other branches.
+- **Options:**
+  1. **Open questions now, ADRs at merge (default).**
+  2. Write ADR-035 and ADR-036 now and relax the gap rule for reserved ranges (a change to a WP-0.1 check).

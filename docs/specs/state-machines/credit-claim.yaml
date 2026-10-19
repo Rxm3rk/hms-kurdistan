@@ -1,0 +1,433 @@
+# The Kurdistan credit claim with its pre-approval, one instance per credited episode (BUILD-PROMPT
+# §8.4 "Credit claim and pre-approval (approval: RCM lead + Kurdistan pack PM): §9.23"; §9.23
+# "Credit-claim states: Intimation → PreApprovalRequested → Query ⇄ QueryResponse (repeatable, clock
+# paused) → PreApprovalApproved → EnhancementRequested → EnhancementApproved (repeatable) →
+# DischargeAuthRequested → FinalApproved → ClaimDocsSubmitted → Settled / PartiallySettled / Denied →
+# Reconciliation / Appeal"; R11 §10.8; R13 §3.8; K §12.1). Template: BUILD-PROMPT Appendix B.3.
+# Explanation: docs/specs/state-machines/credit-claim.md. Approval request and every reading below:
+# DN-058. Hazards: HAZ-0012 (SI-12), HAZ-0003 (SI-03), HAZ-0020 (SI-20).
+#
+# SI-12 ("Bill clearance, deposits and pre-authorisation never block discharge or emergency care";
+# §9.23 "a pre-approval never blocks discharge or emergency care"; §5.2 "rcm is a downstream
+# conformist ... no RCM state can block an ADT, order or MAR command"). This machine has no transition
+# and no effect that gates, delays, refuses or changes a clinical command or a clinical aggregate:
+# - every effect targets rcm itself (its ledger, splits and KPIs), platform-tasks (SLA timers and
+#   owned queues of the corporate/insurer desk) or hub (document packs to the payer); none targets adt,
+#   orders, medications, results, record, ed or any other clinical module, and none places a task in a
+#   clinician's queue (§9.23 "escalation goes to the corporate/insurer desk, never to clinicians");
+# - clinical facts are read only as inputs to the claim. RequestDischargeAuth is guarded by
+#   clinicalDischargeRecorded (adt's answer), so the discharge-authorisation request follows the
+#   clinical discharge and can never become a step the discharge waits for (DN-058 item 3). A clinical
+#   command never reads this machine's state, and an emergency admission proceeds whatever this
+#   machine's state, including no claim at all. No liability effect raises a patient-facing demand or a
+#   clinician-facing check during the stay (credit-claim.md).
+# The machine-level property test (phase 2) checks the first point against a reviewed effect→module
+# map; the boundary itself (no synchronous call from kernel, adt or orders into rcm) is ArchUnit's
+# (CTRL-0012-3), not this file's.
+#
+# SI-20: a document pack never leaves the cell as a cleartext attachment: the payer receives a
+# single-use, authenticated link served from the cell, or an encrypted pack whose key travels out of
+# band; message bodies carry no clinical content (DN-058 item 9).
+# SI-03: the corporate/insurer desk owns the claim from intimation (RecordIntimation's handler opens an
+# owned work item; the format has no creation effects), every request runs an SLA clock that
+# escalates to the desk, every query and every next step after a decision opens an owned desk task,
+# and reconciliation is an owned task.
+# Money: amounts are facts (an amount with its ISO 4217 currency). Predicates compare amounts only
+# exactly (equal, less than, greater than, in the same currency); an amount in another currency never
+# compares equal or less, and there is no currency conversion and no money arithmetic in any
+# predicate. Splits, deductions, totals and balances are computed by rcm's contract engine and ledger,
+# which own those answers.
+# SLA clocks: the request states start a payer-turnaround clock; entering query pauses it and leaving
+# query resumes it (an answer) or stops it (a payer decision or a withdrawal). Calendar maths (the
+# Friday–Saturday weekend and tenant holidays, §11.7) belongs to the SLA timer service in
+# platform-tasks, never to this machine.
+# Query stage: one fact, the current query's stage: the open query's stage when a query is open,
+# otherwise the stage of the most recently answered query (none when there was no query). The stage of
+# a query is the stage of the request it answers: the pre-approval, an enhancement, the discharge
+# authorisation or the submitted claim. The four queryOn… predicates partition that one value.
+# The generic claim machine of §9.23 ("draft → scrubbed → submitted → acknowledged → adjudicated →
+# appealed or resubmitted → closed ... sits underneath") is a later specification (credit-claim.md).
+machine: credit-claim
+version: 1
+owner: rcm
+approval: {status: requested, required: [rcm-lead, kurdistan-pack-pm], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states:
+  - intimation
+  - pre-approval-requested
+  - query
+  - query-response
+  - pre-approval-approved
+  - pre-approval-denied
+  - enhancement-requested
+  - enhancement-approved
+  - discharge-auth-requested
+  - final-approved
+  - claim-docs-submitted
+  - settled
+  - partially-settled
+  - denied
+  - reconciliation
+  - appeal
+  - closed
+  - withdrawn
+terminal: [closed, withdrawn]
+initial: intimation
+# Intimation: the corporate/insurer desk records that a patient with credit cover (an insurer, a
+# corporate or an NGO contract, with its captured eligibility letter) has presented or is planned
+# (§9.23; R13 §3.8 "Intimation"). An emergency admission is intimated after the fact; nothing clinical
+# waits for it. The handler opens an owned desk work item with an SLA (SI-03).
+created_by: [RecordIntimation]
+predicates:   # each implemented once in the rcm domain package and unit-tested
+  coverageActive: "the episode's coverage under the credit contract is captured and valid on the episode's start date (the admission or visit date, a fact of the episode): the contract is active on that date, an eligibility letter is captured (§9.23 'eligibility letters (captured, since there is no eligibility rail)'), and the date is on or after the letter's valid-from date and on or before its valid-to date"
+  preApprovalRequestComplete: "the pre-approval request holds what §9.23 names for PreApprovalRequested: a diagnosis coded in WHO ICD-10 whose code the terminology module reports valid for the episode's start date (terminology's answer; no code is checked here from a list), a proposed procedure (a local procedure code of the order catalogue, §9.24), a written estimate with an amount and currency, the requested room category, and every document the payer's governed checklist marks mandatory for pre-approval attached [HUMAN: checklist content]"
+  payerQueryRecorded: "the payer's query is recorded with its payer reference, its received instant and at least one query item (a question or a requested document)"
+  queryResponseComplete: "the open query has at least one item, and every item has an answer text or an attached document, recorded by an authenticated corporate/insurer desk user"
+  queryOnPreApproval: "the current query's stage (header) is the pre-approval"
+  queryOnEnhancement: "the current query's stage is an enhancement"
+  queryOnDischargeAuth: "the current query's stage is the discharge authorisation"
+  queryOnClaim: "the current query's stage is the submitted claim"
+  queryNotOnClaim: "the exact complement of queryOnClaim"
+  approvalTermsRecorded: "the payer's approval is recorded with its payer reference and the terms §9.23 names for PreApprovalApproved: the approved amount (amount and currency), the room-rent cap, the co-pay and the sub-limits, each recorded with a value or explicitly as 'none', the validity dates (valid-from on or before valid-to), and the approved services (at least one) with their approved units (each a positive integer). An approved amount below the amount requested is a partial approval and is recorded the same way (R11 §10.8 'partially approved')"
+  enhancementRequestComplete: "the enhancement request holds a revised estimate in the same currency as the current approved amount and strictly greater than it (an exact comparison; another currency fails), the reason for the enhancement, and every document the payer's checklist marks mandatory for enhancement attached"
+  enhancementApprovedBefore: "at least one enhancement of this claim has been approved, so the current approval is an enhancement approval"
+  noEnhancementApprovedBefore: "the exact complement of enhancementApprovedBefore"
+  clinicalDischargeRecorded: "the episode's encounter is in discharged-not-closed or finished (adt's answer, received as an event fact; encounter.yaml). A death, a transfer out and a discharge against medical advice are discharges in adt and count. Cancelled and entered-in-error encounters do not (DN-058 item 3)"
+  dischargeAuthRequestComplete: "the discharge-authorisation request holds what §9.23 names for DischargeAuthRequested: the final bill (its reference), the discharge summary (a reference to the signed document; the record module's answer), every investigation result of the episode referenced or recorded as none, and the pharmacy returns processed or recorded as none; and every document the payer's checklist marks mandatory for discharge authorisation attached"
+  everyLineWithinPreApprovalOrFlagged: "every line of the claim being built is within its pre-approval, or carries a flagged exception (§9.23 acceptance 'a claim cannot be built for a line outside its pre-approval without a flagged exception'; 'checked again at claim build'). A line is within the pre-approval when its service code is among the approved services, its service date is on or after the approval's valid-from and on or before its valid-to date, and the units claimed for that service code, counted over all lines of the claim (integer units, never money), do not exceed the approved units. A flagged exception names the line, a governed exception-reason code chosen by the user (never defaulted) and the authenticated desk user who flagged it"
+  finalApprovalTermsRecorded: "the payer's final approval is recorded with its payer reference and the terms §9.23 names for FinalApproved: the payer-payable amount, every deduction with its deduction-reason code from the governed list, and the patient-payable amount, all in the claim's currency"
+  claimPackComplete: "the claim document pack holds the final-approval reference and every document the payer's checklist marks mandatory for claim submission (PDF plus a structured summary; FHIR Claim only where the insurer accepts it, §9.23)"
+  settlementRecorded: "the payer's remittance is recorded with its payment reference, its value date, and the total amount settled for this claim with its currency (the total is rcm's ledger answer over the claim's remittances)"
+  settledInFull: "the total settled is in the same currency as the settlement reference amount and is not less than it (an exact comparison; a surplus is handled in reconciliation). The reference amount is the final-approved payer-payable amount when a final approval exists; otherwise the amount appealed, recorded with the appeal; otherwise the amount requested in the discharge authorisation. A claim with none of the three has no reference amount and is never settled in full"
+  settledShort: "the exact complement of settledInFull"
+  deductionReasonsRecorded: "at least one deduction is recorded for this settlement, and every deduction the payer made on it carries a deduction-reason code from the governed list (§9.23 'deduction-reason codes'); a payer that gave no reason is recorded with the governed code for 'no reason given'; and when the settlement's currency differs from the reference amount's, the governed reason 'settled in another currency (reconcile the exchange difference)' is among them, so the difference goes to reconciliation, not to an appeal. Every code is chosen by the user, never defaulted"
+  denialReasonsRecorded: "the payer's denial is recorded with its payer reference and at least one reason, each with a denial-reason code from the governed list and a root-cause category of §9.23 (eligibility, authorisation, coding, medical necessity, timely filing, duplicate, bundling, clinical validation), chosen by the user, never defaulted"
+  appealGroundsRecorded: "the appeal holds its grounds (from an appeal template, §9.23 'appeal templates'), the lines or deductions appealed, the amount appealed with its currency, and the supporting documents"
+  appealWithinDeadline: "the contract records no appeal deadline, or now is strictly before the appeal deadline the contract sets for this claim (contract configuration [HUMAN])"
+  reconciliationComplete: "every line of the claim has a final disposition posted in the ledger (paid by the payer, transferred to the patient or to another coverage, or written off by an approved adjustment, §9.21) and the claim's payer-bucket balance equals zero in the claim's currency (an exact comparison)"
+  withdrawalReasonRecorded: "the command carries a withdrawal reason that the desk user chose (never defaulted), a code of the governed list (for example: the patient chose to pay, the pre-approval was denied, the coverage is not valid, the wrong payer, the claim was recorded in error)"
+  privilegedAndAudited: "the user holds the privilege for this correction (a Trust Plane answer) and the action is audited: the audit record can be written with it (an audit outage refuses the command; it never runs unaudited)"
+  correctionReasonEntered: "the command carries a correction reason that the user entered (never prefilled or defaulted)"
+effects:
+  startSlaClock: "a payer-turnaround SLA timer starts for the request just sent (platform-tasks; calendar-aware with the tenant calendar, §11.7; duration from the contract [HUMAN]); its escalation chain targets the corporate/insurer desk queue, never a clinician (§9.23)"
+  pauseSlaClock: "the running SLA timer of the request is paused while the payer's query is open (§9.23 'SLA timers pause while a payer query is open')"
+  resumeSlaClock: "the paused SLA timer resumes when the query is answered, keeping the time already used (§9.23 acceptance 'pauses and resumes its SLA clock correctly across weekends and holidays')"
+  stopSlaClock: "any SLA timer of the request, running or paused, stops (a payer decision or a withdrawal)"
+  sendDocumentPack: "the document pack for this step (PDF plus a structured summary; FHIR Claim only where the insurer accepts it) is made available to the payer through hub (§9.23 'sent by email or portal') without usable PHI leaving the cell in cleartext (SI-20; DN-058 item 9): either a single-use, authenticated link served from the cell (the §9.30 report-release pattern: OTP to the payer's registered contact, valid at most 72 h, audited) or a pack encrypted under a hospital-held key whose key travels out of band; never a cleartext attachment. The message body carries only the payer reference and the link, no clinical content"
+  recordPackCompleteness: "whether the pack was complete at first submission is recorded for the ≥95% KPI (§9.23 'Pack completeness at first submission is tracked'; K §12.1); it is measured, never used as a gate here"
+  assignQueryToDesk: "an owned task with an SLA is created in the corporate/insurer desk queue to answer the payer's query (SI-03 clause b; CTRL-0003-4); never in a clinician's queue"
+  openNextStepTask: "an owned task with an SLA in the corporate/insurer desk queue for this claim's next step, replacing its previous next-step task (SI-03 clause b): after a pre-approval or enhancement approval, the enhancement or the discharge-authorisation request once adt reports the discharge; after a pre-approval denial, a new request or the withdrawal; after the final approval, the claim submission before the payer's filing limit; after a settlement or a denial, reconciliation or an appeal. Never in a clinician's queue"
+  refreshPayerPatientSplit: "rcm's contract engine recomputes the per-line payer / patient / non-payable split of the running bill from the approved terms (§9.23 'per-line payer / patient / non-payable splits'), as ledger entries in rcm only; it raises no patient-facing demand and no clinician-facing check"
+  routeToDenialQueue: "the denial goes to the RCM-DEN-01 root-cause queue for its category, an owned queue of the corporate/insurer desk with an SLA timer (§9.23 'Denials')"
+  postRemittance: "the remittance is posted to rcm's append-only ledger against the claim's lines, with its deductions (§9.20 'append-only double-entry ledger')"
+  openReconciliationTask: "an owned reconciliation task with an SLA is created in the corporate/insurer desk queue (SI-03 clause b)"
+  releasePayerLiability: "lines held in this payer's bucket move, as an explicit liability transfer in rcm's ledger (§9.20), to the next coverage in priority order or to the patient bucket; nothing clinical changes, and no deposit top-up or payment demand is raised to the patient during the stay because of it"
+  notifyPayerOfWithdrawal: "the payer is told through hub that the intimation or request is withdrawn; the message carries only the payer reference, no clinical content (SI-20)"
+  emitClaimSubmitted: "a ClaimSubmitted event (§8.5) is journaled in rcm's outbox"
+  emitClaimAdjudicated: "a ClaimAdjudicated event (§8.5) is journaled in rcm's outbox with the outcome (settled, partially settled or denied) of a submitted claim"
+transitions:
+  # ---- Pre-approval (§9.23 Intimation → PreApprovalRequested → PreApprovalApproved; R11 §10.8
+  # pre-authorisation requested → approved / denied).
+  - from: intimation
+    on: RequestPreApproval
+    guard: [coverageActive, preApprovalRequestComplete]
+    effects: [sendDocumentPack, recordPackCompleteness, startSlaClock]
+    to: pre-approval-requested
+    description: "§9.23 Intimation → PreApprovalRequested"
+  - from: pre-approval-requested
+    on: RecordPreApproval
+    guard: [approvalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: pre-approval-approved
+    description: "R11 §10.8 requested → approved (R13 §3.8 marks the query loop optional); a partial approval is an approval with a lower amount"
+  - from: pre-approval-requested
+    on: RecordDenial
+    guard: [denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: pre-approval-denied
+    description: "R11 §10.8 pre-authorisation 'denied'; §9.23 draws no denial of the pre-approval. Proposed"
+  - from: pre-approval-denied
+    on: RequestPreApproval
+    guard: [coverageActive, preApprovalRequestComplete]
+    effects: [sendDocumentPack, recordPackCompleteness, startSlaClock]
+    to: pre-approval-requested
+    description: "A denied pre-approval is requested again with more documents. Proposed"
+  # ---- Queries (§9.23 'Query ⇄ QueryResponse (repeatable, clock paused)'; R11 §10.8 'pended').
+  # One pair of query states serves every stage (DN-058 item 2: §9.23's loop read as stage-generic).
+  - from: [pre-approval-requested, query-response]
+    on: RaiseQuery
+    guard: [payerQueryRecorded]
+    effects: [pauseSlaClock, assignQueryToDesk]
+    to: query
+    description: "§9.23 PreApprovalRequested → Query and QueryResponse → Query (repeatable)"
+  - from: [enhancement-requested, discharge-auth-requested, claim-docs-submitted]
+    on: RaiseQuery
+    guard: [payerQueryRecorded]
+    effects: [pauseSlaClock, assignQueryToDesk]
+    to: query
+    description: "A query on an enhancement, a discharge authorisation or a submitted claim. Proposed"
+  - from: query
+    on: RespondToQuery
+    guard: [queryResponseComplete]
+    effects: [resumeSlaClock, sendDocumentPack]
+    to: query-response
+    description: "§9.23 Query → QueryResponse"
+  - from: query-response
+    on: RecordPreApproval
+    guard: [queryOnPreApproval, approvalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: pre-approval-approved
+    description: "§9.23 QueryResponse → PreApprovalApproved"
+  - from: query
+    on: RecordPreApproval
+    guard: [queryOnPreApproval, approvalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: pre-approval-approved
+    description: "The payer approves without waiting for the answer to its query. Proposed"
+  - from: [query, query-response]
+    on: RecordDenial
+    guard: [queryOnPreApproval, denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: pre-approval-denied
+    description: "The payer denies the pre-approval after or during its query (for example for no response). Proposed"
+  # ---- Enhancement (§9.23 'EnhancementRequested → EnhancementApproved (repeatable)'). A denied
+  # enhancement leaves the last approval in force: back to pre-approval-approved when no enhancement
+  # was approved before, otherwise to enhancement-approved (exact complements).
+  - from: [pre-approval-approved, enhancement-approved]
+    on: RequestEnhancement
+    guard: [enhancementRequestComplete]
+    effects: [sendDocumentPack, startSlaClock]
+    to: enhancement-requested
+    description: "§9.23 PreApprovalApproved → EnhancementRequested, and EnhancementApproved → EnhancementRequested (repeatable)"
+  - from: enhancement-requested
+    on: RecordEnhancementApproval
+    guard: [approvalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: enhancement-approved
+    description: "§9.23 EnhancementRequested → EnhancementApproved"
+  - from: [query, query-response]
+    on: RecordEnhancementApproval
+    guard: [queryOnEnhancement, approvalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: enhancement-approved
+    description: "Enhancement approved after or during a query. Proposed"
+  - from: enhancement-requested
+    on: RecordDenial
+    guard: [denialReasonsRecorded, noEnhancementApprovedBefore]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: pre-approval-approved
+    description: "Enhancement denied: the pre-approval stays in force. Proposed"
+  - from: enhancement-requested
+    on: RecordDenial
+    guard: [denialReasonsRecorded, enhancementApprovedBefore]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: enhancement-approved
+    proposed: true
+    description: "Enhancement denied: the last approved enhancement stays in force. Proposed (it shares the drawn EnhancementRequested → EnhancementApproved edge)"
+  - from: [query, query-response]
+    on: RecordDenial
+    guard: [queryOnEnhancement, denialReasonsRecorded, noEnhancementApprovedBefore]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: pre-approval-approved
+    proposed: true
+    description: "Enhancement denied after or during a query; the pre-approval stays in force. Proposed (query-response → pre-approval-approved is drawn for the pre-approval answer)"
+  - from: [query, query-response]
+    on: RecordDenial
+    guard: [queryOnEnhancement, denialReasonsRecorded, enhancementApprovedBefore]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: enhancement-approved
+    description: "Enhancement denied after or during a query; the last approved enhancement stays in force. Proposed"
+  # ---- Discharge authorisation and final approval (§9.23). The request follows the clinical
+  # discharge (clinicalDischargeRecorded) and the discharge never waits for any of this (SI-12).
+  - from: enhancement-approved
+    on: RequestDischargeAuth
+    guard: [clinicalDischargeRecorded, dischargeAuthRequestComplete, everyLineWithinPreApprovalOrFlagged]
+    effects: [sendDocumentPack, recordPackCompleteness, startSlaClock]
+    to: discharge-auth-requested
+    description: "§9.23 EnhancementApproved → DischargeAuthRequested"
+  - from: pre-approval-approved
+    on: RequestDischargeAuth
+    guard: [clinicalDischargeRecorded, dischargeAuthRequestComplete, everyLineWithinPreApprovalOrFlagged]
+    effects: [sendDocumentPack, recordPackCompleteness, startSlaClock]
+    to: discharge-auth-requested
+    description: "Discharge authorisation with no enhancement. Proposed: §9.23 draws the chain through enhancement; R13 §3.8 marks enhancement optional ('[...]*')"
+  - from: discharge-auth-requested
+    on: RecordFinalApproval
+    guard: [finalApprovalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: final-approved
+    description: "§9.23 DischargeAuthRequested → FinalApproved"
+  - from: [query, query-response]
+    on: RecordFinalApproval
+    guard: [queryOnDischargeAuth, finalApprovalTermsRecorded]
+    effects: [stopSlaClock, refreshPayerPatientSplit, openNextStepTask]
+    to: final-approved
+    description: "Final approval after or during a query. Proposed"
+  - from: discharge-auth-requested
+    on: RecordDenial
+    guard: [denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: denied
+    description: "The payer refuses the final approval. No ClaimAdjudicated: no claim was submitted. Proposed"
+  - from: [query, query-response]
+    on: RecordDenial
+    guard: [queryOnDischargeAuth, denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask]
+    to: denied
+    description: "The payer refuses the final approval after or during a query. Proposed"
+  # ---- Claim submission and adjudication (§9.23 FinalApproved → ClaimDocsSubmitted → Settled /
+  # PartiallySettled / Denied). The two settlement alternatives are disjoint (exact complements).
+  - from: final-approved
+    on: SubmitClaimDocs
+    guard: [claimPackComplete, everyLineWithinPreApprovalOrFlagged]
+    effects: [sendDocumentPack, recordPackCompleteness, startSlaClock, emitClaimSubmitted]
+    to: claim-docs-submitted
+    description: "§9.23 FinalApproved → ClaimDocsSubmitted; the pre-approval is checked again at claim build"
+  - from: claim-docs-submitted
+    on: RecordSettlement
+    guard: [settlementRecorded, settledInFull]
+    effects: [stopSlaClock, postRemittance, openNextStepTask, emitClaimAdjudicated]
+    to: settled
+    description: "§9.23 ClaimDocsSubmitted → Settled"
+  - from: claim-docs-submitted
+    on: RecordSettlement
+    guard: [settlementRecorded, settledShort, deductionReasonsRecorded]
+    effects: [stopSlaClock, postRemittance, openNextStepTask, emitClaimAdjudicated]
+    to: partially-settled
+    description: "§9.23 ClaimDocsSubmitted → PartiallySettled (R13 §3.8 'deduction reasons')"
+  - from: claim-docs-submitted
+    on: RecordDenial
+    guard: [denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask, emitClaimAdjudicated]
+    to: denied
+    description: "§9.23 ClaimDocsSubmitted → Denied"
+  - from: [query, query-response]
+    on: RecordSettlement
+    guard: [queryOnClaim, settlementRecorded, settledInFull]
+    effects: [stopSlaClock, postRemittance, openNextStepTask, emitClaimAdjudicated]
+    to: settled
+    description: "Settled after or during a claim query. Proposed"
+  - from: [query, query-response]
+    on: RecordSettlement
+    guard: [queryOnClaim, settlementRecorded, settledShort, deductionReasonsRecorded]
+    effects: [stopSlaClock, postRemittance, openNextStepTask, emitClaimAdjudicated]
+    to: partially-settled
+    description: "Partially settled after or during a claim query. Proposed"
+  - from: [query, query-response]
+    on: RecordDenial
+    guard: [queryOnClaim, denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask, emitClaimAdjudicated]
+    to: denied
+    description: "Denied after or during a claim query. Proposed"
+  # ---- Reconciliation and appeal (§9.23 'Settled / PartiallySettled / Denied → Reconciliation / Appeal').
+  - from: [settled, partially-settled, denied]
+    on: StartReconciliation
+    effects: [openReconciliationTask]
+    to: reconciliation
+    description: "§9.23 Settled / PartiallySettled / Denied → Reconciliation"
+  - from: [settled, partially-settled, denied]
+    on: FileAppeal
+    guard: [appealGroundsRecorded, appealWithinDeadline]
+    effects: [sendDocumentPack, startSlaClock]
+    to: appeal
+    description: "§9.23 Settled / PartiallySettled / Denied → Appeal; from settled, an appeal of the deductions taken at final approval"
+  - from: reconciliation
+    on: FileAppeal
+    guard: [appealGroundsRecorded, appealWithinDeadline]
+    effects: [sendDocumentPack, startSlaClock]
+    to: appeal
+    description: "An underpayment found in reconciliation is appealed. Proposed"
+  - from: appeal
+    on: RecordSettlement
+    guard: [settlementRecorded, settledInFull]
+    effects: [stopSlaClock, postRemittance, openNextStepTask, emitClaimAdjudicated]
+    to: settled
+    description: "The appeal is upheld in full. Proposed"
+  - from: appeal
+    on: RecordSettlement
+    guard: [settlementRecorded, settledShort, deductionReasonsRecorded]
+    effects: [stopSlaClock, postRemittance, openNextStepTask, emitClaimAdjudicated]
+    to: partially-settled
+    description: "The appeal is upheld in part. Proposed"
+  - from: appeal
+    on: RecordDenial
+    guard: [denialReasonsRecorded]
+    effects: [stopSlaClock, routeToDenialQueue, openNextStepTask, emitClaimAdjudicated]
+    to: denied
+    description: "The appeal is rejected. Proposed"
+  - from: reconciliation
+    on: CloseClaim
+    guard: [reconciliationComplete]
+    to: closed
+    description: "§9.23 ends at Reconciliation / Appeal; closed is this build's terminal state (the generic claim's 'closed', R11 §10.8). Proposed"
+  # ---- Withdrawal (before a claim is submitted) and the audited reopening.
+  - from: [intimation, pre-approval-requested, pre-approval-approved, pre-approval-denied, enhancement-requested, enhancement-approved, discharge-auth-requested, final-approved]
+    on: Withdraw
+    guard: [withdrawalReasonRecorded]
+    effects: [stopSlaClock, releasePayerLiability, notifyPayerOfWithdrawal]
+    to: withdrawn
+    description: "The credit route ends before a claim is submitted (the patient pays, the pre-approval was denied, the coverage is not valid). Care is unaffected. Proposed (§9.23 and R11 §10.8 draw no withdrawal)"
+  - from: [query, query-response]
+    on: Withdraw
+    guard: [withdrawalReasonRecorded, queryNotOnClaim]
+    effects: [stopSlaClock, releasePayerLiability, notifyPayerOfWithdrawal]
+    to: withdrawn
+    description: "Withdrawal during a query of any stage before the claim was submitted; a submitted claim is never withdrawn (DN-058 item 8). Proposed"
+  - from: closed
+    on: ReopenClaim
+    guard: [privilegedAndAudited, correctionReasonEntered]
+    effects: [openReconciliationTask]
+    to: reconciliation
+    description: "A late remittance or a payer recoupment reopens a closed claim. Leaves a terminal state, so it is privileged and audited (spec §1.2). Proposed"
+# Every edge that neither §9.23 nor R11 §10.8 draws. §9.23 draws the chain in the header comment,
+# with Query ⇄ QueryResponse after PreApprovalRequested, EnhancementApproved → EnhancementRequested
+# (repeatable) and Settled / PartiallySettled / Denied → Reconciliation / Appeal; R11 §10.8 draws the
+# pre-authorisation requested → approved. Two denials that share a drawn edge carry proposed: true.
+proposed:
+  - "pre-approval-requested→pre-approval-denied"
+  - "pre-approval-denied→pre-approval-requested"
+  - "enhancement-requested→query"
+  - "discharge-auth-requested→query"
+  - "claim-docs-submitted→query"
+  - "query→pre-approval-approved"
+  - "query-response→pre-approval-denied"
+  - "query→pre-approval-denied"
+  - "query-response→enhancement-approved"
+  - "query→enhancement-approved"
+  - "enhancement-requested→pre-approval-approved"
+  - "pre-approval-approved→discharge-auth-requested"
+  - "query-response→final-approved"
+  - "query→final-approved"
+  - "discharge-auth-requested→denied"
+  - "query-response→denied"
+  - "query→denied"
+  - "query-response→settled"
+  - "query→settled"
+  - "query-response→partially-settled"
+  - "query→partially-settled"
+  - "reconciliation→appeal"
+  - "appeal→settled"
+  - "appeal→partially-settled"
+  - "appeal→denied"
+  - "reconciliation→closed"
+  - "intimation→withdrawn"
+  - "pre-approval-requested→withdrawn"
+  - "query→withdrawn"
+  - "query-response→withdrawn"
+  - "pre-approval-approved→withdrawn"
+  - "pre-approval-denied→withdrawn"
+  - "enhancement-requested→withdrawn"
+  - "enhancement-approved→withdrawn"
+  - "discharge-auth-requested→withdrawn"
+  - "final-approved→withdrawn"
+  - "closed→reconciliation"
+invariants: [SI-03, SI-12, SI-20]
+events: [ClaimSubmitted, ClaimAdjudicated]   # §8.5; §8.5 names no event for pre-approval or discharge-authorisation steps (credit-claim.md)
+hazards: [HAZ-0003, HAZ-0012, HAZ-0020]
+sources:
+  - "BUILD-PROMPT §8.4 (Credit claim and pre-approval; approval: RCM lead + Kurdistan pack PM)"
+  - "BUILD-PROMPT §9.23 (credit-claim states; pre-approval as a first-class entity; SLA timers pause while a payer query is open; escalation to the corporate/insurer desk; a pre-approval never blocks discharge or emergency care; document packs; denials; acceptance)"
+  - "R11 §10.8 (Claim (generic); the parallel pre-authorisation lifecycle requested → approved / partially approved / denied / pended); R11 §11"
+  - "R13 §3.8 (the TPA cashless state machine that §9.23 generalises; K §12.1 'BP's TPA state machine generalised'); R05 §1.2 and §1.8"
+  - "BUILD-PROMPT §2.1 SI-03, SI-12, SI-20; §5.2 (rcm a downstream conformist; SI-12 at the boundary); §9.20; §9.30 (report-release pattern); §11.7 (calendar-aware SLA timers); §21 row 1.9"
+  - "docs/specs/state-machines/encounter.yaml (discharged-not-closed, finished)"
