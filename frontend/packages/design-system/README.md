@@ -43,7 +43,19 @@ window.
 The banner's stylesheet is `banner/banner.css`, imported by `styles.css`: logical properties and tokens only,
 and nothing that cuts text (no ellipsis, line clamp, fixed height, hidden overflow or `nowrap`).
 
-The sign and co-sign pattern, the command palette and the density control arrive with slice S5b.
+## Sign and co-sign, command palette and density control (WP-0.7 slice S5b)
+
+| Export                                                                   | What it does                                                                                                                                                                                                                                                                          | Spec         |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `SignDialog`                                                             | A view of ui-core's patient-context machine: review, then re-verification or authentication, then the intent statement with Sign or Co-sign; it sends only the machine's events; a timeout, an error or a malformed answer is outcome unknown, and a retry reuses the idempotency key | §2.3, OQ-162 |
+| `SignButton`, `signingIdentityValid`                                     | Opens a sign session; disabled, with `sign.blockedByBanner`, while the banner identity blocks signing                                                                                                                                                                                 | §2.3         |
+| `createSimulatedAuthenticator`                                           | The simulated sign-in and badge tap plus PIN of WP-0.7 (KA-032); it throws in a production build unless `VITE_HMS_DEMO=1`                                                                                                                                                             | §2.3, KA-043 |
+| `CommandPalette`, `isPaletteShortcut`                                    | Ctrl+K or Cmd+K (physical key); React Aria `Autocomplete` and `Menu`; nothing is highlighted on open or on new results; a chosen item runs after the palette has closed                                                                                                               | §2.4         |
+| `languageCommands`, `foldForSearch`, `matchesQuery`, `patientSearchText` | Palette commands and search (ي→ی, ك→ک, ه→ە folded for matching only)                                                                                                                                                                                                                  | §2.4         |
+| `DensityControl`, `useDensityCommand`, `otherDensity`                    | The density setting as a radio group, and its palette command, on `DensityProvider`                                                                                                                                                                                                   | §2.5         |
+
+Their stylesheets (`sign/sign.css`, `command-palette/command-palette.css`, `density/density-control.css`) are
+imported by `styles.css`.
 
 ## Tests
 
@@ -68,6 +80,11 @@ The sign and co-sign pattern, the command palette and the density control arrive
   `UnitTest:banner-identifiers-never-room-or-bed`, `UnitTest:colour-not-only-carrier`, `UnitTest:bidi-isolation`
   and `UnitTest:banner-long-names-wrap` (its unit part; jsdom has no layout, so the narrowest width is checked
   in `E2E:visual` and `E2E:pseudo-locale`).
+- `test/sign/`, `test/command-palette/` and `test/density/` (slice S5b): `UnitTest:sign-requires-reverification`,
+  `UnitTest:cosign-same-pattern`, `UnitTest:sign-outcome-unknown-reuses-idempotency-key`,
+  `UnitTest:palette-keyboard-only`, `UnitTest:palette-never-preselects-patient`,
+  `UnitTest:palette-selects-patient-via-confirmation`; also the simulated-authenticator and density-control
+  tests.
 
 Rendering in a real browser (computed direction, the fonts actually used, axe, screenshots) is tested with
 Playwright in `apps/web` (slice S7), not here.
@@ -79,3 +96,4 @@ Playwright in `apps/web` (slice S7), not here.
   `aria-label`, say) it shows as plain text (KA-039).
 - A dialog built on `react-aria-components` directly, outside this package, bypasses the stack guard; no lint
   forbids it yet (KA-042).
+- The sign dialog's authentication step reuses other keys and is simulated until WP-0.4 (KA-032, KA-043).

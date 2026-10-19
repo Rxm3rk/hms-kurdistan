@@ -7,3 +7,6 @@
 @import './tokens.css';
 @import './base.css';
 @import './banner/banner.css';
+@import './sign/sign.css';
+@import './command-palette/command-palette.css';
+@import './density/density-control.css';

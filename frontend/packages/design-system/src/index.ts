@@ -73,3 +73,34 @@ export {
   type StatusIconProps,
   type StatusTone,
 } from './banner/index.ts';
+// Slice S5b: the sign and co-sign pattern (§2.3), the command palette (§2.4) and the density setting (§2.5).
+export {
+  createSimulatedAuthenticator,
+  DEFAULT_SIGN_SUBMIT_TIMEOUT_MS,
+  SignButton,
+  SignDialog,
+  signingIdentityValid,
+  type SignAuthenticationRequest,
+  type SignAuthenticator,
+  type SignButtonProps,
+  type SignDialogProps,
+  type SignSubmissionOutcome,
+  type SignSubmitter,
+} from './sign/index.ts';
+export {
+  CommandPalette,
+  foldForSearch,
+  isPaletteShortcut,
+  languageCommands,
+  matchesQuery,
+  PALETTE_GROUP_LABEL,
+  PALETTE_GROUPS,
+  paletteItemGroup,
+  patientSearchText,
+  type CommandPaletteProps,
+  type PaletteCommand,
+  type PaletteGroup,
+  type PaletteItem,
+  type PalettePatient,
+} from './command-palette/index.ts';
+export { DENSITY_LABEL, DensityControl, otherDensity, useDensityCommand } from './density/index.ts';

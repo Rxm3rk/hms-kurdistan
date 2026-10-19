@@ -407,6 +407,7 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   - Within the window, the sign and co-sign dialog shows a re-verification step before authentication. It shows the photo (or "No photo"), every name form, the MRN and the date of birth at its recorded precision with the approximate-DOB flag, none of them truncated.
   - The person at the dialog confirms with a control that is never preselected, never focused on open and never the default action.
   - The step records who confirmed. If a different user authenticates for the signature, the dialog returns to re-verification.
+  - On that return, and on a server refusal for re-verification, the dialog drops the earlier authentication. The person signing authenticates again in the re-verification step (badge tap plus PIN for a co-signature) before "This is the right patient" is enabled, and the confirmation is recorded for that person (slice S5b's `SignDialog`; OQ-162).
   - "Not this patient" ends signing with a message. Re-verification is then required at every sign step in the window, even after 60 s, until the context changes or a re-verification is confirmed.
   - This is in addition to authenticating every signature (§9.4). A co-signature authenticates with badge tap plus PIN, as §12.8 requires.
   - It is recorded as a tightening in CTRL-0016-7's `notes`.
