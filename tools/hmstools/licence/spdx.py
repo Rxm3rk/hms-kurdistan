@@ -99,6 +99,31 @@ def parse(text: str) -> Node:
     return node
 
 
+def canonical(node: Node) -> str:
+    """The expression as text with nested AND and OR operands flattened, de-duplicated and sorted, so that two
+    spellings of one expression ("ISC AND (MIT AND ISC)" and "MIT AND ISC") give the same text."""
+
+    def operands(op: Op) -> list[Node]:
+        out: list[Node] = []
+        for operand in op.operands:
+            if isinstance(operand, Op) and operand.operator == op.operator:
+                out += operands(operand)
+            else:
+                out.append(operand)
+        return out
+
+    def text(item: Node, nested: bool) -> str:
+        if isinstance(item, Leaf):
+            return str(item)
+        parts = sorted({text(operand, True) for operand in operands(item)})
+        if len(parts) == 1:
+            return parts[0]
+        joined = f" {item.operator} ".join(parts)
+        return f"({joined})" if nested else joined
+
+    return text(node, False)
+
+
 def looks_like_expression(text: str) -> bool:
     """True if the text is an SPDX identifier or expression rather than a free-form licence name."""
     try:

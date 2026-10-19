@@ -1,7 +1,15 @@
 #!/bin/bash
 # Provision Ubuntu 24.04 (WSL2) as the HMS Kurdistan build host (BUILD-PROMPT.md "Before the first session").
-# Idempotent; run as root: sudo tools/host/provision-ubuntu.sh (or, from Windows, wsl -d Ubuntu-24.04 -u root -- bash tools/host/provision-ubuntu.sh).
-# Set BUILD_USER to the non-root account that runs the build (default: surface). Every downloaded binary is verified against its publisher's SHA-256.
+# Idempotent; run as root: sudo bash tools/host/provision-ubuntu.sh (or, from Windows, wsl -d Ubuntu-24.04 -u root -- bash tools/host/provision-ubuntu.sh).
+# Set BUILD_USER to the non-root account that runs the build (default: surface). tools/host/README.md says what
+# is verified and what is trusted: Helm, k3d and Node.js are pinned and checked against a SHA-256 before install
+# (k3d's is written below; Helm's and Node.js's checksum files come from the same servers over TLS), and apt checks
+# each package against its repository's key. Trusted on TLS alone: the Docker and Kubernetes apt keys (Corretto's
+# too, if its fallback runs) and rustup-init.sh, which runs unverified and installs that day's stable Rust. No apt
+# package or Rust version is pinned (kubectl follows its 1.37 channel). The build does not use the OpenJDK installed
+# here: tools/ci/run and tools/bootstrap env put the pinned JDK in .tools/ first (ADR-002). System-wide changes, each
+# with its line in DN-001 (docs/program/DECISIONS-NEEDED.md): apt-get upgrade; apt keys, sources and packages; the
+# docker group and services; /opt, /usr/local/bin; the build user's Rust, profiles, git config; the hello-world image.
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 BUILD_USER=${BUILD_USER:-surface}

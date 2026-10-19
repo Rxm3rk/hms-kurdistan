@@ -272,7 +272,23 @@ Appendix A marks these "inferred": K does not determine the release, so this pro
 | OQ-081 | `AI-DAT-02a` CDC bronze (BP split) | R1 | Central site; migration staging; inferred R1 | open |
 | OQ-082 | `IMP-SUP-01` Service desk + status page | R1 | Inferred R1 (24×7 support M21); status page (K §13.7) | open |
 
-The remaining Appendix A rows with a "Conflict:" note (`INT-IPS-01`, `OPS-PRD-01`, `AI-NUR-01`) are A.20 entries and are tracked in (b) as OQ-021, OQ-023 and OQ-022.
+### Notes recording another difference from K
+
+Appendix A's note records that K §4.3, K's module catalogue, does not list the feature, lists less of its scope, or gives it another stance. For the rows "Not in K §4.3", K §14.2 keeps the work only within the P2 and P3 engineer-weeks it carries over from BP. Appendix A keeps the phase and stance shown, and the build follows it until a human confirms (§1).
+
+| ID | Feature | Phase | Appendix A note | Status |
+|---|---|---|---|---|
+| OQ-108 | `DX-RIS-03` Dose capture | P2 | Not in K §4.3; K §14.2 keeps P2 | open |
+| OQ-109 | `DEV-SDC-01` SDC/SDPi | P3 | Not in K §4.3; K §14.2 keeps P3 | open |
+| OQ-110 | `ERP-FIN-03` ERP connectors | P2 | Not in K §4.3; K §14.2 keeps P2 | open |
+| OQ-111 | `INT-DOC-01` Documents | R1 | K §4.3 lists PDF/A + FHIR (no CDA). (The feature reads "PDF/A + CDA/FHIR documents from one source"; K §4.3's MVP interoperability list has "PDF/A plus FHIR documents from one source") | open |
+| OQ-112 | `INT-PH-01` Public-health reporting | P2 | Not in K §4.3; notifiable diseases via OPS-STAT (R1). (K §4.3 lists "KRG returns and notifiable diseases" in the MVP, served by `OPS-STAT-01`) | open |
+| OQ-113 | `AI-SUM-01` Chart summary | P2 | Not in K §4.3; K §14.2 keeps P2 | open |
+| OQ-114 | `AI-RCM-01` Claim scrubbing | P2 | K §4.3 marks claim scrubbing (P). (Appendix A's stance is B, build; K §4.3's **P** is "partner or licence") | open |
+| OQ-115 | `AI-INB-01` In-basket AI | P3 | Not in K §4.3; K §14.2 keeps P3 | open |
+| OQ-116 | `DFD-CRM-01` CRM | P2 | Not in K §4.3; K §14.2 keeps P2 | open |
+
+The remaining Appendix A rows with a "Conflict:" note (`INT-IPS-01`, `OPS-PRD-01`, `AI-NUR-01`) are A.20 entries and are tracked in (b) as OQ-021, OQ-023 and OQ-022. Section (d) records three further notes as differences between sources (OQ-088 to OQ-090). Every other Appendix A note restates a change K makes itself (re-scoped, replaced, dropped, moved or kept in K) or adds context, and needs no entry here. The build agent checked this row by row over all 236 rows on 18 October 2026, when OQ-108 to OQ-116 were added for review finding R-08.
 
 ## (d) Recorded differences between sources
 
@@ -358,6 +374,27 @@ Differences noticed while writing the Phase 0 plan. Where one affects safety, th
 - **Reading in use:** both tests are added with the work packages that build those features (WP-1.13; the reporting replica's work package) and listed in their exit evidence when those packages are planned.
 - **Status:** open
 
+### OQ-117: ADR-016 has no reopen trigger, where BP §7.2 sets one
+- **Sources:** BP §7.2 gives ADR-016 (regulated-module segregation) the reopen trigger "NB pre-submission rejects the segregation argument", and K keeps BP's ADR-016 text (K §7.2). BUILD-PROMPT §4.2 sets no trigger ("—"). K plans no notified-body submission before an export market chooses one (K-04; KDV-3), so the BP trigger has nothing to fire on in Kurdistan (ADR-016, Context).
+- **Reading in use:** ADR-016 follows §4.2: no reopen trigger, with BP's trigger quoted for reference. Any change to the ADR stays stop-and-ask item 2 (§3.4). A human confirms whether BP's trigger returns when an export market brings a notified-body route.
+- **Status:** open
+
+### OQ-118: ADR-017's reopen trigger names the Safety Board, where BP §7.2 names a notified body
+- **Sources:** BP §7.2 gives ADR-017 (CDS) the reopen trigger "A notified-body-agreed change to the device boundary", and K keeps BP's ADR-017 text (K §7.2). BUILD-PROMPT §4.2 words it "A change to the device boundary agreed through the Safety Board". K plans no notified-body route before an export market chooses one (K-04; KDV-3) (ADR-017, Context).
+- **Reading in use:** ADR-017 uses the §4.2 wording and quotes BP's for reference. The device-boundary rule itself, no rules engine inside the device boundary, is the same in all three sources. A human confirms the wording, and whether a notified body must also agree once an export market brings one.
+- **Status:** open
+
+### OQ-119: How C9's "≤60% utilisation" is aggregated
+- **Sources:** K §7.4 words C9's pass as "p95 targets met at ≤60% CPU and memory headroom on the reference hardware". BUILD-PROMPT §18.6 reads it as "p95 targets met with CPU and memory utilisation ≤60%" and asks for the interpretation to be recorded in the ADR. Neither says whether utilisation is taken per node or across the cell, or as a peak or a sustained value (ADR-001).
+- **Reading in use (interim default, §1):** the stricter reading, per node over the peak window, and the spike report states the aggregation it used (ADR-001). A human settles the reading before the reference-cell run of C9 counts as evidence (WP-0.6; DN-009).
+- **Status:** open
+
+### OQ-120: SI-05 clause d before the Dose Engine
+- **Sources:** §2.1 SI-05 reads "Hard stop at 10×/100× deviation." Until `reg-dose` is active at a site, the KB ≥10× Tier A rule (§10.3 A.2) stops only a KB result ≥10× the maximum dose, because outside `reg-dose` the system may only compare a KB-returned ratio, flag or maximum with a governed threshold (§2.1 (c)). A 10× or 100× error below that threshold, a tenfold or hundredfold underdose, or an order with no KB ratio, flag or maximum gets no automated hard stop and is left to pharmacists (double check where CTRL-0005-9 applies; otherwise verification without independent calculation; after the fact for override doses).
+- **Question for the CSO [HUMAN]:** is this gap of control set A acceptable until P2, what must the seeded 10× errors (§9.10 acceptance 2, §10.3 A.3) include, and does control set A need a further control within the §2.1 allowed comparisons?
+- **Reading in use:** the hazard log does not count these errors as covered by clause d before the Dose Engine (CTRL-0005-7 and CTRL-0005-16 in `docs/safety/hazard-log.yaml`; `docs/safety/README.md`, open question 9). It blocks nothing now: nothing is built, and every control is `planned`. It must be answered before R2b go-live, where RG3 validates control set A (CTRL-0005-15); Appendix A.19 also places control set A at transcription in R2a, so the CSO says whether the answer is needed by then.
+- **Status:** open
+
 ## (e) Content requests
 
 None yet. Content requests are logged here when a slice needs clinical content that only exists as synthetic sample content (§3.3, §19.4), or a published source document that a human must place in `docs/content-sources/` (§3.5).
@@ -398,6 +435,12 @@ Choices the build made where the plan of record sets no value. They bind until a
 
 ### OQ-100: Evidence labels for the two checkouts
 - **Choice:** runs on the Windows checkout are labelled "Windows host" and are never evidence of record; fast-tier and doctor evidence of record comes from the WSL clone at a committed SHA, labelled "WSL build host, no cell" (`docs/program/evidence/README.md`, KA-001).
+- **Status:** open
+
+### OQ-121: Whether a risk acceptance survives a linked release or incident
+- **Choice:** a sign-off record authorises its field only while the subject is at the version it decided on. A hazard entry has no `version` field, so its version is its content without the human fields (`docs/safety/signoffs/README.md`, "Subject version"), and that content includes the entry's linked `releases` and `incidents`. Linking a release or an incident to a hazard therefore voids its risk acceptance (`residual_risk.accepted_by`, and with it `status: accepted`) and its CSO triage, and `sh tools/hms safety check` fails until the CSO signs a new record for the new version (`tools/hmstools/safety/signoffs.py`, `content_version`).
+- **Sources:** §10.1 gives the hazard record "linked features, invariants, incidents and releases"; neither §3.5 nor §10.1 says whether adding such a link is a change that a risk acceptance must cover again.
+- **Who confirms:** the CSO [HUMAN]: should a hazard's risk acceptance survive linking a release or an incident to it? No hazard is accepted yet and no entry links a release or an incident.
 - **Status:** open
 
 ## (g) Engineering choices [P] made in WP-0.2, awaiting confirmation

@@ -39,7 +39,7 @@ Date: 2026-10-18   Source: K §7.2, §7.4, §7.6; BP §7.2, §7.7; R08 §4.4, §
 
 **Where and when.** The rule belongs in the ArchUnit rule library `backend/platform/arch-rules` (created in WP-0.1). It can only act once `platform-workflow` and its Temporal adapter exist (WP-0.3: "`WorkflowPort` with the Temporal adapter"). It runs in the fast tier's architecture tests.
 
-**State on 2026-10-18:** not implemented. This ADR claims no result.
+**State on 2026-10-18:** the rule exists and runs; what it guards does not exist yet. Rule (c), `temporalOnlyInWorkflowAdapter` in `backend/platform/arch-rules/src/main/kotlin/hms/kernel/archrules/HmsArchitectureRules.kt`, forbids every class under `hms..` outside `hms.platform.workflow.infrastructure..` to depend on `io.temporal..` types. Every backend project with production code (today `platform/arch-rules` and `platform/testing`) applies it in its `ArchitectureTest`, and `backend/platform/arch-rules/src/test/kotlin/hms/kernel/archrules/TemporalBoundaryRuleTest.kt` shows that it fails on two violating fixtures (a clinical module and a `platform.workflow.domain` class holding Temporal types) and passes on a fixture adapter behind a fixture `WorkflowPort`. Both run in the backend `test` task of the fast tier; the fast-tier record `docs/program/evidence/ci/2026-10-18-fast-d3e14de.json` shows the backend step PASS with 66 tests (it counts tests and does not name them). Not implemented: `platform-workflow`, the real `WorkflowPort` and the Temporal adapter (WP-0.3). Until they exist no production code uses Temporal, and the Temporal SDK is only a test dependency of `platform/arch-rules`, for the fixtures. This ADR claims no result beyond that record.
 
 ## Reopen if
 

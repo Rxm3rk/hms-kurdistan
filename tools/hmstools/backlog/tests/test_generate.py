@@ -5,8 +5,9 @@ from __future__ import annotations
 import unittest
 
 from hmstools.backlog.commands import CommandFailed, generate
+from hmstools.backlog.paths import EnvironmentProblem
 from hmstools.backlog.records import dump_records, load_records
-from hmstools.backlog.tests.synthetic import PLAN, SyntheticRepo
+from hmstools.backlog.tests.synthetic import EXPECTED_HAZARDS, HAZARD_LOG, PLAN, SyntheticRepo
 
 
 class GenerateTest(unittest.TestCase):
@@ -32,7 +33,8 @@ class GenerateTest(unittest.TestCase):
         header = text.decode("utf-8").split("\n- id:")[0]
         self.assertIn("GENERATED from BUILD-PROMPT.md Appendix A", header)
         self.assertIn("'tools/hms backlog generate'", header)
-        self.assertIn("Only these fields are edited, by hand or by tools: status, work_packages, tests, hazards, notes.", header)
+        self.assertIn("Only these fields are edited, by hand or by tools: status, work_packages, tests, notes. hazards is never\n"
+                      "# edited here", header)
         records = self.records()
         core = records["PLT-CORE-02"]
         self.assertEqual(
@@ -45,6 +47,12 @@ class GenerateTest(unittest.TestCase):
         self.assertEqual(core["work_packages"], ["WP-0.3", "WP-1.1 (full)"])
         self.assertEqual(records["RCM-SCH-01 · part: scheme"]["part"], "scheme")
         self.assertEqual(records["RCM-US-01"]["work_packages"], [])
+
+    def test_hazards_come_from_the_hazard_log(self) -> None:
+        generate(self.paths)
+        records = self.records()
+        for key, record in records.items():
+            self.assertEqual(record["hazards"], EXPECTED_HAZARDS.get(key, []), key)  # sorted, no duplicates
 
     def test_regeneration_keeps_hand_edited_fields_and_refreshes_parsed_ones(self) -> None:
         generate(self.paths)
@@ -68,11 +76,13 @@ class GenerateTest(unittest.TestCase):
         self.assertEqual(report.kept, 16)
         self.assertEqual(report.extra_work_packages, {"PLT-CORE-02": ["WP-9.9 (added by a tool)"]})
         self.assertEqual(report.refreshed, {"PLT-CORE-02": ["title", "phase"]})
+        # hazards is not hand-edited: the hazard log names no entry for PLT-CORE-02, so the hand entry goes.
+        self.assertEqual(report.hazards_refreshed, {"PLT-CORE-02": (["HAZ-0001"], [])})
         records = self.records()
         core = records["PLT-CORE-02"]
         self.assertEqual(core["status"], "in-progress")
         self.assertEqual(core["tests"], ["PropertyTest:EnterpriseLocks"])
-        self.assertEqual(core["hazards"], ["HAZ-0001"])
+        self.assertEqual(core["hazards"], [])
         self.assertEqual(core["notes"], ["Lock semantics agreed in WP-0.3"])
         self.assertEqual(core["title"], "Enterprise | hierarchy")
         self.assertEqual(core["phase"], "R1")
@@ -85,6 +95,7 @@ class GenerateTest(unittest.TestCase):
         before = self.paths.backlog.read_bytes()
         report = generate(self.paths)
         self.assertEqual((report.kept, report.added, report.refreshed, report.extra_work_packages), (16, [], {}, {}))
+        self.assertEqual(report.hazards_refreshed, {})
         self.assertEqual(self.paths.backlog.read_bytes(), before)
 
     def test_an_unknown_field_stops_generation_instead_of_being_dropped(self) -> None:
@@ -156,6 +167,31 @@ class GenerateTest(unittest.TestCase):
             generate(self.paths)
         self.assertIn("KRI-ID-99", str(caught.exception))
         self.assertFalse(self.paths.backlog.exists())
+
+    def test_unknown_feature_in_the_hazard_log_stops_generation(self) -> None:
+        generate(self.paths)
+        before = self.paths.backlog.read_bytes()
+        self.repo.write_hazard_log(HAZARD_LOG.replace("[KRI-ID-01, INT-ENG-01]", "[KRI-ID-01, INT-ENG-09]"))
+        with self.assertRaises(CommandFailed) as caught:
+            generate(self.paths)
+        self.assertIn("names feature IDs that are not in BUILD-PROMPT.md Appendix A: INT-ENG-09 (HAZ-0001)",
+                      str(caught.exception))
+        self.assertEqual(self.paths.backlog.read_bytes(), before)
+
+    def test_a_missing_or_malformed_hazard_log_stops_generation(self) -> None:
+        self.paths.hazard_log.unlink()
+        with self.assertRaises(EnvironmentProblem):
+            generate(self.paths)
+        self.assertFalse(self.paths.backlog.exists())
+        for text, message in [("hazards: [unclosed\n", "does not parse as YAML"),
+                              ("schema_version: 1\n", "no 'hazards' list"),
+                              ("hazards:\n  - features: [KRI-ID-01]\n", "hazards entry 1 has no string 'id'"),
+                              ("hazards:\n  - id: HAZ-0001\n    features: KRI-ID-01\n", "HAZ-0001: 'features' is not a list")]:
+            self.repo.write_hazard_log(text)
+            with self.assertRaises(CommandFailed) as caught:
+                generate(self.paths)
+            self.assertIn(message, str(caught.exception))
+            self.assertFalse(self.paths.backlog.exists())
 
 
 if __name__ == "__main__":

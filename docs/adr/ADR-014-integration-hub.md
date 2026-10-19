@@ -32,7 +32,7 @@ Date: 2026-10-18   Source: K §7.2 (kept), §7.3, §9; BP §7.2, §7.7, §9; R06
 
 **Engineering.** The Hub is a day-one product, not plumbing (R08 §14 #4): breadth of adapters is our own work, per pack.
 
-**Licence.** HAPI HL7 v2 is dual-licensed MPL-1.1 or GPL-2.0 and is used unmodified under MPL-1.1, recorded in the licence register (BUILD-PROMPT §4.3; ADR-022). Mirth Connect ≥4.6 is excluded by name. OIE (MPL-2.0) is optional and never a hard dependency.
+**Licence.** HAPI HL7 v2 is dual-licensed MPL-1.1 or GPL-2.0 and is used unmodified under MPL-1.1, to be recorded in the licence register `tools/licence/register.yaml` when it is first depended on (WP-1.1b); the register has no entry for it yet, and until it has one `tools/hms licence check` fails on it (BUILD-PROMPT §4.3; ADR-022). Mirth Connect ≥4.6 is excluded by name. OIE (MPL-2.0) is optional and never a hard dependency.
 
 ## Fitness test that guards it
 

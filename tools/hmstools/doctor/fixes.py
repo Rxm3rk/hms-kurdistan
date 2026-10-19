@@ -2,8 +2,9 @@
 
 Ubuntu commands target Ubuntu 24.04 inside WSL2 (BUILD-PROMPT.md "Before the first session").
 They follow each vendor's own installation instructions. tools/host/provision-ubuntu.sh installs the
-whole Linux toolchain in one idempotent run, with pinned versions and every download checked against
-its publisher's checksum; the hints name it first where it covers the item.
+whole Linux toolchain in one idempotent run; tools/host/README.md says what it pins and verifies (Helm,
+k3d and Node.js against a SHA-256) and what it trusts on TLS alone (the Docker and Kubernetes apt keys,
+rustup-init.sh). The hints name it first where it covers the item.
 """
 
 from __future__ import annotations
@@ -40,15 +41,10 @@ UBUNTU: dict[str, list[str]] = {
     "kubectl": [f"{PROVISION}   # kubectl from the Kubernetes apt repository (pkgs.k8s.io)"],
     "helm": [f"{PROVISION}   # the pinned Helm release from get.helm.sh, SHA-256 checked"],
     "jdk": [
-        "sh tools/bootstrap jdk   # project-local Eclipse Temurin 25 in .tools/ (no system change; preferred)",
-        "# or a system JDK from the Adoptium apt repository:",
-        "sudo apt-get install -y wget apt-transport-https gpg",
-        "wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor "
-        "| sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null",
-        'echo "deb https://packages.adoptium.net/artifactory/deb '
-        "$(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main\" "
-        "| sudo tee /etc/apt/sources.list.d/adoptium.list",
-        "sudo apt-get update && sudo apt-get install -y temurin-25-jdk",
+        "sh tools/bootstrap jdk   # the pinned Eclipse Temurin 25.0.4.1+1 (ADR-002) in .tools/, checked against its"
+        " recorded SHA-256 (no system change)",
+        "# No other JDK counts: a JAVA_HOME or PATH java passes only if it reports exactly Temurin-25.0.4.1+1",
+        "# (build 25.0.4.1+1-LTS); the pin changes only at a phase boundary (BUILD-PROMPT.md §4.1).",
     ],
     "node": [
         f"{PROVISION}   # the pinned Node.js 24 LTS from nodejs.org, checked against SHASUMS256.txt; includes Corepack",
@@ -106,7 +102,8 @@ def windows_steps(root_mnt_path: str, wsl_memory_gb: int, wsl_processors: int) -
         "4. Open Ubuntu-24.04 and clone the repository into the Linux file system, not under /mnt/c:",
         f"     mkdir -p ~/src && git clone {root_mnt_path} ~/src/hospitalmanagementsystem",
         "5. Install the Linux toolchain (Docker Engine, kubectl, Helm, k3d, JDK 25, Node.js 24, Rust and the Tauri"
-        " prerequisites; pinned and checksum-verified): sudo bash ~/src/hospitalmanagementsystem/tools/host/provision-ubuntu.sh",
+        " prerequisites; tools/host/README.md says what it verifies and what it trusts):"
+        " sudo bash ~/src/hospitalmanagementsystem/tools/host/provision-ubuntu.sh",
         "6. In ~/src/hospitalmanagementsystem run: git config --global core.autocrlf false && sh tools/bootstrap"
         " && sh tools/doctor",
     ]

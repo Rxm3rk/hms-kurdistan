@@ -10,7 +10,7 @@ Date: 2026-10-18   Source: K §5.4, §5.5, §5.6, §7.2 (kept), K-04, K-05, K-06
 
 **Sources.** K keeps BP's ADR-016 (K §7.2; K §5.5; K-06 "Kept"). The reason holds in Kurdistan even without a regulator: it keeps the orders/MAR kernel out of device scope for any later export market, and it is the cleanest safety architecture (K §5.5). K-05 sets the evidence a Tier 2 activation needs. KDV-5 moves the Dose Engine to P2, with the extended fallback control set at go-live. Not marked [P].
 
-**Difference between sources, recorded.** BP §7.2 gives ADR-016 the reopen trigger "NB pre-submission rejects the segregation argument". BUILD-PROMPT §4.2 sets none ("—"). K plans no notified-body submission before an export market chooses one (K-04; KDV-3: ISO 13485 certification deferred to a G5 export decision), so the BP trigger has nothing to fire on in Kurdistan. This ADR follows §4.2 and records the difference for `docs/program/OPEN-QUESTIONS.md` (BUILD-PROMPT §1).
+**Difference between sources, recorded.** BP §7.2 gives ADR-016 the reopen trigger "NB pre-submission rejects the segregation argument". BUILD-PROMPT §4.2 sets none ("—"). K plans no notified-body submission before an export market chooses one (K-04; KDV-3: ISO 13485 certification deferred to a G5 export decision), so the BP trigger has nothing to fire on in Kurdistan. This ADR follows §4.2; the difference is open in `docs/program/OPEN-QUESTIONS.md` as OQ-117 until a human confirms it (BUILD-PROMPT §1).
 
 ## Decision
 

@@ -12,6 +12,17 @@ from hmstools.doctor.__main__ import render, to_json
 
 ROOT = Path("/home/dev/src/hms")
 REQUIREMENTS = "PyYAML==6.0.3 \\\n    --hash=sha256:" + "a" * 64 + "\njsonschema==4.26.0 \\\n    --hash=sha256:" + "b" * 64 + "\n"
+# 'java -version' of the pinned release (ADR-002) and of other JDK 25 builds, as each prints it.
+TEMURIN_PINNED = (
+    'openjdk version "25.0.4.1" 2026-08-18 LTS\n'
+    "OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)\n"
+    "OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS, mixed mode, sharing)\n"
+)
+UBUNTU_25 = (  # the system JDK the provisioning script installs on the WSL build host: same version, not the pin
+    'openjdk version "25.0.4.1" 2026-08-18\n'
+    "OpenJDK Runtime Environment (build 25.0.4.1+1-1-24.04.4-Ubuntu)\n"
+)
+TEMURIN_NEWER = 'openjdk version "25.0.5" 2026-10-20 LTS\nOpenJDK Runtime Environment Temurin-25.0.5+11 (build 25.0.5+11-LTS)\n'
 
 
 class FakeHost:
@@ -50,8 +61,7 @@ class FakeHost:
             "cargo --version": (0, "cargo 1.90.0 (840b83a10 2025-07-30)"),
             "git --version": (0, "git version 2.43.0"),
             f"git -C {self.root} config --get core.autocrlf": (1, ""),
-            f"{self.root / '.tools' / 'jdk-25.0.4.1+1' / 'bin' / 'java'} -XX:-UsePerfData -version": (
-                0, 'openjdk version "25.0.4.1" 2026-08-18 LTS'),
+            f"{self.root / '.tools' / 'jdk-25.0.4.1+1' / 'bin' / 'java'} -XX:-UsePerfData -version": (0, TEMURIN_PINNED),
             f"{self.root / '.tools' / 'venv' / 'bin' / 'python'} -I -c {checks.VENV_PROBE}": (0, venv),
             f"{self.root / '.tools' / 'bin' / 'gitleaks'} version": (0, "8.30.1"),
         }
@@ -200,6 +210,59 @@ class FullTier(unittest.TestCase):
         report = checks.run_checks(host)
         self.assertFalse(item(report, "node").ok)
         self.assertFalse(item(report, "jdk").ok)
+
+    def test_only_the_pinned_jdk_passes(self) -> None:
+        # ADR-002 pins one Temurin release (tools/hmstools/bootstrap/steps.py); any other JDK 25 fails (R-14).
+        host = FakeHost()
+        java = host.root / ".tools" / "jdk-25.0.4.1+1" / "bin" / "java"
+        jdk = item(checks.run_checks(host), "jdk")
+        self.assertTrue(jdk.ok)
+        self.assertEqual(jdk.found, '.tools/jdk-25.0.4.1+1: java "25.0.4.1", Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS), '
+                                    "the pinned release")
+        for other in (UBUNTU_25, TEMURIN_NEWER, 'openjdk version "25.0.4.1" 2026-08-18 LTS'):
+            host.commands[f"{java} -XX:-UsePerfData -version"] = (0, other)
+            jdk = item(checks.run_checks(host), "jdk")
+            self.assertFalse(jdk.ok, other)
+            self.assertIn("not the pinned release", jdk.found)
+            self.assertIn("Temurin-25.0.4.1+1", jdk.need)
+            self.assertTrue(any("sh tools/bootstrap jdk" in line for line in jdk.to_dict(windows_host=False)["fix"]["ubuntu"]))
+
+    def test_the_pinned_project_jdk_wins_over_a_system_jdk(self) -> None:
+        # The WSL build host has Ubuntu's OpenJDK 25.0.4.1 on PATH; tools/ci/run uses .tools/jdk-25.0.4.1+1.
+        host = FakeHost()
+        host.on_path["java"] = "/usr/bin/java"
+        host.paths.add("/usr/bin/java")
+        host.commands[f"{Path('/usr/bin/java')} -XX:-UsePerfData -version"] = (0, UBUNTU_25)
+        jdk = item(checks.run_checks(host), "jdk")
+        self.assertTrue(jdk.ok)
+        self.assertTrue(jdk.found.startswith(".tools/jdk-25.0.4.1+1:"), jdk.found)
+
+    def test_without_a_project_jdk_the_system_jdk_must_be_the_pin(self) -> None:
+        host = FakeHost()
+        host.paths.discard(str(host.root / ".tools" / "jdk-25.0.4.1+1" / "bin" / "java"))
+        host.on_path["java"] = "/usr/bin/java"
+        host.paths.add("/usr/bin/java")
+        host.commands[f"{Path('/usr/bin/java')} -XX:-UsePerfData -version"] = (0, UBUNTU_25)
+        jdk = item(checks.run_checks(host), "jdk")
+        self.assertFalse(jdk.ok)
+        self.assertIn("PATH: java \"25.0.4.1\" (build 25.0.4.1+1-1-24.04.4-Ubuntu), not the pinned release", jdk.found)
+        host.commands[f"{Path('/usr/bin/java')} -XX:-UsePerfData -version"] = (0, TEMURIN_PINNED)
+        self.assertTrue(item(checks.run_checks(host), "jdk").ok)
+
+    def test_java_home_comes_before_path_without_a_project_jdk(self) -> None:
+        host = FakeHost(env={"JAVA_HOME": "/opt/jdk-other"})
+        host.paths.discard(str(host.root / ".tools" / "jdk-25.0.4.1+1" / "bin" / "java"))
+        host.paths.update({"/opt/jdk-other/bin/java", "/usr/bin/java"})
+        host.on_path["java"] = "/usr/bin/java"
+        host.commands[f"{Path('/opt/jdk-other/bin/java')} -XX:-UsePerfData -version"] = (0, TEMURIN_NEWER)
+        host.commands[f"{Path('/usr/bin/java')} -XX:-UsePerfData -version"] = (0, TEMURIN_PINNED)
+        jdk = item(checks.run_checks(host), "jdk")
+        self.assertFalse(jdk.ok, "the build would run on JAVA_HOME, which is not the pin")
+        self.assertIn("JAVA_HOME: java \"25.0.5\"", jdk.found)
+        host.envvars["JAVA_HOME"] = "/opt/missing"
+        jdk = item(checks.run_checks(host), "jdk")
+        self.assertFalse(jdk.ok)
+        self.assertIn("JAVA_HOME: no java", jdk.found)
 
     def test_nightly_rust_is_not_stable(self) -> None:
         host = FakeHost()

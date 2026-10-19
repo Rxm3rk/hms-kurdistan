@@ -8,9 +8,10 @@ the last stdout line is one JSON object `{check, ok, counts, errors, warnings}`.
 | Command | What it does |
 |---|---|
 | `sh tools/doctor [--tier fast] [--json]` | Checks the build host against BUILD-PROMPT.md "Before the first session" and prints the install commands for anything missing. Stdlib only (runs before the venv exists). Never installs anything |
-| `sh tools/bootstrap [all\|jdk\|gradle\|gitleaks\|venv\|env]` | Fetches the project-local toolchain into `.tools/`, every download checked by SHA-256. `eval "$(sh tools/bootstrap env)"` sets JAVA_HOME, GRADLE_USER_HOME and PATH. Stdlib only. `--help` explains `--gradle-mirror` |
+| `sh tools/bootstrap [all\|jdk\|gradle\|gitleaks\|venv\|frontend\|env\|requirements-lock]` | Fetches the project-local toolchain into `.tools/` (`jdk`, `gradle`, `gitleaks`, `venv`) and installs `frontend/node_modules` from the lockfile (`frontend`); `all`, the default, runs those five. Every download is checked against a checksum before use; `--help` says which checksum each step uses and explains `--gradle-mirror`. `eval "$(sh tools/bootstrap env)"` sets JAVA_HOME, GRADLE_USER_HOME, COREPACK_HOME and PATH. `requirements-lock` regenerates `tools/requirements.txt`. Stdlib only |
 | `sh tools/ci/run <tier>` | The local CI runner (see `tools/ci/README.md`) |
-| `sh tools/hms repo check` | Repository rules: no CRLF, programme files and ADRs present, tenant-identifier and branch-per-tenant detectors, size limits |
+| `sh <copy>/tools/ci/gates-bite/gates-bite.sh --clone <scratch clone> --out /tmp <sha>` | The plant matrix: in a scratch clone on the WSL build host, plants a violation for each fast-tier gate, records that the gate fails and passes again once the violation is removed, then runs the fast tier on the clean tree. It destroys uncommitted work in the clone, so it refuses a clone not marked as scratch and runs from a copy of the scripts taken out of the commit under test (see `tools/ci/gates-bite/README.md`). The record at `05f159a` is `docs/program/evidence/ci/2026-10-19-gates-bite-05f159a.md` (WSL build host, no cell) |
+| `sh tools/hms repo check` | Repository rules: no CRLF, programme files and ADRs present, tenant-identifier and branch-per-tenant detectors, size limits, entry scripts in git's index and stored as executable |
 | `sh tools/hms licence check --sbom F \| --pnpm F` | The licence policy (see `tools/licence/README.md`) |
 | `sh tools/hms backlog check`, `sh tools/hms safety check` | Backlog and hazard-log checks (their own packages) |
 

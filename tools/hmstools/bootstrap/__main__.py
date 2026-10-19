@@ -20,15 +20,19 @@ from .steps import (
 
 DESCRIPTION = """\
 Fetch the project-local toolchain into .tools/ (git-ignored). Idempotent: anything already present
-and verified is reused. Every download is checked against a SHA-256 checksum from the vendor before
-it is used. Nothing is written outside the repository, no system software is installed and
-'corepack enable' is never run.
+and verified is reused. Every download is checked before it is used: the JDK, the Python packages and
+the frontend packages against checksums recorded in the repository; the Gradle distribution against
+distributionSha256Sum (or the official .sha256 file while the wrapper records none); gitleaks against
+its release's checksums file. Nothing is written outside the repository, no system software is
+installed and 'corepack enable' is never run.
 
 steps:
-  jdk        a JDK 25 for this OS and CPU into .tools/jdk-*: Eclipse Temurin through the
-             api.adoptium.net assets API (which returns the checksum); fallback Amazon Corretto 25
-             from corretto.aws with its published latest_sha256. An existing .tools/jdk-* that
-             reports version 25 is reused.
+  jdk        the pinned JDK, Eclipse Temurin jdk-25.0.4.1+1 (the release ADR-002 records), for this
+             OS and CPU into .tools/jdk-25.0.4.1+1, checked against the SHA-256 recorded for that
+             platform in tools/hmstools/bootstrap/steps.py. No other release or vendor is fetched; if
+             the download fails, the step fails. An existing .tools/jdk-* is reused only if it reports
+             exactly that release (Temurin-25.0.4.1+1, build 25.0.4.1+1-LTS). The pin changes only at
+             a phase boundary (BUILD-PROMPT.md §4.1).
   gradle     the distribution named in backend/gradle/wrapper/gradle-wrapper.properties
              (distributionUrl, distributionSha256Sum; the built-in default is Gradle 9.8.1 while the
              file does not exist) placed into .tools/gradle-home/wrapper/dists/<name>/<base36(md5(url))>/,

@@ -2,7 +2,7 @@
 
 This directory holds the architecture decisions of HMS Kurdistan, one file per decision, in the form of template B.1 (BUILD-PROMPT Appendix B). ADR-001 to ADR-028 are the baseline of BUILD-PROMPT §4.2, written in WP-0.1. "Baseline" means accepted for the build. ADR-001 and ADR-009 stay accepted-provisional until their spike criteria pass on the reference cell (WP-0.6); the other 26 are accepted.
 
-No ADR claims a guard result. Each ADR's "Fitness test that guards it" section names the guard from §4.2, says where and when it will be implemented, and ends with a "State on 2026-10-18" line saying what exists.
+No ADR claims a guard result beyond a stored CI record it cites (ADR-010 and ADR-020 cite `docs/program/evidence/ci/2026-10-18-fast-d3e14de.json`). Each ADR's "Fitness test that guards it" section names the guard from §4.2, says where and when it will be implemented, and ends with a "State on 2026-10-18" line saying what exists.
 
 ## Index
 
@@ -81,4 +81,10 @@ No ADR claims a guard result. Each ADR's "Fitness test that guards it" section n
 
 ## What the repository check enforces
 
-`sh tools/hms repo check` (the `repo-check` step of the fast tier) checks ADR-001 to ADR-028: exactly one file per number; a `Status:` line with an allowed value, and accepted-provisional (or superseded) for ADR-001 and ADR-009; a `Date:` line in `yyyy-mm-dd` form; and the five B.1 headings (`tools/hmstools/repo/rules.py`). It does not check ADR numbers above 028 or this index.
+`sh tools/hms repo check` (the `repo-check` step of the fast tier, `tools/hmstools/repo/rules.py`) checks every file `docs/adr/ADR-*.md`, the baseline ADR-001 to ADR-028 and every later number alike:
+
+- **Numbers.** Each file is named `ADR-nnn-<lower-case-slug>.md`; there is exactly one file per number; ADR-001 to ADR-028 exist, and the numbers run without a gap up to the highest one present.
+- **Template B.1.** The first line is the title `# ADR-nnn: <title>`, with the file's own number. Between the title and the first `##` heading stand exactly one `Status:` line, whose whole value is `proposed`, `accepted`, `accepted-provisional` or `superseded by ADR-nnn` (so `accepted, approved by the CSO` fails, and so does a second line such as `Status: approved by the CSO`), and accepted-provisional or superseded for ADR-001 and ADR-009; and exactly one `Date:` line, with a calendar date in `yyyy-mm-dd` form followed by a `Source:` field. The five B.1 headings (`## Context`, `## Decision`, `## Consequences (including safety and licence impact)`, `## Fitness test that guards it`, `## Reopen if`) appear at level 2, each exactly once and in that order; other level-2 sections may stand between them (ADR-002's "Pinned set"), and headings inside fenced code blocks do not count.
+- **This index.** It exists and links every ADR file by its file name.
+
+It does not check what the sections say, and it does not compare this index's Title and Status columns with the files.

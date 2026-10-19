@@ -11,7 +11,7 @@ from hmstools.backlog.__main__ import main
 from hmstools.backlog.check import run_check
 from hmstools.backlog.commands import generate, render
 from hmstools.backlog.records import dump_records, load_records
-from hmstools.backlog.tests.synthetic import EXPECTED_IDS, PLAN, SyntheticRepo
+from hmstools.backlog.tests.synthetic import EXPECTED_IDS, HAZARD_LOG, PLAN, SyntheticRepo
 
 
 class CheckTest(unittest.TestCase):
@@ -120,6 +120,48 @@ class CheckTest(unittest.TestCase):
         result = self.check()
         self.assertError(result, "work package 'WP-1.1 (full)' from §21 is missing")
         self.assertTrue(any("'WP-4.4 (by hand)' is not derived from §21" in w for w in result.warnings))
+
+    def test_hazard_counts(self) -> None:
+        counts = self.check().counts
+        self.assertEqual((counts["hazard_log_entries"], counts["features_with_hazards"], counts["hazard_links"]), (3, 3, 4))
+
+    def test_hand_edited_hazards_fail(self) -> None:
+        records = load_records(self.paths.backlog)
+        records[0]["hazards"] = ["HAZ-0001"]  # PLT-CORE-01: the hazard log names no entry for it
+        self.paths.backlog.write_text(dump_records(records), encoding="utf-8", newline="\n")
+        result = self.check()
+        self.assertError(result, "PLT-CORE-01: 'hazards' is ['HAZ-0001'] in backlog.yaml but [] in "
+                                 "docs/safety/hazard-log.yaml (the entries whose 'features' list names PLT-CORE-01); "
+                                 "run 'tools/hms backlog render'")
+        render(self.paths)  # derives hazards again: the hand entry goes
+        self.assertEqual(self.check().errors, [])
+
+    def test_a_removed_hazard_link_fails(self) -> None:
+        records = load_records(self.paths.backlog)
+        for record in records:
+            if record["id"] == "RCM-SCH-01":
+                record["hazards"] = []  # the main row and the part row
+        self.paths.backlog.write_text(dump_records(records), encoding="utf-8", newline="\n")
+        result = self.check()
+        self.assertError(result, "RCM-SCH-01: 'hazards' is [] in backlog.yaml but ['HAZ-0002']")
+        self.assertError(result, "RCM-SCH-01 · part: scheme: 'hazards' is [] in backlog.yaml but ['HAZ-0002']")
+
+    def test_a_hazard_log_change_without_render_fails(self) -> None:
+        self.repo.write_hazard_log(HAZARD_LOG.replace("features: []", "features: [AI-GW-01]"))
+        self.assertError(self.check(), "AI-GW-01: 'hazards' is [] in backlog.yaml but ['HAZ-0003']")
+        render(self.paths)
+        self.assertEqual(self.check().errors, [])
+
+    def test_a_hazard_log_naming_an_unknown_feature_fails(self) -> None:
+        self.repo.write_hazard_log(HAZARD_LOG.replace("features: []", "features: [AI-GW-99]"))
+        self.assertError(self.check(), "docs/safety/hazard-log.yaml: AI-GW-99, named by HAZ-0003, is not in "
+                                       "BUILD-PROMPT.md Appendix A")
+
+    def test_a_missing_or_malformed_hazard_log_fails(self) -> None:
+        self.repo.write_hazard_log("hazards: {}\n")
+        self.assertError(self.check(), "docs/safety/hazard-log.yaml: no 'hazards' list")
+        self.paths.hazard_log.unlink()
+        self.assertError(self.check(), "docs/safety/hazard-log.yaml not found; the backlog's hazards cannot be checked")
 
     def test_unparseable_backlog_yaml_fails(self) -> None:
         self.paths.backlog.write_text("- id: [unclosed\n", encoding="utf-8")

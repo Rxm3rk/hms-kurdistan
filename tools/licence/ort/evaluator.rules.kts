@@ -7,7 +7,13 @@
  *     are checked for use restrictions (§4.3);
  *   - a licence that no category covers (unmapped) is an ERROR;
  *   - a conditional licence or component is a WARNING that needs a licence-register entry
- *     (tools/licence/register.yaml);
+ *     (tools/licence/register.yaml), until the ORT step exists (WP-0.9). This is a decision of
+ *     this build (review finding R-18): ORT has never run, these rules cannot yet read the
+ *     register, so as ERRORs they would fail every conditional package, registered or not, and no
+ *     gate reads their result today. The check that fails on an unregistered conditional component
+ *     is 'tools/hms licence check', which reads the register. WP-0.9 makes CONDITIONAL_LICENSE and
+ *     CONDITIONAL_COMPONENT ERRORs for any package the register does not record, and changes the
+ *     README section "Conditional licences" and its unit test in the same change;
  *   - GPL/AGPL in a shipped package is an ERROR: they ship only as unmodified separate
  *     containers with a source offer, which the release pipeline checks (WP-0.9);
  *   - GPL-2.0 with the Classpath exception outside the OpenJDK runtime is an ERROR;
@@ -135,6 +141,7 @@ fun RuleSet.buildOnlyLicenseRule() = packageRule("BUILD_ONLY_NOT_ACCEPTABLE") {
     }
 }
 
+// WARNING until the ORT step exists (WP-0.9), then an ERROR unless the register records the package (header).
 fun RuleSet.conditionalLicenseRule() = packageRule("CONDITIONAL_LICENSE") {
     require { -isExcluded() }
     licenseRule("CONDITIONAL_LICENSE", LicenseView.CONCLUDED_OR_DECLARED_AND_DETECTED) {
@@ -147,6 +154,7 @@ fun RuleSet.conditionalLicenseRule() = packageRule("CONDITIONAL_LICENSE") {
     }
 }
 
+// WARNING until the ORT step exists (WP-0.9), then an ERROR unless the register records the package (header).
 fun RuleSet.conditionalComponentRule() = packageRule("CONDITIONAL_COMPONENT") {
     require { -isExcluded() }
     conditionalComponents.forEach { (pattern, condition) ->

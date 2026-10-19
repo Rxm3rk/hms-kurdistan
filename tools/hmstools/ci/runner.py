@@ -21,6 +21,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from ..bootstrap.steps import is_pinned_jdk, parse_java_version
 from .counts import TEST_KEYS, check_counts, last_json_line
 
 SCHEMA_VERSION = 1
@@ -264,13 +265,53 @@ def git_info(root: Path) -> dict[str, Any]:
     }
 
 
-def first_line_of(argv: list[str], env: dict[str, str]) -> Optional[str]:
+def output_of(argv: list[str], env: dict[str, str]) -> Optional[str]:
+    """A command's stdout and stderr, stripped, if it exits 0 and prints something; None otherwise."""
     try:
         proc = subprocess.run(argv, capture_output=True, env=env, check=False, timeout=60)
     except (OSError, subprocess.SubprocessError):
         return None
     text = (proc.stdout + proc.stderr).decode("utf-8", "replace").strip()
-    return text.splitlines()[0] if proc.returncode == 0 and text else None
+    return text if proc.returncode == 0 and text else None
+
+
+def first_line_of(argv: list[str], env: dict[str, str]) -> Optional[str]:
+    text = output_of(argv, env)
+    return text.splitlines()[0] if text else None
+
+
+OutputOf = Callable[[list[str], dict[str, str]], Optional[str]]
+
+
+def java_info(env: dict[str, str], output: OutputOf = output_of) -> dict[str, Any]:
+    """What the JDK in JAVA_HOME says about itself, for the record's host block.
+
+    ``java`` is the version line of ``java -version``. It names the version only, which another vendor's
+    build of the same release shares, so ``java_runtime`` keeps the "Runtime Environment" line (vendor
+    version and build) and ``java_identity`` the parsed fields of bootstrap.steps.JavaIdentity, with
+    ``pinned`` true only for exactly the release ADR-002 pins. All three are None without JAVA_HOME or
+    when java does not run.
+    """
+    info: dict[str, Any] = {"java": None, "java_runtime": None, "java_identity": None}
+    java_home = env.get("JAVA_HOME")
+    if not java_home:
+        return info
+    exe = Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")
+    text = output([str(exe), "-XX:-UsePerfData", "-version"], env)
+    if not text:
+        return info
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    info["java"] = next((line for line in lines if 'version "' in line), lines[0])
+    info["java_runtime"] = next((line for line in lines if "Runtime Environment" in line), None)
+    identity = parse_java_version(text)
+    if identity is not None:
+        info["java_identity"] = {
+            "version": identity.version,
+            "runtime_version": identity.runtime_version,
+            "vendor_version": identity.vendor_version,
+            "pinned": is_pinned_jdk(identity),
+        }
+    return info
 
 
 def host_info(env: dict[str, str]) -> dict[str, Any]:
@@ -288,11 +329,6 @@ def host_info(env: dict[str, str]) -> dict[str, Any]:
                     os_version += " (WSL2)"
         except OSError:
             pass
-    java = None
-    java_home = env.get("JAVA_HOME")
-    if java_home:
-        exe = Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")
-        java = first_line_of([str(exe), "-XX:-UsePerfData", "-version"], env)
     from shutil import which
 
     node_exe = which("node", path=env.get("PATH"))
@@ -304,7 +340,7 @@ def host_info(env: dict[str, str]) -> dict[str, Any]:
         "cpu_count": os.cpu_count(),
         "ram_gb": None if ram is None else round(ram, 1),
         "python": platform.python_version(),
-        "java": java,
+        **java_info(env),
         "node": first_line_of([node_exe, "--version"], env) if node_exe else None,
     }
 

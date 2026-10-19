@@ -49,7 +49,9 @@ allowed:
 
 # ---------------------------------------------------------------------------------------------
 # Conditional (§4.3): allowed only unmodified and recorded in the licence register. The checker
-# reports these as warnings that name the register entry needed; ORT reports them as WARNING.
+# fails on a conditional component until tools/licence/register.yaml records it as unmodified. The
+# ORT evaluator rules report them as WARNING until the ORT step exists (WP-0.9; see
+# tools/licence/README.md, "Conditional licences").
 conditional:
   licences:
     - id: MPL-1.1

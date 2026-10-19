@@ -21,7 +21,7 @@ Date: 2026-10-18   Source: K §7.2, §7.6, §15.4 (S18-K), K-13; BP §7.2, §7.7
 **Stack detail that belongs to this decision** (BUILD-PROMPT §4.1):
 - **Language and runtime:** Kotlin 2.x on OpenJDK 25 LTS (21 minimum). C#/.NET is the recorded near-tie; switching needs an ADR backed by the S18-K talent survey.
 - **Framework:** Spring Boot (current GA line) with Spring Modulith for module boundaries, events and verification (K §7.6).
-- **Build [P]:** Gradle with the Kotlin DSL, a version catalogue and convention plugins in `backend/build-logic/`. The Gradle root is `backend/` with the wrapper `backend/gradlew`; `backend/gradlew -p backend fastTier` runs compilation, detekt, ktlintCheck, unit tests, short property-based tests (system property `hms.pbt.sequences`, default 1000) and architecture tests for every project.
+- **Build [P]:** Gradle with the Kotlin DSL, a version catalogue and convention plugins in `backend/build-logic/`. The Gradle root is `backend/` with the wrapper `backend/gradlew`; `sh backend/gradlew -p backend fastTier` runs compilation, detekt, ktlintCheck, unit tests, short property-based tests (system property `hms.pbt.sequences`, default 1000) and architecture tests for every project.
 - **Packages [P]:** base package `hms`. Application modules use `hms.<module>` with hyphens turned into dots (for example `trust-identity` → `hms.trust.identity`, `reg-dose` → `hms.reg.dose`). Layers are the sub-packages `api`, `domain`, `application`, `infrastructure`, `web` and `events` (BUILD-PROMPT §6.1). Shared kernel libraries under `backend/platform/` use `hms.kernel.<lib>`.
 - **Conventions** (BUILD-PROMPT §6.2): commands carry tenant, facility, actor, on-behalf-of, device, purpose-of-use, clinical time, idempotency key and correlation id; business outcomes are sealed result types, with RFC 9457 problem details at the HTTP boundary; `Money` is `BigDecimal` plus an ISO 4217 currency, never floating point; `Clock` is injected and the domain never calls `now()`; every quantity carries a UCUM unit in a platform `Quantity` type; PHI-safe logging with a field allowlist; no tenant-specific code.
 - **Quality and test tooling [P]:** detekt and ktlint; JUnit (current major), Kotest including property-based testing, Testcontainers, ArchUnit plus Spring Modulith verification (BUILD-PROMPT §4.1).
@@ -29,10 +29,10 @@ Date: 2026-10-18   Source: K §7.2, §7.6, §15.4 (S18-K), K-13; BP §7.2, §7.7
 
 ## Pinned set
 
-**Where the pins live.** The authoritative pins are in `backend/gradle/libs.versions.toml`, `frontend/pnpm-lock.yaml` and, later, the Helm charts under `deploy/helm/`. This section is a record of them. If it ever differs from those files, the files win and this section is corrected. Pins are re-resolved only at phase boundaries, through the dependency scorecard (BUILD-PROMPT §4.3).
+**Where the pins live.** The authoritative pins are in `backend/gradle/libs.versions.toml`, `frontend/pnpm-lock.yaml`, `tools/hmstools/bootstrap/steps.py` for the JDK (the catalogue holds the JDK major only) and, later, the Helm charts under `deploy/helm/`. This section is a record of them. If it ever differs from those files, the files win and this section is corrected. Pins are re-resolved only at phase boundaries, through the dependency scorecard (BUILD-PROMPT §4.3).
 
 **Backend** (resolved for Phase 0 under the version rule above; `backend/gradle/libs.versions.toml`, which also records each licence):
-- JDK: OpenJDK 25.0.4 (Eclipse Temurin 25.0.4.1+1) through `jvmToolchain(25)`. Each checkout gets it project-local under `.tools/` (git-ignored) from `tools/bootstrap`, which verifies the download's SHA-256 (KA-002).
+- JDK: Eclipse Temurin 25.0.4.1+1 (OpenJDK 25.0.4.1; Adoptium release `jdk-25.0.4.1+1`). The release and the SHA-256 of each platform's archive (Linux x64 and aarch64, Windows x64, macOS x64 and aarch64) are pinned in `tools/hmstools/bootstrap/steps.py` (`JDK_RELEASE`, `JDK_ARCHIVES`); `backend/gradle/libs.versions.toml` holds the major only (`java = "25"`), used through `jvmToolchain(25)`. `sh tools/bootstrap jdk` installs exactly that release, project-local under `.tools/jdk-25.0.4.1+1` (git-ignored), after checking the archive against the recorded SHA-256. It fetches no other release or vendor: a JDK in `.tools/` that does not report `Temurin-25.0.4.1+1` (build `25.0.4.1+1-LTS`) is not used, and a failed download fails the step. `tools/doctor` passes its JDK item only for that release (KA-002). Like every pin here, the release and its checksums are re-resolved only at a phase boundary (BUILD-PROMPT §4.1), in one commit that changes `steps.py` and this line.
 - Gradle 9.8.1 through the wrapper (distribution SHA-256 `dce76f55f8e251a3a1f130eb120f30b3d271de2b76c9b0729d316b5a1b6dc01f`, the official checksum).
 - Spring Boot 4.1.1. Its BOM manages, and the catalogue repeats:
   - Spring Framework 7.0.9;
@@ -74,13 +74,13 @@ Date: 2026-10-18   Source: K §7.2, §7.6, §15.4 (S18-K), K-13; BP §7.2, §7.7
 - detekt 2.x is re-evaluated at the next phase boundary, once it has a GA release with at least one patch release.
 - The Linux build host BUILD-PROMPT expects now exists: WSL2 with Ubuntu 24.04.5 on the Windows 11 machine, provisioned by `tools/host/provision-ubuntu.sh` (DN-001 to DN-004, closed). The gates of record run in a clone in the WSL file system; the Windows checkout, where the agent session runs, keeps a project-local toolchain in `.tools/` for editing and the fast tier, and its runs are labelled "Windows host" (KA-001, KA-002). The pins do not depend on the host.
 
-**Licence.** Kotlin (Apache-2.0), Spring Boot and Spring Modulith (Apache-2.0) and the OpenJDK runtime (GPL-2.0 with the Classpath exception, explicitly allowed) are on the allowlist (BUILD-PROMPT §4.1, §4.3). The licence of every other pinned artefact is established by the ORT scan (ADR-022), not asserted here.
+**Licence.** Kotlin (Apache-2.0), Spring Boot and Spring Modulith (Apache-2.0) are on the allowlist (BUILD-PROMPT §4.1, §4.3). The OpenJDK runtime (GPL-2.0 with the Classpath exception) is allowed only unmodified and recorded in the licence register (§4.3): it is to be recorded in `tools/licence/register.yaml` when a shipped image first carries it, and until then `tools/hms licence check` fails on it (ADR-022). The JDK in `.tools/` is a build tool and ships nowhere. The licence of every other pinned artefact is established by the ORT scan (ADR-022), not asserted here.
 
 ## Fitness test that guards it
 
 **Guard (BUILD-PROMPT §4.2):** Build.
 
-**Where and when.** The Gradle build under `backend/` (wrapper `backend/gradlew`, catalogue `backend/gradle/libs.versions.toml`, convention plugins in `backend/build-logic/`) is created in WP-0.1. `backend/gradlew -p backend fastTier` is part of the fast tier, run through `tools/ci/run fast`, which writes its evidence to `docs/program/evidence/ci/` (BUILD-PROMPT §19.1).
+**Where and when.** The Gradle build under `backend/` (wrapper `backend/gradlew`, catalogue `backend/gradle/libs.versions.toml`, convention plugins in `backend/build-logic/`) is created in WP-0.1. `sh backend/gradlew -p backend fastTier` is part of the fast tier, run through `tools/ci/run fast`, which writes its evidence to `docs/program/evidence/ci/` (BUILD-PROMPT §19.1).
 
 **State on 2026-10-18:** being built in WP-0.1 by the backend part of the work package. This ADR claims no build result; the result is the CI evidence record.
 

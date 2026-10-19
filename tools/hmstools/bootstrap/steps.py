@@ -1,5 +1,5 @@
-"""The bootstrap steps: JDK 25, the Gradle distribution, gitleaks, the project venv, the frontend packages
-and the shell environment."""
+"""The bootstrap steps: the pinned JDK 25 (one recorded Eclipse Temurin release), the Gradle distribution,
+gitleaks, the project venv, the frontend packages and the shell environment."""
 
 from __future__ import annotations
 
@@ -36,6 +36,42 @@ from .core import (
 
 JDK_MAJOR = 25
 
+# JDK: one recorded Eclipse Temurin release, the one ADR-002 names, with the SHA-256 of each platform's
+# archive recorded here; never "latest" and no other vendor as a fallback. The checksums are the ones the
+# Adoptium API lists for exactly this release (api.adoptium.net/v3/assets/release_name/eclipse/<release>,
+# image_type=jdk, vendor=eclipse), and each matched the release's own <archive>.sha256.txt when recorded on
+# 2026-10-18. Re-resolve only at a phase boundary (BUILD-PROMPT §4.1): choose the newest Temurin 25 GA
+# release, read every archive name and checksum from that API, check each against its .sha256.txt, and
+# change the constants below and ADR-002's pinned set in the same commit.
+JDK_RELEASE = "jdk-25.0.4.1+1"  # Adoptium release name; also the archive's top-level directory
+JDK_VERSION = "25.0.4.1"  # java.version: 'java -version' prints: openjdk version "25.0.4.1"
+JDK_RUNTIME_VERSION = "25.0.4.1+1-LTS"  # java.runtime.version: "(build 25.0.4.1+1-LTS)"
+JDK_VENDOR_VERSION = "Temurin-25.0.4.1+1"  # java.vendor.version: "Runtime Environment Temurin-25.0.4.1+1"
+JDK_DOWNLOAD_BASE = "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.4.1%2B1"
+JDK_ARCHIVES: dict[tuple[str, str], tuple[str, str]] = {
+    # (os, arch): (archive name, SHA-256). Adoptium publishes no Windows aarch64 JDK for this release.
+    ("linux", "x64"): (
+        "OpenJDK25U-jdk_x64_linux_hotspot_25.0.4.1_1.tar.gz",
+        "dbb698396d478e7fa2b1e50f4103324b2a99b90569ee27c33f2261f9215cf41e",
+    ),
+    ("windows", "x64"): (
+        "OpenJDK25U-jdk_x64_windows_hotspot_25.0.4.1_1.zip",
+        "00c847d804f4a78e9f04f2683faf14fed898535b177b7fc704486cb0284e9283",
+    ),
+    ("linux", "aarch64"): (
+        "OpenJDK25U-jdk_aarch64_linux_hotspot_25.0.4.1_1.tar.gz",
+        "69df11a02cfa3ef7d7ca645e03edce6778ec090e100f6ae2b42097865730ac52",
+    ),
+    ("mac", "x64"): (
+        "OpenJDK25U-jdk_x64_mac_hotspot_25.0.4.1_1.tar.gz",
+        "e6229d9504f7922053ab31821b9e6bee8761daf7b026a3476d1a027563009880",
+    ),
+    ("mac", "aarch64"): (
+        "OpenJDK25U-jdk_aarch64_mac_hotspot_25.0.4.1_1.tar.gz",
+        "61979887f7506a24a57439ff99adb8b3a7fc89977d9cfe3b8984f58a981b7b9d",
+    ),
+}
+
 # Gradle: used when backend/gradle/wrapper/gradle-wrapper.properties does not exist yet.
 GRADLE_DEFAULT_URL = "https://services.gradle.org/distributions/gradle-9.8.1-bin.zip"
 GRADLE_DEFAULT_SHA256 = "dce76f55f8e251a3a1f130eb120f30b3d271de2b76c9b0729d316b5a1b6dc01f"
@@ -58,14 +94,50 @@ COREPACK_HOME = "corepack"
 # =========================================================================== JDK
 
 
-def java_version(java: Path, env: Optional[dict[str, str]] = None) -> Optional[str]:
-    """Return the version string that ``java -version`` reports, or None."""
+@dataclass(frozen=True)
+class JavaIdentity:
+    """What ``java -version`` says about a JDK: java.version, java.runtime.version, java.vendor.version."""
+
+    version: str
+    runtime_version: Optional[str] = None
+    vendor_version: Optional[str] = None
+
+    def describe(self) -> str:
+        vendor = f", {self.vendor_version}" if self.vendor_version else ""
+        build = f"build {self.runtime_version}" if self.runtime_version else "no build string"
+        return f'java "{self.version}"{vendor} ({build})'
+
+
+PINNED_JDK = JavaIdentity(JDK_VERSION, JDK_RUNTIME_VERSION, JDK_VENDOR_VERSION)
+
+
+def parse_java_version(output: str) -> Optional[JavaIdentity]:
+    """Parse ``java -version`` output, for example:
+
+        openjdk version "25.0.4.1" 2026-08-18 LTS
+        OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)
+    """
+    version = re.search(r'version "([^"]+)"', output)
+    if not version:
+        return None
+    runtime = re.search(r"Runtime Environment(?: (\S+))? \(build ([^)\s]+)\)", output)
+    return JavaIdentity(
+        version=version.group(1),
+        runtime_version=runtime.group(2) if runtime else None,
+        vendor_version=runtime.group(1) if runtime else None,
+    )
+
+
+def java_identity(java: Path, env: Optional[dict[str, str]] = None) -> Optional[JavaIdentity]:
+    """Run ``java -version`` and parse it; None if it does not run or prints no version."""
     # -XX:-UsePerfData stops the JVM writing hsperfdata files into the system temporary directory.
     code, out = run_quiet([str(java), "-XX:-UsePerfData", "-version"], timeout=60, env=env)
-    if code != 0:
-        return None
-    match = re.search(r'version "([^"]+)"', out)
-    return match.group(1) if match else None
+    return parse_java_version(out) if code == 0 else None
+
+
+def is_pinned_jdk(identity: Optional[JavaIdentity]) -> bool:
+    """True only for exactly the recorded release: version, build and vendor version all match."""
+    return identity == PINNED_JDK
 
 
 def java_major(version: Optional[str]) -> Optional[int]:
@@ -89,28 +161,28 @@ def java_exe(home: Path) -> Path:
     return home / "bin" / exe_name("java")
 
 
-def project_jdks(root: Path) -> list[tuple[Path, str]]:
-    """Every .tools/jdk-* directory with a working java, newest version first."""
+def project_jdks(root: Path) -> list[tuple[Path, JavaIdentity]]:
+    """Every .tools/jdk-* directory with a java that runs and reports a version, the pinned release's own
+    directory (.tools/jdk-25.0.4.1+1) first, the rest by name."""
     found = []
-    for candidate in sorted(tools_dir(root).glob("jdk-*")):
+    candidates = sorted(tools_dir(root).glob("jdk-*"), key=lambda p: (p.name != JDK_RELEASE, p.name))
+    for candidate in candidates:
         if not candidate.is_dir():
             continue
         home = java_home_of(candidate)
         if java_exe(home).is_file():
-            version = java_version(java_exe(home))
-            if version:
-                found.append((home, version))
-
-    def key(item: tuple[Path, str]) -> list[int]:
-        return [int(part) for part in re.findall(r"\d+", item[1])]
-
-    return sorted(found, key=key, reverse=True)
+            identity = java_identity(java_exe(home))
+            if identity:
+                found.append((home, identity))
+    return found
 
 
-def find_project_jdk(root: Path) -> Optional[tuple[Path, str]]:
-    for home, version in project_jdks(root):
-        if java_major(version) == JDK_MAJOR:
-            return home, version
+def find_project_jdk(root: Path) -> Optional[tuple[Path, JavaIdentity]]:
+    """The project-local JDK that reports exactly the pinned release, or None. Any other .tools/jdk-*
+    (another patch level, another vendor) is never used."""
+    for home, identity in project_jdks(root):
+        if is_pinned_jdk(identity):
+            return home, identity
     return None
 
 
@@ -122,64 +194,65 @@ class Asset:
     vendor: str
 
 
-def temurin_asset(os_name: str, arch: str) -> Asset:
-    api_os = {"linux": "linux", "windows": "windows", "mac": "mac"}[os_name]
-    url = (
-        f"https://api.adoptium.net/v3/assets/latest/{JDK_MAJOR}/hotspot"
-        f"?architecture={arch}&image_type=jdk&os={api_os}&vendor=eclipse"
-    )
-    data = json.loads(http_get(url).decode("utf-8"))
-    if not data:
-        raise BootstrapError(f"the Adoptium API returned no JDK {JDK_MAJOR} for {os_name}/{arch}")
-    package = data[0]["binary"]["package"]
-    return Asset(url=package["link"], name=package["name"], sha256=package["checksum"], vendor="Eclipse Temurin")
-
-
-def corretto_asset(os_name: str, arch: str) -> Asset:
-    corretto_os = {"linux": "linux", "windows": "windows", "mac": "macos"}[os_name]
-    ext = "zip" if os_name == "windows" else "tar.gz"
-    name = f"amazon-corretto-{JDK_MAJOR}-{arch}-{corretto_os}-jdk.{ext}"
-    checksum = http_get(f"https://corretto.aws/downloads/latest_sha256/{name}").decode("ascii").strip().split()[0]
-    # "latest" moves, so the cached file name carries the checksum prefix.
-    return Asset(
-        url=f"https://corretto.aws/downloads/latest/{name}",
-        name=f"{checksum[:12]}-{name}",
-        sha256=checksum,
-        vendor="Amazon Corretto",
-    )
+def pinned_jdk_asset(os_name: str, arch: str) -> Asset:
+    """The pinned Temurin archive for this platform, with its recorded SHA-256 (no network access)."""
+    entry = JDK_ARCHIVES.get((os_name, arch))
+    if entry is None:
+        supported = ", ".join(f"{o}/{a}" for o, a in sorted(JDK_ARCHIVES))
+        raise BootstrapError(
+            f"no pinned {JDK_RELEASE} archive is recorded for {os_name}/{arch} (recorded: {supported}); "
+            "adding a platform means recording its official checksum in tools/hmstools/bootstrap/steps.py"
+        )
+    name, sha256 = entry
+    return Asset(url=f"{JDK_DOWNLOAD_BASE}/{name}", name=name, sha256=sha256, vendor="Eclipse Temurin")
 
 
 def ensure_jdk(root: Path) -> Path:
-    existing = find_project_jdk(root)
-    if existing:
-        home, version = existing
-        log(f"JDK: reusing {home.relative_to(root).as_posix()} (java {version})")
-        return home
-    os_name, arch = host_os(), host_arch()
+    """The pinned Temurin release in .tools/jdk-25.0.4.1+1: reused if it reports exactly that release,
+    otherwise fetched and checked against the recorded SHA-256. There is no fallback to another release
+    or vendor: if the download fails, the step fails."""
+    found = project_jdks(root)
+    for home, identity in found:
+        if is_pinned_jdk(identity):
+            log(f"JDK: reusing {home.relative_to(root).as_posix()} ({identity.describe()}, the pinned release)")
+            return home
+    for home, identity in found:
+        major = java_major(identity.version)
+        log(
+            f"JDK: not using {home.relative_to(root).as_posix()}: it reports {identity.describe()} "
+            f"(JDK {major if major is not None else '?'}), not the pinned {PINNED_JDK.describe()}"
+        )
+    asset = pinned_jdk_asset(host_os(), host_arch())
+    cached = tools_dir(root) / "downloads" / asset.name
+    log(f"JDK: fetching the pinned {asset.vendor} {JDK_RELEASE}: {asset.name} (recorded sha256 {asset.sha256})")
     try:
-        asset = temurin_asset(os_name, arch)
-    except (BootstrapError, KeyError, ValueError) as exc:
-        log(f"JDK: the Eclipse Temurin assets API failed ({exc}); falling back to Amazon Corretto {JDK_MAJOR}")
-        asset = corretto_asset(os_name, arch)
-    log(f"JDK: fetching {asset.vendor} {asset.name}")
-    archive = download(asset.url, tools_dir(root) / "downloads" / asset.name, asset.sha256)
+        archive = download(asset.url, cached, asset.sha256)
+    except BootstrapError as exc:
+        raise BootstrapError(
+            f"{exc}. No other JDK is fetched instead: the pin is the one ADR-002 records. Run "
+            f"'sh tools/bootstrap jdk' again to resume, or place the official {asset.name} ({asset.url}) at "
+            f"{cached.relative_to(root).as_posix()}; it is checked against the recorded SHA-256 before use"
+        ) from exc
     staging = tools_dir(root) / f".staging-jdk-{os.getpid()}"
+    target = tools_dir(root) / JDK_RELEASE
     remove_tree(staging)
     try:
         extract_archive(archive, staging)
         top = single_top_dir(staging)
-        target = tools_dir(root) / (top.name if top.name.startswith("jdk-") else f"jdk-{top.name}")
+        if top.name != JDK_RELEASE:
+            raise BootstrapError(f"{asset.name} unpacks to {top.name!r}, not {JDK_RELEASE!r}")
         if target.exists():
-            log(f"JDK: {target.name} exists but is not a working JDK {JDK_MAJOR}; replacing it")
+            log(f"JDK: {target.name} exists but does not report the pinned release; replacing it")
             remove_tree(target)
         os.replace(top, target)
     finally:
         remove_tree(staging)
     home = java_home_of(target)
-    version = java_version(java_exe(home))
-    if java_major(version) != JDK_MAJOR:
-        raise BootstrapError(f"the JDK in {target} reports version {version!r}, expected {JDK_MAJOR}")
-    log(f"JDK: installed {target.relative_to(root).as_posix()} (java {version})")
+    identity = java_identity(java_exe(home))
+    if not is_pinned_jdk(identity):
+        found_text = identity.describe() if identity else "nothing (java does not run)"
+        raise BootstrapError(f"the JDK in {target} reports {found_text}, expected {PINNED_JDK.describe()}")
+    log(f"JDK: installed {target.relative_to(root).as_posix()} ({identity.describe()})")
     return home
 
 
@@ -618,7 +691,10 @@ def env_script(root: Path, msys: Optional[bool] = None) -> str:
         lines.append(f"export JAVA_HOME={shell_quote(convert(jdk[0]))}")
         path_parts.append(convert(jdk[0] / "bin"))
     else:
-        lines.append(f"echo 'tools/bootstrap env: no JDK {JDK_MAJOR} in .tools/; run sh tools/bootstrap jdk' >&2")
+        lines.append(
+            f"echo 'tools/bootstrap env: no JDK {JDK_MAJOR} of the pinned release ({JDK_VENDOR_VERSION}) in .tools/; "
+            "run sh tools/bootstrap jdk' >&2"
+        )
     lines.append(f"export GRADLE_USER_HOME={shell_quote(convert(tools_dir(root) / 'gradle-home'))}")
     lines.append(f"export COREPACK_HOME={shell_quote(convert(tools_dir(root) / COREPACK_HOME))}")
     lines.append(f"export PATH={shell_quote(':'.join(path_parts))}:\"$PATH\"")

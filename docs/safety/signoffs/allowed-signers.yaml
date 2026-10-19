@@ -1,0 +1,30 @@
+# Allowed signers of sign-off records (BUILD-PROMPT.md §3.5; docs/safety/signoffs/README.md).
+#
+# ONLY A HUMAN ADDS, CHANGES OR REMOVES AN ENTRY IN THIS FILE. THE BUILD AGENT NEVER DOES. The build
+# created this file in WP-0.1 with no entry, which is not a trust anchor; from then on the build agent
+# never commits a change to it.
+#
+# A sign-off record counts only if every commit that touches it has a good signature (git %G? = G) by a
+# key listed here, for the person the record names and in a role listed for them. With no entry, no
+# sign-off record can authorise anything, and `sh tools/hms safety check` says so.
+#
+# Trust: the first commit that adds a key to this file is the trust anchor (so is a commit that adds a
+# key after a listed signer has removed every key); it must not carry an AI co-author trailer. Nothing
+# in the repository can show who made it, so the reviewer and the human verify each fingerprint with
+# its holder out of band before trusting any record (docs/program/KNOWN-ANOMALIES.md, KA-011). Every
+# other change to this file must be in a commit signed by a key listed in the trusted version before
+# it; otherwise the check fails. Where merged lines of history trust different signers, no signer is
+# trusted until every side has approved the signers of one version: a side approves the signers it
+# already trusts, and others only in a commit signed by a key it lists (docs/safety/signoffs/README.md,
+# "Who may sign"). The format is allowed-signers.schema.json; each committed version is validated
+# against the schema committed with it. One entry per key (shape only; not an entry):
+#
+#   - name: <full name, exactly as written in the person's records>
+#     roles: [<role id, for example cso>]
+#     key_type: <gpg | ssh>
+#     fingerprint: <full fingerprint: 40 upper-case hex digits for gpg, SHA256:… for ssh>
+#     added: <yyyy-mm-dd>
+
+schema_version: 1
+
+signers: []

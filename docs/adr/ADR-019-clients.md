@@ -39,7 +39,7 @@ Date: 2026-10-18   Source: K §6, §7.2 (kept), §7.6; BP §6.6, §7.2, §7.7; R
 
 **Guard (BUILD-PROMPT §4.2):** none is named ("—").
 
-**Related checks** that touch the clients but are not guards of this decision: the fast tier's ESLint, TypeScript type-checking, unit tests and localisation lint (`corepack pnpm --dir frontend run fast`, created in WP-0.1); BUILD-PROMPT §6.8 item 6 (no hard-coded user-facing strings, no physical CSS directions, banner present on clinical routes); the Playwright, axe and RTL-diff harnesses of WP-0.7.
+**Related checks** that touch the clients but are not guards of this decision: the fast tier's ESLint, TypeScript type-checking, unit tests and localisation lint (`corepack pnpm run fast`, run from `frontend/`, created in WP-0.1); BUILD-PROMPT §6.8 item 6 (no hard-coded user-facing strings, no physical CSS directions, banner present on clinical routes); the Playwright, axe and RTL-diff harnesses of WP-0.7.
 
 **State on 2026-10-18:** no guard is defined for this ADR, and none is claimed.
 

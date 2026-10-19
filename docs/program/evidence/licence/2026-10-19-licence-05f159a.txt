@@ -1,0 +1,8 @@
+$ sh tools/hms licence check --pnpm build/licences-shipped.json --json
+licence: PASS (components=2, allowed=2, conditional=0, conditional_registered=0, denied=0, unmapped=0, register_entries=0)
+{"check": "licence", "counts": {"allowed": 2, "components": 2, "conditional": 0, "conditional_registered": 0, "denied": 0, "register_entries": 0, "unmapped": 0}, "errors": [], "ok": true, "warnings": []}
+exit 0
+$ sh tools/hms licence check --pnpm build/licences-all.json --scope build-only --json
+licence: PASS (components=124, allowed=124, conditional=0, conditional_registered=0, denied=0, unmapped=0, register_entries=0)
+{"check": "licence", "counts": {"allowed": 124, "components": 124, "conditional": 0, "conditional_registered": 0, "denied": 0, "register_entries": 0, "unmapped": 0}, "errors": [], "ok": true, "warnings": []}
+exit 0

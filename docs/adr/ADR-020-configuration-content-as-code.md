@@ -57,7 +57,7 @@ Date: 2026-10-18   Source: K §7 (intro), §7.2 (kept), §7.7, §5.4, §17, K-26
 - **Signed-bundle verification:** with the signed configuration bundles of WP-0.3 (`PLT-CFG-01`) and the Kurdistan pack, which WP-1.1 loads as signed configuration (`PLT-CFG-02`; exit evidence "the Kurdistan pack loads as signed configuration"). BUILD-PROMPT does not say which CI tier runs it.
 - **Related checks** (not this ADR's named guards): the content-pipeline validations and the synthetic-content promotion gate (§19.4), and the WP-0.3 exit evidence "a locked setting cannot be overridden below its lock".
 
-**State on 2026-10-18:** the branch and tenant-identifier detectors are written in the WP-0.1 working tree (`tools/hmstools/repo/rules.py`, rules (c) and (d)); at the time of writing, no record under `docs/program/evidence/ci/` shows a run of them. Signed-bundle verification is not implemented. This ADR claims no result.
+**State on 2026-10-18:** the branch and tenant-identifier detectors exist (`tools/hmstools/repo/rules.py`, rules (c) and (d)) and run in the fast tier. The fast-tier record `docs/program/evidence/ci/2026-10-18-fast-d3e14de.json` (WSL build host, clean tree at `d3e14de`) shows the `repo-check` step PASS: 3 branch names checked, 132 files scanned for registered tenant identifiers, 0 matches. Signed-bundle verification is not implemented. This ADR claims no result beyond that record.
 
 ## Reopen if
 

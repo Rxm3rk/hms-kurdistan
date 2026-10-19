@@ -12,7 +12,7 @@ import time
 import unittest
 from pathlib import Path
 
-from hmstools.ci import counts, tiers
+from hmstools.ci import counts, runner, tiers
 from hmstools.ci.runner import (
     FAIL,
     NOT_BUILT,
@@ -31,7 +31,7 @@ GIT = ["git", "-c", "core.autocrlf=false", "-c", "user.name=fixture", "-c", "use
        "-c", "commit.gpgsign=false"]
 ISO = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$")
 HOST = {"os": "Linux", "os_version": "fixture", "arch": "x86_64", "cpu_count": 8, "ram_gb": 32.0,
-        "python": "3.12.3", "java": None, "node": None}
+        "python": "3.12.3", "java": None, "java_runtime": None, "java_identity": None, "node": None}
 
 
 def py(code: str) -> list[str]:
@@ -193,6 +193,69 @@ class Evidence(Fixture):
         report = self.run_steps([FunctionStep("x", fake, "x"), FunctionStep("y", fake, "y")])
         totals = report.record["totals"]
         self.assertEqual((totals["tests"], totals["skipped"]), (10, 2))
+
+
+# 'java -version' (stderr) of the pinned release and of another vendor's build of the same version.
+TEMURIN_PINNED = (
+    'openjdk version "25.0.4.1" 2026-08-18 LTS\n'
+    "OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)\n"
+    "OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS, mixed mode, sharing)\n"
+)
+UBUNTU_SAME_VERSION = (
+    'openjdk version "25.0.4.1" 2026-08-18\n'
+    "OpenJDK Runtime Environment (build 25.0.4.1+1-Ubuntu-1ubuntu124.04)\n"
+)
+
+
+class HostJava(unittest.TestCase):
+    """The record's host block names the JDK's vendor build, not only its version (review finding R-14)."""
+
+    ENV = {"JAVA_HOME": "/fixture/jdk"}
+
+    def info(self, printed: str | None) -> dict:
+        calls: list[list[str]] = []
+
+        def output(argv: list[str], env: dict[str, str]) -> str | None:
+            calls.append(argv)
+            return None if printed is None else printed.strip()
+
+        info = runner.java_info(self.ENV, output)
+        if calls:
+            self.assertEqual(Path(calls[0][0]).parent, Path("/fixture/jdk/bin"))
+            self.assertEqual(calls[0][1:], ["-XX:-UsePerfData", "-version"])
+        return info
+
+    def test_the_pinned_release_is_recorded_with_its_vendor_and_build(self) -> None:
+        info = self.info(TEMURIN_PINNED)
+        self.assertEqual(info["java"], 'openjdk version "25.0.4.1" 2026-08-18 LTS')
+        self.assertEqual(info["java_runtime"], "OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)")
+        self.assertEqual(info["java_identity"], {
+            "version": "25.0.4.1", "runtime_version": "25.0.4.1+1-LTS", "vendor_version": "Temurin-25.0.4.1+1", "pinned": True,
+        })
+
+    def test_another_build_of_the_same_version_is_told_apart(self) -> None:
+        info = self.info(UBUNTU_SAME_VERSION)
+        self.assertEqual(info["java"], 'openjdk version "25.0.4.1" 2026-08-18')
+        self.assertEqual(info["java_runtime"], "OpenJDK Runtime Environment (build 25.0.4.1+1-Ubuntu-1ubuntu124.04)")
+        self.assertEqual(info["java_identity"], {
+            "version": "25.0.4.1", "runtime_version": "25.0.4.1+1-Ubuntu-1ubuntu124.04", "vendor_version": None, "pinned": False,
+        })
+
+    def test_a_line_before_the_version_does_not_hide_it(self) -> None:
+        info = self.info("Picked up JAVA_TOOL_OPTIONS: -Dfixture=1\n" + TEMURIN_PINNED)
+        self.assertEqual(info["java"], 'openjdk version "25.0.4.1" 2026-08-18 LTS')
+        self.assertTrue(info["java_identity"]["pinned"])
+
+    def test_no_java_gives_no_identity(self) -> None:
+        empty = {"java": None, "java_runtime": None, "java_identity": None}
+        self.assertEqual(self.info(None), empty)
+        self.assertEqual(runner.java_info({}, lambda argv, env: self.fail("java must not run without JAVA_HOME")), empty)
+
+    def test_the_real_host_block_has_the_java_fields(self) -> None:
+        host = runner.host_info({"PATH": ""})
+        for key in ["os", "os_version", "arch", "cpu_count", "ram_gb", "python", "java", "java_runtime", "java_identity", "node"]:
+            self.assertIn(key, host)
+        self.assertEqual((host["java"], host["java_runtime"], host["java_identity"]), (None, None, None))
 
 
 class CheckContract(unittest.TestCase):

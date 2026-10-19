@@ -12,7 +12,7 @@ Date: 2026-10-18   Source: K §5.5, §7.2 (kept), K-04, K-10, Appendix A.2 (KDV-
 
 **Sources.** K keeps BP's ADR-017 text (K §7.2; K §5.5). Quiet-by-default CDS is K-10. Not marked [P].
 
-**Difference between sources, recorded.** BUILD-PROMPT §4.2 words the reopen trigger as "a change to the device boundary agreed through the Safety Board", where BP §7.2 (kept by K) says "a notified-body-agreed change". K plans no notified-body route before an export market chooses one (K-04; KDV-3), so §4.2 names the body that exists in Kurdistan. This ADR follows §4.2 and records the difference for `docs/program/OPEN-QUESTIONS.md` (BUILD-PROMPT §1).
+**Difference between sources, recorded.** BUILD-PROMPT §4.2 words the reopen trigger as "a change to the device boundary agreed through the Safety Board", where BP §7.2 (kept by K) says "a notified-body-agreed change". K plans no notified-body route before an export market chooses one (K-04; KDV-3), so §4.2 names the body that exists in Kurdistan. This ADR follows §4.2; the difference is open in `docs/program/OPEN-QUESTIONS.md` as OQ-118 until a human confirms it (BUILD-PROMPT §1).
 
 ## Decision
 

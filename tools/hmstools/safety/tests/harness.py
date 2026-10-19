@@ -16,6 +16,7 @@ from typing import Any, Callable
 import yaml
 
 from hmstools.common import CheckResult
+from hmstools.safety import signoffs as so
 from hmstools.safety.check import SafetyPaths, run_check
 
 REPO = Path(__file__).resolve().parents[4]
@@ -36,7 +37,7 @@ def real_log() -> dict[str, Any]:
     return copy.deepcopy(_REAL_LOG)
 
 
-def accept_all(_path: Path) -> list[str]:
+def accept_all(_record: so.SignoffRecord) -> list[str]:
     """Stand-in authenticator: treats every record as committed and signed (the git check is tested separately)."""
     return []
 
@@ -104,7 +105,7 @@ class Sandbox:
         with open(target, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(yaml.dump(doc, Dumper=_DUMPER, sort_keys=False))
 
-    def run(self, authenticate: Callable[[Path], list[str]] | None = accept_all) -> CheckResult:
+    def run(self, authenticate: so.Authenticator | None = accept_all) -> CheckResult:
         return run_check(self.paths, authenticate=authenticate)
 
 

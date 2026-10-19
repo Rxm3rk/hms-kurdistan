@@ -116,8 +116,8 @@ def main(argv: list[str] | None = None) -> int:
         "--tier",
         choices=["full", "fast"],
         default="full",
-        help="'fast' checks only what the fast CI tier needs: JDK 25, Node 24, pnpm via Corepack, "
-        "the project venv and gitleaks in .tools/bin (default: full)",
+        help="'fast' checks only what the fast CI tier needs: the pinned JDK 25 (ADR-002), Node 24, "
+        "pnpm via Corepack, the project venv and gitleaks in .tools/bin (default: full)",
     )
     parser.add_argument("--json", action="store_true", help="also print one JSON object as the last line (evidence)")
     parser.add_argument("--root", type=Path, help=argparse.SUPPRESS)

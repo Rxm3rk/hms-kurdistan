@@ -55,9 +55,11 @@ def render_markdown(records: list[dict[str, Any]], plan: Plan, mapping: Mapping)
     add(
         "**Generated, do not edit.** This file is rendered from `docs/program/backlog.yaml`, which "
         "`tools/hms backlog generate` builds from BUILD-PROMPT.md Appendix A (feature tables A.1 to A.17), with "
-        "work packages taken from §21. To change a status, work package, test, hazard or note, edit "
-        "`backlog.yaml` and run `tools/hms backlog render`. `tools/hms backlog check` fails when this file is "
-        "out of date."
+        "work packages taken from §21 and hazards from `docs/safety/hazard-log.yaml`. To change a status, work "
+        "package, test or note, edit `backlog.yaml` and run `tools/hms backlog render`. A feature's hazards are "
+        "the hazard-log entries whose `features` list names it: change the hazard log, the record, and run "
+        "`tools/hms backlog render`, which derives them again. `tools/hms backlog check` fails when this file is "
+        "out of date or the hazards differ from the hazard log."
     )
     add("")
     add(
@@ -110,6 +112,17 @@ def render_markdown(records: list[dict[str, Any]], plan: Plan, mapping: Mapping)
     add(f"- Not dropped ({len(live)}): {_ids(live)}")
     add(f"- DROPPED-K ({len(dropped)}): {_ids(dropped)}")
     add(f"- Part rows without a work package: {_ids(without_work_package(parts))}")
+    add("")
+    add("### Hazards")
+    add("")
+    linked = [r for r in features if r.get("hazards")]
+    hazard_ids = sorted({str(h) for r in records if isinstance(r.get("hazards"), list) for h in r["hazards"]})
+    add(
+        f"{len(linked)} of {len(features)} feature IDs are named by at least one entry of "
+        f"`docs/safety/hazard-log.yaml` ({len(hazard_ids)} entries in all); the Hazards column lists those entries. "
+        f"The other {len(features) - len(linked)} are named by no entry yet, which does not mean that they carry no "
+        "hazard."
+    )
     add("")
     add("### Placements marked [P]")
     add("")

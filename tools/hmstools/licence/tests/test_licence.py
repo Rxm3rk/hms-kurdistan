@@ -22,8 +22,10 @@ from hmstools.licence.policy import (
     Component,
     Evaluator,
     Policy,
+    load_register,
     read_cyclonedx,
     read_pnpm,
+    register_problems,
 )
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -47,6 +49,14 @@ class Spdx(unittest.TestCase):
         for bad in ["MIT OR", "(MIT", "AND MIT", "MIT ) ISC"]:
             with self.assertRaises(spdx.SpdxError, msg=bad):
                 spdx.parse(bad)
+
+    def test_canonical_form_ignores_operand_order_and_nesting(self) -> None:
+        self.assertEqual(spdx.canonical(spdx.parse("MIT AND ISC")), "ISC AND MIT")
+        self.assertEqual(spdx.canonical(spdx.parse("ISC AND (MIT AND ISC)")), "ISC AND MIT")
+        self.assertEqual(spdx.canonical(spdx.parse("(MIT OR ISC) AND BSD-3-Clause")), "(ISC OR MIT) AND BSD-3-Clause")
+        self.assertEqual(spdx.canonical(spdx.parse("GPL-2.0-only WITH Classpath-exception-2.0")),
+                         "GPL-2.0-only WITH Classpath-exception-2.0")
+        self.assertNotEqual(spdx.canonical(spdx.parse("MIT AND ISC")), spdx.canonical(spdx.parse("MIT OR ISC")))
 
     def test_free_form_names_are_not_expressions(self) -> None:
         self.assertTrue(spdx.looks_like_expression("MIT"))
@@ -132,6 +142,25 @@ class ComponentRules(unittest.TestCase):
     def test_os_packages_are_conditional(self) -> None:
         result = verdict(["GPL-2.0-or-later"], name="bash", purl="pkg:deb/debian/bash@5.2")
         self.assertEqual(result.level, CONDITIONAL)
+
+    def test_a_conditional_verdict_names_the_rule_and_the_licence_a_register_entry_must_record(self) -> None:
+        cases = [
+            ((["MPL-1.1"], {}), ("MPL-1.1", "MPL-1.1")),
+            ((["MPL-1.1 AND MIT"], {}), ("MPL-1.1", "MPL-1.1")),
+            ((["MPL-1.1 OR GPL-2.0-only OR LGPL-2.1-only"], {"purl": "pkg:maven/org.dcm4che/dcm4che-core@5.33.1"}),
+             ("dcm4che-lgpl-option", "LGPL-2.1-only")),
+            ((["GPL-2.0-only WITH Classpath-exception-2.0"], {"name": "eclipse-temurin"}),
+             ("openjdk-runtime", "GPL-2.0-only WITH Classpath-exception-2.0")),
+            ((["GPL-2.0-or-later", "LGPL-2.1-only"], {"name": "bash", "purl": "pkg:deb/debian/bash@5.2"}),
+             ("os-packages", "GPL-2.0-or-later AND LGPL-2.1-only")),
+            ((["AGPL-3.0-only"], {"name": "orthanc", "type": "container", "purl": "pkg:docker/orthancteam/orthanc@1"}),
+             ("gpl-separate-container", "AGPL-3.0-only")),
+        ]
+        for (licences, fields), expected in cases:
+            result = verdict(licences, **fields)
+            self.assertEqual(result.level, CONDITIONAL, licences)
+            self.assertEqual((result.rule, result.licence), expected, licences)
+        self.assertEqual((verdict(["MIT"]).rule, verdict(["MIT"]).licence), (None, None))
 
     def test_conditional_rules_never_lift_a_denied_licence(self) -> None:
         result = verdict(["SSPL-1.0"], name="db", type="container", purl="pkg:docker/vendor/db@1")
@@ -231,28 +260,262 @@ class Cli(unittest.TestCase):
             self.assertEqual(code, 1)
             self.assertEqual(json.loads(out.strip().splitlines()[-1])["counts"]["denied"], 1)
 
-    def test_conditional_warns_until_registered(self) -> None:
+    HAPI = {"name": "hapi-base", "version": "2.6", "purl": "pkg:maven/ca.uhn.hapi/hapi-base@2.6",
+            "licenses": [{"license": {"id": "MPL-1.1"}}]}
+    HAPI_ENTRY = {"component": "^pkg:maven/ca\\.uhn\\.hapi/", "licence": "MPL-1.1", "rule": "MPL-1.1",
+                  "unmodified": True, "source_offer": None, "added_in": "WP-1.1b", "notes": "fixture"}
+
+    def write_register(self, tmp: str, entries: list) -> str:
+        path = Path(tmp) / "register.yaml"
+        path.write_text(yaml.safe_dump({"schema_version": 1, "entries": entries}), encoding="utf-8")
+        return str(path)
+
+    def check_json(self, *argv: str) -> tuple[int, dict]:
+        code, out = self.run_cli("check", *argv, "--json")
+        return code, json.loads(out.strip().splitlines()[-1])
+
+    def test_conditional_fails_until_registered(self) -> None:
+        # §4.3: conditional licences are allowed only "unmodified and recorded in the licence register" (R-18).
         with tempfile.TemporaryDirectory() as tmp:
-            bom = self.write_bom(tmp, [{"name": "hapi-base", "version": "2.6", "purl": "pkg:maven/ca.uhn.hapi/hapi-base@2.6",
-                                        "licenses": [{"license": {"id": "MPL-1.1"}}]}])
-            code, out = self.run_cli("check", "--sbom", bom, "--json")
-            data = json.loads(out.strip().splitlines()[-1])
+            bom = self.write_bom(tmp, [self.HAPI])
+            for argv in ([], ["--register", self.write_register(tmp, [])]):  # the real register, then an empty one
+                code, data = self.check_json("--sbom", bom, *argv)
+                self.assertEqual(code, 1, argv)
+                self.assertFalse(data["ok"])
+                self.assertEqual((data["counts"]["conditional"], data["counts"]["conditional_registered"]), (1, 0))
+                self.assertEqual(len(data["errors"]), 1, data["errors"])
+                self.assertIn("conditional: hapi-base@2.6 [shipped, bom.json]: MPL-1.1 is conditional", data["errors"][0])
+                self.assertIn("allowed only with an entry in", data["errors"][0])
+                self.assertIn("(rule 'MPL-1.1', licence 'MPL-1.1'), which has none for it", data["errors"][0])
+                self.assertEqual(data["warnings"], [])
+
+    def test_conditional_component_recorded_in_the_register_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [self.HAPI_ENTRY]))
             self.assertEqual(code, 0)
-            self.assertEqual(data["counts"]["conditional"], 1)
-            self.assertTrue(data["warnings"])
-            register = Path(tmp) / "register.yaml"
-            register.write_text(yaml.safe_dump({"schema_version": 1, "entries": [
-                {"component": "^pkg:maven/ca\\.uhn\\.hapi/", "licence": "MPL-1.1", "rule": "MPL-1.1",
-                 "unmodified": True, "source_offer": None, "added_in": "WP-1.1b", "notes": "fixture"}]}),
-                encoding="utf-8")
-            code, out = self.run_cli("check", "--sbom", bom, "--register", str(register), "--json")
-            data = json.loads(out.strip().splitlines()[-1])
+            self.assertTrue(data["ok"])
             self.assertEqual(data["counts"]["conditional_registered"], 1)
-            self.assertEqual(data["warnings"], [])
+            self.assertEqual(data["counts"]["conditional"], 0)
+            self.assertEqual(data["counts"]["register_entries"], 1)
+            self.assertEqual((data["errors"], data["warnings"]), ([], []))
+
+    def test_a_conditional_component_rule_needs_an_entry_too(self) -> None:
+        dcm4che = {"name": "dcm4che-core", "version": "5.33.1", "purl": "pkg:maven/org.dcm4che/dcm4che-core@5.33.1",
+                   "licenses": [{"expression": "MPL-1.1 OR GPL-2.0-only OR LGPL-2.1-only"}]}
+        entry = {"component": "^pkg:maven/org\\.dcm4che/", "licence": "LGPL-2.1-only", "rule": "dcm4che-lgpl-option",
+                 "unmodified": True, "source_offer": None, "added_in": "WP-3.6", "notes": None}
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [dcm4che])
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, []))
+            self.assertEqual(code, 1)
+            self.assertIn("dcm4che-lgpl-option", data["errors"][0])
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [entry]))
+            self.assertEqual((code, data["counts"]["conditional_registered"]), (0, 1))
+
+    def test_an_entry_that_does_not_record_unmodified_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            modified = dict(self.HAPI_ENTRY, unmodified=False)
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [modified]))
+            self.assertEqual(code, 1)
+            self.assertIn("does not record 'unmodified: true'", data["errors"][0])
+            self.assertEqual(data["counts"]["conditional_registered"], 0)
+
+    def test_an_entry_for_another_component_does_not_count(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            other = dict(self.HAPI_ENTRY, component="^pkg:maven/org\\.dcm4che/")
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [other]))
+            self.assertEqual(code, 1)
+            self.assertIn("which has none for it", data["errors"][0])
+
+    DCM4CHE = {"name": "dcm4che-core", "version": "5.33.1", "purl": "pkg:maven/org.dcm4che/dcm4che-core@5.33.1",
+               "licenses": [{"expression": "MPL-1.1 OR GPL-2.0-only OR LGPL-2.1-only"}]}
+
+    def test_an_entry_under_another_rule_does_not_count(self) -> None:
+        # An entry records the rule the policy applies; MPL-1.1 recorded as an OS package is not the §4.3 record.
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            for rule in ("os-packages", "dcm4che-lgpl-option"):
+                wrong = dict(self.HAPI_ENTRY, rule=rule)
+                code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [wrong]))
+                self.assertEqual(code, 1, rule)
+                self.assertEqual(data["counts"]["conditional_registered"], 0, rule)
+                self.assertEqual(len(data["errors"]), 1, data["errors"])
+                self.assertIn("the policy applies rule 'MPL-1.1', licence 'MPL-1.1', and no entry in", data["errors"][0])
+                self.assertIn(f"records rule '{rule}', licence 'MPL-1.1'", data["errors"][0])
+
+    def test_an_entry_under_another_licence_does_not_count(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.DCM4CHE])
+            entry = {"component": "^pkg:maven/org\\.dcm4che/", "licence": "LGPL-2.1-only", "rule": "dcm4che-lgpl-option",
+                     "unmodified": True, "source_offer": None, "added_in": "WP-3.6", "notes": None}
+            for licence in ("MPL-1.1", "MIT", "LGPL-2.1-only OR MPL-1.1"):
+                wrong = dict(entry, licence=licence)
+                code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [wrong]))
+                self.assertEqual(code, 1, licence)
+                self.assertIn("the policy applies rule 'dcm4che-lgpl-option', licence 'LGPL-2.1-only'", data["errors"][0])
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [entry]))
+            self.assertEqual((code, data["counts"]["conditional_registered"]), (0, 1))
+
+    def test_a_blanket_entry_records_no_component(self) -> None:
+        # The review verifier's plant: one '.*' entry under the wrong rule and licence passed every conditional
+        # component. It is now a malformed entry (it matches the empty string), and a broad pattern that is
+        # well formed still records only components under its own rule and licence.
+        blanket = {"component": ".*", "licence": "MIT", "rule": "os-packages", "unmodified": True,
+                   "source_offer": None, "added_in": "WP-0.1"}
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI, self.DCM4CHE])
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [blanket]))
+            self.assertEqual(code, 1)
+            self.assertEqual((data["counts"]["conditional"], data["counts"]["conditional_registered"]), (2, 0))
+            self.assertEqual(data["counts"]["register_entries"], 0)
+            self.assertTrue(any("matches the empty string" in e for e in data["errors"]), data["errors"])
+            broad = dict(blanket, component="(hapi|dcm4che)")
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [broad]))
+            self.assertEqual(code, 1)
+            self.assertEqual((data["counts"]["conditional"], data["counts"]["conditional_registered"]), (2, 0))
+            self.assertEqual(data["counts"]["register_entries"], 1)
+            self.assertEqual(len(data["errors"]), 2, data["errors"])
+            for error in data["errors"]:
+                self.assertIn("records rule 'os-packages', licence 'MIT'", error)
+
+    def test_licences_compare_as_spdx_expressions(self) -> None:
+        bash = {"name": "bash", "version": "5.2", "purl": "pkg:deb/debian/bash@5.2",
+                "licenses": [{"license": {"id": "GPL-2.0-or-later"}}, {"license": {"id": "LGPL-2.1-only"}}]}
+        entry = {"component": "^pkg:deb/debian/bash@", "licence": "LGPL-2.1-only AND GPL-2.0-or-later",
+                 "rule": "os-packages", "unmodified": True, "source_offer": None, "added_in": "WP-0.9"}
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [bash])
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [entry]))
+            self.assertEqual((code, data["counts"]["conditional_registered"]), (0, 1), data["errors"])
+            part = dict(entry, licence="GPL-2.0-or-later")  # only part of what the package declares
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [part]))
+            self.assertEqual(code, 1)
+            self.assertIn("licence 'GPL-2.0-or-later AND LGPL-2.1-only'", data["errors"][0])
+
+    def test_entries_that_disagree_about_unmodified_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            entries = [self.HAPI_ENTRY, dict(self.HAPI_ENTRY, component="hapi-base", unmodified=False)]
+            for order in (entries, entries[::-1]):
+                code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, order))
+                self.assertEqual(code, 1)
+                self.assertIn("('hapi-base') does not record 'unmodified: true'", data["errors"][0])
+
+    def test_a_malformed_register_entry_fails_and_is_not_used(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            bad = dict(self.HAPI_ENTRY, approved_by="someone")  # an entry records facts, never an approval
+            code, data = self.check_json("--sbom", bom, "--register", self.write_register(tmp, [bad]))
+            self.assertEqual(code, 1)
+            self.assertTrue(any(e.startswith("register: ") and "unknown fields ['approved_by']" in e
+                                for e in data["errors"]), data["errors"])
+            self.assertTrue(any("which has none for it" in e for e in data["errors"]), data["errors"])
+            self.assertEqual(data["counts"]["register_entries"], 0)
+
+    def test_an_unparsable_register_is_an_environment_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bom = self.write_bom(tmp, [self.HAPI])
+            register = Path(tmp) / "register.yaml"
+            register.write_text("entries: [unclosed\n", encoding="utf-8")
+            code, _ = self.run_cli("check", "--sbom", bom, "--register", str(register))
+            self.assertEqual(code, 2)
 
     def test_no_input_is_a_usage_error(self) -> None:
         code, _ = self.run_cli("check")
         self.assertEqual(code, 2)
+
+
+class RegisterSchema(unittest.TestCase):
+    """tools/licence/register.yaml against the fields its header documents (register_problems)."""
+
+    GOOD = {"component": "^pkg:maven/ca\\.uhn\\.hapi/", "licence": "MPL-1.1", "rule": "MPL-1.1", "unmodified": True,
+            "source_offer": None, "added_in": "WP-1.1b", "notes": "fixture"}
+    DROP = object()  # remove the field
+
+    def problems(self, **changes) -> list[str]:
+        entry = {k: v for k, v in dict(self.GOOD, **changes).items() if v is not self.DROP}
+        return register_problems({"schema_version": 1, "entries": [entry]}, POLICY)
+
+    def assert_problem(self, fragment: str, **changes) -> None:
+        found = self.problems(**changes)
+        self.assertTrue(any(fragment in p for p in found), f"no problem containing {fragment!r}: {found}")
+
+    def test_the_real_register_is_well_formed(self) -> None:
+        with open(ROOT / "tools/licence/register.yaml", encoding="utf-8") as handle:
+            data = yaml.safe_load(handle)
+        self.assertEqual(register_problems(data, POLICY), [])
+        self.assertEqual(load_register(ROOT / "tools/licence/register.yaml", POLICY), (data["entries"], []))
+
+    def test_a_good_entry_and_an_empty_register_pass(self) -> None:
+        self.assertEqual(self.problems(), [])
+        self.assertEqual(self.problems(notes=self.DROP), [])  # notes is optional
+        self.assertEqual(register_problems({"schema_version": 1, "entries": []}, POLICY), [])
+        self.assertEqual(register_problems(None, POLICY), [])
+
+    def test_top_level_shape(self) -> None:
+        self.assertIn("schema_version is 2, expected 1", register_problems({"schema_version": 2, "entries": []}, POLICY))
+        self.assertIn("'entries' is not a list", register_problems({"schema_version": 1, "entries": {}}, POLICY))
+        self.assertTrue(register_problems(["not", "a", "mapping"], POLICY))
+        found = register_problems({"schema_version": 1, "entries": [], "approvals": []}, POLICY)
+        self.assertIn("unknown top-level keys ['approvals']", found)
+
+    def test_required_fields(self) -> None:
+        for name in ("component", "licence", "rule", "unmodified", "source_offer", "added_in"):
+            self.assert_problem(f"missing fields ['{name}']", **{name: self.DROP})
+
+    def test_unknown_fields_such_as_an_approver_are_refused(self) -> None:
+        self.assert_problem("unknown fields ['approved_by']", approved_by="the CSO")
+
+    def test_field_values(self) -> None:
+        self.assert_problem("'component' must be a non-empty string", component="")
+        self.assert_problem("'component' is not a regular expression", component="^pkg:maven/(unclosed")
+        for blanket in (".*", "(?i)hapi|", "x?"):
+            self.assert_problem(f"'component' {blanket!r} matches the empty string", component=blanket)
+        self.assert_problem("'licence' 'MPL-1.1 OR' is not an SPDX expression", licence="MPL-1.1 OR")
+        self.assert_problem("'rule' 'mpl' is not a conditional rule of the policy", rule="mpl")
+        self.assert_problem("'unmodified' must be true or false", unmodified="yes")
+        self.assert_problem("'source_offer' must be a non-empty string or null", source_offer="")
+        self.assert_problem("'added_in' 'phase 1' is not a work package ID", added_in="phase 1")
+        self.assert_problem("'notes' must be text or null", notes=["a list"])
+
+    def test_a_pattern_that_matches_a_package_it_does_not_name_is_refused(self) -> None:
+        # The review found that '.' passed (it matches no empty string) and recorded every MPL-1.1 package.
+        for blanket in (".", "pkg", "^pkg:", "^pkg:npm/", "^pkg:(deb|rpm)/", "e", "[a-z]", "(?i)PKG:", "^zz"):
+            with self.subTest(component=blanket):
+                self.assert_problem(f"'component' {blanket!r} also matches", component=blanket)
+        for named in ("^pkg:maven/ca\\.uhn\\.hapi/", "^pkg:maven/org\\.dcm4che/", "^pkg:deb/debian/bash@",
+                      "(?i)^(temurin|openjdk)([-_ ].*)?$", "hapi-base"):
+            with self.subTest(component=named):
+                self.assertEqual(self.problems(component=named), [])
+
+    def test_a_broad_entry_records_nothing_and_the_check_fails(self) -> None:
+        register = Path(self.tmp.name) / "register.yaml"
+        register.write_text(yaml.safe_dump({"schema_version": 1, "entries": [dict(self.GOOD, component=".")]}), encoding="utf-8")
+        entries, problems = load_register(register, POLICY)
+        self.assertEqual(entries, [])
+        self.assertTrue(any("'component' '.' also matches" in p for p in problems), problems)
+
+    def test_a_rule_that_is_not_text_is_reported_not_raised(self) -> None:
+        # The review found that a list here raised TypeError (unhashable) instead of being reported.
+        for value in (["MPL-1.1"], {"id": "MPL-1.1"}, 3):
+            with self.subTest(rule=value):
+                self.assert_problem("'rule' must be a non-empty string", rule=value)
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_every_conditional_rule_of_the_policy_is_a_valid_rule(self) -> None:
+        for rule in [*POLICY.conditional_licences(), *(r["id"] for r in POLICY.conditional_components())]:
+            self.assertEqual(self.problems(rule=rule, source_offer="https://example.invalid/source"), [], rule)
+
+    def test_a_separate_gpl_container_needs_its_source_offer(self) -> None:
+        # §4.3: "GPL and AGPL only as unmodified, separate containers with a source offer".
+        self.assert_problem("rule 'gpl-separate-container' needs 'source_offer'", rule="gpl-separate-container")
+        self.assertEqual(self.problems(rule="gpl-separate-container", source_offer="https://example.invalid/src"), [])
 
 
 class OrtConsistency(unittest.TestCase):
@@ -296,6 +559,22 @@ class OrtConsistency(unittest.TestCase):
         for category in self.categories:
             self.assertIn(f'licensesByCategory["{category}"]', rules)
         self.assertIn("NOT RUN YET", rules)
+
+    def test_conditional_rules_stay_warnings_only_while_the_ort_step_is_not_built(self) -> None:
+        # The decision recorded for R-18 (tools/licence/README.md, "Conditional licences"): the ORT rules for
+        # conditional licences and components are WARNINGs until WP-0.9 builds the ORT step, then ERRORs for any
+        # package the register does not record. When the step is built, this test fails until both change.
+        from hmstools.ci.tiers import MERGE_NOT_BUILT
+
+        self.assertIn("licence-scan-ort", [step[0] for step in MERGE_NOT_BUILT])
+        rules = (ROOT / "tools/licence/ort/evaluator.rules.kts").read_text(encoding="utf-8")
+        for name in ("conditionalLicenseRule", "conditionalComponentRule"):
+            body = rules.split(f"fun RuleSet.{name}()", 1)[1].split("\nfun ", 1)[0]
+            self.assertIn("warning(", body, name)
+            self.assertNotIn("error(", body, name)
+        readme = " ".join((ROOT / "tools/licence/README.md").read_text(encoding="utf-8").split())
+        self.assertIn("stay WARNINGs until the ORT step exists (WP-0.9)", readme)
+        self.assertIn("fails on a conditional component without one", readme)
 
     def test_ort_yml_excludes_and_readme_states_not_run(self) -> None:
         with open(ROOT / ".ort.yml", encoding="utf-8") as handle:

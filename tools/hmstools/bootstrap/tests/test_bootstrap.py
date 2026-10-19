@@ -10,6 +10,7 @@ import unittest
 import urllib.error
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 from hmstools.bootstrap import core, steps
 
@@ -309,8 +310,269 @@ class EnvScript(TempRoot):
         self.assertEqual(env["GRADLE_USER_HOME"], str(self.root / ".tools" / "gradle-home"))
 
 
-if __name__ == "__main__":
-    unittest.main()
+# 'java -version' as each kind of JDK prints it (stderr); the first is the pinned release.
+TEMURIN_PINNED = (
+    'openjdk version "25.0.4.1" 2026-08-18 LTS\n'
+    "OpenJDK Runtime Environment Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS)\n"
+    "OpenJDK 64-Bit Server VM Temurin-25.0.4.1+1 (build 25.0.4.1+1-LTS, mixed mode, sharing)\n"
+)
+TEMURIN_NEWER = (
+    'openjdk version "25.0.5" 2026-10-20 LTS\n'
+    "OpenJDK Runtime Environment Temurin-25.0.5+11 (build 25.0.5+11-LTS)\n"
+)
+UBUNTU_SAME_VERSION = (
+    'openjdk version "25.0.4.1" 2026-08-18\n'
+    "OpenJDK Runtime Environment (build 25.0.4.1+1-Ubuntu-1ubuntu124.04)\n"
+)
+CORRETTO = (
+    'openjdk version "25.0.4" 2026-07-21 LTS\n'
+    "OpenJDK Runtime Environment Corretto-25.0.4.7.1 (build 25.0.4+7-LTS)\n"
+)
+
+
+class JdkPin(unittest.TestCase):
+    def test_the_pin_is_one_recorded_release(self) -> None:
+        self.assertEqual(steps.JDK_RELEASE, "jdk-25.0.4.1+1")
+        self.assertEqual(steps.PINNED_JDK, steps.JavaIdentity("25.0.4.1", "25.0.4.1+1-LTS", "Temurin-25.0.4.1+1"))
+        self.assertTrue(steps.JDK_DOWNLOAD_BASE.endswith("/releases/download/jdk-25.0.4.1%2B1"))
+        self.assertIn(("windows", "x64"), steps.JDK_ARCHIVES)
+        self.assertIn(("linux", "x64"), steps.JDK_ARCHIVES)
+        for (os_name, arch), (name, digest) in steps.JDK_ARCHIVES.items():
+            self.assertRegex(digest, r"^[0-9a-f]{64}$", name)
+            self.assertIn("_hotspot_25.0.4.1_1.", name)
+            self.assertIn(f"_{arch}_{os_name}_", name)
+        self.assertEqual(len({digest for _, digest in steps.JDK_ARCHIVES.values()}), len(steps.JDK_ARCHIVES))
+
+    def test_the_official_checksums_of_the_two_build_hosts_are_recorded(self) -> None:
+        # Values from the Adoptium API for jdk-25.0.4.1+1, equal to the release's .sha256.txt files.
+        self.assertEqual(
+            steps.JDK_ARCHIVES[("linux", "x64")],
+            ("OpenJDK25U-jdk_x64_linux_hotspot_25.0.4.1_1.tar.gz",
+             "dbb698396d478e7fa2b1e50f4103324b2a99b90569ee27c33f2261f9215cf41e"),
+        )
+        self.assertEqual(
+            steps.JDK_ARCHIVES[("windows", "x64")],
+            ("OpenJDK25U-jdk_x64_windows_hotspot_25.0.4.1_1.zip",
+             "00c847d804f4a78e9f04f2683faf14fed898535b177b7fc704486cb0284e9283"),
+        )
+
+    def test_adr_002_names_the_pinned_release_and_where_it_is_pinned(self) -> None:
+        # BUILD-PROMPT.md §4.1: "record the pinned set in ADR-002"; R-14.
+        root = Path(__file__).resolve().parents[4]
+        adr = next((root / "docs" / "adr").glob("ADR-002-*.md")).read_text(encoding="utf-8")
+        jdk_line = next(line for line in adr.splitlines() if line.startswith("- JDK: "))
+        self.assertIn(f"Eclipse Temurin {steps.JDK_RELEASE[len('jdk-'):]}", jdk_line)  # "25.0.4.1+1"
+        self.assertIn(f"`{steps.JDK_RELEASE}`", jdk_line)
+        self.assertIn("`tools/hmstools/bootstrap/steps.py`", jdk_line)
+        self.assertIn("re-resolved only at a phase boundary", jdk_line)
+        self.assertNotIn("Corretto", adr)
+        catalogue = (root / "backend" / "gradle" / "libs.versions.toml").read_text(encoding="utf-8")
+        self.assertIn(f'java = "{steps.JDK_MAJOR}"', catalogue)
+        self.assertIn(f"Eclipse Temurin {steps.JDK_RELEASE[len('jdk-'):]}", catalogue)
+
+    def test_parse_java_version(self) -> None:
+        self.assertEqual(steps.parse_java_version(TEMURIN_PINNED), steps.PINNED_JDK)
+        self.assertEqual(steps.parse_java_version(TEMURIN_PINNED.replace("\n", "\r\n")), steps.PINNED_JDK)
+        ubuntu = steps.parse_java_version(UBUNTU_SAME_VERSION)
+        self.assertEqual(ubuntu, steps.JavaIdentity("25.0.4.1", "25.0.4.1+1-Ubuntu-1ubuntu124.04", None))
+        self.assertEqual(steps.parse_java_version(CORRETTO).vendor_version, "Corretto-25.0.4.7.1")
+        self.assertIsNone(steps.parse_java_version("Error: could not find libjava.so\n"))
+        picked_up = "Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8\n" + TEMURIN_PINNED
+        self.assertEqual(steps.parse_java_version(picked_up), steps.PINNED_JDK)
+
+    def test_only_the_exact_release_is_the_pin(self) -> None:
+        self.assertTrue(steps.is_pinned_jdk(steps.parse_java_version(TEMURIN_PINNED)))
+        for other in (TEMURIN_NEWER, UBUNTU_SAME_VERSION, CORRETTO, 'openjdk version "25.0.4.1"\n'):
+            self.assertFalse(steps.is_pinned_jdk(steps.parse_java_version(other)), other)
+        self.assertFalse(steps.is_pinned_jdk(None))
+
+    def test_pinned_asset_needs_no_network(self) -> None:
+        opener = FakeOpener({})
+        previous = core.set_opener(opener)
+        try:
+            asset = steps.pinned_jdk_asset("linux", "x64")
+        finally:
+            core.set_opener(previous)
+        self.assertEqual(opener.requests, [])
+        self.assertEqual(asset.name, "OpenJDK25U-jdk_x64_linux_hotspot_25.0.4.1_1.tar.gz")
+        self.assertEqual(asset.url, steps.JDK_DOWNLOAD_BASE + "/" + asset.name)
+        self.assertEqual(asset.sha256, "dbb698396d478e7fa2b1e50f4103324b2a99b90569ee27c33f2261f9215cf41e")
+        self.assertEqual(asset.vendor, "Eclipse Temurin")
+
+    def test_a_platform_without_a_recorded_archive_fails(self) -> None:
+        with self.assertRaisesRegex(core.BootstrapError, "no pinned jdk-25.0.4.1\\+1 archive is recorded for windows/aarch64"):
+            steps.pinned_jdk_asset("windows", "aarch64")
+
+
+class EnsureJdk(TempRoot):
+    """ensure_jdk with fakes: 'java -version' is answered per JDK directory, downloads come from FakeOpener."""
+
+    ARCHIVE = "fake-OpenJDK25U-jdk.zip"
+    URL = "https://downloads.invalid/temurin/fake-OpenJDK25U-jdk.zip"
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.versions: dict[str, str] = {}  # .tools/<directory name> -> what its java prints
+        self.java_runs: list[str] = []
+        patches = [
+            mock.patch.object(steps, "run_quiet", self.fake_run_quiet),
+            mock.patch.object(steps, "host_os", lambda: "linux"),
+            mock.patch.object(steps, "host_arch", lambda: "x64"),
+            mock.patch.object(steps, "exe_name", lambda name, os_name=None: name),
+        ]
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+
+    def fake_run_quiet(self, argv, timeout=60.0, env=None):
+        java = Path(argv[0])
+        directory = java.parent.parent.name
+        self.java_runs.append(directory)
+        if directory not in self.versions:
+            return 127, "not a JDK"
+        return 0, self.versions[directory]
+
+    def add_jdk(self, directory: str, version_output: str) -> Path:
+        home = self.root / ".tools" / directory
+        (home / "bin").mkdir(parents=True)
+        (home / "bin" / "java").write_text("#!/bin/sh\n", encoding="utf-8")
+        self.versions[directory] = version_output
+        return home
+
+    def archive_bytes(self, top: str = steps.JDK_RELEASE) -> bytes:
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as bundle:
+            bundle.writestr(f"{top}/bin/java", "#!/bin/sh\n")
+            bundle.writestr(f"{top}/release", 'JAVA_VERSION="25.0.4.1"\n')
+        return buffer.getvalue()
+
+    def pin_fake_archive(self, data: bytes) -> None:
+        """Record a fake archive as the pinned one for linux/x64, the way JDK_ARCHIVES records the real one."""
+        for patch in (
+            mock.patch.dict(steps.JDK_ARCHIVES, {("linux", "x64"): (self.ARCHIVE, sha(data))}),
+            mock.patch.object(steps, "JDK_DOWNLOAD_BASE", self.URL.rsplit("/", 1)[0]),
+        ):
+            patch.start()
+            self.addCleanup(patch.stop)
+
+    def ensure(self, opener: FakeOpener) -> Path:
+        previous = core.set_opener(opener)
+        try:
+            return steps.ensure_jdk(self.root)
+        finally:
+            core.set_opener(previous)
+
+    def test_reuses_the_pinned_jdk_without_network(self) -> None:
+        home = self.add_jdk("jdk-25.0.4.1+1", TEMURIN_PINNED)
+        opener = FakeOpener({})
+        self.assertEqual(self.ensure(opener), home)
+        self.assertEqual(opener.requests, [])
+        self.assertEqual(steps.find_project_jdk(self.root), (home, steps.PINNED_JDK))
+
+    def test_a_jdk_under_another_name_is_reused_only_if_it_reports_the_pin(self) -> None:
+        self.add_jdk("jdk-25.0.5+11", TEMURIN_NEWER)
+        renamed = self.add_jdk("jdk-local-copy", TEMURIN_PINNED)
+        opener = FakeOpener({})
+        self.assertEqual(self.ensure(opener), renamed)
+        self.assertEqual(opener.requests, [])
+
+    def test_other_jdk_25_builds_are_never_used(self) -> None:
+        self.add_jdk("jdk-25.0.5+11", TEMURIN_NEWER)
+        self.add_jdk("jdk-ubuntu-25", UBUNTU_SAME_VERSION)
+        self.add_jdk("jdk-amazon-corretto-25", CORRETTO)
+        self.assertIsNone(steps.find_project_jdk(self.root))
+        self.assertNotIn("JAVA_HOME", steps.toolchain_env(self.root))
+        self.assertIn("no JDK 25 of the pinned release", steps.env_script(self.root, msys=False))
+        data = self.archive_bytes()
+        self.pin_fake_archive(data)
+        self.versions[steps.JDK_RELEASE] = TEMURIN_PINNED  # what the unpacked archive's java prints
+        opener = FakeOpener({self.URL: data})
+        home = self.ensure(opener)
+        self.assertEqual(home, self.root / ".tools" / "jdk-25.0.4.1+1")
+        self.assertEqual(opener.requests, [(self.URL, None)])
+        self.assertTrue((self.root / ".tools" / "jdk-25.0.5+11").is_dir())  # left alone, just not used
+        self.assertEqual(steps.toolchain_env(self.root)["JAVA_HOME"], str(home))
+
+    def test_fetches_the_pinned_archive_and_checks_the_recorded_checksum(self) -> None:
+        data = self.archive_bytes()
+        self.pin_fake_archive(data)
+        self.versions[steps.JDK_RELEASE] = TEMURIN_PINNED
+        opener = FakeOpener({self.URL: data})
+        home = self.ensure(opener)
+        self.assertEqual(home, self.root / ".tools" / "jdk-25.0.4.1+1")
+        self.assertTrue((home / "bin" / "java").is_file())
+        self.assertEqual((self.root / ".tools" / "downloads" / self.ARCHIVE).read_bytes(), data)
+        self.assertEqual(opener.requests, [(self.URL, None)])
+        self.assertEqual(list((self.root / ".tools").glob(".staging-*")), [])
+        opener.requests.clear()
+        self.assertEqual(self.ensure(opener), home)  # second run: reused, no request
+        self.assertEqual(opener.requests, [])
+
+    def test_a_placed_official_archive_is_used_after_checking_it(self) -> None:
+        data = self.archive_bytes()
+        self.pin_fake_archive(data)
+        self.versions[steps.JDK_RELEASE] = TEMURIN_PINNED
+        placed = self.root / ".tools" / "downloads" / self.ARCHIVE
+        placed.parent.mkdir(parents=True)
+        placed.write_bytes(data)
+        opener = FakeOpener({})
+        self.assertEqual(self.ensure(opener), self.root / ".tools" / "jdk-25.0.4.1+1")
+        self.assertEqual(opener.requests, [])
+
+    def test_a_tampered_archive_fails_and_installs_nothing(self) -> None:
+        self.pin_fake_archive(self.archive_bytes())
+        opener = FakeOpener({self.URL: self.archive_bytes(top="jdk-evil")})
+        with self.assertRaises(core.BootstrapError) as ctx:
+            self.ensure(opener)
+        self.assertIn("SHA-256 mismatch", str(ctx.exception))
+        self.assertIn("No other JDK is fetched instead", str(ctx.exception))
+        self.assertEqual({url for url, _ in opener.requests}, {self.URL})  # no other vendor or release asked
+        self.assertFalse((self.root / ".tools" / "jdk-25.0.4.1+1").exists())
+        self.assertEqual(list((self.root / ".tools" / "downloads").glob("*")), [])
+
+    def test_a_failed_download_has_no_fallback(self) -> None:
+        self.pin_fake_archive(self.archive_bytes())
+        opener = FakeOpener({})  # every URL answers 404
+        with self.assertRaises(core.BootstrapError) as ctx:
+            self.ensure(opener)
+        message = str(ctx.exception)
+        self.assertIn("HTTP 404", message)
+        self.assertIn("place the official", message)
+        self.assertIn(".tools/downloads/" + self.ARCHIVE, message)
+        self.assertEqual([url for url, _ in opener.requests], [self.URL])
+
+    def test_the_unpacked_jdk_must_report_the_pinned_release(self) -> None:
+        data = self.archive_bytes()
+        self.pin_fake_archive(data)
+        self.versions[steps.JDK_RELEASE] = TEMURIN_NEWER
+        with self.assertRaisesRegex(core.BootstrapError, "reports .*25.0.5.*expected .*Temurin-25.0.4.1\\+1"):
+            self.ensure(FakeOpener({self.URL: data}))
+
+    def test_an_archive_with_another_top_directory_is_refused(self) -> None:
+        data = self.archive_bytes(top="jdk-25.0.5+11")
+        self.pin_fake_archive(data)
+        with self.assertRaisesRegex(core.BootstrapError, "unpacks to 'jdk-25.0.5\\+11', not 'jdk-25.0.4.1\\+1'"):
+            self.ensure(FakeOpener({self.URL: data}))
+        self.assertFalse((self.root / ".tools" / "jdk-25.0.5+11").exists())
+        self.assertEqual(list((self.root / ".tools").glob(".staging-*")), [])
+
+    def test_a_broken_directory_with_the_pinned_name_is_replaced(self) -> None:
+        broken = self.root / ".tools" / "jdk-25.0.4.1+1"
+        (broken / "bin").mkdir(parents=True)
+        (broken / "stale.txt").write_text("left over\n", encoding="utf-8")
+        data = self.archive_bytes()
+        self.pin_fake_archive(data)
+        opener = FakeOpener({self.URL: data})
+        original = self.fake_run_quiet
+
+        def java_after_unpack(argv, timeout=60.0, env=None):
+            if (broken / "release").is_file():  # only the unpacked archive has a release file
+                self.versions[steps.JDK_RELEASE] = TEMURIN_PINNED
+            return original(argv, timeout, env)
+
+        with mock.patch.object(steps, "run_quiet", java_after_unpack):
+            self.assertEqual(self.ensure(opener), broken)
+        self.assertFalse((broken / "stale.txt").exists())
 
 
 class Frontend(TempRoot):
@@ -374,3 +636,7 @@ class Frontend(TempRoot):
                 steps.ensure_frontend(self.root)
         finally:
             steps.shutil.which, steps.subprocess.run = original_which, original_run
+
+
+if __name__ == "__main__":
+    unittest.main()

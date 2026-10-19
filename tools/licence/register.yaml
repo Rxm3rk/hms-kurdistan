@@ -2,16 +2,27 @@
 # tools/licence/policy.yaml (MPL-1.1 libraries, the LGPL-2.1 option of dcm4che and dcm4chee, the
 # OpenJDK runtime, OS packages in base images, GPL or AGPL separate containers with a source offer).
 #
-# 'tools/hms licence check' warns about a conditional component until an entry here matches it.
+# §4.3 allows these only "unmodified and recorded in the licence register", so 'tools/hms licence check'
+# fails on a conditional component until an entry here records it as unmodified, and it fails on an
+# entry that does not follow the fields below (a malformed entry is never used). An entry records a
+# component only if its pattern matches the component and its rule and licence are the rule the policy
+# applies to the component and the licence that rule applies to; the check's message names both.
 # An entry records facts about the component; it is not an approval and names no approver.
 #
-# Entry fields:
-#   component:   regular expression matched against the package URL or the name
-#   licence:     the SPDX expression the product uses (the chosen option for multi-licensed components)
+# Entry fields (all required except notes):
+#   component:   regular expression matched against the package URL or the name; it must name the
+#                component, so a pattern that matches the empty string (such as .*) or a package it
+#                does not name (such as . or ^pkg:npm/; the check tries made-up package URLs) is refused
+#   licence:     the SPDX expression the product uses: the conditional licence (MPL-1.1), the chosen
+#                option (LGPL-2.1-only for dcm4che), the rule's licence (the OpenJDK runtime), or for
+#                os-packages and gpl-separate-container the component's declared licence expression
+#                (several declared licences joined with AND); compared as an SPDX expression, so the
+#                order of AND and OR operands does not matter
 #   rule:        the policy rule id (for example dcm4che-lgpl-option) or the conditional licence id
-#   unmodified:  true (a modified conditional component is not allowed)
-#   source_offer: where the source offer is published (GPL/AGPL containers only), or null
-#   added_in:    the work package that added the component
-#   notes:       free text
+#                (for example MPL-1.1); it must be one of the conditional rules in policy.yaml
+#   unmodified:  true (a modified conditional component is not allowed; false makes the check fail)
+#   source_offer: where the source offer is published (required for gpl-separate-container), or null
+#   added_in:    the work package that added the component (for example WP-1.1b)
+#   notes:       free text, or null
 schema_version: 1
 entries: []

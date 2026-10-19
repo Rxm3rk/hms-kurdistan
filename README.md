@@ -6,7 +6,7 @@ Created in [T3 Code](https://t3.codes).
 
 ## Research and planning
 
-This repository currently holds research, planning and the build brief. No product code has been written yet.
+This repository holds research, planning and the build brief, and, since work package WP-0.1, the build skeleton (`backend/`, `frontend/`), the programme tooling (`tools/`), their tests, and the programme's control files, decisions and safety records (`docs/`). No product or clinical code has been written yet.
 
 - **[BUILD-PROMPT.md](BUILD-PROMPT.md)** is the master build prompt: the complete implementation brief an AI coding agent (or an engineering team) follows to build the Kurdistan system. It fixes the stack, architecture, conventions and safety rules; specifies every module with acceptance tests; lists all 234 backlog features by release; and sequences the work into phases with exit criteria. Its first section has the kickoff, continue and review prompts to paste into a coding session.
 

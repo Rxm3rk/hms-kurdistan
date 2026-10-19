@@ -30,6 +30,18 @@ steps, ignores any XML older than the step, and fails a step that wrote no test 
 step adds `--no-build-cache` so Gradle cannot restore test results from its cache instead of running
 the tests.
 
+## Showing that the gates fail
+
+A gate that never fails proves nothing (§3.5, §19.1). `tools/ci/gates-bite/` plants one violation at a
+time for each fast-tier gate in a scratch clone on the WSL build host, records that the gate fails and
+passes again once the violation is removed, and ends with the fast tier on the clean tree; its record
+of record is `docs/program/evidence/ci/<yyyy-mm-dd>-gates-bite-<shortsha>.md` (review finding R-06).
+At `05f159a` that is `docs/program/evidence/ci/2026-10-19-gates-bite-05f159a.md` (WSL build host, no
+cell: 78 plants, 73 FAIL and the 5 expected to pass passing; 11 of 11 clean runs PASS; the fast tier on
+the clean tree PASS). The earlier `2026-10-18-gates-bite.md`, planted by hand on the Windows checkout
+before the first commit, is not evidence of record.
+How to run it, and where it never runs, is in `tools/ci/gates-bite/README.md`.
+
 ## Exit codes
 
 0 PASS · 1 FAIL · 2 usage or environment error · 3 PARTIAL (an `--only` run whose selected steps passed)
@@ -39,7 +51,15 @@ the tests.
 Each run writes `docs/program/evidence/ci/<yyyy-mm-dd>-<tier>-<shortsha>[-dirty].json` (an `--only`
 run adds `-partial`; `--no-evidence` writes none): `schema_version`, `run_id`, `tier`, `started_at`,
 `finished_at`, `duration_s`, `git` (sha, short_sha, branch, dirty, dirty_files), `host` (os,
-os_version, arch, cpu_count, ram_gb, python, java, node), `cell` (`none` for fast), `steps` (name,
-command, cwd, started_at, duration_s, exit_code, result, counts, log_tail on failure), `totals` and
-`result`. A second run with the same name on the same day replaces the record. Full step logs go to
-`build/ci-logs/<run_id>/` (git-ignored).
+os_version, arch, cpu_count, ram_gb, python, java, java_runtime, java_identity, node), `cell` (`none`
+for fast), `steps` (name, command, cwd, started_at, duration_s, exit_code, result, counts, log_tail on
+failure), `totals` and `result`. A second run with the same name on the same day replaces the record.
+Full step logs go to `build/ci-logs/<run_id>/` (git-ignored).
+
+The JDK fields come from `$JAVA_HOME/bin/java -version`: `java` is its version line, `java_runtime` its
+"Runtime Environment" line, which names the vendor build, and `java_identity` the parsed version, build
+and vendor version, with `pinned` true only for exactly the release ADR-002 pins
+(`tools/hmstools/bootstrap/steps.py`). The version line alone cannot tell Ubuntu's OpenJDK 25.0.4.1
+from the pinned Temurin build of the same version (review finding R-14). Records written before that
+finding was resolved, such as `docs/program/evidence/ci/2026-10-18-fast-d3e14de.json`, have `java`
+only.
