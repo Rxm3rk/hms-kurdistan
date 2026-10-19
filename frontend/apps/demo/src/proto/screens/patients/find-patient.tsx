@@ -164,7 +164,7 @@ function Result({ hit, selected, onSelect, onOpen }: ResultProps): ReactNode {
           <Button size="sm" variant={selected ? 'primary' : 'secondary'} icon="info" onPress={onSelect} aria-label={t('detailsFor', { name: personName(patient.name, t.locale) })}>
             {t('details')}
           </Button>
-          <Button size="sm" variant="ghost" iconEnd="arrow-forward" onPress={onOpen} isDisabled={session}>
+          <Button size="sm" variant="ghost" iconEnd="arrow-forward" onPress={onOpen}>
             {t('openRecord')}
           </Button>
         </span>
@@ -265,10 +265,10 @@ function Detail({ patient, onOpen, onWristband }: DetailProps): ReactNode {
       {...(patient.allergies.kind === 'list' ? { tone: 'danger' as const } : {})}
       footer={
         <div className="patients-detail__actions">
-          <Button variant={billingFirst ? 'secondary' : 'primary'} icon="chart" onPress={() => { onOpen('chart'); }} isDisabled={session}>
+          <Button variant={billingFirst ? 'secondary' : 'primary'} icon="chart" onPress={() => { onOpen('chart'); }}>
             {t('openChart')}
           </Button>
-          <Button variant={billingFirst ? 'primary' : 'secondary'} icon="receipt" onPress={() => { onOpen('billing'); }} isDisabled={session}>
+          <Button variant={billingFirst ? 'primary' : 'secondary'} icon="receipt" onPress={() => { onOpen('billing'); }}>
             {t('openBilling')}
           </Button>
           <Button variant="ghost" icon="printer" onPress={onWristband}>

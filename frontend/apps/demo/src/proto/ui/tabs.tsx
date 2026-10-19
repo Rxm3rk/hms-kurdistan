@@ -20,7 +20,7 @@ export interface TabsProps {
   readonly selectedKey?: string;
   readonly defaultSelectedKey?: string;
   readonly onSelectionChange?: (id: string) => void;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function Tabs({ items, selectedKey, defaultSelectedKey, onSelectionChange, className, ...aria }: TabsProps): ReactNode {

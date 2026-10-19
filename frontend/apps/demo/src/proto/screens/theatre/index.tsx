@@ -84,7 +84,7 @@ export function TheatreScreen(): ReactNode {
     }
   };
 
-  const ChecklistDots = ({ c }: { readonly c: TheatreCase }): ReactNode => {
+  const checklistDots = (c: TheatreCase): ReactNode => {
     const phases = [c.signIn, c.timeOut, c.signOut];
     return (
       <span className="theatre-dots" aria-label={`${t('colChecklist')} ${t('checklistShort', { done: checklistDone(c) })}`}>
@@ -124,7 +124,7 @@ export function TheatreScreen(): ReactNode {
                 {f.text(SIDE_LABEL[c.side])}
               </Badge>
             )}
-            <ChecklistDots c={c} />
+            {checklistDots(c)}
           </span>
         </button>
       </li>
@@ -175,7 +175,7 @@ export function TheatreScreen(): ReactNode {
       ),
     },
     { id: 'priority', header: t('colPriority'), cell: (c) => <Badge tone={c.priority === 'emergency' ? 'danger' : c.priority === 'urgent' ? 'warning' : 'neutral'} size="sm">{f.text(PRIORITY_LABEL[c.priority])}</Badge> },
-    { id: 'checklist', header: t('colChecklist'), cell: (c) => <ChecklistDots c={c} /> },
+    { id: 'checklist', header: t('colChecklist'), cell: (c) => checklistDots(c) },
     { id: 'status', header: t('colStatus'), cell: (c) => <Badge tone={STATUS_TONE[c.status]} size="sm">{f.text(STATUS_LABEL[c.status])}</Badge> },
   ];
 

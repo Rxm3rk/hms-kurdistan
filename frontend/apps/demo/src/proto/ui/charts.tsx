@@ -26,7 +26,7 @@ export interface SparklineProps {
   readonly values: readonly number[];
   /** The chart's accessible name, for example "Admissions, last 7 days". */
   readonly label: string;
-  readonly tone?: Tone;
+  readonly tone?: Tone | undefined;
   readonly width?: number;
   readonly height?: number;
   /** Text for each point's tooltip (same length as values), for example the day and value. */
@@ -85,7 +85,7 @@ export interface BarDatum {
   /** The value as shown (formatted, with unit). Defaults to the number. */
   readonly valueLabel?: string;
   /** A state tone for this bar (for example danger above a threshold); the label must say why. */
-  readonly tone?: Tone;
+  readonly tone?: Tone | undefined;
 }
 
 export interface BarChartProps {
@@ -97,7 +97,7 @@ export interface BarChartProps {
   readonly orientation?: 'horizontal' | 'vertical';
   /** Height of the plot for vertical charts, CSS length. */
   readonly height?: string;
-  readonly tone?: Tone;
+  readonly tone?: Tone | undefined;
 }
 
 export function BarChart({ data, label, max, orientation = 'horizontal', height = '10rem', tone = 'accent' }: BarChartProps): ReactNode {
@@ -149,7 +149,7 @@ export interface MeterProps {
   readonly label: string;
   /** The value as shown, for example "75%" or "15 of 20". */
   readonly valueLabel: string;
-  readonly tone?: Tone;
+  readonly tone?: Tone | undefined;
   /** Show the label and value above the bar. */
   readonly showText?: boolean;
 }

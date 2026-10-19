@@ -26,7 +26,7 @@ export interface ButtonProps {
   readonly type?: 'button' | 'submit' | 'reset';
   readonly 'aria-label'?: string;
   readonly 'aria-describedby'?: string;
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children?: ReactNode;
 }
 
@@ -65,7 +65,7 @@ export interface LinkButtonProps {
   readonly icon?: IconName;
   readonly iconEnd?: IconName;
   readonly 'aria-label'?: string;
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children?: ReactNode;
 }
 
@@ -87,7 +87,7 @@ export interface IconButtonProps {
   readonly variant?: ButtonVariant;
   readonly size?: ButtonSize;
   readonly isDisabled?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function IconButton({ icon, label, onPress, variant = 'ghost', size = 'md', isDisabled = false, className }: IconButtonProps): ReactNode {
@@ -104,7 +104,7 @@ export function IconButton({ icon, label, onPress, variant = 'ghost', size = 'md
 }
 
 /** A plain text link inside the app (RAC Link, navigates without a reload). */
-export function TextLink({ href, children, className }: { readonly href: string; readonly children: ReactNode; readonly className?: string }): ReactNode {
+export function TextLink({ href, children, className }: { readonly href: string; readonly children: ReactNode; readonly className?: string | undefined }): ReactNode {
   return (
     <AriaLink className={['ui-link', className ?? ''].filter(Boolean).join(' ')} href={href}>
       {children}

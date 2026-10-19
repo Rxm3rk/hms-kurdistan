@@ -8,10 +8,11 @@
  */
 import { matchesQuery, Modal, PatientIdentity, patientSearchText } from '@hms/design-system';
 import type { BannerModel } from '@hms/ui-core';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { GridList, GridListItem, Heading } from 'react-aria-components';
 import { APPOINTMENTS } from '../data/encounters.ts';
 import { PATIENTS } from '../data/patients.ts';
+import { sessionPatients, subscribeSessionPatients } from '../data/session-patients.ts';
 import { bedOfPatient, getWard } from '../data/wards.ts';
 import type { Patient } from '../data/types.ts';
 import { useFormat, useT } from '../i18n/use-t.ts';
@@ -34,9 +35,11 @@ interface Row {
 function useRows(): readonly Row[] {
   const t = useT(shellMessages);
   const format = useFormat();
+  // Patients registered on the patients screen during this session are offered too.
+  const session = useSyncExternalStore(subscribeSessionPatients, sessionPatients, sessionPatients);
   return useMemo(() => {
     const identities = new Map(protoDirectory.list().map((entry) => [entry.patientId, entry.identity]));
-    return PATIENTS.flatMap((patient): Row[] => {
+    return [...PATIENTS, ...session].flatMap((patient): Row[] => {
       const identity = identities.get(patient.id);
       if (identity === undefined) {
         return [];
@@ -60,7 +63,7 @@ function useRows(): readonly Row[] {
         },
       ];
     });
-  }, [t, format]);
+  }, [t, format, session]);
 }
 
 export interface PatientPickerProps {

@@ -14,6 +14,7 @@
  */
 import syntheticPhoto from '../../demo/synthetic-photo.png';
 import { ISOLATION_LABEL, SEVERITY_LABEL } from './labels.ts';
+import { findSessionPatient } from './session-patients.ts';
 import type {
   Allergy,
   BloodGroup,
@@ -96,7 +97,8 @@ const LOOK_ALIKE: Text3 = {
   ar: 'يوجد اسم مشابه في السجلات: تحقق من اسم الجد ورقم السجل',
 };
 
-const FALL_RISK: Text3 = { en: 'High fall risk', ckb: 'مەترسیی بەرزی کەوتن', ar: 'خطر سقوط مرتفع' };
+/** The "High fall risk" alert text (the curated patients' fall-risk assessment). */
+export const FALL_RISK: Text3 = { en: 'High fall risk', ckb: 'مەترسیی بەرزی کەوتن', ar: 'خطر سقوط مرتفع' };
 
 function phone(n: number): string {
   return `+964 750 000 ${String(n).padStart(4, '0')}`;
@@ -780,18 +782,23 @@ export const PATIENTS: readonly Patient[] = [...CURATED_PATIENTS, ...CENSUS_PATI
 
 const BY_ID: ReadonlyMap<string, Patient> = new Map(PATIENTS.map((patient) => [patient.id, patient]));
 
-/** The patient with this id, or undefined. */
+/** The patient with this id (synthetic data, then this session's registrations), or undefined. */
 export function findPatient(patientId: string | null | undefined): Patient | undefined {
-  return patientId === null || patientId === undefined ? undefined : BY_ID.get(patientId);
+  return patientId === null || patientId === undefined ? undefined : (BY_ID.get(patientId) ?? findSessionPatient(patientId));
 }
 
 /** The patient with this id; throws for an unknown id (a defect in the data). */
 export function getPatient(patientId: string): Patient {
-  const patient = BY_ID.get(patientId);
+  const patient = BY_ID.get(patientId) ?? findSessionPatient(patientId);
   if (patient === undefined) {
     throw new Error(`Unknown synthetic patient ${patientId}`);
   }
   return patient;
+}
+
+/** True when the patient carries the "High fall risk" alert. */
+export function hasFallRiskAlert(patient: Patient): boolean {
+  return patient.alerts.some((alert) => alert.text === FALL_RISK || alert.text.en === FALL_RISK.en);
 }
 
 /** True when the patient has an allergy whose code is `code` (e.g. 'SYN-ALG-PENICILLIN'). */

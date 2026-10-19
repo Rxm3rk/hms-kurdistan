@@ -12,18 +12,18 @@ export interface StatTileProps {
   /** Sentence case, no colon: "Beds occupied". */
   readonly label: ReactNode;
   readonly value: ReactNode;
-  readonly unit?: ReactNode;
+  readonly unit?: ReactNode | undefined;
   /** A line under the value: "of 56 beds", "+3 since yesterday". */
-  readonly hint?: ReactNode;
+  readonly hint?: ReactNode | undefined;
   /** A state tone: a coloured edge and icon colour (danger for unacknowledged critical results). */
-  readonly tone?: Tone;
-  readonly icon?: IconName;
+  readonly tone?: Tone | undefined;
+  readonly icon?: IconName | undefined;
   readonly trend?: readonly number[];
   /** Accessible name of the trend, required with `trend`. */
-  readonly trendLabel?: string;
+  readonly trendLabel?: string | undefined;
   readonly href?: string;
   readonly onPress?: () => void;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function StatTile({ label, value, unit, hint, tone, icon, trend, trendLabel, href, onPress, className }: StatTileProps): ReactNode {

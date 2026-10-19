@@ -391,10 +391,19 @@ export function RegisterPatient({ draft, onDraftChange, completed, onCompletedCh
                   variant="secondary"
                   icon="user"
                   onPress={() => {
-                    onShowPatient(patient.id);
+                    openPatient(patient.id, 'chart');
                   }}
                 >
                   {t('openPatient')}
+                </Button>
+                <Button
+                  variant="ghost"
+                  icon="search"
+                  onPress={() => {
+                    onShowPatient(patient.id);
+                  }}
+                >
+                  {t('tabFind')}
                 </Button>
                 {fromWalkIn ? (
                   <LinkButton href={href('outpatient', { walkin: patient.id })} variant="secondary" icon="stethoscope" iconEnd="arrow-forward">

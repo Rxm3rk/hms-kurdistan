@@ -35,7 +35,7 @@ export interface SearchFieldProps {
   readonly placeholder?: string;
   readonly hideLabel?: boolean;
   readonly autoFocus?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function SearchField({ label, value, onChange, placeholder, hideLabel = false, autoFocus = false, className }: SearchFieldProps): ReactNode {
@@ -74,7 +74,7 @@ export interface TextInputProps {
   /** Text direction of the value: `ltr` for numbers, codes, phone numbers and Latin names. */
   readonly dir?: 'ltr' | 'rtl' | 'auto';
   readonly inputMode?: 'text' | 'numeric' | 'decimal' | 'tel' | 'search';
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function TextInput({
@@ -125,7 +125,7 @@ export interface SelectFieldProps {
   readonly placeholder?: string;
   readonly hideLabel?: boolean;
   readonly isDisabled?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function SelectField({
@@ -175,7 +175,7 @@ export interface SegmentedProps {
   readonly value: string;
   readonly onChange: (id: string) => void;
   readonly hideLabel?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 /** A small set of mutually exclusive choices (filters, views): a radio group drawn as joined buttons. */
@@ -203,7 +203,7 @@ export interface CheckboxProps {
   readonly isSelected: boolean;
   readonly onChange: (selected: boolean) => void;
   readonly isDisabled?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children: ReactNode;
 }
 
@@ -230,7 +230,7 @@ export interface KeyValueItem {
 }
 
 /** Label and value pairs (patient details, specimen details) as a description list. */
-export function KeyValueList({ items, columns = 2, className }: { readonly items: readonly KeyValueItem[]; readonly columns?: 1 | 2 | 3; readonly className?: string }): ReactNode {
+export function KeyValueList({ items, columns = 2, className }: { readonly items: readonly KeyValueItem[]; readonly columns?: 1 | 2 | 3; readonly className?: string | undefined }): ReactNode {
   return (
     <dl className={['ui-kv', `ui-kv--cols-${String(columns)}`, className ?? ''].filter(Boolean).join(' ')}>
       {items.map((item) => (

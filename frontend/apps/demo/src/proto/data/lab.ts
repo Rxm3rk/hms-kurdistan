@@ -4,6 +4,7 @@
  * The critical case: potassium 6.8 mmol/L for Gulala Osman Rashid (SYN-PAT-0102), specimen SYN-SPC-260001,
  * verified at 08:10 and NOT yet acknowledged by a clinician (`critical.acknowledged === false`).
  */
+import { isAcknowledgedInSession } from './acknowledgements.ts';
 import { daysAgoAt, todayAt } from './clock.ts';
 import type { LabResult, ResultFlag, Specimen, Text3 } from './types.ts';
 
@@ -408,5 +409,7 @@ export function resultsOfSpecimen(specimenId: string): readonly LabResult[] {
 
 /** Critical results nobody has acknowledged yet (the hospital-wide worklist). */
 export function unacknowledgedCriticals(): readonly LabResult[] {
-  return RESULTS.filter((candidate) => candidate.critical !== null && !candidate.critical.acknowledged);
+  return RESULTS.filter(
+    (candidate) => candidate.critical !== null && !candidate.critical.acknowledged && !isAcknowledgedInSession(candidate.id),
+  );
 }

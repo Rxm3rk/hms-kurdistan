@@ -6,7 +6,7 @@
  * SYNTHETIC DATA ONLY, NOT FOR CLINICAL USE.
  */
 import { useMemo, useSyncExternalStore } from 'react';
-import { DEMO_NOW_ISO, type Text3 } from '../../data/index.ts';
+import { acknowledgeCriticalResult, DEMO_NOW_ISO, resetCriticalAcknowledgements, type Text3 } from '../../data/index.ts';
 import {
   BASE_LAB_SPECIMENS,
   REJECT_REASON_TEXT,
@@ -163,6 +163,8 @@ export const labActions = {
   },
   acknowledge(ack: CriticalAck): void {
     update((current) => ({ ...current, acks: { ...current.acks, [ack.resultId]: ack } }));
+    // Shared with the other screens (home, ward board, chart): the result is no longer unacknowledged.
+    acknowledgeCriticalResult(ack.resultId);
   },
   markPrinted(id: string): void {
     update((current) => ({ ...current, printed: { ...current.printed, [id]: (current.printed[id] ?? 0) + 1 } }));
@@ -189,5 +191,6 @@ export const labActions = {
   /** Back to the data as shipped (for presenters). */
   reset(): void {
     update(() => INITIAL);
+    resetCriticalAcknowledgements();
   },
 };

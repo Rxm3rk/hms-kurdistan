@@ -212,7 +212,7 @@ export interface IconProps {
   readonly name: IconName;
   /** CSS size; 1.25em by default (follows the text). */
   readonly size?: string;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function Icon({ name, size, className }: IconProps): ReactNode {

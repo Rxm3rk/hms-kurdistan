@@ -19,6 +19,7 @@ import {
   invoicesOf,
   invoiceTotals,
   todayAt,
+  hasFallRiskAlert,
   unacknowledgedCriticals,
   vitalsOf,
 } from '../../data/index.ts';
@@ -119,7 +120,7 @@ export function earlyWarningOf(patient: Patient, wardId: WardId): EarlyWarning {
 
 /** High fall risk: the patient's own alert, or 75 years and older (a synthetic screening rule). */
 export function hasFallRisk(patient: Patient): boolean {
-  return patient.alerts.some((alert) => alert.text.en === 'High fall risk') || ageInYears(patient.dob) >= 75;
+  return hasFallRiskAlert(patient) || ageInYears(patient.dob) >= 75;
 }
 
 function nameKey(patient: Patient): string {

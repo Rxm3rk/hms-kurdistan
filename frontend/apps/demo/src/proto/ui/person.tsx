@@ -48,7 +48,7 @@ function NameText({ name, script }: { readonly name: PersonName; readonly script
 }
 
 /** A staff member's name (with prefix) in the UI language. */
-export function StaffName({ member, className }: { readonly member: StaffMember; readonly className?: string }): ReactNode {
+export function StaffName({ member, className }: { readonly member: StaffMember; readonly className?: string | undefined }): ReactNode {
   const locale = useLocale();
   const script = SCRIPT_OF_LOCALE[locale];
   return (
@@ -64,7 +64,7 @@ export interface PatientNameProps {
   readonly patient: Patient;
   /** Also show a second name form under the first (Latin under Sorani or Arabic; Sorani under Latin). */
   readonly secondary?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 /** A patient's name in the UI language, optionally with a second script beneath. */
@@ -90,7 +90,7 @@ export interface PatientInlineProps {
   readonly patient: Patient;
   /** Show the second name form too. */
   readonly secondary?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 /** A patient in a list: name, then MRN · date of birth (age, sex). Two identifiers, always. */

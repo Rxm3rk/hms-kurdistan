@@ -43,7 +43,7 @@ export interface QtyProps {
   readonly value: string | null | undefined;
   /** UCUM code (`'mmol/L'`, `'mg'`, `'Cel'`, `'mm[Hg]'`); omit for a bare number. */
   readonly unit?: string | null;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function Qty({ value, unit, className }: QtyProps): ReactNode {
@@ -66,7 +66,7 @@ export function BloodPressure({ systolic, diastolic }: { readonly systolic: stri
 export interface MoneyProps {
   readonly amount: number;
   readonly currency?: 'IQD' | 'USD';
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 /** An amount of money in the current locale's format (en `IQD 1,310,000`, ckb `1,310,000 دینار`). */
@@ -80,7 +80,7 @@ export function Money({ amount, currency = 'IQD', className }: MoneyProps): Reac
 }
 
 /** A code, identifier or Latin drug name inside any text: isolated left to right. */
-export function Code({ children, className }: { readonly children: ReactNode; readonly className?: string }): ReactNode {
+export function Code({ children, className }: { readonly children: ReactNode; readonly className?: string | undefined }): ReactNode {
   return (
     <Bdi dir="ltr" className={['ui-code', className ?? ''].filter(Boolean).join(' ')}>
       {children}

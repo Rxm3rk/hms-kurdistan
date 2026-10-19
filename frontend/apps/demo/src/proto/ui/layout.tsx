@@ -13,20 +13,20 @@ export { cx };
 
 export interface CardProps {
   /** The card's heading (an h2 by default). */
-  readonly title?: ReactNode;
+  readonly title?: ReactNode | undefined;
   /** A line under the title. */
-  readonly subtitle?: ReactNode;
-  readonly icon?: IconName;
+  readonly subtitle?: ReactNode | undefined;
+  readonly icon?: IconName | undefined;
   /** Controls at the end of the header (buttons, a link). */
-  readonly actions?: ReactNode;
+  readonly actions?: ReactNode | undefined;
   /** A coloured edge at the inline start: a status card (danger for critical, warning for cautions). */
-  readonly tone?: Tone;
+  readonly tone?: Tone | undefined;
   /** Heading level of the title. */
   readonly headingLevel?: 2 | 3 | 4;
   /** Remove the body padding (for tables that run to the edge). */
   readonly flush?: boolean;
-  readonly footer?: ReactNode;
-  readonly className?: string;
+  readonly footer?: ReactNode | undefined;
+  readonly className?: string | undefined;
   readonly children?: ReactNode;
 }
 
@@ -67,12 +67,12 @@ export function Card({
 export interface PageHeaderProps {
   /** The page's h1. */
   readonly title: ReactNode;
-  readonly subtitle?: ReactNode;
-  readonly icon?: IconName;
+  readonly subtitle?: ReactNode | undefined;
+  readonly icon?: IconName | undefined;
   /** Small text above the title (the area, a breadcrumb). */
   readonly eyebrow?: ReactNode;
   /** Controls at the end (primary actions). */
-  readonly actions?: ReactNode;
+  readonly actions?: ReactNode | undefined;
   /** Extra content under the title row (filters, tabs, summary badges). */
   readonly children?: ReactNode;
 }
@@ -100,7 +100,7 @@ export interface GridProps {
   /** Minimum column width; columns fill the row (`auto-fill`). Default 16rem. */
   readonly min?: string;
   readonly gap?: 'sm' | 'md' | 'lg';
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children?: ReactNode;
 }
 
@@ -119,7 +119,7 @@ export interface StackProps {
   readonly align?: 'start' | 'center' | 'end' | 'stretch';
   readonly justify?: 'start' | 'center' | 'end' | 'between';
   readonly wrap?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children?: ReactNode;
 }
 
@@ -143,7 +143,7 @@ export function Stack({ direction = 'column', gap = 'md', align, justify, wrap =
 }
 
 /** A row of controls that wraps: filters, buttons. */
-export function Toolbar({ children, className, label }: { readonly children?: ReactNode; readonly className?: string; readonly label?: string }): ReactNode {
+export function Toolbar({ children, className, label }: { readonly children?: ReactNode; readonly className?: string | undefined; readonly label?: string }): ReactNode {
   return (
     <div className={cx('ui-toolbar', className)} role="group" {...(label === undefined ? {} : { 'aria-label': label })}>
       {children}
@@ -159,9 +159,9 @@ export function Section({
   className,
 }: {
   readonly title: ReactNode;
-  readonly actions?: ReactNode;
+  readonly actions?: ReactNode | undefined;
   readonly children?: ReactNode;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }): ReactNode {
   return (
     <section className={cx('ui-section', className)}>

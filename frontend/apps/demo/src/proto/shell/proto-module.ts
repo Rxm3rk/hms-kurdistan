@@ -8,18 +8,27 @@ import { parseBannerData, SYNTHETIC_BANNER_VOCABULARIES, type BannerModel, type 
 import type { DemoModule } from '../../demo/demo-module.ts';
 import type { PatientDirectory, PatientListEntry } from '../../patient/directory.ts';
 import { bannerDataOf, findPatient, PATIENTS } from '../data/patients.ts';
+import { sessionPatients } from '../data/session-patients.ts';
 
 /** The window's session user (synthetic). The role switcher changes the person shown, not this id. */
 export const PROTO_SESSION_USER: UserId = 'user-synthetic-prototype';
 
 let entries: readonly PatientListEntry[] | null = null;
+let entriesSession: readonly unknown[] | null = null;
 
-/** Every synthetic patient as a list entry (parsed once). */
+/**
+ * Every synthetic patient, then this session's registrations, as list entries (parsed again only after a
+ * registration).
+ */
 function listEntries(): readonly PatientListEntry[] {
-  entries ??= PATIENTS.map((patient) => ({
-    patientId: patient.id,
-    identity: parseBannerData(bannerDataOf(patient), SYNTHETIC_BANNER_VOCABULARIES),
-  }));
+  const session = sessionPatients();
+  if (entries === null || entriesSession !== session) {
+    entries = [...PATIENTS, ...session].map((patient) => ({
+      patientId: patient.id,
+      identity: parseBannerData(bannerDataOf(patient), SYNTHETIC_BANNER_VOCABULARIES),
+    }));
+    entriesSession = session;
+  }
   return entries;
 }
 

@@ -1,0 +1,6 @@
+const fs=require('fs');const p='C:/Users/Surface/hms-demo/frontend/apps/demo/src/proto/data/patients.ts';let s=fs.readFileSync(p,'utf8');
+const r=(a,b)=>{ if(!s.includes(a)) throw new Error('missing '+a.slice(0,60)); s=s.replace(a,b); };
+r("import { ISOLATION_LABEL, SEVERITY_LABEL } from './labels.ts';","import { ISOLATION_LABEL, SEVERITY_LABEL } from './labels.ts';\nimport { findSessionPatient } from './session-patients.ts';");
+r("/** The patient with this id, or undefined. */\nexport function findPatient(patientId: string | null | undefined): Patient | undefined {\n  return patientId === null || patientId === undefined ? undefined : BY_ID.get(patientId);\n}","/** The patient with this id (the synthetic data, then this session's registrations), or undefined. */\nexport function findPatient(patientId: string | null | undefined): Patient | undefined {\n  return patientId === null || patientId === undefined ? undefined : (BY_ID.get(patientId) ?? findSessionPatient(patientId));\n}");
+r("export function getPatient(patientId: string): Patient {\n  const patient = BY_ID.get(patientId);","export function getPatient(patientId: string): Patient {\n  const patient = BY_ID.get(patientId) ?? findSessionPatient(patientId);");
+fs.writeFileSync(p,s);

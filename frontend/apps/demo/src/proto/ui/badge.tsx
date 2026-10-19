@@ -7,12 +7,12 @@ import type { Tone } from '../data/types.ts';
 import { Icon, type IconName } from './icons.tsx';
 
 export interface BadgeProps {
-  readonly tone?: Tone;
-  readonly icon?: IconName;
+  readonly tone?: Tone | undefined;
+  readonly icon?: IconName | undefined;
   /** Filled (strong) instead of tinted: for the one thing on a screen that must be seen (critical). */
   readonly strong?: boolean;
   readonly size?: 'sm' | 'md';
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children: ReactNode;
 }
 

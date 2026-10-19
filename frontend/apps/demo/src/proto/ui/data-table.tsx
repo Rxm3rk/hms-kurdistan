@@ -36,7 +36,7 @@ export interface DataTableProps<T> {
   readonly dense?: boolean;
   /** Keep the header visible while the table scrolls inside a fixed-height container. */
   readonly stickyHeader?: boolean;
-  readonly className?: string;
+  readonly className?: string | undefined;
 }
 
 export function DataTable<T>({

@@ -1,4 +1,262 @@
+/* The Maternity screen. Prefix: maternity-. Logical properties and design-system tokens only. */
 .maternity-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.maternity-kpis {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+
+.maternity-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.maternity-warn {
+  color: var(--hms-color-danger-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.maternity-label {
+  margin: 0 0 var(--hms-space-1);
+  font-weight: var(--hms-font-weight-bold);
+  font-size: var(--hms-font-size-sm);
+}
+
+.maternity-h3 {
+  margin: 0;
+  font-size: var(--hms-font-size-md);
+}
+
+.maternity-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.maternity-inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.maternity-cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-start;
+}
+
+.maternity-room {
+  padding: 0.1rem var(--hms-space-2);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg-sunken);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.maternity-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+  align-items: end;
+  justify-content: space-between;
+}
+
+/* Partograph */
+.maternity-partograph {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 52rem;
+  block-size: auto;
+  margin-block: var(--hms-space-3);
+}
+
+.maternity-grid {
+  stroke: var(--hms-color-border);
+  stroke-width: 1;
+}
+
+.maternity-grid--strong {
+  stroke: var(--hms-color-border-strong);
+}
+
+.maternity-axis {
+  fill: var(--hms-color-text-muted);
+  font-size: 11px;
+}
+
+.maternity-axis--title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.maternity-line {
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.maternity-line--alert {
+  stroke: var(--hms-color-warning-border);
+}
+
+.maternity-line--action {
+  stroke: var(--hms-color-danger-border);
+}
+
+.maternity-line-label {
+  font-size: 10px;
+}
+
+.maternity-series {
+  fill: none;
+  stroke-width: 2;
+}
+
+.maternity-series--dilation {
+  stroke: var(--hms-color-accent-bg);
+}
+
+.maternity-series--descent {
+  stroke: var(--hms-color-text-muted);
+  stroke-dasharray: 2 3;
+}
+
+.maternity-mark--dilation line {
+  stroke: var(--hms-color-accent-text);
+  stroke-width: 2.5;
+}
+
+.maternity-mark--descent {
+  fill: var(--hms-color-bg);
+  stroke: var(--hms-color-text-muted);
+  stroke-width: 2;
+}
+
+.maternity-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-4);
+  margin: 0 0 var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+}
+
+.maternity-legend__item {
+  display: inline-flex;
+  gap: var(--hms-space-1);
+  align-items: center;
+}
+
+.maternity-legend__item::before {
+  content: '';
+  display: inline-block;
+  inline-size: 1.25rem;
+  block-size: 0;
+  border-block-start: 3px solid var(--hms-color-accent-bg);
+}
+
+.maternity-legend__item--descent::before {
+  border-block-start: 3px dotted var(--hms-color-text-muted);
+}
+
+.maternity-legend__item--alert::before {
+  border-block-start: 3px dashed var(--hms-color-warning-border);
+}
+
+.maternity-legend__item--action::before {
+  border-block-start: 3px dashed var(--hms-color-danger-border);
+}
+
+/* Newborn cards */
+.maternity-cards {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+}
+
+.maternity-link {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.maternity-link__arrow {
+  color: var(--hms-color-accent-text);
+  font-size: var(--hms-font-size-lg);
+}
+
+/* Dialog forms */
+.maternity-form-grid {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  align-items: end;
+}
+
+/* Birth-notification form preview, styled like the printed ministry form */
+.maternity-form-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-4);
+  border: 2px solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg);
+}
+
+.maternity-form-sheet__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+  justify-content: space-between;
+  padding-block-end: var(--hms-space-3);
+  border-block-end: 2px solid var(--hms-color-border-strong);
+}
+
+.maternity-form-sheet__issuer {
+  margin: 0;
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.maternity-form-sheet__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  align-items: flex-end;
+  text-align: end;
+}
+
+.maternity-form-sheet__title strong {
+  font-size: var(--hms-font-size-lg);
+}
+
+.maternity-form-sheet__demo {
+  margin: 0;
+  padding: var(--hms-space-1) var(--hms-space-2);
+  border: var(--hms-border-width) dashed var(--hms-color-danger-border);
+  color: var(--hms-color-danger-text);
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  text-align: center;
+}
+
+.maternity-form-sheet__section h3 {
+  margin: 0 0 var(--hms-space-2);
+  padding: var(--hms-space-1) var(--hms-space-2);
+  background: var(--hms-color-bg-sunken);
+  font-size: var(--hms-font-size-sm);
+}
+
+.maternity-form-sheet__sign {
+  margin-block-start: var(--hms-space-4);
+  padding-block-start: var(--hms-space-5);
+  border-block-start: var(--hms-border-width) solid var(--hms-color-border-strong);
+  inline-size: 16rem;
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
 }

@@ -83,7 +83,7 @@ export const messages = defineMessages({
     reprint: 'Reprint wristband',
     sessionTitle: 'Registered in this session',
     sessionOpenNote:
-      'Prototype limit: a patient registered in this session can be found, given a wristband and checked in as a walk-in, but the record screens (chart, orders, medication, laboratory, billing) open only patients of the synthetic data.',
+      'New record: this patient was registered in this browser session, so the chart, orders, medication, laboratory and billing screens open empty. A page reload forgets the registration.',
 
     wristbandTitle: 'Wristband print preview',
     wristbandFor: '{name}, MRN {mrn}',
@@ -262,7 +262,7 @@ export const messages = defineMessages({
     reprint: 'دووبارە چاپکردنی دەستبەند',
     sessionTitle: 'لەم دانیشتنەدا تۆمارکراوە',
     sessionOpenNote:
-      'سنووری نموونەکە: نەخۆشێک کە لەم دانیشتنەدا تۆمار کراوە دەدۆزرێتەوە، دەستبەندی بۆ چاپ دەکرێت و وەک سەردانی بێ کات وەردەگیرێت، بەڵام پەڕەکانی دۆسیە (دۆسیە، داواکارییەکان، دەرمان، تاقیگە، پارەدان) تەنها نەخۆشانی داتای دەستکرد دەکەنەوە.',
+      'تۆماری نوێ: ئەم نەخۆشە لەم دانیشتنەی وێبگەڕەکەدا تۆمار کراوە، بۆیە پەڕەکانی دۆسیە، داواکارییەکان، دەرمان، تاقیگە و پارەدان بە بەتاڵی دەکرێنەوە. نوێکردنەوەی پەڕەکە تۆمارەکە لەبیر دەکات.',
 
     wristbandTitle: 'پێشبینینی چاپی دەستبەند',
     wristbandFor: '{name}، MRN {mrn}',
@@ -442,7 +442,7 @@ export const messages = defineMessages({
     reprint: 'إعادة طباعة سوار التعريف',
     sessionTitle: 'سُجّل في هذه الجلسة',
     sessionOpenNote:
-      'حدود النموذج: يمكن البحث عن المريض المسجَّل في هذه الجلسة وطباعة سوار له وتسجيل وصوله كمراجع بلا موعد، لكن شاشات الملف (الملف الطبي، الأوامر، الأدوية، المختبر، الفوترة) تفتح مرضى البيانات التجريبية فقط.',
+      'سجل جديد: سُجّل هذا المريض في جلسة المتصفح الحالية، لذا تُفتح شاشات الملف الطبي والأوامر والأدوية والمختبر والفوترة فارغة. إعادة تحميل الصفحة تمحو التسجيل.',
 
     wristbandTitle: 'معاينة طباعة سوار التعريف',
     wristbandFor: '{name}، رقم السجل {mrn}',

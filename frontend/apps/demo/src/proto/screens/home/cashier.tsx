@@ -128,7 +128,7 @@ export function CashierHome(): ReactNode {
           icon="money"
           tone="success"
           hint={t('paymentsCount', { count: iqdCount })}
-          href={href('billing')}
+          href={href('cashier')}
         />
         <StatTile
           label={t('tileTakenUsd')}
@@ -136,7 +136,7 @@ export function CashierHome(): ReactNode {
           icon="money"
           tone="success"
           hint={t('paymentsCount', { count: usdCount })}
-          href={href('billing')}
+          href={href('cashier')}
         />
         <StatTile
           label={t('tileTakenTotal')}
@@ -145,7 +145,7 @@ export function CashierHome(): ReactNode {
           hint={f.text(EXCHANGE_RATE.note)}
           trend={TRENDS.revenueThousandIqd}
           trendLabel={t('revenueTitle')}
-          href={href('billing')}
+          href={href('cashier')}
         />
         <StatTile
           label={t('tileOpenInvoices')}

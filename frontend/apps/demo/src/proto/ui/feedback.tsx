@@ -9,7 +9,7 @@ import { Icon, type IconName } from './icons.tsx';
 export interface EmptyStateProps {
   readonly title: ReactNode;
   readonly body?: ReactNode;
-  readonly icon?: IconName;
+  readonly icon?: IconName | undefined;
   /** A button or link: what to do next. */
   readonly action?: ReactNode;
   readonly compact?: boolean;
@@ -36,14 +36,14 @@ const TONE_ICON: Readonly<Record<Tone, IconName>> = {
 };
 
 export interface CalloutProps {
-  readonly tone?: Tone;
-  readonly title?: ReactNode;
-  readonly icon?: IconName;
+  readonly tone?: Tone | undefined;
+  readonly title?: ReactNode | undefined;
+  readonly icon?: IconName | undefined;
   /** Buttons at the end (Acknowledge, Review). */
-  readonly actions?: ReactNode;
+  readonly actions?: ReactNode | undefined;
   /** `alert` announces it at once (use for critical, unacknowledged results only). */
   readonly role?: 'status' | 'alert' | 'note';
-  readonly className?: string;
+  readonly className?: string | undefined;
   readonly children?: ReactNode;
 }
 

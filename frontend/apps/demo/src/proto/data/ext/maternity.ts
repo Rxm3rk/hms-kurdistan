@@ -121,9 +121,9 @@ interface Seed {
 
 const SEEDS: readonly Seed[] = [
   // Progressing normally, primigravida.
-  { room: 'LDR-1', age: 24, g: 1, p: 0, ga: [39, 4], stage: 'active', activeFrom: '05:00', membranes: 'clear', risks: [], epidural: true, exams: [ex('05:00', 4, 4, 138, 3), ex('07:00', 5, 4, 142, 3), ex('09:00', 7, 3, 140, 4)] },
+  { room: 'LDR-1', age: 24, g: 1, p: 0, ga: [39, 4], stage: 'active', activeFrom: '05:00', membranes: 'clear', risks: [], epidural: true, exams: [ex('05:00', 4, 4, 138, 3), ex('07:00', 6, 3, 142, 3), ex('09:00', 8, 2, 140, 4)] },
   // Slow: crossed the alert line, near the action line.
-  { room: 'LDR-2', age: 29, g: 2, p: 1, ga: [40, 2], stage: 'active', activeFrom: '02:30', membranes: 'meconium', risks: ['previous-cs'], oxytocin: true, exams: [ex('02:30', 4, 5, 136, 2), ex('04:30', 5, 4, 150, 3), ex('06:30', 5, 4, 162, 3, 104, 126, 82), ex('08:30', 6, 4, 164, 4, 108, 130, 84)] },
+  { room: 'LDR-2', age: 29, g: 2, p: 1, ga: [40, 2], stage: 'active', activeFrom: '02:30', membranes: 'meconium', risks: ['previous-cs'], oxytocin: true, exams: [ex('02:30', 4, 5, 136, 2), ex('04:30', 5, 4, 150, 3), ex('06:30', 5, 4, 162, 3, 104, 126, 82), ex('09:00', 6, 4, 164, 4, 108, 130, 84)] },
   // Second stage.
   { room: 'LDR-3', age: 31, g: 3, p: 2, ga: [38, 6], stage: 'second', activeFrom: '06:10', membranes: 'clear', risks: ['gbs'], exams: [ex('06:10', 5, 3, 134, 4), ex('08:00', 8, 2, 130, 4), ex('09:10', 10, 1, 128, 5)] },
   // Pre-eclampsia, induced.

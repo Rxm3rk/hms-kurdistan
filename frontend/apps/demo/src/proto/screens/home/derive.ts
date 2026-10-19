@@ -19,6 +19,7 @@ import {
   getPatient,
   invoiceTotals,
   minutesFromNow,
+  hasFallRiskAlert,
   unacknowledgedCriticals,
 } from '../../data/index.ts';
 import type {
@@ -39,20 +40,21 @@ import type {
 /** A safety cue shown beside a patient in a worklist (always with text and an icon, never colour alone). */
 export type FlagKind = 'critical' | 'overdue' | 'allergy' | 'allergy-unknown' | 'isolation' | 'fall' | 'dnacpr';
 
-const FALL_RISK_EN = 'High fall risk';
-
 /** True when the patient carries the "High fall risk" alert. */
 export function hasFallRisk(patient: Patient): boolean {
-  return patient.alerts.some((alert) => alert.text.en === FALL_RISK_EN);
+  return hasFallRiskAlert(patient);
 }
 
-const CRITICAL_PATIENTS: ReadonlySet<string> = new Set(unacknowledgedCriticals().map((result) => result.patientId));
+/** Patients with an unacknowledged critical result (read live: the lab screen's acknowledgement clears it). */
+function criticalPatients(): ReadonlySet<string> {
+  return new Set(unacknowledgedCriticals().map((result) => result.patientId));
+}
 const OVERDUE_PATIENTS: ReadonlySet<string> = new Set(MAR.filter((dose) => dose.status === 'overdue').map((dose) => dose.patientId));
 
 /** The safety cues of one patient, most urgent first. */
 export function flagsOf(patient: Patient): readonly FlagKind[] {
   const flags: FlagKind[] = [];
-  if (CRITICAL_PATIENTS.has(patient.id)) {
+  if (criticalPatients().has(patient.id)) {
     flags.push('critical');
   }
   if (OVERDUE_PATIENTS.has(patient.id)) {
