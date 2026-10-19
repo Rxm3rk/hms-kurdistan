@@ -408,6 +408,13 @@ Content requests are logged here when a slice needs clinical content that only e
 ### OQ-151: Clinician review of the ckb and ar UI text
 - **Content needed:** a clinician review [HUMAN] of every `ckb` and `ar` message the agent drafted (DN-021), starting with the `banner.*`, `clinical.*` and `sign.*` keys; and a translation memory owned by the content team (§11.1).
 - **In use:** agent-drafted text, marked `unreviewed` per key (KA-031).
+- **Points the build agent raised for the reviewer** (WP-0.7 slice S2; the review covers every message, not only these):
+  - `ar` `banner.weight.source.stated`, drafted as "حسب الإفادة": it must read as reported by the patient or family, the least reliable weight source, and never as authorised or approved (an earlier draft, "مصرح به", could be read that way).
+  - `ar` `sign.outcomeUnknown`: it must say that the outcome is not known, never "not signed" and never "he does not know" (an earlier draft began "لا يعرف").
+  - `ar` `hal.capture.discardedAfterContextChange`: it must say that the capture is gone and nothing was saved for the new patient (an earlier draft said "ignored", "تم تجاهل").
+  - `ar` plurals: the `two` branches use "# ثانية", "# حساسية" and "# نتيجة" rather than the dual form, and `commandPalette.resultCount` has `zero {# نتيجة}`.
+  - `ar` `sign.intent.*`: written to be gender-neutral; it also needs the HIM review.
+  - `ckb` wording: `banner.isolation.label` "جیاکردنەوە", `banner.mrn.label` "ژمارەی تۆماری پزیشکی", and the letter for /h/ (ه against ھ).
 - **Needed by:** before any hospital use; it is part of the release translation gate (§11.1, §18.9; Phase 1 exit).
 - **Status:** open
 
@@ -566,4 +573,15 @@ Choices WP-0.7 made where the plan of record sets no value, and readings of the 
 ### OQ-156: The fonts come from the Fontsource npm packages
 - **Choice:** Noto Sans Arabic and Noto Sans (OFL-1.1) are installed from the npm packages `@fontsource/noto-sans-arabic` and `@fontsource/noto-sans` 5.2.10, pinned in the lockfile like any other dependency, not downloaded from Google's font repository. Each package ships woff2 subsets with `unicode-range` declarations. Checked with fontkit on 19 October 2026 (Windows host): the `arabic` subset of Noto Sans Arabic (weights 400 and 700) has glyphs for all ten Sorani letters (ڕ ڵ ۆ ێ ە ڤ گ چ پ ژ) and for ی, ک, ه, ي and ك, but no Western digits; the digits are in the `latin` subsets of both families. So the `font-coverage` test must read the subsets the design system bundles together, not one file. Slice S4 still chooses the family by the `font-coverage` and `glyph-render` tests (OQ-148).
 - **Sources:** §4.1 "Fonts" [P]; §3.7 (registry downloads only).
+- **Status:** open
+
+### OQ-159: The localisation choices of slice S2
+- **Choice:** in `frontend/packages/i18n` (WP-0.7 slice S2), where the specification sets no value:
+  - **Review marking (DN-021).** The catalogue format has no room for metadata, so the status of each translated message lives in `src/messages/review/<locale>.json` for `ckb` and `ar`: a flat JSON object from every key of that locale's catalogue to its status. The localisation lint fails on a missing review file, a message with no status, a status for a key the catalogue lacks, a review file for any other locale, and any status other than `unreviewed`. A reviewed status, and what it records (who reviewed which text and when, and whether a later change to the text lapses it), is decided with the clinician review (OQ-151); until then no message can be marked reviewed without changing the lint. `reviewStatus(locale, key)` gives the status to screens and evidence.
+  - **`#` in plurals.** The clinical-keys rule requires `#` in every branch of a `ckb` or `ar` plural under `banner.*` and `clinical.*` (design-system §9), and also under any other key whose English message keeps `#` in every branch of the same argument (today `sign.reverify.reason` and `commandPalette.resultCount`), as the §10 notes ask of translators. Equality with the English text is checked on the parsed messages, so the spacing of ICU syntax and the order of branches do not count; in literal text the check applies NFC and removes white space, format characters (general category Cf, which holds RLM, LRM, ALM, the bidi embeddings and isolates, ZWSP, ZWNJ, ZWJ, the BOM and the soft hyphen) and other default-ignorable code points. A message that does not parse is compared on its text, normalised the same way. A message that is only partly English is not caught.
+  - **Pseudo-locales.** `en-XA`, expanded: ASCII letters accented, each message in `[` and `]`, and 40% padding in breakable groups of `~`; `ar-XB`, mirrored: each run of literal text wrapped in U+202E RIGHT-TO-LEFT OVERRIDE and U+202C POP DIRECTIONAL FORMATTING, with direction `rtl`. These are the tags Android and Chromium use. Both format with the `en` Intl tag, because their plural branches are the English ones.
+  - **Letter pairs.** `sorani-letters.json` records, as `arabicFormInSorani`, that ي and ك never occur in Sorani text, while ه is itself a Sorani letter (it writes /h/), so ه and ە can never be swapped mechanically. WP-0.8's input normalisation should follow it.
+  - **Intl tags.** `en` also gets `en-u-ca-gregory-nu-latn`, so every UI locale states its calendar and digits explicitly (OQ-141).
+- **Sources:** DN-021; `docs/specs/modules/design-system.md` §2.9, §9 (`UnitTest:clinical-keys-lint`), §10 (notes for translators); §14.7, §18.9.
+- **Who confirms:** the human lead; the format of a reviewed status together with the clinician review (OQ-151).
 - **Status:** open

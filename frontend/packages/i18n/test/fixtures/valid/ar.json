@@ -1,4 +1,5 @@
 {
+  "clinical.fixtureCount": "{count, plural, one {SYN-ar #} two {SYN-ar #} few {SYN-ar #} many {SYN-ar #} other {SYN-ar #}}",
   "fixture.greeting": "SYN-ar {name}",
   "fixture.items": "{count, plural, zero {SYN-ar #} one {SYN-ar #} two {SYN-ar #} few {SYN-ar #} many {SYN-ar #} other {SYN-ar #}}",
   "fixture.rich": "SYN-ar <b>SYN</b> {when, date, short}"

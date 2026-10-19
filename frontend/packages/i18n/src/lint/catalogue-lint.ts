@@ -8,22 +8,22 @@
  * - a message is not valid ICU MessageFormat (@formatjs/icu-messageformat-parser, with the `other` clause
  *   required in plural and select);
  * - a message's placeholder arguments (names and kinds, including rich-text tags) differ from the same
- *   message in the source locale.
+ *   message in the source locale;
+ * - a clinical-keys rule fails (clinical-keys.ts): a `banner.*` or `clinical.*` message left in English, or
+ *   a plural that drops `#` where it must keep it;
+ * - a translated message has no review status, or an unknown one (review-marking.ts; DN-021).
  *
  * It never judges the wording or the translation itself: that is clinician and linguist review [HUMAN].
  */
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { parse, TYPE, type MessageFormatElement } from '@formatjs/icu-messageformat-parser';
 import { SOURCE_LOCALE, TEMPLATE_ONLY_LOCALES, UI_LOCALES } from '../locales.ts';
-import { findDuplicateKeys } from './duplicate-keys.ts';
+import { CLINICAL_KEY_PREFIXES, lintClinicalKeys, type ParsedMessage } from './clinical-keys.ts';
+import { readJsonObject, type CatalogueSource } from './json-object.ts';
+import { lintReviewMarking, REVIEW_DIRECTORY, type CatalogueKeys } from './review-marking.ts';
 
-/** One catalogue to check: its locale, the file name used in messages, and its text. */
-export interface CatalogueSource {
-  readonly locale: string;
-  readonly file: string;
-  readonly text: string;
-}
+export type { CatalogueSource } from './json-object.ts';
 
 export interface LintOptions {
   /** The locales that must each have exactly one catalogue. */
@@ -32,19 +32,43 @@ export interface LintOptions {
   readonly sourceLocale: string;
   /** Locales that have no UI catalogue on purpose, named in the error for a stray catalogue. */
   readonly templateOnlyLocales?: readonly string[];
+  /** The clinical-keys rules (clinical-keys.ts) for these translated locales; omitted, they do not run. */
+  readonly clinicalKeys?: {
+    readonly translatedLocales: readonly string[];
+    readonly prefixes: readonly string[];
+  };
+  /**
+   * Locales whose every message carries a review status in `review/<locale>.json` (review-marking.ts);
+   * omitted, review files are not read.
+   */
+  readonly reviewMarkedLocales?: readonly string[];
 }
 
-/** The options for the UI catalogues of BUILD-PROMPT.md §4.1: en, ckb and ar, with en as the source. */
+/** The locales translated from the source locale: ckb and ar. */
+const TRANSLATED_LOCALES: readonly string[] = UI_LOCALES.filter((locale) => locale !== SOURCE_LOCALE);
+
+/**
+ * The options for the UI catalogues of BUILD-PROMPT.md §4.1: en, ckb and ar, with en as the source. The
+ * clinical-keys rules and the review marking (DN-021) apply to ckb and ar.
+ */
 export const UI_CATALOGUE_LINT_OPTIONS: LintOptions = {
   uiLocales: UI_LOCALES,
   sourceLocale: SOURCE_LOCALE,
   templateOnlyLocales: TEMPLATE_ONLY_LOCALES,
+  clinicalKeys: { translatedLocales: TRANSLATED_LOCALES, prefixes: CLINICAL_KEY_PREFIXES },
+  reviewMarkedLocales: TRANSLATED_LOCALES,
 };
 
 export interface LintResult {
   readonly errors: readonly string[];
   readonly warnings: readonly string[];
-  readonly counts: { readonly catalogues: number; readonly keys: number; readonly messages: number };
+  readonly counts: {
+    readonly catalogues: number;
+    readonly keys: number;
+    readonly messages: number;
+    /** Messages marked `unreviewed`; present when the options name review-marked locales. */
+    readonly unreviewed?: number;
+  };
 }
 
 /** Message keys: dot-separated segments, each starting with a lower-case letter, at least two segments. */
@@ -54,6 +78,8 @@ interface ParsedCatalogue {
   readonly source: CatalogueSource;
   /** Placeholder signature per key; null when the message did not parse. */
   readonly signatures: Map<string, string[] | null>;
+  /** The string messages, with their elements (null when the message did not parse). */
+  readonly messages: Map<string, ParsedMessage>;
 }
 
 /** The placeholder arguments of a message, as sorted display strings such as `{count, plural}` or `<b>`. */
@@ -120,28 +146,17 @@ function syntaxErrorText(error: unknown): string {
 }
 
 function parseCatalogue(source: CatalogueSource, errors: string[]): ParsedCatalogue | undefined {
-  const { file, text } = source;
-  if (text.startsWith('﻿')) {
-    errors.push(`${file}: starts with a byte order mark: save it as UTF-8 without a BOM`);
-    return undefined;
-  }
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch (error) {
-    errors.push(`${file}: not valid JSON: ${error instanceof Error ? error.message : String(error)}`);
-    return undefined;
-  }
-  for (const duplicate of findDuplicateKeys(text)) {
-    errors.push(
-      `${file}:${String(duplicate.line)}: key "${duplicate.key}" appears more than once; JSON keeps only the last value`,
-    );
-  }
-  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
-    errors.push(`${file}: a catalogue must be a JSON object of message keys to ICU messages`);
+  const { file } = source;
+  const data = readJsonObject(
+    source,
+    'a catalogue must be a JSON object of message keys to ICU messages',
+    errors,
+  );
+  if (data === undefined) {
     return undefined;
   }
   const signatures = new Map<string, string[] | null>();
+  const messages = new Map<string, ParsedMessage>();
   for (const [key, value] of Object.entries(data)) {
     if (!MESSAGE_KEY_PATTERN.test(key)) {
       errors.push(
@@ -161,23 +176,28 @@ function parseCatalogue(source: CatalogueSource, errors: string[]): ParsedCatalo
       continue;
     }
     try {
-      signatures.set(
-        key,
-        placeholderSignature(parse(value, { requiresOtherClause: true, shouldParseSkeletons: true })),
-      );
+      const elements = parse(value, { requiresOtherClause: true, shouldParseSkeletons: true });
+      signatures.set(key, placeholderSignature(elements));
+      messages.set(key, { text: value, elements });
     } catch (error) {
       errors.push(`${file}: key "${key}": ICU MessageFormat syntax error ${syntaxErrorText(error)}`);
       signatures.set(key, null);
+      messages.set(key, { text: value, elements: null });
     }
   }
-  return { source, signatures };
+  return { source, signatures, messages };
 }
 
-/** Lints catalogue texts already in memory. `initialErrors` are file-level problems found while reading. */
+/**
+ * Lints catalogue texts already in memory. `initialErrors` are file-level problems found while reading.
+ * `reviewSources` are the review files (`review/<locale>.json`), checked when the options name
+ * review-marked locales.
+ */
 export function lintCatalogueSources(
   sources: readonly CatalogueSource[],
   options: LintOptions,
   initialErrors: readonly string[] = [],
+  reviewSources: readonly CatalogueSource[] = [],
 ): LintResult {
   const errors: string[] = [...initialErrors];
   const parsed: ParsedCatalogue[] = [];
@@ -247,25 +267,46 @@ export function lintCatalogueSources(
     }
   }
 
-  return {
-    errors,
-    warnings: [],
-    counts: {
-      catalogues: parsed.length,
-      keys: allKeys.length,
-      messages: parsed.reduce((total, catalogue) => total + catalogue.signatures.size, 0),
-    },
+  if (options.clinicalKeys !== undefined) {
+    errors.push(
+      ...lintClinicalKeys(
+        parsed.map((catalogue) => ({
+          locale: catalogue.source.locale,
+          file: catalogue.source.file,
+          messages: catalogue.messages,
+        })),
+        { sourceLocale: options.sourceLocale, ...options.clinicalKeys },
+      ),
+    );
+  }
+
+  const counts = {
+    catalogues: parsed.length,
+    keys: allKeys.length,
+    messages: parsed.reduce((total, catalogue) => total + catalogue.signatures.size, 0),
   };
+  if (options.reviewMarkedLocales === undefined) {
+    return { errors, warnings: [], counts };
+  }
+  const catalogueKeys = new Map<string, CatalogueKeys>(
+    parsed.map((catalogue) => [
+      catalogue.source.locale,
+      { file: catalogue.source.file, keys: new Set(catalogue.signatures.keys()) },
+    ]),
+  );
+  const review = lintReviewMarking(reviewSources, catalogueKeys, options.reviewMarkedLocales);
+  errors.push(...review.errors);
+  return { errors, warnings: [], counts: { ...counts, unreviewed: review.unreviewed } };
 }
 
-/**
- * Lints the catalogue directory: `<locale>.json` for each UI locale. Any other .json file there is reported
- * as unexpected; other files are ignored.
- */
-export function lintCatalogueDirectory(directory: string, options: LintOptions): LintResult {
-  const readErrors: string[] = [];
+/** Reads the .json files of one directory, sorted by name, reporting a file that is not valid UTF-8. */
+function readJsonFiles(
+  directory: string,
+  fileName: (name: string) => string,
+  readErrors: string[],
+): CatalogueSource[] {
   const strictUtf8 = new TextDecoder('utf-8', { fatal: true });
-  const sources = readdirSync(directory, { withFileTypes: true })
+  return readdirSync(directory, { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.json'))
     .map((entry) => entry.name)
     .sort()
@@ -275,10 +316,27 @@ export function lintCatalogueDirectory(directory: string, options: LintOptions):
       try {
         text = strictUtf8.decode(bytes);
       } catch {
-        readErrors.push(`${name}: not valid UTF-8`);
+        readErrors.push(`${fileName(name)}: not valid UTF-8`);
         text = new TextDecoder('utf-8').decode(bytes);
       }
-      return { locale: name.slice(0, -'.json'.length), file: name, text };
+      return { locale: name.slice(0, -'.json'.length), file: fileName(name), text };
     });
-  return lintCatalogueSources(sources, options, readErrors);
+}
+
+/**
+ * Lints the catalogue directory: `<locale>.json` for each UI locale and, when the options name
+ * review-marked locales, `review/<locale>.json` for each of them. Any other .json file in either directory
+ * is reported as unexpected; other files are ignored.
+ */
+export function lintCatalogueDirectory(directory: string, options: LintOptions): LintResult {
+  const readErrors: string[] = [];
+  const sources = readJsonFiles(directory, (name) => name, readErrors);
+  const reviewDirectory = path.join(directory, REVIEW_DIRECTORY);
+  const reviewSources =
+    options.reviewMarkedLocales !== undefined &&
+    existsSync(reviewDirectory) &&
+    statSync(reviewDirectory).isDirectory()
+      ? readJsonFiles(reviewDirectory, (name) => `${REVIEW_DIRECTORY}/${name}`, readErrors)
+      : [];
+  return lintCatalogueSources(sources, options, readErrors, reviewSources);
 }

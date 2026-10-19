@@ -2,5 +2,7 @@
   "fixture.ok": "SYN-ckb",
   "fixture.empty": "SYN-ckb",
   "fixture.broken": "SYN-ckb {name",
-  "fixture.placeholders": "SYN-ckb {name} {count, number}"
+  "fixture.placeholders": "SYN-ckb {name} {count, number}",
+  "banner.fixture": "SYN-ckb",
+  "clinical.fixtureCount": "{count, plural, other {SYN-ckb #}}"
 }

@@ -31,7 +31,7 @@ describe('localisation lint CLI', { timeout: 60_000 }, () => {
     expect(result).toEqual({
       check: 'frontend-i18n-catalogues',
       ok: true,
-      counts: { catalogues: 3, keys: 4, messages: 12 },
+      counts: { catalogues: 3, keys: 125, messages: 375, unreviewed: 250 },
       errors: [],
       warnings: [],
     });
@@ -54,6 +54,12 @@ describe('localisation lint CLI', { timeout: 60_000 }, () => {
       'ku-Arab.json: unexpected catalogue: the UI locales are en, ckb, ar; ku-Arab is used only for patient-facing templates',
       'ckb.json: key "fixture.missingInCkb" is missing (present in ar.json, en.json)',
       'ar.json: key "fixture.placeholders": placeholders ({count}, {nam}) differ from en.json ({count, number}, {name})',
+      'ar.json: key "banner.fixture": the message is the same as in en.json; a clinical message (banner.*, clinical.*) must be translated',
+      'ar.json: key "clinical.fixtureCount": plural "count" has no # in "one"; a clinical count, so every branch must show the number',
+      'review/ar.json: key "fixture.gone" is not in ar.json',
+      'review/ar.json: key "fixture.ok" of ar.json has no review status: mark it "unreviewed" (DN-021)',
+      'review/ckb.json: key "fixture.ok": unknown review status "reviewed"; the only status is "unreviewed" until the clinician review records its own (DN-021, OQ-151)',
+      'review/en.json: unexpected review file: the review-marked locales are ckb, ar',
     ]);
   });
 
