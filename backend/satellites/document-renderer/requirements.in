@@ -1,0 +1,13 @@
+# Top-level requirements of the document renderer satellite (docs/specs/modules/platform-docs.md §7.5, §10).
+# requirements.txt is the full, hash-pinned closure; edit both together and record every licence in LICENCES.md.
+# Python 3.12 (CPython), Windows x86-64 (win_amd64) and Linux x86-64 (manylinux) wheels only.
+
+# The renderer: HTML with CSS paged media to PDF/A-2b (ADR-038, accepted-provisional).
+weasyprint==70.0
+
+# The golden step only (§10): the page rasteriser and the independent barcode decoder (§6.2).
+pypdfium2==5.14.0
+zxing-cpp==3.1.1
+
+# bootstrap.py only, Windows only: decompresses the MSYS2 .pkg.tar.zst packages of the Pango runtime.
+zstandard==0.25.0 ; sys_platform == "win32"
