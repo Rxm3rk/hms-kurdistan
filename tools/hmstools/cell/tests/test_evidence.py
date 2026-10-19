@@ -43,6 +43,23 @@ class EvidenceTest(unittest.TestCase):
         self.assertTrue(rec["git"]["dirty"])
         self.assertIn("-dirty", path.name)
 
+    def test_a_rerun_with_the_same_name_never_overwrites(self):
+        first, rec1 = self.record("same")
+        second, _ = self.record("same")
+        third, _ = self.record("same")
+        stem = first.name[:-len(".json")]
+        self.assertEqual(second.name, stem + "-2.json")
+        self.assertEqual(third.name, stem + "-3.json")
+        self.assertEqual(json.loads(first.read_text(encoding="utf-8")), rec1)
+
+    def test_an_empty_label_is_left_out_and_a_scratch_directory_can_be_named(self):
+        scratch = self.root / "scratch-out"
+        path = evidence.write(self.root, "images", "", "lite", evidence.now_iso(), "PASS", {}, directory=scratch)
+        self.assertEqual(path.parent, scratch)
+        self.assertRegex(path.name, r"^\d{4}-\d{2}-\d{2}-images-[0-9a-f]{7,}(-dirty)?\.json$")
+        self.assertFalse((self.root / "docs" / "program" / "evidence" / "cell").exists())
+        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["standing"], "lite")
+
     def test_unknown_cell_is_refused(self):
         with self.assertRaises(ValueError):
             evidence.write(self.root, "worm", "x", "laptop", evidence.now_iso(), "PASS", {})

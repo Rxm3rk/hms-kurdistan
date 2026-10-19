@@ -339,6 +339,7 @@
   tests: []
   hazards:
   - HAZ-0020
+  - HAZ-0028
   notes: []
 
 - id: PLT-OPS-02
@@ -394,6 +395,8 @@
   tests: []
   hazards:
   - HAZ-0020
+  - HAZ-0028
+  - HAZ-0029
   notes: []
 
 - id: PLT-OPS-05
@@ -489,6 +492,8 @@
   hazards:
   - HAZ-0015
   - HAZ-0020
+  - HAZ-0028
+  - HAZ-0029
   notes: []
 
 - id: PLT-PWR-01
@@ -641,6 +646,7 @@
   - HAZ-0025
   - HAZ-0026
   - HAZ-0027
+  - HAZ-0029
   notes: []
 
 - id: TRU-AUD-02

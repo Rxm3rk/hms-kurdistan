@@ -32,36 +32,31 @@ EVIDENCE_PREFIX = "docs/program/evidence/"
 
 
 def code_git_info(root: Path) -> dict[str, Any]:
-    """git_info, except that untracked evidence outputs do not make the tree "dirty".
+    """The runner's git_info, except that untracked evidence outputs do not make the tree "dirty".
 
     A run that writes a record leaves it untracked; without this, every later run in the same checkout would
     be labelled dirty although the code under test is unchanged. Untracked files elsewhere and any change to
-    a tracked file (evidence included) still count.
+    a tracked file (evidence included) still count. The CI runner's own records still count every untracked
+    file (KA-024).
     """
-    import subprocess
-
     from ..ci.runner import git_info
 
-    git = git_info(root)
-    proc = subprocess.run(["git", "-C", str(root), "status", "--porcelain=v1", "--untracked-files=all"],
-                          capture_output=True, check=False)
-    lines = proc.stdout.decode("utf-8", "replace").splitlines() if proc.returncode == 0 else []
-    outputs = [line[3:] for line in lines if line.startswith("?? ") and line[3:].startswith(EVIDENCE_PREFIX)]
-    remaining = [line[3:] for line in lines if len(line) > 3 and line[3:] not in outputs]
-    git.update({"dirty": bool(remaining), "dirty_files": remaining[:500], "dirty_files_total": len(remaining),
-                "untracked_evidence_outputs_ignored": len(outputs)})
-    return git
+    return git_info(root, ignore_untracked_under=EVIDENCE_PREFIX)
 
 
-def write(root: Path, test: str, label: str, cell: str, started_at: str, result: str, details: dict[str, Any]) -> Path:
+def write(root: Path, test: str, label: str, cell: str, started_at: str, result: str, details: dict[str, Any],
+          directory: Path | None = None) -> Path:
+    """Write a record named <date>-<test>[-<label>]-<shortsha>[-dirty].json (an empty label is left out) into
+    docs/program/evidence/cell/, or into `directory` for a scratch record outside the repository."""
     from ..ci.runner import host_info
 
     if cell not in CELLS:
         raise ValueError(f"unknown cell {cell!r}; one of {CELLS}")
     git = code_git_info(root)
     stamp = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d")
-    name = f"{stamp}-{slug(test)}-{slug(label)}-{git['short_sha']}{'-dirty' if git['dirty'] else ''}.json"
-    path = root / "docs" / "program" / "evidence" / "cell" / name
+    middle = f"{slug(test)}-{slug(label)}" if label else slug(test)
+    stem = f"{stamp}-{middle}-{git['short_sha']}{'-dirty' if git['dirty'] else ''}"
+    directory = directory if directory is not None else root / "docs" / "program" / "evidence" / "cell"
     record = {
         "schema_version": 1,
         "test": test,
@@ -75,8 +70,17 @@ def write(root: Path, test: str, label: str, cell: str, started_at: str, result:
         "result": result,
         "details": details,
     }
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8", newline="\n") as handle:
-        json.dump(record, handle, ensure_ascii=False, indent=2, sort_keys=False)
-        handle.write("\n")
-    return path
+    directory.mkdir(parents=True, exist_ok=True)
+    # A rerun with the same name never overwrites an earlier record: it adds -2, -3, ... (OQ-129).
+    number = 1
+    while True:
+        path = directory / (f"{stem}.json" if number == 1 else f"{stem}-{number}.json")
+        try:
+            handle = open(path, "x", encoding="utf-8", newline="\n")
+        except FileExistsError:
+            number += 1
+            continue
+        with handle:
+            json.dump(record, handle, ensure_ascii=False, indent=2, sort_keys=False)
+            handle.write("\n")
+        return path
