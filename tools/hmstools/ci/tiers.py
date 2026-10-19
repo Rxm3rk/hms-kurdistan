@@ -1,6 +1,6 @@
 """The four CI tiers of BUILD-PROMPT.md §19.1 as step lists.
 
-- fast:    the fast-tier steps (built in WP-0.1).
+- fast:    the fast-tier steps (built in WP-0.1; cell-lint added in WP-0.2).
 - merge:   the fast steps, then the merge-tier contents of §19.1.
 - nightly: the fast steps, then the nightly contents of §19.1.
 - release: the fast and merge steps, then the release contents of §19.1.
@@ -203,6 +203,8 @@ def fast_steps(root: Path) -> list[Step]:
         ),
         CommandStep("safety-check", ["sh", "tools/hms", "safety", "check", "--json"], check_json=True, timeout=300),
         CommandStep("backlog-check", ["sh", "tools/hms", "backlog", "check", "--json"], check_json=True, timeout=300),
+        # The cell's pins (deploy/site-cell/cell.yaml): digests, checksums, licences, local paths, budgets (WP-0.2).
+        CommandStep("cell-lint", ["sh", "tools/hms", "cell", "lint", "--json"], check_json=True, timeout=300),
         CommandStep(
             "backend-fast", gradle, timeout=1800, prepare=clear_junit(BACKEND_JUNIT),
             evaluate=missing_file_guard(

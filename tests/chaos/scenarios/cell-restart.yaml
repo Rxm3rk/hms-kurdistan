@@ -1,0 +1,46 @@
+# R1: the full restart of the cell (WP-0.2 plan §1, §4.2, slice S2; OQ-122; DN-015; KA-022).
+#
+# A WSL termination stops all three nodes at once, a power cut to the whole cell; Docker then starts them in
+# whatever order it likes. The prototype came back with its node addresses swapped and its embedded etcd never
+# formed a quorum again. R1 does the same on purpose and passes only if the cell comes back by itself.
+#
+# Run: tools/hms cell chaos cell-restart --profile lite [--evidence | --evidence-dir DIR] [--json]
+# Record: chaos/<date>-cell-restart-<shortsha>[-dirty].json, labelled with its cell ("lite").
+# Nightly step: chaos-restart (S9 wires it). S5 adds PostgreSQL convergence and the WORM re-check to this
+# scenario; until then R1 runs on the bare substrate.
+id: R1
+name: cell-restart-any-order
+test: cell-restart
+verification: "ChaosTest:cell-restart-any-order"
+hazards: [HAZ-0028]
+controls: [CTRL-0028-3]
+
+# Precondition: the substrate is running and healthy ('tools/hms cell status' passes); otherwise nothing is
+# killed and the run is an ERROR.
+# 1. Each node's restart policy is set to 'no', so Docker cannot restart a killed node behind the test's back.
+# 2. 'docker kill' of all three server nodes in one command (SIGKILL: no graceful shutdown, as in a power cut).
+# 3. 'docker start' of each node, one at a time, in reverse order of creation: server-2, server-1, server-0.
+# 4. The restart policies are restored.
+# 5. The API (/readyz through the k3d server load balancer) and the three nodes are polled every poll_s.
+kill: all-servers
+start_order: reverse
+
+bounds:
+  # [P] The bound on API readiness after the first start: the in-cell RTO engineering figure, ≤5 min
+  # (BUILD-PROMPT §16.2, §16.4).
+  api_ready_s: 300
+  poll_s: 2
+  # [P] A run during which host memory pressure (/proc/pressure/memory, some avg10) rose above this is
+  # DISTURBED and never counts as a pass (WP-0.2 plan §4.1).
+  memory_pressure_avg10_max: 10
+
+# Every condition must hold for PASS. Lite-cell results are labelled "lite", never SLO evidence (§3.5).
+pass:
+  - api-ready-within-bound: the API answers /readyz with ok within api_ready_s of the first start
+  - nodes-ready-within-bound: all three nodes are Ready within api_ready_s of the first start
+  - addresses-unchanged: every node, the load balancer and the registry hold the same address on the cell network as before
+  - fixed-addresses: each of them has a fixed address (IPAMConfig) and holds it
+  - node-addresses: each node's InternalIP is its fixed address
+  - etcd-members: etcd lists one started voting member per node, whose peer URL names that node's fixed address
+  - etcd-same-members: the member IDs are the same as before the kill
+  - restart-policy-restored: each node's restart policy is what it was before

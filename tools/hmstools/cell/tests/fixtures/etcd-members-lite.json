@@ -1,0 +1,39 @@
+{
+ "header": {
+  "cluster_id": "14841639068965178418",
+  "member_id": "10276657743932975437",
+  "raft_term": "4"
+ },
+ "members": [
+  {
+   "ID": "10276657743932975437",
+   "name": "k3d-hms-lite-server-0-6c1d2a0e",
+   "peerURLs": [
+    "https://10.213.2.3:2380"
+   ],
+   "clientURLs": [
+    "https://10.213.2.3:2379"
+   ]
+  },
+  {
+   "ID": "2543157361029618121",
+   "name": "k3d-hms-lite-server-1-0b9f4e21",
+   "peerURLs": [
+    "https://10.213.2.4:2380"
+   ],
+   "clientURLs": [
+    "https://10.213.2.4:2379"
+   ]
+  },
+  {
+   "ID": "17204928011650345987",
+   "name": "k3d-hms-lite-server-2-3e7a51c9",
+   "peerURLs": [
+    "https://10.213.2.5:2380"
+   ],
+   "clientURLs": [
+    "https://10.213.2.5:2379"
+   ]
+  }
+ ]
+}

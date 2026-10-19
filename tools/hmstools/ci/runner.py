@@ -242,20 +242,36 @@ class FunctionStep(Step):
 # --------------------------------------------------------------------------- evidence helpers
 
 
-def git_info(root: Path) -> dict[str, Any]:
-    def git(*args: str) -> Optional[str]:
+def git_info(root: Path, ignore_untracked_under: Optional[str] = None) -> dict[str, Any]:
+    """The commit, branch and dirty state of root's working tree.
+
+    By default every change counts, untracked files included; the CI runner's records use that rule. With
+    ignore_untracked_under (a repository-relative prefix such as "docs/program/evidence/"), untracked files
+    under that prefix do not make the tree dirty and are counted in "untracked_evidence_outputs_ignored";
+    untracked files elsewhere and any change to a tracked file still count. The cell's records use that rule.
+    """
+
+    def git(*args: str, strip: bool = True) -> Optional[str]:
         try:
             proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True, check=False)
         except OSError:
             return None
-        return proc.stdout.decode("utf-8", "replace").strip() if proc.returncode == 0 else None
+        if proc.returncode != 0:
+            return None
+        text = proc.stdout.decode("utf-8", "replace")
+        return text.strip() if strip else text
 
     sha = git("rev-parse", "HEAD")
     short = git("rev-parse", "--short", "HEAD")
     branch = git("rev-parse", "--abbrev-ref", "HEAD") or git("symbolic-ref", "--short", "HEAD")
-    status = git("status", "--porcelain=v1", "--untracked-files=all") or ""
-    files = [line[3:] for line in status.splitlines() if len(line) > 3]
-    return {
+    # Not stripped: each porcelain line starts with two status columns, and the first is a space for a change
+    # that is not staged (" M path"); stripping the output would cut the first character of that path.
+    status = git("status", "--porcelain=v1", "--untracked-files=all", strip=False) or ""
+    lines = [line for line in status.splitlines() if len(line) > 3]
+    ignored = [line[3:] for line in lines
+               if ignore_untracked_under and line.startswith("?? ") and line[3:].startswith(ignore_untracked_under)]
+    files = [line[3:] for line in lines if line[3:] not in ignored]
+    info: dict[str, Any] = {
         "sha": sha,
         "short_sha": short or "nocommit",
         "branch": branch,
@@ -263,6 +279,9 @@ def git_info(root: Path) -> dict[str, Any]:
         "dirty_files": files[:500],
         "dirty_files_total": len(files),
     }
+    if ignore_untracked_under:
+        info["untracked_evidence_outputs_ignored"] = len(ignored)
+    return info
 
 
 def output_of(argv: list[str], env: dict[str, str]) -> Optional[str]:

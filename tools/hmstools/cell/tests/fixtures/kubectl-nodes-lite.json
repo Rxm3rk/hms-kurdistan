@@ -1,0 +1,111 @@
+{
+ "apiVersion": "v1",
+ "kind": "List",
+ "items": [
+  {
+   "metadata": {
+    "name": "k3d-hms-lite-server-0",
+    "labels": {
+     "node-role.kubernetes.io/control-plane": "true",
+     "node-role.kubernetes.io/etcd": "true",
+     "node-role.kubernetes.io/master": "true"
+    }
+   },
+   "status": {
+    "addresses": [
+     {
+      "address": "10.213.2.3",
+      "type": "InternalIP"
+     },
+     {
+      "address": "k3d-hms-lite-server-0",
+      "type": "Hostname"
+     }
+    ],
+    "conditions": [
+     {
+      "type": "MemoryPressure",
+      "status": "False"
+     },
+     {
+      "type": "Ready",
+      "status": "True"
+     }
+    ],
+    "nodeInfo": {
+     "kubeletVersion": "v1.35.9+k3s1"
+    }
+   }
+  },
+  {
+   "metadata": {
+    "name": "k3d-hms-lite-server-1",
+    "labels": {
+     "node-role.kubernetes.io/control-plane": "true",
+     "node-role.kubernetes.io/etcd": "true",
+     "node-role.kubernetes.io/master": "true"
+    }
+   },
+   "status": {
+    "addresses": [
+     {
+      "address": "10.213.2.4",
+      "type": "InternalIP"
+     },
+     {
+      "address": "k3d-hms-lite-server-1",
+      "type": "Hostname"
+     }
+    ],
+    "conditions": [
+     {
+      "type": "MemoryPressure",
+      "status": "False"
+     },
+     {
+      "type": "Ready",
+      "status": "True"
+     }
+    ],
+    "nodeInfo": {
+     "kubeletVersion": "v1.35.9+k3s1"
+    }
+   }
+  },
+  {
+   "metadata": {
+    "name": "k3d-hms-lite-server-2",
+    "labels": {
+     "node-role.kubernetes.io/control-plane": "true",
+     "node-role.kubernetes.io/etcd": "true",
+     "node-role.kubernetes.io/master": "true"
+    }
+   },
+   "status": {
+    "addresses": [
+     {
+      "address": "10.213.2.5",
+      "type": "InternalIP"
+     },
+     {
+      "address": "k3d-hms-lite-server-2",
+      "type": "Hostname"
+     }
+    ],
+    "conditions": [
+     {
+      "type": "MemoryPressure",
+      "status": "False"
+     },
+     {
+      "type": "Ready",
+      "status": "True"
+     }
+    ],
+    "nodeInfo": {
+     "kubeletVersion": "v1.35.9+k3s1"
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+[
+ {
+  "Id": "b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0",
+  "Name": "/k3d-hms-registry.localhost",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 0
+  },
+  "Config": {
+   "Image": "docker.io/distribution/distribution@sha256:b92d85255a404bc3933c6ae76bc0835a1031dfad6dba623cc6e027f5cef72acd",
+   "Labels": {
+    "app": "k3d",
+    "k3d.role": "registry"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.2"
+     },
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-registry.localhost",
+      "b0b0b0b0b0b0"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.2",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-registry.localhost",
+      "b0b0b0b0b0b0"
+     ]
+    },
+    "hms-registry": {
+     "IPAMConfig": null,
+     "IPAddress": "10.213.0.2",
+     "Aliases": []
+    },
+    "hms-cell-offline": {
+     "IPAMConfig": {},
+     "IPAddress": "10.213.1.2",
+     "Aliases": []
+    }
+   }
+  }
+ }
+]

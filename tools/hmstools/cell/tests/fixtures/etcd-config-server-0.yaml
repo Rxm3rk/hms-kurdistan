@@ -1,0 +1,10 @@
+advertise-client-urls: https://10.213.2.3:2379
+data-dir: /var/lib/rancher/k3s/server/db/etcd
+election-timeout: 5000
+heartbeat-interval: 500
+initial-advertise-peer-urls: https://10.213.2.3:2380
+initial-cluster: k3d-hms-lite-server-0-6c1d2a0e=https://10.213.2.3:2380
+initial-cluster-state: new
+listen-client-urls: https://127.0.0.1:2379,https://10.213.2.3:2379
+listen-peer-urls: https://127.0.0.1:2380,https://10.213.2.3:2380
+name: k3d-hms-lite-server-0-6c1d2a0e

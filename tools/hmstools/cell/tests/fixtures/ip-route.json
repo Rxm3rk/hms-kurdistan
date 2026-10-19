@@ -1,0 +1,43 @@
+[
+ {
+  "dst": "default",
+  "gateway": "172.28.192.1",
+  "dev": "eth0",
+  "protocol": "kernel",
+  "flags": []
+ },
+ {
+  "dst": "10.213.0.0/24",
+  "dev": "br-54ca93dee289",
+  "protocol": "kernel",
+  "scope": "link",
+  "prefsrc": "10.213.0.1",
+  "flags": []
+ },
+ {
+  "dst": "10.213.1.0/24",
+  "dev": "br-3a1c9318fe30",
+  "protocol": "kernel",
+  "scope": "link",
+  "prefsrc": "10.213.1.1",
+  "flags": []
+ },
+ {
+  "dst": "172.17.0.0/16",
+  "dev": "docker0",
+  "protocol": "kernel",
+  "scope": "link",
+  "prefsrc": "172.17.0.1",
+  "flags": [
+   "linkdown"
+  ]
+ },
+ {
+  "dst": "172.28.192.0/20",
+  "dev": "eth0",
+  "protocol": "kernel",
+  "scope": "link",
+  "prefsrc": "172.28.205.247",
+  "flags": []
+ }
+]

@@ -1,0 +1,201 @@
+[
+ {
+  "Id": "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0",
+  "Name": "/k3d-hms-lite-server-0",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 3221225472
+  },
+  "Config": {
+   "Image": "localhost:5000/rancher/k3s@sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.role": "server",
+    "k3d.node.staticIP": "10.213.2.3"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.3"
+     },
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-lite-server-0",
+      "a0a0a0a0a0a0"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.3",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-lite-server-0",
+      "a0a0a0a0a0a0"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "Id": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+  "Name": "/k3d-hms-lite-server-1",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 3221225472
+  },
+  "Config": {
+   "Image": "localhost:5000/rancher/k3s@sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.role": "server",
+    "k3d.node.staticIP": "10.213.2.4"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.4"
+     },
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-lite-server-1",
+      "a1a1a1a1a1a1"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.4",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-lite-server-1",
+      "a1a1a1a1a1a1"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "Id": "a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2",
+  "Name": "/k3d-hms-lite-server-2",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 3221225472
+  },
+  "Config": {
+   "Image": "localhost:5000/rancher/k3s@sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.role": "server",
+    "k3d.node.staticIP": "10.213.2.5"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.5"
+     },
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-lite-server-2",
+      "a2a2a2a2a2a2"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.5",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-lite-server-2",
+      "a2a2a2a2a2a2"
+     ]
+    }
+   }
+  }
+ },
+ {
+  "Id": "a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3",
+  "Name": "/k3d-hms-lite-serverlb",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T13:00:00.000000000Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 0
+  },
+  "Config": {
+   "Image": "localhost:5000/k3d-io/k3d-proxy@sha256:86df1112d4ba91b3c5c8cfabfad384e562612305a18f7473057cc0c00045bfd2",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.role": "loadbalancer"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.6"
+     },
+     "Links": null,
+     "Aliases": [
+      "k3d-hms-lite-serverlb",
+      "a3a3a3a3a3a3"
+     ],
+     "MacAddress": "02:42:0a:d5:02:03",
+     "NetworkID": "5f1e000000000000000000000000000000000000000000000000000000000000",
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.6",
+     "IPPrefixLen": 24,
+     "DNSNames": [
+      "k3d-hms-lite-serverlb",
+      "a3a3a3a3a3a3"
+     ]
+    }
+   }
+  }
+ }
+]
