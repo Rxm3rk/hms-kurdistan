@@ -8,5 +8,6 @@ plugins {
 }
 
 dependencies {
+    api(project(":platform:time"))
     testImplementation(project(":platform:testing"))
 }
