@@ -2,6 +2,9 @@ package hms.kernel.archrules
 
 import hms.archfixtures.purity.compliant.domain.PureAggregate
 import hms.archfixtures.purity.compliant.infrastructure.SpringBackedAdapter
+import hms.archfixtures.purity.violating.domain.UsesApicurio
+import hms.archfixtures.purity.violating.domain.UsesCloudEvents
+import hms.archfixtures.purity.violating.domain.UsesDebezium
 import hms.archfixtures.purity.violating.domain.UsesJackson2Annotations
 import hms.archfixtures.purity.violating.domain.UsesJackson3
 import hms.archfixtures.purity.violating.domain.UsesJakarta
@@ -16,7 +19,7 @@ import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 
-/** Rule (a): domain packages depend on no framework type (BUILD-PROMPT §6.1, §6.8 #3). */
+/** Rule (a): domain packages depend on no framework type (BUILD-PROMPT §6.1, §6.8 #3; D7 widens the list). */
 class DomainPurityRuleTest {
     private val violatingRoot = "hms.archfixtures.purity.violating"
     private val compliantRoot = "hms.archfixtures.purity.compliant"
@@ -32,6 +35,9 @@ class DomainPurityRuleTest {
             UsesJackson3::class,
             UsesTemporal::class,
             UsesKafka::class,
+            UsesCloudEvents::class,
+            UsesDebezium::class,
+            UsesApicurio::class,
         ).map { fixture ->
             dynamicTest(fixture.java.simpleName) {
                 assertRuleFails(HmsArchitectureRules.domainIsFrameworkFree(violatingRoot), importFixtures(fixture), fixture)
@@ -39,7 +45,7 @@ class DomainPurityRuleTest {
         }
 
     @Test
-    fun `forbids exactly the framework packages of the WP-0_1 rule, so none can be dropped silently`() {
+    fun `forbids exactly the framework packages of the WP-0_1 rule and the D7 widening, so none can be dropped silently`() {
         assertEquals(
             listOf(
                 "org.springframework..",
@@ -50,6 +56,9 @@ class DomainPurityRuleTest {
                 "tools.jackson..",
                 "io.temporal..",
                 "org.apache.kafka..",
+                "io.cloudevents..",
+                "io.debezium..",
+                "io.apicurio..",
             ),
             HmsArchitectureRules.FRAMEWORK_PACKAGES,
         )

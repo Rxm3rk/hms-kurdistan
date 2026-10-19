@@ -4,6 +4,8 @@ The list of HMS domain events: canonical names, aliases, owning modules, produce
 
 **Status on 2026-10-19:** revised after two automated review lenses. No event is published. Every event below is `catalogued` (name, owner, producers and key agreed; no schema yet). The platform events of WP-0.3 (§4) use the names of their owning module specifications and reach `specified` in WP-0.3 together with their schemas. The code registry in `hms.kernel.events` must list exactly the events and aggregate types of §2, §4 and §5, and none of §2.1 (`UnitTest:event-catalogue-matches-document`). Open items carry local labels (OQ-C1 and so on, §7); the integrator numbers them.
 
+**Programme numbers (19 October 2026).** OQ-C1 to OQ-C4 are OQ-172. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Rules
 
 - **Canonical names follow R11 §14.** Where R11 §14 has no name, the name comes from §8.5 or BP §7.6 (`MedicationOverridden`, `ResultAcknowledged`, `CriticalResultEscalated`, `ImmunizationRecorded`, `ReferralSent`, `ReferralAccepted`, `StaffAssignmentChanged`, `IdentityVerified`, `PaymentReconciled`, `TaskOrphaned`), or from the owning module specification for platform events (§4). BP §7.6 names that §8.5 declares aliases are aliases, never separate events: `ChargeGenerated` = `ChargeCreated` and `EncounterMoved` = `PatientTransferred` (§8.5; A.20; OQ-036). An alias is never written to the journal or used as a CloudEvents `type` (`envelope.md` §4).
