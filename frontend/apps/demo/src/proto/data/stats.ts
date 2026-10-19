@@ -21,7 +21,7 @@ export const TRENDS = {
   discharges: [19, 22, 20, 11, 9, 18, 2],
   outpatientVisits: [148, 156, 151, 12, 31, 162, 47],
   emergencyAttendances: [96, 88, 102, 121, 117, 94, 31],
-  occupancyPct: [81, 84, 86, 83, 79, 85, 82],
+  occupancyPct: [81, 84, 86, 83, 79, 85, 76],
   /** Cash and card receipts, in thousands of dinars. */
   revenueThousandIqd: [18_450, 21_300, 19_875, 6_200, 5_900, 22_640, 4_310],
   averageLengthOfStayDays: ['4.1', '4.0', '4.3', '4.4', '4.2', '3.9', '4.0'],

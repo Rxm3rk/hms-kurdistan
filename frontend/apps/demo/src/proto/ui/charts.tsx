@@ -57,7 +57,6 @@ export function Sparkline({ values, label, tone = 'accent', width = 120, height 
       height={height}
       role="img"
       aria-label={label}
-      dir="ltr"
     >
       <defs>
         <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">

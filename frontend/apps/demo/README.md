@@ -1,8 +1,12 @@
-# apps/web (placeholder)
+# @hms/demo: HMS Kurdistan clickable prototype
 
-The web client lands here in WP-0.7 (design system and client shells, BUILD-PROMPT.md §21): React with
-strict TypeScript and React Aria Components, Vite, TanStack Router and TanStack Query, FormatJS and Zod
-(§4.1). WP-0.7 builds the workspace frame and a demo route that renders the patient banner in `en`, `ckb` and
-`ar` with correct RTL. The role workspaces of §14.1 follow with the work packages that need them. It is served
-from the on-site cell and opened in the Tauri shell on workstations, or in a plain browser for roles that need
-no peripherals (§5.4).
+Throwaway demo for management, outside the product repository. SYNTHETIC DATA ONLY, NOT FOR CLINICAL USE.
+
+- Prototype code: `src/proto/` (shell, shared UI helpers, synthetic data, i18n helpers, one folder per screen).
+- Uses the real design system (`@hms/design-system`: PatientBanner, sign pattern, command palette, density,
+  locale provider, modal stack) and the real patient-context machine (`@hms/ui-core`).
+- Contract for screen builders: `C:\Users\Surface\hms-demo\CONTRACT.md`.
+
+    ../../node_modules/.bin/tsc --noEmit -p .   type-check
+    ../../node_modules/.bin/vite build          static build in dist/
+    ../../node_modules/.bin/vite                dev server, http://127.0.0.1:5200 (loopback only)

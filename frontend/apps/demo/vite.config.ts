@@ -54,6 +54,7 @@ export default defineConfig({
   define: {
     'import.meta.env.VITE_HMS_DEMO': JSON.stringify('1'),
   },
+  build: { chunkSizeWarningLimit: 1500 },
   server: { host: '127.0.0.1', port: 5200, strictPort: true },
   preview: { host: '127.0.0.1', port: 5201, strictPort: true },
 });

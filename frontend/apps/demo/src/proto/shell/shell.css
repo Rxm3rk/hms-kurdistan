@@ -477,8 +477,6 @@
 /* No patient: the friendly chooser */
 .shell-no-patient {
   max-inline-size: 72rem;
-  padding-block: var(--hms-space-5);
-  padding-inline: var(--hms-space-6);
 }
 
 .shell-no-patient__header {
@@ -648,8 +646,7 @@
 /* Narrow screens and projectors at 1024 px: tighter padding. */
 @media (max-width: 1100px) {
   .shell-main,
-  .shell-clinical__content,
-  .shell-no-patient {
+  .shell-clinical__content {
     padding-inline: var(--hms-space-4);
   }
 
