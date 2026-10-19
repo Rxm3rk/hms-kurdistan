@@ -28,4 +28,8 @@ gradlew text eol=lf
 *.tgz binary
 *.der binary
 *.p12 binary
+*.bin binary
 *.jks binary
+
+# Byte fixtures of the print writers are compared byte for byte: never converted (WP-0.8).
+backend/modules/platform-docs/src/test/resources/fixtures/** -text
