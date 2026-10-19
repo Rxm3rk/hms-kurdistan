@@ -1,0 +1,10 @@
+# Generated or deliberately malformed files.
+pnpm-lock.yaml
+reports/
+**/dist/
+**/build/
+**/coverage/
+**/test/fixtures/
+**/test-results/
+**/playwright-report/
+**/target/

@@ -1,0 +1,7 @@
+# HMS boss demo (throwaway prototype, outside the product repo)
+node_modules/
+.tools/
+dist/
+*.tsbuildinfo
+test-results/
+playwright-report/

@@ -1,0 +1,197 @@
+/*
+ * The patient banner (docs/specs/modules/design-system.md §2.1). Logical properties only (§6.5; checked by
+ * the stylesheet lint); every colour comes from tokens.css, in the pairs its roles define.
+ *
+ * Rule 3, identity text wraps and is never truncated: no rule here sets an ellipsis, a line clamp, a fixed or
+ * maximum height, hidden or clipped overflow, or `nowrap` on banner text. Names, MRNs, allergy substances and
+ * statuses wrap at word boundaries onto further lines and the banner grows; a single word wider than its
+ * place breaks inside the word rather than overflow (`overflow-wrap: anywhere`). The two fixed sizes are the
+ * icons and the photo image, which hold no text. UnitTest:banner-long-names-wrap reads this file.
+ */
+
+.hms-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--hms-space-3) var(--hms-space-5);
+  padding-block: var(--hms-space-3);
+  padding-inline: var(--hms-space-4);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg-raised);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+  overflow-wrap: anywhere;
+}
+
+.hms-patient-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--hms-space-2) var(--hms-space-4);
+  flex: 1 1 24rem;
+  min-inline-size: 0;
+}
+
+.hms-patient-identity__marker {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.hms-banner__fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--hms-space-2) var(--hms-space-4);
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  margin: 0;
+}
+
+.hms-banner__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.hms-banner__label {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.hms-banner__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1) var(--hms-space-2);
+  min-inline-size: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* The name in the patient's own script comes first and reads largest. */
+.hms-patient-name--first .hms-patient-name__text {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.hms-patient-name__text,
+.hms-patient-identity__mrn {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/*
+ * The photo's place: an image of fixed size, which never shrinks, or "No photo", which may shrink to the
+ * space there is and wraps its text there, so a long translation is never wider than the identity area.
+ */
+.hms-patient-photo {
+  flex: none;
+}
+
+.hms-patient-photo__image {
+  display: block;
+  inline-size: 4rem;
+  block-size: 5rem;
+  object-fit: cover;
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+.hms-patient-photo--missing {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: min(4rem, 100%);
+  max-inline-size: 100%;
+  min-block-size: 5rem;
+  padding: var(--hms-space-1);
+  text-align: center;
+  border: var(--hms-border-width) dashed var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+/* A status: its icon and its text together, tinted by its tone. Colour only repeats text and shape. */
+.hms-banner-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-1);
+  max-inline-size: 100%;
+  padding-inline: var(--hms-space-1);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: var(--hms-radius-sm);
+  overflow-wrap: anywhere;
+}
+
+.hms-banner-status__text {
+  min-inline-size: 0;
+}
+
+.hms-banner-status--neutral {
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+}
+
+.hms-banner-status--info {
+  color: var(--hms-color-info-text);
+  background-color: var(--hms-color-info-bg);
+  border-color: var(--hms-color-info-border);
+}
+
+.hms-banner-status--warning {
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border-color: var(--hms-color-warning-border);
+}
+
+.hms-banner-status--danger {
+  color: var(--hms-color-danger-text);
+  background-color: var(--hms-color-danger-bg);
+  border-color: var(--hms-color-danger-border);
+}
+
+.hms-banner-icon {
+  flex: none;
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+/* Allergies and isolation precautions: every item shown, wrapping onto more lines. */
+.hms-banner__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1) var(--hms-space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hms-banner__allergy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1) var(--hms-space-2);
+  min-inline-size: 0;
+  padding-inline: var(--hms-space-2);
+  color: var(--hms-color-danger-text);
+  background-color: var(--hms-color-danger-bg);
+  border: var(--hms-border-width) solid var(--hms-color-danger-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+.hms-banner__allergy-substance {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.hms-governed-label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-1);
+}
+
+.hms-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}

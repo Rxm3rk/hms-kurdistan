@@ -1,0 +1,25 @@
+{
+  "name": "@hms/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HMS Kurdistan UI locales, ICU MessageFormat catalogues and the localisation lint (BUILD-PROMPT.md §4.1, §6.5, §14.7).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "lint:messages": "node src/lint/cli.ts"
+  },
+  "dependencies": {
+    "@formatjs/icu-messageformat-parser": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

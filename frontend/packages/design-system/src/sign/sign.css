@@ -1,0 +1,124 @@
+/*
+ * The sign and co-sign dialog and the Sign action (docs/specs/modules/design-system.md §2.3). Logical
+ * properties only; every value comes from tokens.css. Identity text in the re-verification step is the
+ * banner's PatientIdentity and wraps under banner.css: nothing here clips, clamps or truncates it.
+ */
+.hms-sign {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+  max-inline-size: 44rem;
+}
+
+.hms-sign__title {
+  margin: 0;
+  font-size: var(--hms-font-size-xl);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.hms-sign__step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-3);
+  padding-block-start: var(--hms-space-3);
+  border-block-start: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.hms-sign__heading {
+  margin: 0;
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.hms-sign__text,
+.hms-sign__intent {
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.hms-sign__intent {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.hms-sign__review {
+  overflow-wrap: break-word;
+}
+
+.hms-sign__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+}
+
+.hms-sign__button {
+  min-inline-size: var(--hms-target-min-size);
+  min-block-size: var(--hms-target-min-size);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-4);
+  font: inherit;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+  cursor: pointer;
+}
+
+.hms-sign__button--primary {
+  color: var(--hms-color-accent-text);
+  background-color: var(--hms-color-accent-bg);
+  border-color: var(--hms-color-accent-border);
+}
+
+.hms-sign__button[data-disabled] {
+  color: var(--hms-color-text-muted);
+  background-color: var(--hms-color-bg-sunken);
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.hms-sign__input {
+  min-block-size: var(--hms-target-min-size);
+  max-inline-size: 12rem;
+  padding-block: var(--hms-space-1);
+  padding-inline: var(--hms-space-2);
+  font: inherit;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+}
+
+.hms-sign__notice:not(:empty) {
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border: var(--hms-border-width) solid var(--hms-color-warning-border);
+  border-radius: var(--hms-radius-sm);
+}
+
+/* The Sign action outside the dialog, and why it is disabled. */
+.hms-sign-action {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.hms-sign-action__reason {
+  color: var(--hms-color-warning-text);
+  background-color: var(--hms-color-warning-bg);
+  border-radius: var(--hms-radius-sm);
+  padding-inline: var(--hms-space-1);
+}
+
+/* The outcome of a closed sign dialog (sign.done, sign.reverify.rejected, sign.contextChanged). */
+.hms-sign-status {
+  margin-block: var(--hms-space-2);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  color: var(--hms-color-info-text);
+  background-color: var(--hms-color-info-bg);
+  border: var(--hms-border-width) solid var(--hms-color-info-border);
+  border-radius: var(--hms-radius-sm);
+}

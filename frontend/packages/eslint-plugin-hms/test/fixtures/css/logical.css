@@ -1,0 +1,32 @@
+/* Fixture: logical CSS the stylesheet check must accept. This comment mentions margin-left: 4px and
+   text-align: left, and the class name below contains "left"; neither is a declaration. */
+.left-panel {
+  margin-inline-start: 4px;
+  padding-inline: 8px 4px;
+  inset-inline-end: 0;
+  border-inline-start: 1px solid currentColor;
+  border-start-start-radius: 4px;
+  scroll-margin-inline-end: 1rem;
+  text-align: start;
+  text-align-last: end;
+  float: inline-start;
+  clear: both;
+  justify-content: space-between;
+  margin: 0 8px;
+  margin: 1px 2px 3px;
+  padding: 1px 2px 3px 2px;
+  margin: var(--a) 1px 2px 3px;
+  margin: calc(1px + 2px) 4px 5px 4px;
+  border-radius: 4px;
+  border-radius: 4px 4px 2px 2px;
+  border-radius: 4px / 2px;
+  --gutter-left: 4px;
+  --edge: 0 8px 0 0;
+  content: "left";
+}
+
+@media (min-width: 40rem) {
+  .grid {
+    scroll-padding-inline-start: 1rem;
+  }
+}
