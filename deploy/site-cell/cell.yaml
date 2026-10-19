@@ -1,0 +1,469 @@
+# The cell's pins: the single source of every version, digest and checksum the dev and lite cells use
+# (BUILD-PROMPT.md §4.1, §4.3, §5.1; WP-0.2 plan, slice S1; OQ-124, OQ-125, OQ-135, OQ-136).
+#
+# - images: each pinned by the digest of its linux/amd64 manifest, the digest the publisher's registry served
+#   for the tag on 'resolved_on' (index_digest is the multi-platform index it came from). 'tools/hms cell images
+#   mirror' copies exactly that manifest into the local registry under 'local' (crane copy --platform
+#   linux/amd64 keeps the digest); 'sign' signs it with the cell key; 'verify' checks the signature offline.
+#   Pods reference <registry host>/<local>@<digest>. 'released' is the date the publisher released that
+#   version (its release page), or, where it has none, the creation date in the image's configuration (noted).
+# - tools: build-only images the cell tooling runs as containers, pulled by digest from the publisher.
+# - charts: each pinned by version and the SHA-256 of its .tgz, which equals the digest in the publisher's
+#   Helm repository index. A chart that packages a chart of the vendor below is not pinned (OQ-137).
+# - manifests: release manifests used instead of a chart. Each is pinned either by 'commit' (files fetched at
+#   that commit; no checksum is published, so the SHA-256 is recorded) or by 'release' (release assets, whose
+#   SHA-256 equals the digest the publisher's release page lists for the asset).
+# 'tools/hms cell lint' (fast tier) checks this file: every digest, checksum and date present and well formed,
+# every licence against tools/licence/policy.yaml and the licence register, no image or chart from the vendor
+# whose free images §4.1 excludes, one local path per image, and each profile's memory budget.
+# 'tools/hms cell charts fetch|verify' downloads the charts and manifests into HMS_CELL_HOME, checks each
+# against its SHA-256, and fails on a chart of that vendor packaged inside a chart, or an image of it named in a
+# chart's values or templates or in a manifest.
+# Changing a pin is a phase-boundary change (§4.1): change this file, ADR-002's pinned set and the dependency
+# scorecard in one commit.
+schema_version: 1
+resolved_on: "2026-10-19"
+platform: linux/amd64
+
+# Kubernetes: k3s v1.35.9+k3s1, the newest k3s line every operator supports (§4.1 "supported by the
+# components that depend on it"; OQ-136): Kyverno 1.19 supports Kubernetes 1.33-1.35, Strimzi 1.0.1 is tested
+# on 1.30-1.36 and CloudNativePG 1.30 supports 1.34-1.36. The image is 'k3s' below.
+kubernetes:
+  distribution: k3s
+  version: v1.35.9+k3s1
+  image: k3s
+
+registry:
+  k3d_name: hms-registry.localhost         # 'k3d registry create' name; the container is k3d-<name>
+  container: k3d-hms-registry.localhost
+  host: k3d-hms-registry.localhost:5000    # the registry's name on the Docker networks below
+  host_port: "127.0.0.1:5000"              # published on loopback only: the registry speaks HTTP (KA-020)
+  image: registry                          # the entry in images
+  storage: registry                        # directory under HMS_CELL_HOME, mounted at /var/lib/registry
+  # Address ranges outside Docker's default pools and outside the WSL NAT network (172.28.192.0/20 on this
+  # host on 2026-10-19), so no network Docker creates later collides with them.
+  network: {name: hms-registry, subnet: 10.213.0.0/24}
+  # --internal: no route out. It holds only the registry; signing and verification run here, so they are
+  # offline by construction (§4.3; SIG-07).
+  offline_network: {name: hms-cell-offline, subnet: 10.213.1.0/24}
+
+guards:
+  disk_path: /mnt/c              # the WSL VM's disk image, and with it Docker's data, live on C: (DN-013)
+  disk_min_free_gib: 15          # stop pulling below this (DN-013)
+  cell_min_available_gib: 6.5    # 'cell up' needs this much available memory before it starts [P]
+
+signing:
+  tool: cosign
+  key_dir: keys                          # under HMS_CELL_HOME: cosign.key (mode 600) and cosign.pub
+  signing_config: signing-config.json    # under HMS_CELL_HOME: no Fulcio, Rekor, OIDC or timestamp service
+  passphrase_env: HMS_COSIGN_PASSWORD    # OQ-130
+  passphrase_file: cosign.password       # under HMS_CELL_HOME, mode 600, only if generated (OQ-130)
+  # cosign 3 writes a Sigstore bundle under the OCI referrers tag scheme. Kyverno 1.19's ImageValidatingPolicy
+  # verifies it offline; its deprecated ClusterPolicy verifyImages finds no signature in it (OQ-135).
+  format: cosign-3-bundle
+
+# Memory budgets per profile, in MiB [P] (WP-0.2 plan §2.2). 'expected_mib' is the steady-state estimate that
+# the footprint test (S7) measures; 'limit_mib' is the sum of the container or pod limits. 'cell lint' fails when
+# the expected figures add up to more than the profile budget, or one exceeds its limit.
+profiles:
+  lite:
+    description: three k3s servers in a 10 GB WSL VM; one Kafka broker, three PostgreSQL instances, no Argo CD (§5.1; DN-005)
+    budget_mib: 6144
+    components:
+      k3s-servers: {count: 3, limit_mib: 9216, expected_mib: 1800, note: "k3s, etcd, containerd, kubelet, flannel; CoreDNS and local-path on one node; 3072 per node, covering its pods"}
+      k3d-lb-registry: {count: 2, limit_mib: 192, expected_mib: 60, note: "load balancer 64, registry 128"}
+      kyverno: {count: 1, limit_mib: 384, expected_mib: 200}
+      cnpg-operator: {count: 2, limit_mib: 512, expected_mib: 200}
+      postgresql: {count: 3, limit_mib: 1536, expected_mib: 600}
+      strimzi-operators: {count: 2, limit_mib: 640, expected_mib: 500, note: "cluster operator 384, topic operator 256"}
+      kafka: {count: 1, limit_mib: 768, expected_mib: 550}
+      temporal: {count: 4, limit_mib: 768, expected_mib: 480}
+      keycloak: {count: 2, limit_mib: 1152, expected_mib: 800, note: "operator 384, Keycloak 768"}
+      small-services: {count: 4, limit_mib: 768, expected_mib: 270, note: "OpenFGA 128, Valkey 128, SeaweedFS 256, OpenTelemetry collector 256"}
+  dev:
+    description: the three-node dev cell on a 32 GB host; three Kafka brokers and Argo CD; never run on this host (KA-015)
+    components:
+      k3s-servers: null
+      k3d-lb-registry: null
+      kyverno: null
+      cnpg-operator: null
+      postgresql: null
+      strimzi-operators: null
+      kafka: null
+      temporal: null
+      keycloak: null
+      small-services: null
+      argocd: null
+
+charts:
+  - name: cloudnative-pg
+    repository: https://cloudnative-pg.github.io/charts
+    version: 0.29.1
+    app_version: 1.30.1
+    url: https://github.com/cloudnative-pg/charts/releases/download/cloudnative-pg-v0.29.1/cloudnative-pg-0.29.1.tgz
+    sha256: b53d3991fe84bcf38767e7702cae78666265427a127a26fff168ab4207d2b1df
+    published: "2026-09-23"
+    profiles: [lite, dev]
+    images: [cloudnative-pg, postgresql]
+  - name: strimzi-kafka-operator
+    repository: https://strimzi.io/charts/
+    version: 1.0.1
+    app_version: 1.0.1
+    url: https://github.com/strimzi/strimzi-kafka-operator/releases/download/1.0.1/strimzi-kafka-operator-helm-3-chart-1.0.1.tgz
+    sha256: 94ed329041426d9044616efd006dbcac8a94e3258a41ac5c849d37adb1e42cf5
+    published: "2026-06-17"
+    profiles: [lite, dev]
+    images: [strimzi-operator, kafka]
+    note: "Strimzi 1.1 to 1.3 have no patch release (OQ-125). Kafka 4.2.0, the newest Kafka that Strimzi 1.0.1 supports; 4.2.1 is the 4.2 patch release, and ADR-002's clients are 4.2.1 (OQ-136)"
+  - name: temporal
+    repository: https://go.temporal.io/helm-charts
+    version: 1.7.0
+    app_version: 1.32.0
+    url: https://github.com/temporalio/helm-charts/releases/download/temporal-1.7.0/temporal-1.7.0.tgz
+    sha256: f7b443f637b71fcbddd12900e5be9fe4c18cf741495d7b2cb247670681bf57d4
+    published: "2026-09-12"
+    profiles: [lite, dev]
+    images: [temporal-server, temporal-admin-tools, temporal-ui]
+    note: "server and admin-tools 1.32.1, the 1.32 patch release (2026-10-08), set through the chart's image tags; the chart ships 1.32.0 (OQ-136)"
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.176.0
+    app_version: 0.162.0
+    url: https://github.com/open-telemetry/opentelemetry-helm-charts/releases/download/opentelemetry-collector-0.176.0/opentelemetry-collector-0.176.0.tgz
+    sha256: 8d3f0c6efd2ae33a8c843b189b86d9f93f52422bccbb5be35c5ac24154e24868
+    published: "2026-10-13"
+    profiles: [lite, dev]
+    images: [otel-collector]
+    note: "collector 0.163.1 (2026-10-16), the 0.163 line's patch release, set through the chart's image tag; the chart ships 0.162.0, whose line has no patch release (OQ-136). The k8s distribution holds the redaction (allowlist), attributes, filter and transform processors and the debug exporter (OQ-131)"
+  - name: argo-cd
+    repository: https://argoproj.github.io/argo-helm
+    version: 10.10.5
+    app_version: v3.5.5
+    url: https://github.com/argoproj/argo-helm/releases/download/argo-cd-10.10.5/argo-cd-10.10.5.tgz
+    sha256: ba6447eeed42bc41d1f0527721047b236304e97669a7b6286d02be4a1644ba7a
+    published: "2026-10-15"
+    profiles: [dev]
+    images: [argocd]
+    note: "dev profile only (§5.1); its Redis image is not pinned yet (OQ-138)"
+
+manifests:
+  - name: kyverno
+    version: v1.19.1
+    source: https://github.com/kyverno/kyverno
+    release: v1.19.1
+    published: "2026-09-10"
+    profiles: [lite, dev]
+    images: [kyverno, kyverno-pre]
+    note: "ADR-030. The release manifest instead of the chart, whose reports-server subchart packages a chart of the excluded vendor (OQ-137). S3 applies it without the background, cleanup and reports controllers' Deployments (ADR-030 turns them off), so their images are not pinned. The release's checksums.txt covers only the CLI archives; the SHA-256 is the digest GitHub lists for the asset"
+    files:
+      - url: https://github.com/kyverno/kyverno/releases/download/v1.19.1/install.yaml
+        sha256: d3322cb346d3d42dd0f41e230b0d1d7bc5619960e1c36fdac4d9151d724b88e6
+  - name: keycloak-operator
+    version: 26.8.1
+    source: https://github.com/keycloak/keycloak-k8s-resources
+    commit: 999a1d4e23b74eab7704426058b535a9e2a416e3   # tag 26.8.1
+    published: "2026-10-13"
+    profiles: [lite, dev]
+    images: [keycloak-operator, keycloak]
+    files:
+      - url: https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/999a1d4e23b74eab7704426058b535a9e2a416e3/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
+        sha256: 20c51247cb6cbc6158098caabeaf6b429dc8c016e35829f5ddd9c468b7582667
+      - url: https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/999a1d4e23b74eab7704426058b535a9e2a416e3/kubernetes/keycloakrealmimports.k8s.keycloak.org-v1.yml
+        sha256: 8d552e1864d78117a07e535479ddb36e16a42b2695726c875f44828e1323edd4
+      - url: https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/999a1d4e23b74eab7704426058b535a9e2a416e3/kubernetes/kubernetes.yml
+        sha256: a6927644c271d4d392bf24aecdd8bf605fe5ee7c2810b6512969c4943f107ca2
+
+images:
+  - name: k3s
+    upstream: docker.io/rancher/k3s:v1.35.9-k3s1
+    digest: sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c
+    index_digest: sha256:ec9868c6a38d4e8c1869832fb5fd1eb8473c39794a0b44d2b952e7ba911951bc
+    local: rancher/k3s
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-09-30"
+  - name: k3s-pause
+    upstream: docker.io/rancher/mirrored-pause:3.10.2
+    digest: sha256:412c4a7219cb8a299a37337f3d87810c5340095322e15594a1637785adad0f17
+    index_digest: sha256:f548e0e8e3dc1896ca956272154dde3314e8cc4fde0a57577ee9fa1c63f5baf4
+    local: rancher/mirrored-pause
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-02-26"
+    note: "the Kubernetes pause image as k3s mirrors it; it has no release page, so 'released' is the image's creation date"
+  - name: k3s-coredns
+    upstream: docker.io/rancher/mirrored-coredns-coredns:1.14.7
+    digest: sha256:2329f5f0e7e79fbe56dcdf11ecc4337ee2476bb251095bc275fe9461cb88a55b
+    index_digest: sha256:7efd3c635b03efd68c4e8398fc45f0d993d0e9ab016f72c1cefb0fd6d01aa286
+    local: rancher/mirrored-coredns-coredns
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-08-19"
+  - name: k3s-local-path-provisioner
+    upstream: docker.io/rancher/local-path-provisioner:v0.0.37
+    digest: sha256:c3f2c60ee2490eb83ac00101d7e239fd8c20a5b8b4038e2dfc36a7e66fe99c08
+    index_digest: sha256:e757967a5ec338f6a9b371c5a9688bedaa8c3578ea3dd4db329ea0084be0a86f
+    local: rancher/local-path-provisioner
+    licence: Apache-2.0
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-08-05"
+  - name: k3s-local-path-helper
+    upstream: docker.io/rancher/mirrored-library-busybox:1.37.0
+    digest: sha256:ad9fa4d07136a83e69a54ef00102f579d04eba431932de3b0f098cc5d5948f9f
+    index_digest: sha256:101b4afd76732482eff9b95cae5f94bcf295e521fbec4e01b69c5421f3f3f3e5
+    local: rancher/mirrored-library-busybox
+    licence: GPL-2.0-only
+    role: substrate
+    component: k3s-servers
+    profiles: [lite, dev]
+    ships: true
+    released: "2024-09-27"
+    note: "BusyBox 1.37.0 (busybox.net, 27 September 2024, listed there as unstable; the 1.37 line has no patch release), the helper k3s's local-path provisioner names by default; DN-017"
+  - name: k3d-proxy
+    upstream: ghcr.io/k3d-io/k3d-proxy:5.8.3
+    digest: sha256:86df1112d4ba91b3c5c8cfabfad384e562612305a18f7473057cc0c00045bfd2
+    index_digest: sha256:d43e6ffd27c216d0b21815c1226c8aeac2e07086ac5a988eb39bd7e308f6e370
+    local: k3d-io/k3d-proxy
+    licence: MIT
+    role: substrate
+    component: k3d-lb-registry
+    profiles: [lite, dev]
+    ships: false
+    released: "2025-02-15"
+  - name: k3d-tools
+    upstream: ghcr.io/k3d-io/k3d-tools:5.8.3
+    digest: sha256:79b6b3cd0b5066918eaaf79efcf3106edf97f6a7232a144bc7366afed979515f
+    index_digest: sha256:c5ceb2b9e8ff2cf55917b0bee8bc9c54fe1483a16366b734117e2cfac1417bed
+    local: k3d-io/k3d-tools
+    licence: MIT
+    role: substrate
+    component: k3d-lb-registry
+    profiles: [lite, dev]
+    ships: false
+    released: "2025-02-15"
+  - name: registry
+    upstream: docker.io/distribution/distribution:3.1.2
+    digest: sha256:b92d85255a404bc3933c6ae76bc0835a1031dfad6dba623cc6e027f5cef72acd
+    index_digest: sha256:d106962e6fe3fa69c178cec77eeeee5edb626b8df6535b7bd6b95e658a0a5ca9
+    local: distribution/distribution
+    licence: Apache-2.0
+    role: registry
+    component: k3d-lb-registry
+    profiles: [lite, dev]
+    ships: false
+    released: "2026-09-24"
+  - name: kyverno
+    upstream: reg.kyverno.io/kyverno/kyverno:v1.19.1
+    digest: sha256:8040e9f566cc643a814e97abe9341b777824e1fbd789cd6a93b5f4dd2b2da8fd
+    index_digest: sha256:b31d8511ae5fd6010e2a01ea72ebae08eb82fa51d91af14a1d9fe989949b4edb
+    local: kyverno/kyverno
+    licence: Apache-2.0
+    role: signature-enforcement
+    component: kyverno
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-09-10"
+  - name: kyverno-pre
+    upstream: reg.kyverno.io/kyverno/kyvernopre:v1.19.1
+    digest: sha256:69a45a3db7c31216938e1988d133742573e8be4354c53af4bac956016d31d8cd
+    index_digest: sha256:c25c47461f06f2845a48c319ae86fbbc1730a7b9ed5b701889c9dc1f9ee94b09
+    local: kyverno/kyvernopre
+    licence: Apache-2.0
+    role: signature-enforcement
+    component: kyverno
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-09-10"
+  - name: cloudnative-pg
+    upstream: ghcr.io/cloudnative-pg/cloudnative-pg:1.30.1
+    digest: sha256:b0f9805bd5f98592e7320b5ea624dd10a7a6ef8e477df5650655c94f0b242497
+    index_digest: sha256:923c267ec29636db3bee20f993d0ec4973fa22998e1adad37da79e4d32b5bc07
+    local: cloudnative-pg/cloudnative-pg
+    licence: Apache-2.0
+    role: database-operator
+    component: cnpg-operator
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-09-23"
+  - name: postgresql
+    upstream: ghcr.io/cloudnative-pg/postgresql:18.6-202610120828-minimal-trixie
+    digest: sha256:e5fffed938c8b55b41d9a6a88a47424d46f90aa15d807aa60348b85ea5bd498f
+    index_digest: sha256:c9be7f221a05b18fe65259d9136affbabe3b39ad91c3b68f8f2f990a45f35f38
+    local: cloudnative-pg/postgresql
+    licence: PostgreSQL
+    role: database
+    component: postgresql
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-08-13"
+    note: "PostgreSQL 18.6 (postgresql.org, 13 August 2026); CloudNativePG built this image on 2026-10-12"
+  - name: strimzi-operator
+    upstream: quay.io/strimzi/operator:1.0.1
+    digest: sha256:d229eb37721c8f9fe75ebeec439b67b27a81c1880f2612a40ed2994758842998
+    index_digest: sha256:9c32dfe22d8602f43e8d8780706fbf65f023bcde3cef272688f35d1eead2640f
+    local: strimzi/operator
+    licence: Apache-2.0
+    role: event-backbone-operator
+    component: strimzi-operators
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-06-17"
+  - name: kafka
+    upstream: quay.io/strimzi/kafka:1.0.1-kafka-4.2.0
+    digest: sha256:481393dd9b020bb612aeae46fa153e553d902f6a0327b1b4bc0816ad876e4870
+    index_digest: sha256:8cbd25d7bb132cc64fde7ac8460a5e4198fc67deadfd1bef5430866a7befbe47
+    local: strimzi/kafka
+    licence: Apache-2.0
+    role: event-backbone
+    component: kafka
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-06-17"
+    note: "Strimzi 1.0.1's image of Kafka 4.2.0; 'released' is Strimzi 1.0.1's date"
+  - name: temporal-server
+    upstream: docker.io/temporalio/server:1.32.1
+    digest: sha256:2695f2564ec51aa84232bf3fa59b31e2cce99bec437a64f5bc487cbe21b2de0e
+    index_digest: sha256:acecbab5b0b8ae9cf4012b508866ca97feda3709577bf157b537239f40029049
+    local: temporalio/server
+    licence: MIT
+    role: workflow
+    component: temporal
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-10-08"
+  - name: temporal-admin-tools
+    upstream: docker.io/temporalio/admin-tools:1.32.1
+    digest: sha256:4fdaf9122f8beb448c823976232f6616a8cd94687f6984eeaf25c2b1457d5fed
+    index_digest: sha256:9ef0dc5b063bf4ffd5c1512de72e0e73e225bd2c7006a18ce69bd592a8862a83
+    local: temporalio/admin-tools
+    licence: MIT
+    role: workflow
+    component: temporal
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-10-08"
+  - name: temporal-ui
+    upstream: docker.io/temporalio/ui:2.54.1
+    digest: sha256:1f950ff598c810f371c60f1bf16de742caa6b8f60e0cdba05526a434e09b6d43
+    index_digest: sha256:ff0943fe532b8e33c46cd28b29e81e0ce0b6f55b9ee50a38ef1b437cc4de3fa5
+    local: temporalio/ui
+    licence: MIT
+    role: workflow
+    component: temporal
+    profiles: [dev]
+    ships: true
+    released: "2026-09-11"
+    note: "Temporal UI server v2.54.1"
+  - name: keycloak-operator
+    upstream: quay.io/keycloak/keycloak-operator:26.8.1
+    digest: sha256:cdb45ea07cf03cd5226bb1374bba5aef602756810395b315124e0b9bc1365636
+    index_digest: sha256:60996d513b9e9945657b348655c98071c366bb0212deefa1508785941b1651dc
+    local: keycloak/keycloak-operator
+    licence: Apache-2.0
+    role: identity-operator
+    component: keycloak
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-10-13"
+  - name: keycloak
+    upstream: quay.io/keycloak/keycloak:26.8.1
+    digest: sha256:ed1cab21814c7d18ce8f0e11d5a1fa1c6923de12dd4c7625a18c5d34452a57a4
+    index_digest: sha256:79c623a22abacf3fe6c00a5fb30f5b7843d717b234033b80995891c06116d244
+    local: keycloak/keycloak
+    licence: Apache-2.0
+    role: identity
+    component: keycloak
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-10-13"
+  - name: openfga
+    upstream: docker.io/openfga/openfga:v1.18.3
+    digest: sha256:14f9c0d8dd0816a916c778d58be94d99aa86054fdfe0b36c36bb18a5fe766783
+    index_digest: sha256:01a6000aa6040a4d0bde6ea1d3359ac3b9f21dc972ac6103a87b38659a836776
+    local: openfga/openfga
+    licence: Apache-2.0
+    role: authorisation
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-08-05"
+    note: "v1.18.3, because 1.19 to 1.22 have no patch release (OQ-125). S6 runs it from a template in the hms-cell chart, not from the upstream chart, which packages charts of the excluded vendor (OQ-137)"
+  - name: valkey
+    upstream: docker.io/valkey/valkey:9.1.2
+    digest: sha256:ac9c858b86dc81f3482d53a9d854547379a5f41e012500f839ab257c399063e0
+    index_digest: sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
+    local: valkey/valkey
+    licence: BSD-3-Clause
+    role: cache
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-09-01"
+  - name: seaweedfs
+    upstream: docker.io/chrislusf/seaweedfs:4.48
+    digest: sha256:aba492e2a4e4c90bff795745e8e660affa1f09e7650f5981bd7bccd1a06cd931
+    index_digest: sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    local: chrislusf/seaweedfs
+    licence: Apache-2.0
+    role: object-store
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-09-28"
+  - name: otel-collector
+    upstream: docker.io/otel/opentelemetry-collector-k8s:0.163.1
+    digest: sha256:e8e86f8e05e767bad052c4ccfb49095f89bf24447810b806c4adbb3c95526396
+    index_digest: sha256:5bf46de110fccacb2957bcc98909fb98cf8b07baa67027e38f61699db620649a
+    local: otel/opentelemetry-collector-k8s
+    licence: Apache-2.0
+    role: telemetry
+    component: small-services
+    profiles: [lite, dev]
+    ships: true
+    released: "2026-10-16"
+  - name: argocd
+    upstream: quay.io/argoproj/argocd:v3.5.5
+    digest: sha256:f055c9fc40b04cbfb68010505f3f6f3a57fe656c919b9b9a6dd45feba836e521
+    index_digest: sha256:13db7b10db23283b1b36f855046602e18539a8a8204c9f6f039e8896c8897518
+    local: argoproj/argocd
+    licence: Apache-2.0
+    role: delivery
+    component: argocd
+    profiles: [dev]
+    ships: true
+    released: "2026-10-12"
+
+tools:
+  - name: crane
+    upstream: gcr.io/go-containerregistry/crane:v0.22.1
+    digest: sha256:18efc5092649b2a674d384663044e04edf76705c4faa2875e8a322b4e80f070a
+    index_digest: sha256:1f968817b95790bed063f71175aa6b8ff879fa17064020415f3e18bb6e6a36e1
+    licence: Apache-2.0
+    released: "2026-09-04"
+    purpose: copies images by digest (crane copy --platform linux/amd64)
+  - name: cosign
+    upstream: ghcr.io/sigstore/cosign/cosign:v3.1.3
+    digest: sha256:6ca1127dc1e9ff19f3f2bfa214936813a86fbbf52919652eda49d393c888ad3c
+    index_digest: sha256:9e5c2f2edc34351160407ca3416c61855bdf9403c3c5936e0f0be7fc261611b8
+    licence: Apache-2.0
+    released: "2026-08-06"
+    purpose: key pair, signing with a signing configuration without Rekor, offline verification (OQ-135)
+  - name: kyverno-cli
+    upstream: reg.kyverno.io/kyverno/kyverno-cli:v1.19.1
+    digest: sha256:2fc27b9b52bc976781462b7f4db741fd73d03db39ef29923c2b5d131950751df
+    index_digest: sha256:ced7b2be0b04250cabfe695f15307f69eb715fe23234816388af4f3812915b2a
+    licence: Apache-2.0
+    released: "2026-09-10"
+    purpose: offline policy checks with 'kyverno apply --registry' on the internal network (OQ-135; S3)
