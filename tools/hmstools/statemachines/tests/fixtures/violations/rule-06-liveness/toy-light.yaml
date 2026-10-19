@@ -1,0 +1,15 @@
+# Violation fixture rule-06-liveness: from the state stuck no terminal state is reachable. NOT FOR CLINICAL USE.
+machine: toy-light
+version: 1
+owner: adt
+approval: {status: requested, required: [cso], approved_by: [], record: null}
+states: [off, on, stuck, retired]
+terminal: [retired]
+predicates:
+  powerAvailable: "mains or generator power is present"
+transitions:
+  - {from: off, on: SwitchOn, guard: [powerAvailable], to: on}
+  - {from: on, on: Jam, to: stuck}
+  - {from: [off, on], on: Retire, to: retired}
+invariants: []
+events: []

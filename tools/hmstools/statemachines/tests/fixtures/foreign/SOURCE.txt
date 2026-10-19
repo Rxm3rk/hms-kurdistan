@@ -1,0 +1,6 @@
+patient-context.yaml and patient-context.md are verbatim copies of docs/specs/state-machines/patient-context.yaml
+and patient-context.md on branch wp/0.7-design-system at commit fcadc88b4b02c5f6620f593ce1fd7d91753b3d85
+(git blob ids 0c17a51c0850e84a9df701528361a530999eaa0e and 40508b4fa9e581c317df9d5e5643b908c1bc9d0e;
+the tests check the blob id, so an edit here fails them). The spec of the state-machine format
+(docs/specs/modules/state-machines-and-invariants.md §1 and §2) requires this foreign, already reviewed spec to
+pass rules 1 to 10 and 13 unchanged; it is a client-side machine (frontend/packages/ui-core) and is not generated.
