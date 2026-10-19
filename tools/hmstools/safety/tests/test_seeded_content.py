@@ -55,14 +55,17 @@ class SeededContentTest(unittest.TestCase):
         self.assertIn("Promotion of a go-live bundle is blocked", text(baseline))
 
     def test_every_entry_has_a_nightly_property_control_with_both_section_18_3_counts(self) -> None:
-        # §18.3: 10⁶ sequences at the application-command layer plus at least 10⁴ through each real channel adapter.
+        # §18.3: for every SI, 10⁶ sequences at the application-command layer plus at least 10⁴ through each real
+        # channel adapter. Entries without an SI (HAZ-0028, HAZ-0029: cell infrastructure) have no SI property.
         with_count = set()
         for entry in self.log["hazards"]:
             for item in entry["controls"]:
                 if "10⁶" in text(item):
                     self.assertIn("at least 10⁴", text(item), f"{item['id']} omits the §18.3 per-adapter count")
                     with_count.add(entry["id"])
-        self.assertEqual(with_count, {entry["id"] for entry in self.log["hazards"]})
+        si_entries = {entry["id"] for entry in self.log["hazards"] if entry["invariants"]}
+        self.assertEqual(len(si_entries), 27, "every seeded entry (SI-01 to SI-21 and the six SI-21 labels) lists its SI")
+        self.assertEqual(with_count, si_entries)
 
     def test_a_cited_section_18_5_suite_is_not_called_missing(self) -> None:
         for entry in self.log["hazards"]:
