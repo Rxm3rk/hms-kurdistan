@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hms.invalid/schemas/document-renderer/render-request-1.schema.json",
+  "title": "Document renderer request, contract version 1",
+  "description": "One HTML document to render to PDF/A-2b (docs/specs/modules/platform-docs.md §7.5). The command line reads one such object as JSON on standard input or from --request. The HTML may load fonts only by the hms-font: scheme and images only as data: URLs; every other URL fails the render. The creation time is fixed by the caller so that the same request on the same renderer identity gives the same bytes. Validated by hms_docrender/contract.py, which supports exactly the keywords used here and refuses a schema with any other keyword.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "html", "pdfVariant", "title", "templateId", "templateVersion", "templateContentHash", "provenance", "language", "createdAt"],
+  "properties": {
+    "contractVersion": {"description": "The contract version; only 1 exists.", "const": 1},
+    "html": {"description": "The whole HTML document, UTF-8.", "type": "string", "minLength": 1, "maxLength": 16777216},
+    "pdfVariant": {"description": "Only PDF/A-2b. PDF/A-2u is not offered: the PDF's text layer is not reliable for Sorani (ToUnicode gaps).", "const": "pdf/a-2b"},
+    "title": {"description": "The PDF title (Info /Title and XMP dc:title); replaces the HTML <title>. R7 applies (no control, format other than ZWNJ, ZWJ and ZWSP, surrogate or unassigned code point; Unicode NFC), checked by contract.py.", "type": "string", "minLength": 1, "maxLength": 512},
+    "templateId": {"description": "The print template id (platform-docs.md §4.2).", "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "templateVersion": {"description": "The print template version.", "type": "integer", "minimum": 1, "maximum": 2147483647},
+    "templateContentHash": {"description": "SHA-256 of the canonical template YAML, lower-case hex (platform-docs.md §4.2).", "type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provenance": {"description": "The template's provenance (§19.4).", "enum": ["synthetic", "approved"]},
+    "language": {"description": "The document language, written to the PDF catalogue /Lang.", "enum": ["en", "ckb", "ar", "ku-Arab"]},
+    "createdAt": {"description": "The fixed creation and modification time written into the PDF: ISO 8601 to the second with Z or an offset.", "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|[+-][0-9]{2}:[0-9]{2})$"}
+  }
+}

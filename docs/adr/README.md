@@ -36,6 +36,7 @@ No ADR claims a guard result beyond a stored CI record it cites (ADR-010 and ADR
 | [ADR-026](ADR-026-power-and-time.md) | Power: separate UPS feeds, crash-safe storage and time without the internet | accepted | Power-cut chaos tests; clock-skew tests | Nightly chaos on the dev cell (from WP-0.2); WP-1.13 (`PLT-PWR-01`, `PLT-SITE-01`); the burn-in power-cut test on an installed cell [HUMAN: hardware] |
 | [ADR-027](ADR-027-fleet-operations.md) | Fleet operations: outbound-only management, co-signed local break-glass and supported hardware | accepted | Break-glass tests | WP-1.13 (`PLT-SITE-01`), although §21's exit evidence for WP-1.13 does not name the test |
 | [ADR-028](ADR-028-search-postgresql.md) | Search: PostgreSQL full-text and trigram indexes in the product; OpenSearch only centrally | accepted | Search performance test | WP-1.2 (exit evidence: cross-script search ≤200 ms p95; dev-cell numbers are indicative); the nightly scaled day; the 300-bed day on the reference cell [HUMAN: hardware] |
+| [ADR-038](ADR-038-document-rendering-and-print-pipeline.md) | Document rendering and the print pipeline: one layout for ZPL, ESC/POS and HTML; WeasyPrint renderer satellite | accepted-provisional | Golden images, byte fixtures, the font-coverage test and the offline-renderer tests (WP-0.8) | `backend/modules/platform-docs` (fast tier) and `backend/satellites/document-renderer` (the nightly `golden-image-print` step); S7-K on physical printers [HUMAN: printers] |
 
 ## Adding an ADR
 
@@ -78,11 +79,18 @@ No ADR claims a guard result beyond a stored CI record it cites (ADR-010 and ADR
 - Any other decision taken while building: "ADRs for any decision" (§3.2, step 6 of the work-package loop; Definition of Done item 8, §22.1).
 - Related: WP-0.8 keeps the document renderer choice accepted-provisional until spike S7-K (§4.1, §21).
 
+## Reserved numbers
+
+Parallel work-package branches each hold their own range of ADR numbers, so on one branch the numbers of the others are missing until the branches merge. `sh tools/hms repo check` accepts a missing number only while it is listed here; the baseline ADR-001 to ADR-028 can never be reserved. Remove a line when the branch that holds the number is merged.
+
+- ADR-029 to ADR-037: held by the other parallel branches of 19 October 2026 (WP-0.2 holds ADR-029 and ADR-030).
+- ADR-039 to ADR-040: held by WP-0.8 (`wp/0.8-documents-printing`) for later decisions.
+
 ## What the repository check enforces
 
 `sh tools/hms repo check` (the `repo-check` step of the fast tier, `tools/hmstools/repo/rules.py`) checks every file `docs/adr/ADR-*.md`, the baseline ADR-001 to ADR-028 and every later number alike:
 
-- **Numbers.** Each file is named `ADR-nnn-<lower-case-slug>.md`; there is exactly one file per number; ADR-001 to ADR-028 exist, and the numbers run without a gap up to the highest one present.
+- **Numbers.** Each file is named `ADR-nnn-<lower-case-slug>.md`; there is exactly one file per number; ADR-001 to ADR-028 exist, and the numbers run without a gap up to the highest one present, except numbers listed under "Reserved numbers".
 - **Template B.1.** The first line is the title `# ADR-nnn: <title>`, with the file's own number. Between the title and the first `##` heading stand exactly one `Status:` line, whose whole value is `proposed`, `accepted`, `accepted-provisional` or `superseded by ADR-nnn` (so `accepted, approved by the CSO` fails, and so does a second line such as `Status: approved by the CSO`), and accepted-provisional or superseded for ADR-001 and ADR-009; and exactly one `Date:` line, with a calendar date in `yyyy-mm-dd` form followed by a `Source:` field. The five B.1 headings (`## Context`, `## Decision`, `## Consequences (including safety and licence impact)`, `## Fitness test that guards it`, `## Reopen if`) appear at level 2, each exactly once and in that order; other level-2 sections may stand between them (ADR-002's "Pinned set"), and headings inside fenced code blocks do not count.
 - **This index.** It exists and links every ADR file by its file name.
 
