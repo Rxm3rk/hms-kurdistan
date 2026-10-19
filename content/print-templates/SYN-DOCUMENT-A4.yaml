@@ -1,0 +1,48 @@
+# Synthetic A4 clinical document, NOT FOR CLINICAL USE (BUILD-PROMPT §19.4; docs/specs/modules/platform-docs.md §4,
+# §7.4; SI-16 on prints). The elements before document.title form the print banner: a flow laid out at the content
+# width by the fit rule and repeated at the top of every page, its height the page's top margin, so a long allergy
+# list or long name forms grow the margin and are never clipped (a banner taller than half the page is refused). The
+# own name, the confirmed Latin form and, below it in the same element, every other recorded name form (spec §4.1),
+# each in its own script: the Latin element is therefore sized for the Arabic legibility minimum (8 pt). The title,
+# body and watermark are placed by the HTML writer: the full DP-8 watermark line at the foot of every page, and a
+# diagonal REPRINT on a reprint (spec §8.5).
+# Caption texts in ckb and ar are drafted by the build agent (AI) and UNREVIEWED (spec §14; DN-021 rule).
+id: SYN-DOCUMENT-A4
+version: 1
+provenance: synthetic
+kind: document
+media:
+  width_mm: 210
+  length_mm: 297
+  rotation: 0
+  printable: {x_mm: 15, y_mm: 10, w_mm: 180, h_mm: 272}
+captions:
+  mrn: {en: "MRN", ckb: "ژمارەی تۆمار", ar: "رقم السجل"}
+  dob: {en: "Date of birth", ckb: "لەدایکبوون", ar: "تاريخ الميلاد"}
+  approximate: {en: "Approx.", ckb: "نزیکەیی", ar: "تقريبي"}
+  banner.allergies: {en: "Allergies", ckb: "هەستیاری", ar: "الحساسية"}
+  banner.nka: {en: "No known allergies (NKA)", ckb: "هیچ هەستیارییەکی زانراو نییە", ar: "لا حساسية معروفة"}
+  banner.allergiesNotAssessed: {en: "Not assessed", ckb: "هەڵنەسەنگێنراوە", ar: "لم تقيم"}
+  banner.allergiesUnavailable: {en: "Allergy status unavailable", ckb: "دۆخی هەستیاری بەردەست نییە", ar: "حالة الحساسية غير متاحة"}
+  banner.codeStatus: {en: "Code status", ckb: "دۆخی کۆد", ar: "حالة الإنعاش"}
+  banner.isolation: {en: "Isolation", ckb: "دابڕان", ar: "العزل"}
+  banner.weight: {en: "Weight", ckb: "کێش", ar: "الوزن"}
+  banner.unavailable: {en: "Unavailable", ckb: "بەردەست نییە", ar: "غير متاح"}
+  banner.photo: {en: "Photo", ckb: "وێنە", ar: "الصورة"}
+  banner.photoOnRecord: {en: "On record (not printed)", ckb: "تۆمارکراوە، چاپ ناکرێت", ar: "مسجلة، لا تطبع"}
+  banner.noPhoto: {en: "No photo", ckb: "وێنە نییە", ar: "لا صورة"}
+elements:
+  - {type: text, bind: notice.synthetic, font: latin, box: {x_mm: 15, y_mm: 0, w_mm: 180, h_mm: 5}, size_pt: {max: 9, min: 7}}
+  - {type: text, bind: identity.name.own, font: by-script, weight: bold, box: {x_mm: 15, y_mm: 1, w_mm: 180, h_mm: 20}, size_pt: {max: 14, min: 9}, max_lines: 2}
+  - {type: text, bind: identity.name.latin, font: latin, weight: bold, box: {x_mm: 15, y_mm: 0.5, w_mm: 180, h_mm: 12.5}, size_pt: {max: 11, min: 8}, max_lines: 2}
+  - {type: caption, key: mrn, font: by-label-language, box: {x_mm: 15, y_mm: 1, w_mm: 60, h_mm: 5.5}, size_pt: {max: 7.5, min: 6}}
+  - {type: text, bind: identity.mrn, font: latin, direction: ltr, box: {x_mm: 15, y_mm: 0, w_mm: 80, h_mm: 5}, size_pt: {max: 10, min: 8}}
+  - {type: caption, key: dob, font: by-label-language, box: {x_mm: 15, y_mm: 0.5, w_mm: 60, h_mm: 5.5}, size_pt: {max: 7.5, min: 6}}
+  - {type: text, bind: identity.birthDate, font: latin, direction: ltr, box: {x_mm: 15, y_mm: 0, w_mm: 60, h_mm: 5}, size_pt: {max: 10, min: 8}}
+  - {type: caption, key: approximate, font: by-label-language, box: {x_mm: 15, y_mm: 0, w_mm: 60, h_mm: 7}, size_pt: {max: 9, min: 8}}
+  - {type: rule, box: {x_mm: 15, y_mm: 1, w_mm: 180, h_mm: 0.3}}
+  - {type: rows, bind: document.banner, font: mixed, box: {x_mm: 15, y_mm: 1, w_mm: 180, h_mm: 6}, size_pt: {max: 10, min: 8}, description_w_mm: 45, amount_w_mm: 133}
+  - {type: rule, box: {x_mm: 15, y_mm: 1.5, w_mm: 180, h_mm: 0.3}}
+  - {type: text, bind: document.title, font: mixed, box: {x_mm: 15, y_mm: 4, w_mm: 180, h_mm: 10}, size_pt: {max: 16, min: 10}, max_lines: 2, overflow: wrap-grow}
+  - {type: text, bind: document.body, font: mixed, box: {x_mm: 15, y_mm: 2, w_mm: 180, h_mm: 200}, size_pt: {max: 11, min: 9}, max_lines: 100, overflow: wrap-grow}
+  - {type: text, bind: watermark, font: mixed, box: {x_mm: 15, y_mm: 2, w_mm: 180, h_mm: 6}, size_pt: {max: 8, min: 7}, max_lines: 2, overflow: wrap-grow}

@@ -1,0 +1,18 @@
+# Synthetic queue token, NOT FOR CLINICAL USE (BUILD-PROMPT §19.4; docs/specs/modules/platform-docs.md §4, §7.3,
+# §8.5). No patient data and therefore no identifiers and no watermark: a token identifies a place in a queue. 80 mm
+# paper, 72 mm printable, a flow layout (elements stack in this order).
+id: SYN-TOKEN-80
+version: 1
+provenance: synthetic
+kind: token
+media:
+  width_mm: 80
+  length_mm: 40
+  rotation: 0
+  printable: {x_mm: 4, y_mm: 2, w_mm: 72, h_mm: 36}
+captions: {}
+elements:
+  - {type: text, bind: notice.synthetic, font: latin, box: {x_mm: 4, y_mm: 0, w_mm: 72, h_mm: 6.5}, size_pt: {max: 8, min: 6}, max_lines: 2, align: center}
+  - {type: text, bind: token.number, font: latin, weight: bold, direction: ltr, box: {x_mm: 4, y_mm: 2, w_mm: 72, h_mm: 20}, size_pt: {max: 40, min: 24}, align: center}
+  - {type: text, bind: token.servicePoint, font: mixed, box: {x_mm: 4, y_mm: 1, w_mm: 72, h_mm: 14}, size_pt: {max: 12, min: 8}, max_lines: 2, overflow: wrap-grow, align: center}
+  - {type: text, bind: token.issuedAt, font: latin, direction: ltr, box: {x_mm: 4, y_mm: 1, w_mm: 72, h_mm: 4.5}, size_pt: {max: 8, min: 7}, align: center}
