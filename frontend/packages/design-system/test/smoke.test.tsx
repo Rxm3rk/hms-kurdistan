@@ -13,7 +13,9 @@ const require = createRequire(import.meta.url);
 
 describe('design-system workspace wiring', () => {
   // A dynamic import inside the test, so that an entry point that throws while loading fails this test.
-  it('imports the package entry point without error', async () => {
+  // The entry point loads React Aria Components, which can take more than Vitest's default 5 s to
+  // transform on a cold run while other test files run in parallel.
+  it('imports the package entry point without error', { timeout: 30_000 }, async () => {
     await expect(import('../src/index.ts')).resolves.toBeTypeOf('object');
   });
 

@@ -5,7 +5,11 @@
   "description": "HMS Kurdistan design system on React Aria Components: tokens and logical CSS, fonts, locale and density providers, ClinicalNumber, the patient banner, the sign and co-sign pattern and the command palette (BUILD-PROMPT.md §6.5, §14.2, §14.7).",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./testing": "./src/testing.tsx",
+    "./styles.css": "./src/styles.css",
+    "./fonts.css": "./src/fonts.css",
+    "./tokens.css": "./src/tokens.css"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

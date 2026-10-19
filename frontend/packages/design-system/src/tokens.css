@@ -1,0 +1,121 @@
+/*
+ * Design tokens (BUILD-PROMPT.md §6.5 "Design tokens only", "Density modes", text contrast ≥4.5:1, targets
+ * ≥24×24 px; docs/specs/modules/design-system.md §2.5, §3). Components use these custom properties and
+ * nothing else for colour, spacing, type and targets.
+ *
+ * Colour roles, which the tokens-contrast test reads by name:
+ * - --hms-color-bg*: neutral surfaces. Every --hms-color-text* token must reach 4.5:1 on every one of them.
+ * - --hms-color-<role>-bg with --hms-color-<role>-text (accent, info, success, warning, danger): a status or
+ *   action surface and the text on it; the pair must reach 4.5:1. Colour only repeats what text and icon
+ *   shape already say (§2.1 rule 2). The status surfaces (info, success, warning, danger) are light, so
+ *   neutral text and borders may sit on them too and must reach 4.5:1 and 3:1 there. The accent surface is a
+ *   filled action colour: only --hms-color-accent-text sits on it (the test checks every stylesheet of the
+ *   package for this).
+ * - --hms-color-<role>-border, --hms-color-border*: non-text marks; at least 3:1 against the surfaces they
+ *   sit on (WCAG 2.2 1.4.11).
+ * - --hms-color-focus and --hms-color-focus-inner: the two rings of the focus indicator (base.css), dark
+ *   outside and light inside. No single colour reaches 3:1 both on the light surfaces and on the accent
+ *   surface, so on every surface, the accent one included, at least one ring must reach 3:1, and the two
+ *   rings at least 3:1 against each other.
+ * Colours are written as #rrggbb, so the test can compute them; a colour in any other form fails it.
+ *
+ * Density: comfortable (the default, also with no data-density) and compact, set on <html> by
+ * DensityProvider. Density changes spacing, the type scale and target size, never colour. This file holds
+ * only flat rules (no @media or nesting), so the test's reading of the cascade stays exact.
+ */
+:root {
+  /* Type */
+  --hms-font-family: 'Noto Sans', 'Noto Sans Arabic', sans-serif;
+  --hms-font-weight-regular: 400;
+  --hms-font-weight-bold: 700;
+
+  /* Neutral surfaces */
+  --hms-color-bg: #ffffff;
+  --hms-color-bg-raised: #f5f7fa;
+  --hms-color-bg-sunken: #e9edf2;
+
+  /* Neutral text */
+  --hms-color-text: #161b22;
+  --hms-color-text-muted: #47505c;
+  --hms-color-text-link: #0a4f96;
+
+  /* Neutral non-text marks */
+  --hms-color-border: #6b7480;
+  --hms-color-border-strong: #3d4550;
+  --hms-color-focus: #0a4f96;
+  --hms-color-focus-inner: #ffffff;
+
+  /* Action */
+  --hms-color-accent-bg: #0a4f96;
+  --hms-color-accent-text: #ffffff;
+  --hms-color-accent-border: #073a6f;
+
+  /* Status surfaces */
+  --hms-color-info-bg: #e5effa;
+  --hms-color-info-text: #0a3a6b;
+  --hms-color-info-border: #2f6db0;
+
+  --hms-color-success-bg: #e3f3e8;
+  --hms-color-success-text: #17532a;
+  --hms-color-success-border: #2e7d46;
+
+  --hms-color-warning-bg: #fff3d1;
+  --hms-color-warning-text: #5c3b00;
+  --hms-color-warning-border: #946200;
+
+  --hms-color-danger-bg: #fce7e7;
+  --hms-color-danger-text: #7f1717;
+  --hms-color-danger-border: #b42323;
+
+  /* Shape */
+  --hms-radius-sm: 0.25rem;
+  --hms-radius-md: 0.5rem;
+  --hms-border-width: 1px;
+  --hms-focus-ring-width: 2px;
+  --hms-focus-ring-offset: 2px;
+
+  /* Layers. The scrim dims the page behind a modal; it carries no text (the modal surface is opaque), so it
+     is not a colour role and the contrast test does not read it. */
+  --hms-z-modal: 100;
+  /* The refused-modal status line shows above an open modal. */
+  --hms-z-modal-status: 110;
+  --hms-overlay-scrim: rgb(22 27 34 / 50%);
+}
+
+/* Comfortable density: the default. */
+:root,
+:root[data-density='comfortable'] {
+  --hms-space-1: 0.25rem;
+  --hms-space-2: 0.5rem;
+  --hms-space-3: 0.75rem;
+  --hms-space-4: 1rem;
+  --hms-space-5: 1.5rem;
+  --hms-space-6: 2rem;
+
+  --hms-font-size-sm: 0.875rem;
+  --hms-font-size-md: 1rem;
+  --hms-font-size-lg: 1.25rem;
+  --hms-font-size-xl: 1.5rem;
+  /* Arabic-script text needs room above and below for its marks, so line height stays generous. */
+  --hms-line-height: 1.6;
+
+  --hms-target-min-size: 44px;
+}
+
+/* Compact density: less spacing, a smaller type scale; targets never below 24 × 24 CSS px (§6.5). */
+:root[data-density='compact'] {
+  --hms-space-1: 0.125rem;
+  --hms-space-2: 0.25rem;
+  --hms-space-3: 0.5rem;
+  --hms-space-4: 0.75rem;
+  --hms-space-5: 1rem;
+  --hms-space-6: 1.5rem;
+
+  --hms-font-size-sm: 0.8125rem;
+  --hms-font-size-md: 0.875rem;
+  --hms-font-size-lg: 1.0625rem;
+  --hms-font-size-xl: 1.25rem;
+  --hms-line-height: 1.5;
+
+  --hms-target-min-size: 24px;
+}
