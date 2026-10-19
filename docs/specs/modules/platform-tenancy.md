@@ -11,6 +11,8 @@ Local labels: open items carry local labels (OQ-T1, KA-T1, HAZ-T1, DN-T1 and so 
 
 Revision note: this revision answers the correctness and safety review of 2026-10-19 (findings CA-01 … CA-38, SAF-01 … SAF-29) and applies integrator decisions D1–D17. Section 16 lists what this spec assumes of its siblings.
 
+**Programme numbers (19 October 2026).** DN-T1 and DN-T2 are DN-044; OQ-T1 to OQ-T13 are OQ-173; HAZ-T1 is OQ-177; KA-T labels become KA numbers when the code that makes them true is committed. (`docs/program/DECISIONS-NEEDED.md`, `docs/program/OPEN-QUESTIONS.md` §(g).)
+
 ## 1. Purpose and scope
 
 `platform-tenancy` owns the enterprise structure, the configuration chain and its locks (§5.2). Every other module asks it two questions: "where does this node sit in the enterprise?" and "what value applies here, as of this time, and who set it?".

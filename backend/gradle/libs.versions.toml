@@ -104,6 +104,8 @@ hapi-fhir-bom = { module = "ca.uhn.hapi.fhir:hapi-fhir-bom", version.ref = "hapi
 # --- Spring and Jakarta ----------------------------------------------------------------------------
 spring-core = { module = "org.springframework:spring-core", version.ref = "spring-framework" }
 jakarta-inject-api = { module = "jakarta.inject:jakarta.inject-api", version.ref = "jakarta-inject" }
+# Spring Modulith core: ApplicationModules and their verification, used by the app-hms architecture test (WP-0.3).
+spring-modulith-core = { module = "org.springframework.modulith:spring-modulith-core", version.ref = "spring-modulith" }
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core", version.ref = "spring-modulith" }
 spring-modulith-starter-test = { module = "org.springframework.modulith:spring-modulith-starter-test", version.ref = "spring-modulith" }
 
