@@ -1,0 +1,16 @@
+# Violation fixture rule-06-recurrent: no terminal state, and the initial state off is not reachable from
+# the state stuck. NOT FOR CLINICAL USE.
+machine: toy-light
+version: 1
+owner: adt
+approval: {status: requested, required: [cso], approved_by: [], record: null}
+states: [off, on, stuck]
+terminal: []
+predicates:
+  powerAvailable: "mains or generator power is present"
+transitions:
+  - {from: off, on: SwitchOn, guard: [powerAvailable], to: on}
+  - {from: on, on: SwitchOff, to: off}
+  - {from: on, on: Jam, to: stuck}
+invariants: []
+events: []
