@@ -1,0 +1,17 @@
+<!doctype html>
+<!--
+  The web app's page (design-system spec §4): lang, dir and the title are set at run time from the user's
+  locale; nothing is loaded from another origin. Builds add a same-origin Content-Security-Policy.
+-->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title></title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
