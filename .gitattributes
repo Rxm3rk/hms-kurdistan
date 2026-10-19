@@ -28,4 +28,5 @@ gradlew text eol=lf
 *.tgz binary
 *.der binary
 *.p12 binary
+*.bin binary
 *.jks binary

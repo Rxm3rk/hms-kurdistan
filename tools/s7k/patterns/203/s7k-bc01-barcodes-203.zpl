@@ -1,0 +1,24 @@
+^XA
+^FX HMS S7-K kit 0.2.0 BC01 page 1 of 1 203 dpi synthetic
+^CI28
+^PW813
+^LL1219
+^LH0,0
+^PA1,1,1,1
+^FO24,24^A0N,25,25^FB765,1,6,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO24,57^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS S7-K kit 0.2.0 | BC01 barcodes | 203 dpi | page 1/1 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO24,110^GB765,2,2^FS
+^FO24,124^A0N,20,20^FB765,4,5,L,0^FH\^FDBC-01 DataMatrix ECC 200, module 0.5 mm, wristband payload with a 36-character band serial, the typical size; \5EBX as the engine writes it (explicit size, escape character _) | 32 x 32 modules of 4 dots^FS
+^FO32,235^BXN,4,200,32,32,,_^FH\^FDHMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002^FS
+^FO24,371^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002^FS
+^FO24,428^A0N,20,20^FB765,4,5,L,0^FH\^FDBC-04 DataMatrix ECC 200, module 0.5 mm, wristband payload with a worst-case synthetic band serial that needs the next size; nothing may overprint the symbol | 36 x 36 modules of 4 dots^FS
+^FO32,539^BXN,4,200,36,36,,_^FH\^FDHMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-aBcDeFgHiJkLmNoPqRsTuVwXyZaBcD^FS
+^FO24,691^A0N,20,20^FB765,2,5,L,0^FH\^FDHMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-aBcDeFgHiJkLmNoPqRsTuVwXyZaBcD^FS
+^FO24,748^A0N,20,20^FB765,2,5,L,0^FH\^FDBC-02 DataMatrix ECC 200, module 0.25 mm (the template minimum), specimen payload | 22 x 22 modules of 2 dots^FS
+^FO28,805^BXN,2,200,22,22,,_^FH\^FDHMS1|S:SYN-S-000077|M:SYN-000123-7^FS
+^FO24,853^A0N,20,20^FB765,1,5,L,0^FH\^FDHMS1|S:SYN-S-000077|M:SYN-000123-7^FS
+^FO24,885^A0N,20,20^FB765,1,5,L,0^FH\^FDBC-03 Code 128, module 0.25 mm^FS
+^FO44,913^BY2^BCN,80,N,N,N,N^FH\^FDSYN-S-000077^FS
+^FO24,1001^A0N,20,20^FB765,1,5,L,0^FH\^FDSYN-S-000077^FS
+^PQ1
+^XZ

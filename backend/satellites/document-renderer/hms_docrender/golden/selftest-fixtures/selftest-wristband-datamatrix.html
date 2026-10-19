@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SYN self-test: wristband with DataMatrix</title>
+<!-- Golden-harness self-test fixture (hms_docrender/golden). SYNTHETIC – NOT FOR CLINICAL USE: every name and identifier is invented.
+     The DataMatrix (square ECC 200, 26x26, like the module's FORCE_SQUARE symbols) was encoded once with zxing-cpp
+     and is inlined as SVG; the harness decodes it from the raster. The date of birth is approximate: "~1990" with
+     the "Approx." caption (spec §3.2 R5). -->
+<meta name="hms.template.id" content="SYN-SELFTEST-WRISTBAND">
+<meta name="hms.template.version" content="1">
+<meta name="hms.template.hash" content="77d210dbaceb15c1eeddd4e4c078301325b51dc732a46985c7a43d57be38bfd1">
+<meta name="hms.template.provenance" content="synthetic">
+<meta name="hms.barcode.payloads" content="datamatrix:HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-000001">
+<meta name="dcterms.created" content="2026-01-01T00:00:00Z">
+<style>
+@font-face { font-family: "HMS Arabic"; font-weight: 400; src: url(hms-font:noto-sans-arabic-regular); }
+@font-face { font-family: "HMS Arabic"; font-weight: 700; src: url(hms-font:noto-sans-arabic-bold); }
+@font-face { font-family: "HMS Latin"; font-weight: 400; src: url(hms-font:noto-sans-regular); }
+@font-face { font-family: "HMS Latin"; font-weight: 700; src: url(hms-font:noto-sans-bold); }
+@page { size: 150mm 25mm; margin: 0; }
+html, body { margin: 0; padding: 0; }
+.line { position: absolute; white-space: pre; unicode-bidi: isolate; }
+.ar { font-family: "HMS Arabic"; direction: rtl; }
+.lt { font-family: "HMS Latin"; direction: ltr; }
+.barcode { position: absolute; left: 4mm; top: 3mm; }
+</style>
+</head>
+<body>
+<div class="barcode"><svg xmlns="http://www.w3.org/2000/svg" width="13mm" height="13mm" viewBox="0 0 26 26" shape-rendering="crispEdges"><path fill="#000" d="M0 0h1v1h-1zM2 0h1v1h-1zM4 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM16 0h1v1h-1zM18 0h1v1h-1zM20 0h1v1h-1zM22 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM2 1h2v1h-2zM6 1h2v1h-2zM9 1h1v1h-1zM13 1h2v1h-2zM16 1h5v1h-5zM24 1h2v1h-2zM0 2h1v1h-1zM3 2h1v1h-1zM5 2h1v1h-1zM7 2h1v1h-1zM14 2h2v1h-2zM17 2h1v1h-1zM19 2h2v1h-2zM22 2h2v1h-2zM0 3h3v1h-3zM4 3h4v1h-4zM10 3h7v1h-7zM19 3h3v1h-3zM24 3h2v1h-2zM0 4h2v1h-2zM3 4h2v1h-2zM6 4h1v1h-1zM11 4h1v1h-1zM15 4h2v1h-2zM18 4h1v1h-1zM20 4h1v1h-1zM0 5h2v1h-2zM4 5h1v1h-1zM8 5h1v1h-1zM10 5h3v1h-3zM14 5h1v1h-1zM18 5h1v1h-1zM20 5h3v1h-3zM25 5h1v1h-1zM0 6h1v1h-1zM2 6h2v1h-2zM5 6h1v1h-1zM7 6h1v1h-1zM9 6h2v1h-2zM12 6h1v1h-1zM17 6h1v1h-1zM19 6h2v1h-2zM22 6h2v1h-2zM0 7h3v1h-3zM4 7h3v1h-3zM12 7h1v1h-1zM14 7h2v1h-2zM17 7h2v1h-2zM21 7h1v1h-1zM23 7h3v1h-3zM0 8h3v1h-3zM5 8h5v1h-5zM11 8h4v1h-4zM16 8h3v1h-3zM21 8h1v1h-1zM23 8h1v1h-1zM0 9h1v1h-1zM2 9h6v1h-6zM9 9h1v1h-1zM11 9h1v1h-1zM13 9h1v1h-1zM21 9h1v1h-1zM23 9h3v1h-3zM0 10h1v1h-1zM2 10h4v1h-4zM9 10h1v1h-1zM11 10h2v1h-2zM15 10h1v1h-1zM21 10h2v1h-2zM0 11h1v1h-1zM2 11h1v1h-1zM4 11h1v1h-1zM6 11h2v1h-2zM9 11h3v1h-3zM15 11h2v1h-2zM18 11h1v1h-1zM20 11h2v1h-2zM24 11h2v1h-2zM0 12h1v1h-1zM6 12h1v1h-1zM10 12h1v1h-1zM13 12h1v1h-1zM15 12h1v1h-1zM19 12h2v1h-2zM24 12h1v1h-1zM0 13h1v1h-1zM2 13h2v1h-2zM5 13h1v1h-1zM8 13h1v1h-1zM13 13h2v1h-2zM19 13h3v1h-3zM23 13h1v1h-1zM25 13h1v1h-1zM0 14h4v1h-4zM8 14h1v1h-1zM11 14h3v1h-3zM15 14h1v1h-1zM17 14h2v1h-2zM20 14h3v1h-3zM0 15h1v1h-1zM2 15h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM11 15h4v1h-4zM16 15h3v1h-3zM20 15h1v1h-1zM22 15h2v1h-2zM25 15h1v1h-1zM0 16h2v1h-2zM4 16h2v1h-2zM10 16h2v1h-2zM13 16h1v1h-1zM16 16h2v1h-2zM20 16h1v1h-1zM22 16h1v1h-1zM24 16h1v1h-1zM0 17h1v1h-1zM2 17h7v1h-7zM10 17h1v1h-1zM14 17h1v1h-1zM17 17h1v1h-1zM20 17h3v1h-3zM25 17h1v1h-1zM0 18h1v1h-1zM2 18h6v1h-6zM9 18h1v1h-1zM17 18h1v1h-1zM20 18h2v1h-2zM23 18h2v1h-2zM0 19h1v1h-1zM2 19h2v1h-2zM5 19h1v1h-1zM8 19h1v1h-1zM10 19h2v1h-2zM16 19h1v1h-1zM18 19h6v1h-6zM25 19h1v1h-1zM0 20h1v1h-1zM3 20h2v1h-2zM8 20h1v1h-1zM10 20h3v1h-3zM15 20h2v1h-2zM20 20h1v1h-1zM23 20h2v1h-2zM0 21h1v1h-1zM2 21h1v1h-1zM4 21h1v1h-1zM7 21h5v1h-5zM13 21h2v1h-2zM16 21h2v1h-2zM20 21h2v1h-2zM23 21h1v1h-1zM25 21h1v1h-1zM0 22h2v1h-2zM3 22h7v1h-7zM13 22h5v1h-5zM20 22h1v1h-1zM22 22h2v1h-2zM0 23h1v1h-1zM4 23h2v1h-2zM8 23h2v1h-2zM11 23h1v1h-1zM14 23h2v1h-2zM17 23h1v1h-1zM21 23h2v1h-2zM24 23h2v1h-2zM0 24h1v1h-1zM4 24h1v1h-1zM10 24h1v1h-1zM12 24h2v1h-2zM16 24h5v1h-5zM23 24h2v1h-2zM0 25h26v1h-26z"/></svg></div>
+<div class="line ar" style="right: 4mm; top: 1.5mm; font-size: 12pt; font-weight: 700; line-height: 21pt;">شیلان ئەحمەد کەریم</div>
+<div class="line lt" style="right: 4mm; top: 9mm; font-size: 10pt; font-weight: 700; line-height: 13pt;">Shilan Ahmed Karim</div>
+<div class="line lt" style="left: 20mm; top: 2mm; font-size: 7pt; line-height: 9pt;">MRN</div>
+<div class="line lt" style="left: 20mm; top: 5.5mm; font-size: 9pt; font-weight: 700; line-height: 12pt;">SYN-000123-7</div>
+<div class="line lt" style="left: 20mm; top: 10mm; font-size: 7pt; line-height: 9pt;">DOB · Approx.</div>
+<div class="line lt" style="left: 20mm; top: 13.5mm; font-size: 9pt; font-weight: 700; line-height: 12pt;">~1990</div>
+<div class="line lt" style="left: 4mm; top: 17mm; font-size: 6pt; line-height: 8pt;">SYN-J-000001 2026-01-01 08:00</div>
+<div class="line lt" style="left: 4mm; top: 20mm; font-size: 6pt; font-weight: 700; line-height: 8pt;">SYNTHETIC – NOT FOR CLINICAL USE</div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+~JA
+^XA
+^FX HMS S7-K kit 0.2.0 JA01 page 1 of 1 300 dpi synthetic
+^CI28
+^PW1219
+^LL1829
+^LH0,0
+^PA1,1,1,1
+^FO36,36^A0N,38,38^FB1147,1,10,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO36,86^A0N,30,30^FB1147,3,8,L,0^FH\^FDHMS S7-K kit 0.2.0 | JA01 cancel-then-print | 300 dpi | page 1/1 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO36,204^GB1147,4,4^FS
+^FO36,226^A0N,30,30^FB456,4,8,L,0^FH\^FDJA-01: this job starts with \7EJA (cancel all). This label must print exactly once.^FS
+^FO516,226^A0N,42,42^FB667,1,11,L,0^FH\^FDJA-01 printed after \7EJA^FS
+^PQ1
+^XZ
