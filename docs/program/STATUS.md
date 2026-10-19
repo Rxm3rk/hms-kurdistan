@@ -1,9 +1,9 @@
-# STATUS (updated 2026-10-19 03:35 Asia/Baghdad)
+# STATUS (updated 2026-10-19 05:05 Asia/Baghdad)
 Phase: 0   Work package: WP-0.1 Programme bootstrap
-Branch: wp/0.1-programme-bootstrap @ the evidence commit on top of `05f159a` (the review-fix commit; the records of record at `05f159a` are stored by this commit)
-Last green: fast @ 05f159a, WSL build host, no cell (`docs/program/evidence/ci/2026-10-19-fast-05f159a.json`: PASS, 8 of 8 steps, 1253 tests, 0 failures); merge and nightly @ 05f159a fail closed on NOT-BUILT steps only (15 and 12; KA-003)
-In-flight slice: WP-0.1 bootstrap: impl; review fixes committed (`05f159a`) and their records of record stored; Resolution fields and the sign-off verification pending
-Open review findings: `docs/program/reviews/WP-0.1.md` (automated review (AI) at `adb631c`): R-01…R-05 and R-08…R-21 resolved in `05f159a`; R-06 and R-07 resolved by the records of record this commit stores; the Resolution fields are filled in the next commit, R-01's after an independent verification of the sign-off gate; 0 critical or major unresolved
+Branch: wp/0.1-programme-bootstrap @ the commit that fills the review's Resolution fields, on top of `a9d5725` (the sign-off gate fixes) and `7f42564` (the records of record at `05f159a`)
+Last green: fast @ a9d5725, WSL build host, no cell (`docs/program/evidence/ci/2026-10-19-fast-a9d5725.json`: PASS, 8 of 8 steps, 1279 tests, 0 failures); nightly @ a9d5725 and merge @ 05f159a fail closed on NOT-BUILT steps only (12 and 15; KA-003)
+In-flight slice: none on this branch; WP-0.1 is done (§22.2); WP-0.7 is in progress on `wp/0.7-design-system`, WP-0.2 on `wp/0.2-environments`
+Open review findings: `docs/program/reviews/WP-0.1.md` (automated review (AI) at `adb631c`): all 21 resolved, each Resolution field naming its commit (`05f159a`; R-06 and R-07 `7f42564`; R-01 and R-20 also `a9d5725`); 0 unresolved
 Blocking decisions: DN-005 (lite cell and WP-0.2's failover criterion), DN-011 (merging before the merge tier exists)
 ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and DN-015 only if it needs more; WP-0.2 takes DN-015…DN-019, OQ-122…OQ-139, KA-014…KA-024, HAZ-0028…HAZ-0029 and ADR-030; WP-0.7 takes DN-020…DN-039, OQ-140…OQ-159, KA-025…KA-044 and HAZ-0030…HAZ-0034, and no ADR
 
@@ -43,12 +43,12 @@ ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and
   - §3.6: commit `1b4415e` did not pass the fast tier on a fresh clone (no `frontend/node_modules`); fixed from `b24f94e`; never rebased (KA-012).
   - §19.1: the WP-0.1 session has no nightly run of record yet (R-07). The nightly tier cannot pass before its NOT-BUILT steps are built: WP-0.2 (cell check, chaos), WP-0.5 (10⁶ property sequences, ≥10⁴ per channel adapter, scenario suites), WP-0.6 (the scaled day; the 300-bed and 1,000-bed days also need hardware [HUMAN]), WP-0.7 (full end-to-end), WP-0.8 (golden-image print), WP-1.1b (parser fuzzing) and WP-1.13 (restore test) (`sh tools/ci/run nightly --list`). Until then its failing (NOT-BUILT) record is made in the WSL clone at the last commit of every session that changes code, and stored under `docs/program/evidence/ci/`.
   - §3.4 item 9: the host provisioning by the agent (DN-001). §3.7: two files came from mirrors, each matching the official SHA-256 (the Ubuntu WSL image, DN-001; the Gradle zip, DN-006).
+- Verified the sign-off gate independently after `05f159a`: two verifiers built 124 scratch cases with real GPG keys and found nine defects (the worst: deleting a committed, signed rejection brought back the acceptance it withdrew). `a9d5725` fixes eight, documents the ninth (D5, KA-011) and closes a repository-local `gpg.program` override found while fixing them; 26 regression tests, each failing on `05f159a`. Records of record at `a9d5725` (WSL build host, no cell, clean tree): `ci/2026-10-19-fast-a9d5725.json` (PASS, 1279 tests), `ci/2026-10-19-nightly-a9d5725.json` (FAIL, 12 NOT-BUILT) and `ci/2026-10-19-gates-bite-a9d5725.md` (78 plants, 73 FAIL and the 5 expected PASS; 11 of 11 clean runs PASS).
 - Work started on other branches (not on this one): WP-0.7's specification slice (the design-system module spec, the patient-context state machine with approval requested, the HAL contract and fixtures) is drafted and reviewed in the worktree of `wp/0.7-design-system`, uncommitted; WP-0.2 has an implementation plan for the lite cell. Neither changes WP-0.1.
 
 ## Next exact step
-1. Fill the Resolution fields of `docs/program/reviews/WP-0.1.md` (`resolved in <sha>` with a one-line note): R-02…R-05 and R-08…R-21 in `05f159a`, R-06 and R-07 in this evidence commit.
-2. An independent verification pass of the sign-off gate's rule for merged lines (`_approve` and `_before` in `tools/hmstools/safety/signoffs.py`) before the R-01 Resolution is written; the gates-bite sign-off section at the fix commit is the record.
-3. Then WP-0.7 (design system; its branch takes the review-fix commit as its base) and WP-0.2 (environments, lite cell, DN-005, DN-013; `wp/0.2-environments` merges the review-fix commit rather than rebasing, so its three commits keep their SHAs). Both stay stacked on WP-0.1 (DN-011).
+1. WP-0.7 on `wp/0.7-design-system` (worktree `C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp07`): slices S1 to S7 up to the demo route and its E2E evidence; merge this branch into it before its close-out (never rebase, §3.6).
+2. WP-0.2 on `wp/0.2-environments`: merge this branch into it (its three commits keep their SHAs), then the lite cell from its plan (fixed node addresses, signed images, PostgreSQL failover tests; DN-005, DN-013).
 
 ## Blocked / waiting on humans
 - DN-005: the lite cell (the WSL VM has 10 GB) cannot show WP-0.2's single-node-loss criterion with two PostgreSQL instances.

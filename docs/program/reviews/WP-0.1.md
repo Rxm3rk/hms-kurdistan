@@ -98,7 +98,7 @@ Severity: critical = could let unsafe behaviour or a false claim of safety throu
 - Failure scenario: a session fills a CSO acceptance, writes the record under the CSO's name and signs the commit with a key it generated; the fast tier stays green and the hazard reads as accepted. The same holds on a host where the human's own signing key is unlocked for an agent-made commit.
 - Direction (not a patch): record the limitation in KNOWN-ANOMALIES and the safety README; keep a human-maintained allowed-signers list (fingerprints, `gpg.ssh.allowedSignersFile` or an equivalent file under `docs/safety/signoffs/`) and have the check match `%GF`/`%GK` against it and reject `U`; have the reviewer verify fingerprints until an external CI exists; fold in R-20.
 
-Resolution:
+Resolution: resolved in `05f159a` and `a9d5725`. A record counts only if every commit of its committed text has `%G?` = `G` (`U` rejected) by a key that the human-maintained `allowed-signers.yaml` lists for the record's name and role. The list is trusted only as far as its full history allows; where merged lines trust different signers, no signer is trusted until every side approves one version. An independent verification of `05f159a` (124 scratch cases, real GPG) found nine more defects; `a9d5725` fixes eight (removed rejections, grafts, symbolic links, routine merges approving, a settled fork overriding a later signed change, supersedes across subjects) plus a repository-local `gpg.program`, and documents the ninth (D5) in KA-011. Records of record at `a9d5725`: `ci/2026-10-19-gates-bite-a9d5725.md` (78 plants, the R-01 plant and every rogue merge FAIL) and `ci/2026-10-19-fast-a9d5725.json`. The first-anchor limitation stays recorded (KA-011).
 
 ### R-02 (major) The documented commands do not run on the build host of record
 
@@ -108,7 +108,7 @@ Resolution:
 - Failure scenario: a reviewer or the next session follows COMMANDS.md §4 on the Linux host and gets no build; a later WP that scripts `backend/gradlew` directly (a hosted CI job, DN-010) fails for a reason unrelated to the code.
 - Direction: set the executable bit in the index (`git update-index --chmod=+x`) for the wrapper and the entry scripts, or write every command as `sh …` and say why; correct WP-0.1.md:19.
 
-Resolution:
+Resolution: resolved in `05f159a`. `backend/gradlew` and the five entry scripts are stored as 100755, and `sh tools/hms repo check` fails if one loses the bit or leaves git's index (`executables_checked=6` in `ci/2026-10-19-fast-05f159a.json`). In the WSL clone at `05f159a` the six files list as `-rwxr-xr-x` and `tools/doctor` and `tools/ci/run` ran directly; COMMANDS.md, `backend/README.md` and WP-0.1.md give the `sh` forms.
 
 ### R-03 (major) A README attributes the host provisioning to the human
 
@@ -117,7 +117,7 @@ Resolution:
 - Failure scenario: a reader of `tools/host/` concludes the administrator-level host changes were made by the host owner and that no §3.4 deviation occurred; the deviation disappears from the audit trail that DN-001 built.
 - Direction: make the README say what DN-001 says (the agent ran it on the human's instruction, a recorded deviation).
 
-Resolution:
+Resolution: resolved in `05f159a`. `tools/host/README.md` says the build agent ran the provisioning itself on the human's recorded instruction, a recorded deviation from §3.4 item 9 (DN-001).
 
 ### R-04 (major) A planned SI-14 control narrows the invariant
 
@@ -126,7 +126,7 @@ Resolution:
 - Failure scenario: WP-1.5 builds the registry gate as planned; a locally modified rule with an owner, evidence and a review date but no PPV passes the gate and becomes interruptive, and the fourth requirement of SI-14 is never enforced. The tension with the day-0 baseline is real, but the invariant text stays in force until a human rules.
 - Direction: plan the gate with all four requirements and the stricter interim reading (a rule without a measured PPV is not interruptive; the vendor-validated baseline needs an explicit, human-approved exception); file the day-0 question as a DN item for the CSO [HUMAN] rather than a README note.
 
-Resolution:
+Resolution: resolved in `05f159a`. CTRL-0014-4 gates on owner, evidence, a measured PPV and a review-by date. Only the strict reading of "a measured PPV" is recorded as a tightening [P]; the human-approved day-0 exception is DN-014's option 1, the CSO's. CTRL-0014-5 and CTRL-0014-6 are aligned, and DN-014 is filed (it blocks WP-1.5).
 
 ### R-05 (minor) KNOWN-ANOMALIES omits known limitations
 
@@ -135,7 +135,7 @@ Resolution:
 - Failure scenario: the next session trusts KA as the complete list of limitations and plans WP-0.2 without the traceability generator or the hazard-link rendering.
 - Direction: add one KA row per limitation, each with its hazard reference and the work package that closes it; have `backlog render` derive `hazards` from the hazard log or add a cross-check.
 
-Resolution:
+Resolution: resolved in `05f159a`. KNOWN-ANOMALIES records every R-05 item (KA-005 reworded, KA-007…KA-013 added). Backlog `generate` and `render` derive `hazards` from the hazard log, and `backlog check` fails when the two disagree (KA-010 closed). The safety README names WP-0.9 [P] for the traceability matrix, as KA-007 does.
 
 ### R-06 (minor) Evidence claims without a record of record, and evidence files outside the naming rule
 
@@ -144,7 +144,7 @@ Resolution:
 - Note: this review re-ran every one of these claims on the Linux host and all hold (section 2); the defect is the record, not the substance.
 - Direction: re-run the spot check and the plant matrix at a committed SHA in the WSL clone with the right names; store the licence-check output; make COMMANDS.md:3 accurate.
 
-Resolution:
+Resolution: resolved in `7f42564`. Records of record from the WSL clone at `05f159a`, clean tree: `ci/2026-10-19-gates-bite-05f159a.md` (the plant matrix, scripted by `tools/ci/gates-bite/`), `backlog/2026-10-19-spot-check-05f159a.md`, `licence/2026-10-19-licence-05f159a.txt` with its inputs, and `doctor/2026-10-19-doctor-05f159a.{txt,json}`. COMMANDS.md line 3 and every Checked cell say what ran, where and on which version; the 18 October gates-bite and spot-check files stay, labelled as earlier non-record runs.
 
 ### R-07 (minor) No nightly run of record at the end of the session
 
@@ -152,7 +152,7 @@ Resolution:
 - Rule: §19.1 ("run `tools/ci/run nightly` at the end of every session that changed code"; "a red nightly is the next session's first task"); §3.5 last bullet.
 - Direction: run it in the WSL clone at the session's last commit, store the (failing, NOT-BUILT) record, and say in STATUS.md that it cannot pass before WP-0.5/0.6.
 
-Resolution:
+Resolution: resolved in `7f42564`. `ci/2026-10-19-nightly-05f159a.json` (WSL build host, no cell) and, at the session's last code commit, `ci/2026-10-19-nightly-a9d5725.json`: FAIL with the fast steps passing and 12 steps NOT-BUILT. STATUS.md records why the tier cannot pass before WP-0.2, WP-0.5, WP-0.6, WP-0.7, WP-0.8, WP-1.1b and WP-1.13 build its steps.
 
 ### R-08 (minor) Appendix A rows whose note records a difference from K are not kept open in OPEN-QUESTIONS
 
@@ -160,7 +160,7 @@ Resolution:
 - Rule: §1 line 178 ("Where it deliberately differs from K (a note, a [P] mark or an A.20 entry) … keep the item open in `OPEN-QUESTIONS.md` until a human confirms it").
 - Failure scenario: CDA document scope or a build-versus-partner stance is built without a human confirming the departure from K.
 
-Resolution:
+Resolution: resolved in `05f159a`. OQ-108…OQ-116 keep open the nine Appendix A rows whose note records a difference from K; a sweep of all 236 rows found no others.
 
 ### R-09 (minor) One sentence reads as a weakening of the Phase 0 exit criterion
 
@@ -168,14 +168,14 @@ Resolution:
 - Rule: §3.4 item 1; §21.
 - Direction: "can only be attempted on a lite cell; they stay open (DN-005)".
 
-Resolution:
+Resolution: resolved in `05f159a`. `WORK-PACKAGES.md:32` says the dev-cell items can only be attempted on a lite cell and stay open, without weakening the exit criterion.
 
 ### R-10 (minor) STATUS.md calls the slice "verified" before review and names a report that did not exist
 
 - Where: `STATUS.md:5` "In-flight slice: WP-0.1 bootstrap: verified"; `:6` "review in progress: `docs/program/reviews/WP-0.1.md`" while `docs/program/reviews/` held only its README at `adb631c`. §3.1 reserves `verified` for "the review found nothing unresolved"; `WORK-PACKAGES.md:13` says `review`.
 - Direction: "impl; handed over for review" and "report not yet written".
 
-Resolution:
+Resolution: resolved in `05f159a`. STATUS.md reads "impl" for the slice in review and cites the review report only now that it exists (`6ca3e3a`).
 
 ### R-11 (minor) The host-provisioning record overstates its verification and omits system-wide changes
 
@@ -183,7 +183,7 @@ Resolution:
 - Rule: §3.5; §3.4 item 9 ("Write the exact commands into `DECISIONS-NEEDED.md`"); §3.7.
 - Direction: state exactly what is verified and what is trusted on TLS; list the system-wide changes in DN-001..004 (the script is in the repository, so a pointer per change suffices); record both mirror fetches as §3.7 deviations with their full hashes.
 
-Resolution:
+Resolution: resolved in `05f159a`. The script header, the host README, COMMANDS.md and DN-001…DN-004 state what was checked against a SHA-256 and what was trusted on TLS alone. DN-001 itemises every system-wide change by script line, and DN-001 and DN-006 record both mirror fetches as §3.7 deviations with full SHA-256s.
 
 ### R-12 (minor) Stale or self-contradicting documentation
 
@@ -195,7 +195,7 @@ Resolution:
 - `docs/adr/README.md:83`: "It does not check ADR numbers above 028 or this index"; `rules.py:188-205` checks both (gap detection up to the highest number, index link per file).
 - Rule: §3.5 (claims match artefacts).
 
-Resolution:
+Resolution: resolved in `05f159a`. All seven locations now match what exists: `tools/README.md`, `tools/bootstrap:3`, `frontend/README.md`, `README.md:9`, ADR-010, ADR-020, and `docs/adr/README.md:5` and `:83`.
 
 ### R-13 (minor) The first build commit does not pass the fast tier on a fresh clone
 
@@ -203,7 +203,7 @@ Resolution:
 - Rule: §3.6 line 360 ("From the first commit that adds build files, every commit builds and passes the fast tier"); §3.5 last bullet (report every deviation).
 - Direction: record it as a deviation in STATUS.md or KA (the fix is in place from `b24f94e`); never rebase `1b4415e`.
 
-Resolution:
+Resolution: resolved in `05f159a`. KA-012 and the STATUS.md deviation record that `1b4415e` failed the fast tier on a fresh clone, fixed from `b24f94e`; `1b4415e` is never rebased.
 
 ### R-14 (minor) ADR-002 records a JDK pin that nothing pins
 
@@ -212,7 +212,7 @@ Resolution:
 - Failure scenario: a later bootstrap installs 25.0.5 or Corretto; evidence records and the SBOM name a runtime ADR-002 does not.
 - Direction: pin the Temurin release and its checksum in bootstrap (re-resolved only at phase boundaries), or state in ADR-002 that the patch level is "newest 25 at bootstrap time" and record it per host.
 
-Resolution:
+Resolution: resolved in `05f159a`. The JDK is pinned to Temurin jdk-25.0.4.1+1 with a SHA-256 per platform in `steps.py`, with no fallback; the doctor passes only the pin; ADR-002 records the pin and the phase-boundary rule. `ci/2026-10-19-fast-05f159a.json` names the runtime: `Temurin-25.0.4.1+1`, `pinned: true`.
 
 ### R-15 (minor) "Recorded in the licence register" is claimed while the register is empty
 
@@ -220,14 +220,14 @@ Resolution:
 - Rule: §4.3 line 468-469; §3.5.
 - Direction: add the register entry when the artefact is first depended on, and until then write "to be recorded".
 
-Resolution:
+Resolution: resolved in `05f159a`. ADR-014 and the version catalogue say HAPI HL7 v2 is "to be recorded in the licence register when first depended on (WP-1.1b)"; ADR-002 no longer calls the OpenJDK runtime allowlisted.
 
 ### R-16 (minor) ADRs promise OPEN-QUESTIONS or DECISIONS-NEEDED records that do not exist
 
 - Where: `ADR-016:13` and `ADR-017:15` each say "This ADR … records the difference for `docs/program/OPEN-QUESTIONS.md`" (the reopen trigger dropped relative to BP §7.2); `OPEN-QUESTIONS.md` has no mention of ADR-016 or ADR-017 (OQ-101 to OQ-105 cover ADR-021/022/023/024/027). `ADR-001:72` sets an interim C9 aggregation reading "until a human settles this" with no DN or OQ item.
 - Rule: §1 line 177 ("record the difference in `docs/program/OPEN-QUESTIONS.md`"); §1 line 180 (flag an interim default).
 
-Resolution:
+Resolution: resolved in `05f159a`. OQ-117…OQ-119 hold the ADR-016 and ADR-017 reopen-trigger differences from BP §7.2 and ADR-001's interim C9 reading, and each ADR names its OQ.
 
 ### R-17 (minor) The repo check's ADR rule is weaker than described
 
@@ -235,7 +235,7 @@ Resolution:
 - Rule: §3.5 line 350; template B.1.
 - Direction: anchor the status regex (`$`), check the H1 and `Source:` lines, add failing-case tests.
 
-Resolution:
+Resolution: resolved in `05f159a`. The ADR check matches the whole status, exactly one Status and one Date line, the H1 form, the Source field and the B.1 heading order, with failing-case tests including both review plants.
 
 ### R-18 (minor) Conditional licences only warn
 
@@ -243,7 +243,7 @@ Resolution:
 - Failure scenario: WP-1.1b adds `hapi-base`; the check passes with a warning nobody reads; the register stays empty.
 - Direction: fail on a conditional component without a register entry (the register entry is the record §4.3 asks for); keep the warning only for the ORT run until it exists.
 
-Resolution:
+Resolution: resolved in `05f159a`. `sh tools/hms licence check` fails on a conditional component until a register entry records it as unmodified, under the rule and licence the policy applies. It validates the register: malformed entries, including a rule that is not text, are reported, and patterns that match the empty string or a package they do not name are refused. ORT's conditional rules stay warnings until WP-0.9, a decision recorded in `tools/licence/README.md` and KA-005.
 
 ### R-19 (minor) Hazard-log control wording
 
@@ -254,7 +254,7 @@ Resolution:
 - `docs/safety/README.md:125` says §18.5 names no suite for SI-09 and SI-18, while the log cites §18.5 #10 for SI-09 (`:1575`) and #8 for SI-18 (`:2989`), which `BUILD-PROMPT.md:2092,2094` confirm.
 - Rule: §2.1, §3.4 item 1, §18.3, §3.5.
 
-Resolution:
+Resolution: resolved in `05f159a`. CTRL-0005-7's overclaim is corrected, and the SI-05 clause d gap before the Dose Engine is not counted as covered (OQ-120, README open question 9). CTRL-0011-9 separates the modes. The §18.3 count of 10⁴ sequences per channel adapter is on all 27 nightly property controls. CTRL-0001-5/6 and CTRL-0016-5/6 are recorded as tightenings, and README open question 4 is corrected. No `invariant_text` changed.
 
 ### R-20 (minor) Sign-off record semantics
 
@@ -262,7 +262,7 @@ Resolution:
 - Rule: §3.5 line 350; §10.1 line 1504.
 - Direction: require `decision`, match the decision kind to the field (accept → `accepted_by`, triage → `cso_triage`, approve → `approval`), and compare `subject_version` with the subject's current version.
 
-Resolution:
+Resolution: resolved in `05f159a` and `a9d5725`. Every record states a decision and a `subject_version`. Each decision backs only its own kind of field. Records match only the subject's current version and the roles the field accepts (risk-vocabulary always needs the CSO, and `approval.required` is part of the content version). A superseded record, or one that a rejection or return of the same version and field meets, authorises nothing; `a9d5725` adds that a removed signed rejection still withdraws, and that `supersedes` must name the same subject and field (and, to end a rejection or return, the same person or role). KA-013 records the spec-version residual.
 
 ### R-21 (minor) The hazard-log schema is stricter than template B.2 without saying so
 
@@ -270,7 +270,7 @@ Resolution:
 - Rule: §3.5 last bullet (report every deviation); Appendix B.2.
 - Direction: say in the README which B.2 fields became mandatory and why, or relax the schema to B.2 plus optional extras.
 
-Resolution:
+Resolution: resolved in `05f159a`. The schema stays stricter than B.2 and says so: the README lists the four mandatory fields and why, and marks `type` as this build's [P] vocabulary. Tests show that B.2 fails on exactly those four fields and passes with them.
 
 ## 4. Observations (not defects)
 
