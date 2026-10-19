@@ -1,61 +1,30 @@
-# STATUS (updated 2026-10-19 05:05 Asia/Baghdad)
-Phase: 0   Work package: WP-0.1 Programme bootstrap
-Branch: wp/0.1-programme-bootstrap @ the commit that fills the review's Resolution fields, on top of `a9d5725` (the sign-off gate fixes) and `7f42564` (the records of record at `05f159a`)
-Last green: fast @ a9d5725, WSL build host, no cell (`docs/program/evidence/ci/2026-10-19-fast-a9d5725.json`: PASS, 8 of 8 steps, 1279 tests, 0 failures); nightly @ a9d5725 and merge @ 05f159a fail closed on NOT-BUILT steps only (12 and 15; KA-003)
-In-flight slice: none on this branch; WP-0.1 is done (§22.2); WP-0.7 is in progress on `wp/0.7-design-system`, WP-0.2 on `wp/0.2-environments`
-Open review findings: `docs/program/reviews/WP-0.1.md` (automated review (AI) at `adb631c`): all 21 resolved, each Resolution field naming its commit (`05f159a`; R-06 and R-07 `7f42564`; R-01 and R-20 also `a9d5725`); 0 unresolved
-Blocking decisions: DN-005 (lite cell and WP-0.2's failover criterion), DN-011 (merging before the merge tier exists)
-ID ranges for the stacked branches [P]: WP-0.1 continues from OQ-122, KA-014 and DN-015 only if it needs more; WP-0.2 takes DN-015…DN-019, OQ-122…OQ-139, KA-014…KA-024, HAZ-0028…HAZ-0029 and ADR-030; WP-0.7 takes DN-020…DN-039, OQ-140…OQ-159, KA-025…KA-044 and HAZ-0030…HAZ-0034, and no ADR
+# STATUS (updated 2026-10-19 10:00 Asia/Baghdad)
+Phase: 0   Work package: WP-0.8 Documents and printing (cluster-free parts; approved deviation DN-065)
+Branch: wp/0.8-documents-printing, stacked on wp/0.1-programme-bootstrap at `09afa41` (worktree `C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\t3-406132fc`)
+Last green: fast @ a9d5725, WSL build host, no cell (the record of WP-0.1). WP-0.8 has no record of record; the lead runs them in WSL at this branch's final SHA. Windows-host runs below are not evidence of record.
+In-flight slice: the specification is committed; code slices resumed after the account switch at 09:20 (mi hit its usage limit at about 08:45, nothing was committed then): S1 domain core, S2 fonts/shaper/rasteriser, S3 writers and golden harness, S5 veraPDF checker, S6 S7-K kit fixes, S4 satellite correctness review; all code under `backend/modules/platform-docs/`, `backend/satellites/` and `tools/s7k/` is uncommitted partial work until each slice is verified, reviewed and committed
+Open review findings: specification `docs/program/reviews/WP-0.8-spec.md`: three rounds, every major finding answered in the spec; code reviews follow per slice (two lenses for patient-safety code, DN-065)
+Blocking decisions: none block WP-0.8's build. DN-066 (licences) blocks shipping the renderer; DN-067 (WSL Pango packages) blocks PDF golden images of record; DN-068 to DN-074 are the CSO's print readings, needed before any hospital template is used
+ID ranges for WP-0.8: DN-065…DN-074 (all used), OQ-230…OQ-259 (OQ-230…OQ-249 used), KA-075…KA-089 (all used), HAZ-0045…HAZ-0049 (all used), ADR-038…ADR-040 (ADR-038 used)
 
 ## Last session
-- Resolved the review findings in the review-fix commit (each Resolution field names it):
-  - R-01, R-20: the sign-off gate accepts only committed records signed (`%G?` = `G`) by a key that `docs/safety/signoffs/allowed-signers.yaml` lists for the record's person and role. Each decision counts only for its own kind of field, at the subject's current version, in a role the field accepts. A record that a later record supersedes, or that a rejection or return of the same version and field withdraws, authorises nothing. The list is trusted only as far as its own history allows; where merged lines trust different signers, no signer is trusted until every side approves one version. It lists no signer yet, and the trust-anchor limitation remains (KA-011).
-  - R-02: the entry scripts and `backend/gradlew` are stored as 100755; `sh tools/hms repo check` fails if one loses the bit or leaves git's index.
-  - R-04: CTRL-0014-4 gates on all four SI-14 items. Only the strict reading of "a measured PPV" is recorded as a tightening; the day-0 exception is DN-014's option 1, for the CSO.
-  - R-05: backlog `hazards` are derived from the hazard log and checked (KA-010 closed); KA-007…KA-013 record the other limitations.
-  - R-14: the JDK is pinned to Temurin 25.0.4.1+1 by SHA-256 with no fallback, and the doctor passes only the pin; the next fast record names the vendor build (`java_identity`).
-  - R-18: a conditional licence fails until the register records it as unmodified, under the rule the policy applies; a register pattern that does not name its component is refused.
-  - R-19, R-21: hazard-log overclaims corrected and the tightenings recorded; the SI-05 clause d gap before the Dose Engine goes to the CSO (OQ-120).
-  - R-03, R-08…R-13, R-15…R-17: documentation and record fixes, including OQ-108…OQ-119 and DN-001's itemised system changes.
-- Host: on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9. DN-001 lists every system-wide change, what was checked against a SHA-256 and what was trusted on TLS alone. Gates of record run in the WSL clone `~/src/hospitalmanagementsystem` at committed SHAs (KA-001).
-- Checked on the Windows host only (uncommitted tree, untracked test files included; not evidence of record):
-  - 673 Python tests OK;
-  - safety, repo and backlog checks PASS (hazards=27, controls=193, all `planned`; approval_fields_filled=0; allowed_signers=0; executables_checked=6);
-  - secret scan: 0 findings in the history and the working tree;
-  - frontend licence checks PASS (2 components shipped, 124 build-only);
-  - `sh tools/doctor --tier fast` PASS with the pinned JDK.
-- In WSL against the Windows checkout (not a committed SHA, not evidence of record): 310 safety tests OK, the real GPG and SSH signature tests included.
-- Gates-bite: `tools/ci/gates-bite/` scripts the plant matrix (78 plants, 18 of them merges of `allowed-signers.yaml`). Dry runs only, in a WSL scratch clone at unreferenced snapshots of the working tree taken before the last gate changes:
-  - `8bdfdd5` (every section but sign-off): 36 of 37 plants as expected; the scope-note plant, the clean secret scan and the final fast tier failed on a test fixture that has since been fixed;
-  - `4d08832` (every section): 78 plants as expected (73 FAIL, 5 PASS); the clean unit tests and the fast tier failed only on a gpg clock problem in `test_signed_commits.py`, since fixed;
-  - `a43820e` (sign-off, clean and final sections): 41 plants as expected, 11 of 11 clean runs PASS and the fast tier PASS.
-  - The record of record at the review-fix commit is pending.
-- Verified (records of record, WSL build host, no cell, at `05f159a`, clean tree; stored under `docs/program/evidence/`):
-  - `ci/2026-10-19-fast-05f159a.json`: `sh tools/ci/run fast` → PASS, 8 of 8 steps, 1253 tests (673 Python, 66 backend, 514 frontend), 0 failures, 0 skipped, secret scan with no findings.
-  - `ci/2026-10-19-merge-05f159a.json` and `ci/2026-10-19-nightly-05f159a.json` (R-07): FAIL, the 8 fast steps pass and 15 and 12 steps are NOT-BUILT; neither tier can pass before the work packages that build those steps (KA-003).
-  - `ci/2026-10-19-gates-bite-05f159a.md` (R-06; scratch clone `hms-plant`): 78 plants, 73 FAIL and the 5 expected to pass passing; 11 of 11 clean runs PASS; fast tier PASS.
-  - `backlog/2026-10-19-spot-check-05f159a.md` (R-06): ten of ten rows match, hazards included, checked by the build agent (AI) on the Windows host against the committed files; a 236-row cross-check found 0 mismatches.
-  - `doctor/2026-10-19-doctor-05f159a.{txt,json}`: 18 items OK; RAM (9.7 GiB) and free disk (29.8 GiB on C:) below the [P] guides (DN-005, DN-013).
-  - `licence/2026-10-19-licence-05f159a.txt` with its input lists (R-06): PASS, 2 shipped components and 124 build-only.
-  - Earlier records stay where the review cites them: the fast and doctor records at `d3e14de`; the 18 October gates-bite and spot-check files are Windows runs from before the first commit and not records of record.
-  - Still without a record: the 10⁶-sequence run, the second provisioning run and the release tier.
-- Deviations from BUILD-PROMPT (§3.5):
-  - §3.6: commit `1b4415e` did not pass the fast tier on a fresh clone (no `frontend/node_modules`); fixed from `b24f94e`; never rebased (KA-012).
-  - §19.1: the WP-0.1 session has no nightly run of record yet (R-07). The nightly tier cannot pass before its NOT-BUILT steps are built: WP-0.2 (cell check, chaos), WP-0.5 (10⁶ property sequences, ≥10⁴ per channel adapter, scenario suites), WP-0.6 (the scaled day; the 300-bed and 1,000-bed days also need hardware [HUMAN]), WP-0.7 (full end-to-end), WP-0.8 (golden-image print), WP-1.1b (parser fuzzing) and WP-1.13 (restore test) (`sh tools/ci/run nightly --list`). Until then its failing (NOT-BUILT) record is made in the WSL clone at the last commit of every session that changes code, and stored under `docs/program/evidence/ci/`.
-  - §3.4 item 9: the host provisioning by the agent (DN-001). §3.7: two files came from mirrors, each matching the official SHA-256 (the Ubuntu WSL image, DN-001; the Gradle zip, DN-006).
-- Verified the sign-off gate independently after `05f159a`: two verifiers built 124 scratch cases with real GPG keys and found nine defects (the worst: deleting a committed, signed rejection brought back the acceptance it withdrew). `a9d5725` fixes eight, documents the ninth (D5, KA-011) and closes a repository-local `gpg.program` override found while fixing them; 26 regression tests, each failing on `05f159a`. Records of record at `a9d5725` (WSL build host, no cell, clean tree): `ci/2026-10-19-fast-a9d5725.json` (PASS, 1279 tests), `ci/2026-10-19-nightly-a9d5725.json` (FAIL, 12 NOT-BUILT) and `ci/2026-10-19-gates-bite-a9d5725.md` (78 plants, 73 FAIL and the 5 expected PASS; 11 of 11 clean runs PASS).
-- Work started on other branches (not on this one): WP-0.7's specification slice (the design-system module spec, the patient-context state machine with approval requested, the HAL contract and fixtures) is drafted and reviewed in the worktree of `wp/0.7-design-system`, uncommitted; WP-0.2 has an implementation plan for the lite cell. Neither changes WP-0.1.
+- Set up the worktree: branch `wp/0.8-documents-printing`, the `.tools` junction, the frontend packages (offline install).
+- Specification first (§3.2): `docs/specs/modules/platform-docs.md`, the print-job machine `docs/specs/state-machines/print-job.yaml` (approval requested from the CSO, OQ-247), the events `docs/specs/events/platform-docs.md`, ADR-038 (accepted-provisional: one layout for ZPL, ESC/POS and HTML; WeasyPrint renderer satellite; S7-K decides).
+- Three rounds of automated review (AI) of the spec: round 1 (engineering and clinical-safety lenses) 0 critical, 33 major; round 2: 23 of 36 resolved, 13 partly, 12 new majors; round 3: 8 of 12 resolved, 4 partly and one new major (an unknown first-band outcome released the pending state). All answered; the round-3 fixes were not re-reviewed as a spec.
+- Renderer spike (Windows host, not evidence of record): WeasyPrint 70.0 with MSYS2 UCRT64 Pango 1.58.2 and HarfBuzz 14.6.0 from a project-local runtime; Sorani shaping correct; PDF/A-2b output byte-identical between runs; no system change, no network during renders. Finding: text extracted from its Sorani PDFs is garbled (KA-079), so PDF/A-2u is not used.
+- Font finding: neither pinned Noto font has U+2248 `≈`; the approximate-DOB marker is `~` (spec R5, DN-068).
+- Records: DN-065 (the human lead's decisions, quoted) to DN-074; OQ-230 to OQ-249; KA-075 to KA-089 (KA-075, the `t3/…` branch names, closed: the lead deleted those branches at about 08:05); HAZ-0045 to HAZ-0049 with planned controls, five tightenings in `docs/safety/README.md`; the backlog re-rendered; WP-0.8 in-progress in `WORK-PACKAGES.md`.
+- Tooling: `sh tools/hms repo check` accepts a missing ADR number only when the ADR index lists it under "Reserved numbers" (ADR-029 to ADR-037 held by other branches); the WP-0.1 safety guard's hazard count is now 32 (27 seeded plus HAZ-0045 to HAZ-0049).
 
 ## Next exact step
-1. WP-0.7 on `wp/0.7-design-system` (worktree `C:\Users\Surface\.t3\worktrees\hospitalmanagementsystem\wp07`): slices S1 to S7 up to the demo route and its E2E evidence; merge this branch into it before its close-out (never rebase, §3.6).
-2. WP-0.2 on `wp/0.2-environments`: merge this branch into it (its three commits keep their SHAs), then the lite cell from its plan (fixed node addresses, signed images, PostgreSQL failover tests; DN-005, DN-013).
+1. Wait for the resumed slice agents (briefs in `build/wp08-resume/brief-*.md`, rules in `build/wp08-resume/RESUME-RULES.md`; every Gradle run through `sh build/wp08-scripts/gradle.sh`, which serialises this worktree's builds and takes a host slot).
+2. Per slice when its agent reports: two review lenses (correctness; clinical safety) for S1, S2, S3 and the satellite (S4); one pass for S5 and the S7-K kit fixes (S6); fix every major finding.
+3. Verify each commit's exact tree in the scratch checkout `build/wp08-speccheck` (detached, `.tools` junction, offline frontend install): `sh /c/Users/Surface/AppData/Local/Temp/hms-lock/heavy.sh wp08 sh tools/ci/run fast --no-evidence`; commit per slice when it passes.
+4. Then S7 from `build/wp08-scripts/brief-phase2.md`: templates, loader, worst-case fit check, print service with fail-closed production wiring, the sample matrix, approved goldens and fixtures (`human_script_review: requested`).
+5. Wire the nightly `golden-image-print` step in `tools/hmstools/ci/tiers.py`, merge `wp/0.7-design-system` at a committed SHA with `--no-ff` for the capture simulator, self-test the S7-K kit against it, record the SHA here.
+6. Hazard-log controls to `implemented` only for tests that passed; final fast tier; final report to the lead.
 
 ## Blocked / waiting on humans
-- DN-005: the lite cell (the WSL VM has 10 GB) cannot show WP-0.2's single-node-loss criterion with two PostgreSQL instances.
-- DN-011: §3.6 merges a branch only after the merge tier passes, and its last steps arrive in WP-1.12; the default stacks the branches.
-- Next: DN-013 (free disk on C:) when WP-0.2 pulls images; DN-014 (the CSO's reading of SI-14's "a measured PPV" for the day-0 CDS baseline) before WP-1.5.
-- For the CSO, not blocking yet: OQ-120 (the SI-05 clause d gap of control set A before the Dose Engine; before R2b go-live at the latest), OQ-121 (whether a risk acceptance survives a linked release or incident), KA-013 (a state-machine spec changed without a version bump keeps its approval; WP-0.5).
-- Later: DN-007 (Windows Git `core.autocrlf`), DN-008 (Git identity), DN-009 (reference cell), DN-010 (remote, hosted CI, CODEOWNERS handles; also KA-004 and KA-011: until a protected branch exists, verify every listed signer and every trust anchor out of band), DN-012 (four plan-of-record files committed with CRLF).
-- Q-K1…Q-K19, the A.20 conflicts, the Appendix A placements and notes (OQ-040…OQ-082, OQ-108…OQ-116), the engineering choices [P] (OQ-094…OQ-100), the ADR gaps (OQ-101…OQ-105) and the ADR differences from BP and the C9 reading (OQ-117…OQ-119) wait in `OPEN-QUESTIONS.md`; L-1…L-37 in `ASSUMPTIONS.md`.
+- S7-K on physical printers [HUMAN: printers]; the human script review of the goldens [HUMAN] (KA-080); DN-066 to DN-074; the satellite's container and the PDF goldens of record wait for the cell or DN-067.
 
-## Read next: BUILD-PROMPT top through §3; §19.1, §21 (Phase 0) and §22; for WP-0.2: §5.1, §4.1, §4.3 (signing), §16, §18.7; K §7.6, §7.8; for WP-0.7: §6, SI-16 and `docs/specs/modules/design-system.md` on its branch
+## Read next: BUILD-PROMPT top through §3; §4.1, §7 item 11, §11.1, §12.8, §13.1 DP-8, §18.9, §19.4; `docs/specs/modules/platform-docs.md`; ADR-038

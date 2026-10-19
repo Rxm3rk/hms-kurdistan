@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hms.invalid/schemas/document-renderer/render-result-1.schema.json",
+  "title": "Document renderer command-line result, contract version 1",
+  "description": "The JSON object 'python -m hms_docrender render' writes to standard output (docs/specs/modules/platform-docs.md §7.5). Exit codes: 0 rendered, 1 failed (render or runtime error), 2 usage error, 3 invalid request, 4 refused (a refused resource, a font integrity failure, text the fonts cannot render, or a network attempt). The PDF is written to --out only when the status is rendered; otherwise no file is left there.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "status"],
+  "properties": {
+    "contractVersion": {"const": 1},
+    "status": {"enum": ["rendered", "failed", "invalid", "refused"]},
+    "out": {"description": "rendered: the PDF file written.", "type": "string"},
+    "bytes": {"description": "rendered: the PDF's size.", "type": "integer", "minimum": 1},
+    "sha256": {"description": "rendered: SHA-256 of the PDF, lower-case hex.", "type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "pageCount": {"description": "rendered: the number of pages.", "type": "integer", "minimum": 1},
+    "rendererIdentity": {"description": "rendered: the renderer identity (spec §10): library versions and the print fonts' SHA-256s.", "type": "string", "minLength": 1},
+    "identityHash": {"description": "rendered: the first 16 hex digits of the identity's SHA-256; names the golden image set.", "type": "string", "pattern": "^[0-9a-f]{16}$"},
+    "code": {"description": "failed or refused: a stable reason code.", "enum": ["resource-refused", "network-attempt", "font-integrity", "unrenderable-text", "render-error", "runtime-error"]},
+    "detail": {"description": "failed or refused: what went wrong; never the document's text.", "type": "string"},
+    "errors": {"description": "invalid: one message per contract violation.", "type": "array", "items": {"type": "string"}}
+  }
+}

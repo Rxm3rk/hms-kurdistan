@@ -1,0 +1,77 @@
+package hms.platform.docs.domain
+
+import hms.kernel.testing.PropertyTestBudget
+import hms.platform.docs.api.HalPrintOutcome
+import hms.platform.docs.domain.barcode.BarcodePayload
+import hms.platform.docs.domain.barcode.PayloadOutcome
+import hms.platform.docs.domain.job.PrintJobLifecycle
+import hms.platform.docs.domain.job.PrintJobState
+import hms.platform.docs.domain.job.TransitionResult
+import hms.platform.docs.domain.rules.TextChecks
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.property.Arb
+import io.kotest.property.arbitrary.boolean
+import io.kotest.property.arbitrary.choice
+import io.kotest.property.arbitrary.element
+import io.kotest.property.arbitrary.enum
+import io.kotest.property.arbitrary.list
+import io.kotest.property.arbitrary.map
+import io.kotest.property.arbitrary.string
+import io.kotest.property.checkAll
+
+private val identifierChars = ('A'..'Z') + ('a'..'z') + ('0'..'9') + '-'
+
+private val identifiers = Arb.list(Arb.element(identifierChars), 1..20).map { it.joinToString("") }
+
+private val anyStrings = Arb.string(0..20)
+
+private val halOutcomes =
+    Arb.choice(
+        Arb.element(listOf(HalPrintOutcome.Sent, HalPrintOutcome.Completed)),
+        Arb.boolean().map { HalPrintOutcome.Error("kind", "reason", it) },
+    )
+
+class DomainRulesPropertyTest :
+    FunSpec({
+        test("PropertyTest:barcode-payload-fields: identifiers in R4's alphabet round-trip through the payload") {
+            checkAll(PropertyTestBudget.sequences(), identifiers, identifiers, identifiers) { mrn, encounter, serial ->
+                val built = BarcodePayload.wristband(mrn, encounter, serial) as PayloadOutcome.Built
+                built.payload.split("|") shouldBe listOf("HMS1", "M:$mrn", "E:$encounter", "B:$serial")
+                built.payload.all { it.code in 0x20..0x7E } shouldBe true
+            }
+        }
+
+        test("PropertyTest:barcode-payload-fields: a field with any character outside the alphabet is refused") {
+            checkAll(PropertyTestBudget.sequences(), anyStrings) { field ->
+                val valid = field.isNotEmpty() && field.codePoints().allMatch(TextChecks::isIdentifierCharacter)
+                (BarcodePayload.specimenCode128(field) is PayloadOutcome.Built) shouldBe valid
+                (BarcodePayload.wristband("SYN-1", field, "J-1") is PayloadOutcome.Built) shouldBe valid
+            }
+        }
+
+        test("PropertyTest:print-job-lifecycle: no sequence of reports leaves a terminal state or returns to requested") {
+            checkAll(PropertyTestBudget.sequences(), Arb.enum<PrintJobState>(), Arb.list(halOutcomes, 0..8)) { start, reports ->
+                var state = start
+                reports.forEach { outcome ->
+                    when (val result = PrintJobLifecycle.onHalOutcome(state, outcome)) {
+                        is TransitionResult.Accepted -> {
+                            state.terminal shouldBe false
+                            result.to shouldBe PrintJobLifecycle.stateFor(outcome)
+                            state = result.to
+                        }
+
+                        is TransitionResult.LateOutcome -> {
+                            state shouldBe PrintJobState.OUTCOME_UNKNOWN
+                        }
+
+                        is TransitionResult.Rejected -> {
+                            Unit
+                        }
+                    }
+                    (state == PrintJobState.REQUESTED && start != PrintJobState.REQUESTED) shouldBe false
+                }
+                if (start.terminal) state shouldBe start
+            }
+        }
+    })

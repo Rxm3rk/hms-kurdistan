@@ -1,0 +1,2 @@
+^XA^HW^XZ
+^XA^HWE:*.*^XZ

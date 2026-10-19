@@ -62,6 +62,24 @@ hapi-fhir = "8.12.1"
 # register when first depended on, §4.3). 2.5 line; 2.6.0 has had no patch release yet.
 hapi-hl7v2 = "2.5.1"
 
+# --- Documents and printing (WP-0.8) ----------------------------------------------------------------
+# ZXing core (Apache-2.0): the DataMatrix ECC 200 encoder for PDF, HTML and ESC/POS outputs, and the
+# decoder of the round-trip test. 3.5 line (resolved 2026-10-19).
+zxing = "3.5.4"
+# veraPDF validation library (dual MPL-2.0+ or GPL-3.0+ per its POM headers; used under MPL-2.0), with
+# the PDFBox-free "greenfield" model. BUILD-ONLY: the PDF/A-2b checker :satellites:pdfa-verify for the
+# golden step (spec §7.5, §10); never shipped. 1.30 line (1.30.1 and patches .2, .3; resolved 2026-10-19).
+# Pins, transitive licences and jar SHA-256s: backend/satellites/pdfa-verify/README.md.
+verapdf = "1.30.3"
+# The javax.xml.bind JAXB 2.3 implementation that veraPDF 1.30.3 declares. Licences (parent POMs):
+# jaxb-impl 2.3.2 "Eclipse Distribution License - v 1.0" (BSD-3-Clause); jaxb-core 2.3.0.1 "CDDL+GPL
+# License" (CDDL-1.1 or GPL-2.0 with the Classpath exception); build-only acceptable. The Spring Boot BOM
+# would move both to the Jakarta 4.x line, which implements jakarta.xml.bind only and would leave
+# veraPDF's javax.xml.bind code (org.verapdf.core.XmlSerialiser) without an implementation, so
+# pdfa-verify pins them strictly. BUILD-ONLY; veraPDF's pins, not ours.
+verapdf-jaxb-impl = "2.3.2"
+verapdf-jaxb-core = "2.3.0.1"
+
 # --- Test tooling ----------------------------------------------------------------------------------
 # JUnit 6 (EPL-2.0). BOM (a 6.1 line exists; the BOM's version wins).
 junit = "6.0.3"
@@ -116,6 +134,8 @@ jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations
 jackson-core = { module = "tools.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+# YAML for print templates (Apache-2.0; brings snakeyaml-engine, Apache-2.0). Jackson BOM.
+jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 
 # --- Persistence -----------------------------------------------------------------------------------
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
@@ -146,6 +166,14 @@ hapi-fhir-validation = { module = "ca.uhn.hapi.fhir:hapi-fhir-validation", versi
 hapi-fhir-validation-resources-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-validation-resources-r4", version.ref = "hapi-fhir" }
 hapi-hl7v2-base = { module = "ca.uhn.hapi:hapi-base", version.ref = "hapi-hl7v2" }
 hapi-hl7v2-structures-v251 = { module = "ca.uhn.hapi:hapi-structures-v251", version.ref = "hapi-hl7v2" }
+
+# --- Documents and printing ------------------------------------------------------------------------
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+# BUILD-ONLY (pdfa-verify): the greenfield validation model and the veraPDF core API it implements.
+verapdf-validation-model = { module = "org.verapdf:validation-model", version.ref = "verapdf" }
+verapdf-core = { module = "org.verapdf:core", version.ref = "verapdf" }
+verapdf-jaxb-impl = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "verapdf-jaxb-impl" }
+verapdf-jaxb-core = { module = "com.sun.xml.bind:jaxb-core", version.ref = "verapdf-jaxb-core" }
 
 # --- Test ------------------------------------------------------------------------------------------
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
