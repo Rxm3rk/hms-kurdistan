@@ -235,6 +235,35 @@ class Required(RepoFixture):
         self.assert_error(result, "ADR-029-*.md is missing (ADR numbers run without a gap up to ADR-030)")
         self.assertEqual(result.counts["adrs_total"], 30)
 
+    def test_adr_gap_reserved_for_a_parallel_branch_is_accepted(self) -> None:
+        write(self.root, "docs/adr/ADR-032-later.md", ADR_TEMPLATE.format(n=32, status="accepted"))
+        write_adr_index(self.root)
+        index = self.root / "docs/adr/README.md"
+        index.write_text(
+            index.read_text(encoding="utf-8")
+            + "\n## Reserved numbers\n\n- ADR-029 to ADR-030: held by another branch.\n- ADR-031: held by a third branch.\n",
+            encoding="utf-8",
+        )
+        result = self.run_rules("required")
+        self.assertFalse([e for e in result.errors if "is missing" in e], result.errors)
+        self.assertEqual(result.counts["adrs_total"], 32)
+
+    def test_adr_gap_not_listed_as_reserved_still_fails(self) -> None:
+        write(self.root, "docs/adr/ADR-031-later.md", ADR_TEMPLATE.format(n=31, status="accepted"))
+        write_adr_index(self.root)
+        index = self.root / "docs/adr/README.md"
+        index.write_text(index.read_text(encoding="utf-8") + "\n## Reserved numbers\n\n- ADR-029: held by another branch.\n", encoding="utf-8")
+        self.assert_error(self.run_rules("required"), "ADR-030-*.md is missing (ADR numbers run without a gap up to ADR-031)")
+
+    def test_baseline_adr_can_never_be_reserved(self) -> None:
+        (self.root / "docs/adr").mkdir(parents=True, exist_ok=True)
+        for path in (self.root / "docs/adr").glob("ADR-005-*.md"):
+            path.unlink()
+        write_adr_index(self.root)
+        index = self.root / "docs/adr/README.md"
+        index.write_text(index.read_text(encoding="utf-8") + "\n## Reserved numbers\n\n- ADR-005: not allowed.\n", encoding="utf-8")
+        self.assert_error(self.run_rules("required"), "ADR-005-*.md is missing (§4.2 baseline)")
+
     def test_adr_file_name_must_follow_the_pattern(self) -> None:
         write(self.root, "docs/adr/ADR-029_Bad_Name.md", ADR_TEMPLATE.format(n=29, status="accepted"))
         self.assert_error(self.run_rules("required"), "ADR-029_Bad_Name.md: the name is not ADR-nnn-<lower-case-slug>.md")

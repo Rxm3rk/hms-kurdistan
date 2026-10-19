@@ -1,0 +1,72 @@
+# The lifecycle of one print job (BUILD-PROMPT §6.3, §7 item 11, §12.8: "PrintJobCompleted / Failed (with
+# template version)"; the HAL contract's "Outcome unknown" rule on wp/0.7-design-system). Template:
+# BUILD-PROMPT Appendix B.3. Explanation: docs/specs/modules/platform-docs.md §8.1 to §8.6.
+# Hazards: HAZ-0045 to HAZ-0049 (H1, H13, H14); the identity predicates serve HAZ-0001 (SI-01).
+#
+# Implemented once in backend/modules/platform-docs (domain/job/PrintJobLifecycle.kt) and driven by the
+# print service. A job is never retried by itself: a reprint is a new job with reprintOf and a reason.
+# Persistence of jobs waits for the cell (KA-077); the policy decision point for WP-0.4 (until then
+# policyAvailable is false in production and every print is refused).
+#
+# Owner and approvers: §8.4 lists no print-job machine; the CSO as approver is this build's proposal [P]
+# (open question OQ-247). The readings the predicates encode are decisions for the CSO (DN-068 to DN-074);
+# the defaults below are the stricter readings.
+machine: print-job
+version: 1
+owner: platform-docs
+approval: {status: requested, required: [cso], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [requested, refused, rendered, dispatched, completed, failed, outcome-unknown]
+terminal: [refused, completed, failed, outcome-unknown]
+predicates:   # each implemented once in the platform-docs domain or application layer and unit-tested
+  policyAvailable: "a policy decision point answered for this print (WP-0.4); otherwise the job is refused (fail closed)"
+  policyAllows: "the policy decision is Allowed, and every obligation (redaction of labelled text) can be honoured"
+  contentRulesPass: "rules R1 to R10 of spec §3.2 hold: two identifiers, both name forms with a confirmed Latin form, identifier characters, date-of-birth precision and marker, renderable text, Western digits, labelled text redacted"
+  copiesAllowed: "the copies fit the kind: exactly 1 for a wristband, 1 to 10 otherwise (spec §8.6, DN-071)"
+  reprintReasonPresent: "the job is not a reprint, or it carries reprintOf and a reason; a second wristband for an issued patient and encounter counts as a reprint (spec §8.6)"
+  firstBandNotPending: "the job is not a wristband, or its verification key is verified or has no band waiting; an unknown state counts as pending (spec §6.3, DN-072)"
+  templateValid: "the template exists, passes TemplateLint and suits the content's kind"
+  mediaMatches: "the printer's loaded media equals the template's media within 1.0 mm (width; length for fixed kinds) and the template's width in dots fits the print head; unknown media or print head is a refusal; always true for a PDF"
+  layoutFits: "every identity element fits at or above its effective minimum size without truncation (spec §5.3)"
+  rendered: "the writer (or the renderer satellite for PDF) produced the output and its SHA-256"
+  auditWritten: "the audit record for this outcome was written before any output is returned (spec §8.3)"
+  auditFailed: "the audit record could not be written"
+  halSent: "the HAL reported ok with status sent"
+  halCompleted: "the HAL reported ok with status completed"
+  halErrorKnownOutcome: "the HAL reported an error whose outcomeUnknown is false"
+  halErrorOutcomeUnknown: "the HAL reported an error whose outcomeUnknown is true (a timeout or device error on a print call)"
+  renderError: "the writer or the renderer failed after the job passed every check"
+  cancelledByReprint: "a reprint's ~JA was sent to this job's printer while this job was rendered or dispatched"
+transitions:
+  # Every check comes before any output; a failed check is a refusal, audited and evented, never a partial print.
+  - {from: requested, on: Print, guard: [policyAvailable, policyAllows, contentRulesPass, copiesAllowed, reprintReasonPresent, firstBandNotPending, templateValid, mediaMatches, layoutFits, rendered, auditWritten], to: rendered}
+  - {from: requested, on: Print, guard: [auditFailed], to: refused}
+  - {from: requested, on: Refuse, to: refused}   # any guard of the first transition false; the reason is the first failing check
+  - {from: requested, on: RenderFailed, guard: [renderError], to: failed}
+  # The HAL's answer arrives through ReportPrintOutcome (spec §12).
+  - {from: rendered, on: ReportOutcome, guard: [halSent], to: dispatched}
+  - {from: [rendered, dispatched], on: ReportOutcome, guard: [halCompleted], to: completed}
+  - {from: [rendered, dispatched], on: ReportOutcome, guard: [halErrorKnownOutcome], to: failed}
+  # Outcome unknown: the job may have printed. Nothing repeats it; the user checks the printer and may ask
+  # for a reprint, which starts with ~JA (spec §8.6).
+  - {from: [rendered, dispatched], on: ReportOutcome, guard: [halErrorOutcomeUnknown], to: outcome-unknown}
+  # A reprint's ~JA cancels every format queued on the printer: other open jobs there may or may not print.
+  - {from: [rendered, dispatched], on: CancelledByReprint, guard: [cancelledByReprint], to: outcome-unknown}
+  # A late HAL report for an outcome-unknown job is audited as a late outcome; the state does not change.
+  - {from: outcome-unknown, on: ReportOutcome, to: outcome-unknown}
+# Every transition is this build's proposal: the plan names no print-job machine (OQ-247).
+proposed:
+  - "requested→rendered"
+  - "requested→refused"
+  - "requested→failed"
+  - "rendered→dispatched"
+  - "rendered→completed"
+  - "rendered→failed"
+  - "rendered→outcome-unknown"
+  - "dispatched→completed"
+  - "dispatched→failed"
+  - "dispatched→outcome-unknown"
+  - "outcome-unknown→outcome-unknown"
+invariants: [SI-01, SI-20, SI-21]
+events: [PrintJobRequested, PrintJobRefused, PrintJobCompleted, PrintJobFailed, PrintJobOutcomeUnknown]
+  # payloads carry identifiers and the template id, version and hash, never a patient reference or label text (SI-20)

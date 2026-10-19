@@ -442,3 +442,109 @@ Choices the build made where the plan of record sets no value. They bind until a
 - **Sources:** §10.1 gives the hazard record "linked features, invariants, incidents and releases"; neither §3.5 nor §10.1 says whether adding such a link is a change that a risk acceptance must cover again.
 - **Who confirms:** the CSO [HUMAN]: should a hazard's risk acceptance survive linking a release or an incident to it? No hazard is accepted yet and no entry links a release or an incident.
 - **Status:** open
+
+## (g) WP-0.8 documents and printing: engineering choices, content requests and readings awaiting confirmation
+
+Recorded by WP-0.8 on `wp/0.8-documents-printing` (`docs/specs/modules/platform-docs.md`). Readings of safety invariants are decision entries (DN-068 to DN-074), not open questions.
+
+### OQ-230: Print templates are YAML content under `content/print-templates/`
+- **Choice:** one YAML file per template with a closed binding set, millimetre geometry on the reading frame, captions in `en`, `ckb` and `ar`, `provenance` and a version; the template linter runs at load and in the fast tier (`docs/specs/modules/platform-docs.md` §4). No free text, expressions or scripts in a template.
+- **Sources:** §6.6 (print templates are extension tier 1: typed, validated, versioned, tested), §19.4; WP-0.8.
+- **Status:** open
+
+### OQ-231: One layout engine for labels, receipts and tokens; CSS paged media for documents
+- **Choice:** `platform-docs` lays out labels, wristbands, receipts and tokens itself with HarfBuzz through the JDK's text layout and draws one layout through the ZPL, ESC/POS and HTML writers; documents are HTML with CSS paged media paginated by the satellite, with the banner measured by the module (spec §2, §5, §7.4; ADR-038).
+- **Sources:** §7 item 11 ("from one source"), §12.4, §4.1.
+- **Status:** open
+
+### OQ-232: Print fonts are the Noto project's static TrueType files, not the design system's woff2 subsets
+- **Choice:** Noto Sans and Noto Sans Arabic, regular and bold, the families the design system chose (OQ-148, OQ-156 on `wp/0.7-design-system`), as complete static TrueType files from the Noto project (`notofonts/notofonts.github.io`), pinned by SHA-256 in `fonts.json`. Zebra `^PA` needs a downloaded TrueType or OpenType font, the JVM reads TrueType, and the Fontsource subsets split the Western digits from the Arabic letters.
+- **Sources:** §4.1 "Fonts" [P]; §11.1; spec §9.
+- **Status:** open
+
+### OQ-233: Barcode payload format
+- **Choice [P]:** printable ASCII, versioned, `|`-separated, no FNC1 or GS: wristband DataMatrix `HMS1|M:<MRN>|E:<encounter>|B:<band serial>`; specimen Code 128 with the specimen ID alone (default) or DataMatrix `HMS1|S:<specimen id>|M:<MRN>`. Every field is limited to `A-Z a-z 0-9 -`. A GS1 option (GSRN) waits for a customer that adopts GS1.
+- **Sources:** §12.8; R16 §9.1, §9.3; spec §6.1.
+- **Status:** open
+
+### OQ-234: PDF/A-2b, validated by veraPDF
+- **Choice:** documents are PDF/A-2b (ISO 19005-2 level B) with embedded fonts and an sRGB output intent, validated by veraPDF (its MPL-2.0 option, a build-only tool) in the golden step. PDF/A-2u is not used: in the renderer spike, text extracted from WeasyPrint's Sorani PDFs was garbled because its ToUnicode maps leave the decomposed mark glyphs unmapped (KA-079).
+- **Sources:** §4.1, §12.4; spec §7.5.
+- **Status:** open
+
+### OQ-235: Golden images are kept per renderer identity and approved by people
+- **Choice:** JVM goldens are keyed by the JDK vendor and version, the font hashes and the rasteriser version; PDF goldens by the renderer's library versions and the font hashes. A run with no approved set for its identity fails closed and writes candidates. A set approved by the build agent is regression evidence only until a Sorani and Arabic reader signs it (KA-080).
+- **Sources:** §18.9 "Printing"; §3.4 item 10; spec §10.
+- **Status:** open
+
+### OQ-236: The facility's default label language is English
+- **Choice [P]:** `docs.labels.default-language` = `en`. The label language chooses captions only; names always print in the patient's own form and Latin.
+- **Sources:** §11.1 (clinical content in English; patient outputs in the patient's language); spec §3.3.
+- **Who confirms:** the nursing and laboratory leads [HUMAN].
+- **Status:** open
+
+### OQ-237: Print captions live in the templates until the catalogues are shared with the backend
+- **Choice:** the label captions and print message keys are kept in each template's `captions` map and in the module; their `ckb` and `ar` text is drafted by the agent and unreviewed (the WP-0.7 rule). They move to `frontend/packages/i18n` catalogues when the backend can read them.
+- **Sources:** §6.5, §11.1, §14.7; spec §14.
+- **Status:** open
+
+### OQ-238: The hospital's print templates and the alert band are content requests
+- **Choice:** the WP-0.8 templates are synthetic samples. Content request: the hospital's wristband (adult, child, newborn), specimen label, receipt and document layouts, and whether wristbands carry an allergy or alert colour band (R16 §9.1); the `alerts` slot stays reserved until then.
+- **Sources:** §3.3; §3.4 item 3; §19.4; R16 §9.1.
+- **Who confirms:** the CSO with the nursing, laboratory and finance leads [HUMAN].
+- **Status:** open
+
+### OQ-239: The patient photo on prints
+- **Choice:** documents print "No photo" in the banner's photo place; no photo is printed yet. Printing the registration photo on documents (and its size, colour and privacy) is decided with the privacy lead.
+- **Sources:** §2.1 SI-16 (photo in the banner); spec §3.1.
+- **Status:** open
+
+### OQ-240: The specimen label's barcode is the LIS's decision
+- **Choice:** default Code 128 with the specimen ID alone, the form analyser tube readers commonly read; DataMatrix as the template option; the human-readable specimen ID always beside the barcode. WP-1.7 confirms against the analysers it connects.
+- **Sources:** §9.8; R16 §9.1; spec §6.1.
+- **Status:** open
+
+### OQ-241: The printer profile's source and the destination printer
+- **Choice:** the printer profile (model, serial, firmware, resolution, loaded media, resident font hashes, S7-K status) comes from a printer registry and `hal.capabilities` (later work); the destination printer is the one the workstation's profile binds to its location, and choosing another is an explicit user step.
+- **Sources:** §12.8 (the HAL contract); spec §8.6, §12.
+- **Status:** open
+
+### OQ-242: ESC/POS widths are printer-profile values
+- **Choice:** 576 dots for 80 mm paper at 8 dots/mm, 512 for 180 dpi printers, 384 for 58 mm; from the printer profile, never hard-coded.
+- **Sources:** R16 §9.2; spec §7.3.
+- **Status:** open
+
+### OQ-243: Legibility minimums for identity text
+- **Choice [P]:** Arabic-script identity text at least 8 pt at 8 dots/mm and 7 pt at 12 dots/mm or more; Latin 6 pt. S7-K tests them with the dot-differentiated letters ب ت ث ن ی پ; the CSO confirms (DN-069).
+- **Sources:** §18.9; spec §5.4.
+- **Status:** open
+
+### OQ-244: The worst-case identity corpus for the template fit check
+- **Choice [P]:** a synthetic corpus per script of the longest identity text registration allows (four-part names, "Baby of" with a four-part mother's name, sex and twin marker, alias names, the longest MRN and encounter forms). Every patient template must fit it at its minimum sizes in the fast tier. The registration field limits are WP-1.2's; until then the corpus is this build's proposal.
+- **Sources:** §12.8; §18.9 "Names"; spec §4.3.
+- **Status:** open
+
+### OQ-245: The S7-K kit judges WeasyPrint against absolute criteria
+- **Choice:** S7-K is planned to decide between the two §4.1 renderer candidates, but WP-0.8 builds only WeasyPrint. The kit judges WeasyPrint's PDFs and the module's ZPL and ESC/POS outputs against absolute pass criteria on the target printers; a comparison with headless Chromium needs a second renderer (KA-087).
+- **Sources:** §4.1; §21 WP-0.8; spec §7.5, §11.
+- **Status:** open
+
+### OQ-246: Verification scans use HID-POS or the HAL's normalisation
+- **Choice:** a keyboard-wedge scanner under an Arabic or Sorani keyboard layout remaps keystrokes, so first-band verification scans use HID-POS mode or the shell's normalised `hal.scan.onBarcode` data.
+- **Sources:** R16 §9.3; spec §6.1.
+- **Status:** open
+
+### OQ-247: Events, audit and lifecycle of a print job
+- **Choice:** the print job's lifecycle is the executable machine `docs/specs/state-machines/print-job.yaml` (approval requested from the CSO); its events carry identifiers and the template version and hash, never a patient reference or label text; the audit record (event type `print`) is written before output is returned. §8.4 lists no print-job machine; the approver is this build's proposal [P].
+- **Sources:** §6.3; §12.8 (`PrintJobCompleted / Failed` with template version); spec §8.
+- **Status:** open
+
+### OQ-248: The JVM golden images are approved on the Windows host
+- **Choice:** the JVM raster goldens leave the operating system out of their identity because the JDK is pinned on every host. They are first approved on the Windows host; if the WSL run of record draws a different image, the fast tier fails there and shows the difference (KA-086).
+- **Sources:** §3.5 (name where a result comes from); spec §10.
+- **Status:** open
+
+### OQ-249: Registration stores names in Unicode NFC
+- **Choice:** prints refuse text that is not in NFC rather than normalise it (print as stored, spec §3.2 R7), so the identity service (WP-1.2) must store every name form in NFC at entry, or a patient's name will not print.
+- **Sources:** §11.1; spec §2, §3.2.
+- **Status:** open
