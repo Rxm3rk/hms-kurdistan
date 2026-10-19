@@ -4145,3 +4145,455 @@ hazards:
     cso_triage: {by: null, date: null}
     incidents: []
     releases: []
+
+  # ---------------------------------------------------------------------------------------------
+  # HAZ-0045 to HAZ-0049: documents and printing (WP-0.8, docs/specs/modules/platform-docs.md §13).
+  - id: HAZ-0045
+    title: Identity text on a print is truncated, clipped, mis-shaped, illegible, reordered or printed off the media
+    description: >-
+      A wristband, specimen label, receipt or document prints the patient's name, MRN or date of birth
+      cut short, clipped by its box or the media edge, with wrong or missing Sorani or Arabic letter
+      forms, with dots or marks lost at a small size, with digits or Latin identifiers reordered by
+      bidirectional layout, or with Eastern digits, so a reader cannot check the patient against the
+      print or reads another patient's identity.
+    seeded_hazard: H1
+    invariants: [SI-01]
+    modules: [platform-docs]
+    features: [PLT-UX-02, PLT-UX-03, INT-DOC-01]
+    causes:
+      - A long four-part, newborn ("Baby of …"), twin or alias name that does not fit the template's box
+      - A line height or box check that ignores the Arabic font's ascent and descent, so marks overlap or leave the box
+      - A missing glyph or a font fallback that prints a box or another letter
+      - A printer whose firmware or resident font shapes differently, so a ZPL field block overprints its last line
+      - A printer that cannot decompose and attach marks (ccmp, GPOS), so ڕ/ر, ڵ/ل or ێ/ی print alike
+      - Text too small for the printer's resolution, so dot-differentiated letters (ب ت ث ن ی پ) merge
+      - Bidi control characters or a digit-only identifier in a right-to-left field reorder the printed text
+      - Loaded label stock or calibration that differs from the template's media
+      - A hospital template that fits the samples but not the longest names registration allows
+    effects: The patient cannot be identified from the print, or is identified as someone else; wrong-patient care, specimens or documents follow
+    initial_risk:
+      severity: catastrophic
+      likelihood: occasional
+      level: very-high
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance; judged before the controls below for
+        trilingual prints on thermal printers of mixed models and firmware.
+    controls:
+      - id: CTRL-0045-1
+        type: design
+        risk_control_option: design
+        description: >-
+          Identity text is never truncated: the fit rule shrinks it to the larger of the template's minimum
+          and the legibility minimum and wraps it onto the template's maximum lines, measuring with the
+          font's own ascent, descent and line gap; if it still does not fit, the print is refused with a
+          message naming the next step.
+        sources: ["§2.1 SI-01", "§12.8 (newborn names never truncated)", "§18.9 (Names)", "spec §3.2 R6, §5.3"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:fit-never-truncates"
+          - "PropertyTest:fit-never-truncates"
+      - id: CTRL-0045-2
+        type: design
+        risk_control_option: design
+        description: >-
+          Text that cannot be printed faithfully is refused: control and format characters (bidi controls
+          included), unpaired surrogates, text not in NFC, characters without a glyph, missing glyphs after
+          shaping, and Eastern digits in identifiers. Identifiers and dates are laid out left to right.
+        sources: ["§2.1 SI-01", "§11.1 (digits)", "spec §3.2 R7, R8, §4.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:print-refuses-unrenderable-text"
+          - "UnitTest:print-refuses-eastern-digits"
+      - id: CTRL-0045-3
+        type: test
+        risk_control_option: protective
+        description: >-
+          The print fonts cover every Sorani letter and its joining forms, with marks attached, and every
+          patient template fits a governed worst-case identity corpus at its minimum sizes, in the fast tier.
+        sources: ["§4.1 (Fonts)", "§11.1", "§18.9 (Script)", "spec §4.3, §9"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:font-coverage-sorani"
+          - "TemplateFitCheck:worst-case-identity-corpus"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the worst-case corpus check and the legibility minimums are this
+          build's proposals (DN-069, OQ-243, OQ-244); they add checks and replace no clause.
+      - id: CTRL-0045-4
+        type: design
+        risk_control_option: design
+        description: >-
+          Identity text goes to a printer in ZPL text mode only when S7-K passed that model and firmware with
+          the pinned resident fonts; every other printer receives text the module shaped and rasterised
+          itself (^GF), and a print whose loaded media differs from the template's is refused.
+        sources: ["§4.1 (Label and token printing)", "§12.8", "R16 §9.1", "spec §7.1, §7.2"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:identity-text-rasterised-unless-s7k-verified"
+          - "UnitTest:print-refuses-media-mismatch"
+        notes: >-
+          Tightening [P] (§3.4 item 1): §4.1 allows ^PA text mode on firmware V60.14/V50.14 or later; using it
+          for identity text only after S7-K is this build's proposal (DN-074).
+      - id: CTRL-0045-5
+        type: test
+        risk_control_option: protective
+        description: >-
+          Golden images of the outputs the module rasterises (ZPL ^GF, ESC/POS, PDF pages) and byte fixtures
+          of ZPL text mode, for trilingual wristbands, specimen labels and receipts with long, newborn, twin
+          and alias names; S7-K checks the printed result on each printer model on the Supported Hardware List.
+        sources: ["§12.8 (acceptance)", "§18.9 (Printing)", "§21 WP-0.8", "spec §10, §11"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "GoldenImage:wristband-*"
+          - "GoldenImage:specimen-label-*"
+          - "GoldenImage:receipt-*"
+          - "ByteFixture:zpl-text-*"
+          - "S7K:printer-matrix [HUMAN: printers]"
+      - id: CTRL-0045-6
+        type: test
+        risk_control_option: protective
+        description: >-
+          Property-based tests on SI-01 identity on prints: the content rules, the fit rule and the writers (every printed identity text either appears whole in the output or the print is refused): short runs in the fast tier; nightly 10⁶ randomised command
+          sequences at the application-command layer plus at least 10⁴ through each real channel adapter,
+          with zero violations as a hard gate (§18.3, §19.1).
+        sources: ["§2.1 (preamble)", "§18.3", "§19.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "PropertyTest:SI-01-print-identity-never-truncated-or-unrenderable"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-docs-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
+
+  - id: HAZ-0046
+    title: A label's printer commands or barcode do not match its printed content or patient
+    description: >-
+      The printer executes commands carried in label content, or the barcode on a wristband or specimen
+      label encodes something other than the identifiers printed beside it, or a printer draws a
+      different symbol than intended, so a scan identifies another patient or specimen.
+    seeded_hazard: H1
+    invariants: [SI-01]
+    modules: [platform-docs]
+    features: [PLT-UX-02, INT-DOC-01]
+    causes:
+      - A name or identifier containing ^, ~ or \ ends a ZPL field or starts a command
+      - A barcode payload built from a different input than the printed text
+      - A payload field holding a separator or the printer's barcode escape character
+      - A template or printer change that alters the printed symbol without anyone scanning it
+    effects: A scan matches the wrong patient or specimen; a printer prints commands injected through content
+    initial_risk:
+      severity: catastrophic
+      likelihood: remote
+      level: high
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance; judged before the controls below.
+    controls:
+      - id: CTRL-0046-1
+        type: design
+        risk_control_option: design
+        description: >-
+          Every ^, ~ and \ in ZPL field data is written as a ^FH hex escape and \ never reaches a field block;
+          identifiers use only A-Z, a-z, 0-9 and '-'; the DataMatrix escape character is set explicitly
+          outside that alphabet.
+        sources: ["§12.8", "spec §3.2 R4, R7, §6.1, §7.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "PropertyTest:zpl-field-data-cannot-inject"
+      - id: CTRL-0046-2
+        type: design
+        risk_control_option: design
+        description: >-
+          The barcode payload is built from the same content object as the printed text; the drawn symbol is
+          decoded back in the fast tier, and every symbol on the rasterised PDF pages is decoded with an
+          independent decoder in the golden step.
+        sources: ["§12.8", "R16 §9.1", "spec §3.2 R9, §6.2"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:barcode-round-trip"
+          - "GoldenImage:barcode-decodes-*"
+      - id: CTRL-0046-3
+        type: design
+        risk_control_option: protective
+        description: >-
+          The first wristband after any template or printer change is scan-verified (exact payload match and
+          the user's visual confirmation); until then further wristbands on that template and printer are
+          refused, and an unknown state counts as unverified.
+        sources: ["§12.8 (first band after a change is scan-verified)", "R16 §9.1", "spec §6.3"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:first-band-scan-verification"
+          - "UnitTest:first-band-blocks-until-verified"
+        notes: >-
+          Tightening [P] (§3.4 item 1): blocking further bands, the trigger list and the visual confirmation
+          are this build's proposals (DN-072).
+      - id: CTRL-0046-4
+        type: test
+        risk_control_option: protective
+        description: >-
+          Property-based tests on SI-01 barcode and command integrity: the payload equals the printed identifiers and no content escapes a printer field: short runs in the fast tier; nightly 10⁶ randomised command
+          sequences at the application-command layer plus at least 10⁴ through each real channel adapter,
+          with zero violations as a hard gate (§18.3, §19.1).
+        sources: ["§2.1 (preamble)", "§18.3", "§19.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "PropertyTest:SI-01-print-barcode-matches-content"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-docs-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
+
+  - id: HAZ-0047
+    title: Print data is sent off site or to an online service
+    description: >-
+      Label, wristband, receipt or document content leaves the hospital's cell: to an online label
+      renderer or font service, through a resource the renderer fetches, through a raw-print tool aimed at
+      a remote address, or through events, logs or telemetry.
+    seeded_hazard: H13
+    invariants: [SI-20]
+    modules: [platform-docs]
+    features: [INT-DOC-01, PLT-UX-02]
+    causes:
+      - A developer or tool sends ZPL to an online preview service
+      - HTML that references a remote font, image or style sheet
+      - A raw-print sender pointed at a public address
+      - Events, logs or renderer warnings that carry names or label text
+    effects: PHI disclosed outside the residency boundary (SI-20)
+    initial_risk:
+      severity: major
+      likelihood: occasional
+      level: high
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance; judged before the controls below.
+    controls:
+      - id: CTRL-0047-1
+        type: design
+        risk_control_option: design
+        description: >-
+          The renderer resolves only its own pinned fonts and data: URLs, refuses every other resource, opens
+          no socket and uses a hermetic font configuration; the HTML writer emits no external URL, script or
+          style sheet, checked by a linter.
+        sources: ["§3.7", "§2.1 SI-20", "spec §7.4, §7.5"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:renderer-refuses-remote-resources"
+          - "UnitTest:renderer-opens-no-socket"
+          - "UnitTest:html-has-no-external-urls"
+      - id: CTRL-0047-2
+        type: design
+        risk_control_option: design
+        description: >-
+          Print-job events carry identifiers and the template version only, never a patient reference, a name,
+          label text or a barcode payload; the S7-K sender refuses any address that is not loopback or private.
+        sources: ["§2.1 SI-20", "§3.7", "spec §8.2, §11"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:print-events-carry-no-phi"
+          - "UnitTest:s7k-sender-refuses-public-addresses"
+      - id: CTRL-0047-3
+        type: test
+        risk_control_option: protective
+        description: >-
+          Property-based tests on SI-20 on prints: no print path emits an external resource reference or PHI in events: short runs in the fast tier; nightly 10⁶ randomised command
+          sequences at the application-command layer plus at least 10⁴ through each real channel adapter,
+          with zero violations as a hard gate (§18.3, §19.1).
+        sources: ["§2.1 (preamble)", "§18.3", "§19.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "PropertyTest:SI-20-print-no-egress"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-docs-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
+
+  - id: HAZ-0048
+    title: A print is not audited or watermarked, or discloses sensitivity-labelled content
+    description: >-
+      A print leaves no audit record or watermark, so an unlawful disclosure cannot be traced, or a
+      specimen label, receipt or document prints sensitivity-labelled content (for example an HIV test name)
+      that the policy should have redacted.
+    seeded_hazard: H14
+    invariants: [SI-21]
+    modules: [platform-docs, trust-policy, trust-audit]
+    features: [TRU-PRV-01, TRU-AUD-01, INT-DOC-01]
+    causes:
+      - An output returned before its audit record is written, or an audit failure ignored
+      - A print path without the policy enforcement point
+      - Labelled test names or receipt lines printed in clear
+      - A watermark missing from a template
+    effects: Untraceable or unlawful disclosure of restricted information
+    initial_risk:
+      severity: major
+      likelihood: occasional
+      level: high
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance; judged before the controls below.
+    controls:
+      - id: CTRL-0048-1
+        type: design
+        risk_control_option: design
+        description: >-
+          Every print outcome is audited as event type print before any output is returned; if the audit
+          write fails, the print is refused.
+        sources: ["§6.3", "§13.1 AU-1", "spec §8.3"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:every-print-outcome-audited"
+          - "UnitTest:print-refused-when-audit-fails"
+      - id: CTRL-0048-2
+        type: design
+        risk_control_option: design
+        description: >-
+          Every print passes the policy enforcement point first and is refused when none is reachable;
+          labelled text prints its redacted form when the decision asks for it, and the print is refused when
+          no redacted form exists.
+        sources: ["§2.1 SI-21", "§13.1 AZ-1, AZ-3", "spec §3.2 R10, §8.4"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:print-refused-without-policy"
+          - "UnitTest:labelled-text-redacted-on-print"
+      - id: CTRL-0048-3
+        type: design
+        risk_control_option: information
+        description: >-
+          Patient prints carry the DP-8 watermark (user, time, patient on documents and receipts; a minimal
+          mark on wristbands and labels), and the template linter refuses a patient template without it.
+        sources: ["§13.1 DP-8", "spec §4.3 rule 5, §8.5"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:watermark-on-every-patient-print"
+        notes: >-
+          Tightening [P] (§3.4 item 1): the minimal mark on wristbands and labels is this build's reading of
+          DP-8 (DN-070).
+      - id: CTRL-0048-4
+        type: test
+        risk_control_option: protective
+        description: >-
+          Property-based tests on SI-21 on prints: every print outcome is audited and labelled text is redacted when the policy decision asks for it: short runs in the fast tier; nightly 10⁶ randomised command
+          sequences at the application-command layer plus at least 10⁴ through each real channel adapter,
+          with zero violations as a hard gate (§18.3, §19.1).
+        sources: ["§2.1 (preamble)", "§18.3", "§19.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "PropertyTest:SI-21-print-audited-and-redacted"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-docs-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
+
+  - id: HAZ-0049
+    title: A duplicate, stale or misdirected wristband or label
+    description: >-
+      More than one wristband exists for a patient and encounter, a superseded band stays on the patient
+      after a merge or identity correction, a job thought lost prints later beside another patient's band,
+      or a label prints on a printer in another area.
+    seeded_hazard: H1
+    invariants: [SI-01]
+    modules: [platform-docs]
+    features: [PLT-UX-02, TRU-BCP-02]
+    causes:
+      - Spare copies of a wristband
+      - A reprint without a reason, or a second band request that is not treated as a reprint
+      - An automatic retry after an unknown outcome while the first job is still queued in the printer
+      - A merge, identity correction or encounter change that leaves the old band in use
+      - A print sent to the wrong printer
+    effects: A band from another patient or another identity is scanned and trusted
+    initial_risk:
+      severity: catastrophic
+      likelihood: remote
+      level: high
+      basis: >-
+        Agent proposal for CSO triage, not an acceptance; judged before the controls below.
+    controls:
+      - id: CTRL-0049-1
+        type: design
+        risk_control_option: design
+        description: >-
+          A wristband prints one copy at a time; every reprint of a patient print needs a reason; a second
+          wristband for the same patient and encounter counts as a reprint; nothing is retried automatically,
+          and a reprint after an unknown outcome cancels formats still queued in the printer.
+        sources: ["§12.8", "the HAL contract (outcome unknown)", "spec §8.1, §8.6"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:wristband-single-copy"
+          - "UnitTest:reprint-requires-reason"
+          - "UnitTest:second-band-is-a-reprint"
+          - "UnitTest:no-automatic-reprint"
+          - "ByteFixture:zpl-reprint-*"
+        notes: >-
+          Tightening [P] (§3.4 item 1): single wristband copies, a reason on every reprint and the second-band
+          rule are this build's proposals (DN-071).
+      - id: CTRL-0049-2
+        type: design
+        risk_control_option: protective
+        description: >-
+          The wristband barcode carries a band serial so that a scan can reject a superseded band, and a merge,
+          identity correction or encounter change raises a "replace wristband" task.
+        sources: ["§2.1 SI-08", "§12.8", "spec §6.1, §8.6"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "UnitTest:wristband-payload-carries-band-serial"
+          - "ScenarioSuite:identity (superseded band rejected at scan)"
+      - id: CTRL-0049-3
+        type: test
+        risk_control_option: protective
+        description: >-
+          Property-based tests on SI-01 duplicate bands: no command sequence yields two issued wristbands for one patient and encounter without a reprint reason, or an automatic retry: short runs in the fast tier; nightly 10⁶ randomised command
+          sequences at the application-command layer plus at least 10⁴ through each real channel adapter,
+          with zero violations as a hard gate (§18.3, §19.1).
+        sources: ["§2.1 (preamble)", "§18.3", "§19.1"]
+        state: planned
+        implemented_in: []
+        verified_by: []
+        planned_verification:
+          - "PropertyTest:SI-01-print-no-duplicate-wristband"
+    residual_risk: {proposed: null, accepted_by: null}
+    status: open
+    owner: platform-docs-squad
+    cso_triage: {by: null, date: null}
+    incidents: []
+    releases: []
