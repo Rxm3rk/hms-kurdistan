@@ -1,0 +1,41 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.document.not-permitted",
+  "provenance": "synthetic",
+  "description": "The workstation profile or the user's role does not grant this capability (§13.5).",
+  "contractVersion": 1,
+  "call": "hal.print.document",
+  "request": {
+    "printerId": "SIM-DOC-01",
+    "mediaType": "application/pdf",
+    "content": "JVBERi0xLjcKJSBTWU5USEVUSUMgLSBOT1QgRk9SIENMSU5JQ0FMIFVTRQo=",
+    "contentEncoding": "base64",
+    "templateId": "SYN-DOCUMENT-A4",
+    "templateVersion": "1",
+    "copies": 1,
+    "duplex": false
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "not-permitted",
+      "reason": "capability-not-granted",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.notPermitted"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000012"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000012",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.document",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "not-permitted",
+    "errorReason": "capability-not-granted",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

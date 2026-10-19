@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.id.read.unavailable.no-shell",
+  "provenance": "synthetic",
+  "description": "No shell is present (plain browser): hal-client's transport-none refuses hal.id.read with no-shell, as it refuses every call, and writes its own audit record. With a shell, the call returns not-implemented until WP-1.2.",
+  "contractVersion": 1,
+  "call": "hal.id.read",
+  "request": {
+    "type": "passport-mrz",
+    "deviceId": "SIM-IDREADER-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "unavailable",
+      "reason": "no-shell",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.unavailable"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000002b"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000002b",
+    "writtenBy": "hal-client",
+    "contractVersion": 1,
+    "call": "hal.id.read",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "unavailable",
+    "errorReason": "no-shell",
+    "workstationId": null,
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

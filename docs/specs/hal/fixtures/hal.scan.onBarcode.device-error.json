@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.scan.onBarcode.device-error",
+  "provenance": "synthetic",
+  "description": "The device reports a fault.",
+  "contractVersion": 1,
+  "call": "hal.scan.onBarcode",
+  "request": {
+    "deviceId": "SIM-SCANNER-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "device-error",
+      "reason": "device-offline",
+      "retryable": true,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.deviceError"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000001b"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000001b",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.scan.onBarcode",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "device-error",
+    "errorReason": "device-offline",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-SCANNER-01"
+  }
+}

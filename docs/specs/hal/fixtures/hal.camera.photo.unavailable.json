@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.camera.photo.unavailable",
+  "provenance": "synthetic",
+  "description": "No shell is present (plain browser): hal-client refuses the call and writes its own audit record.",
+  "contractVersion": 1,
+  "call": "hal.camera.photo",
+  "request": {
+    "purpose": "patient-photo",
+    "deviceId": "SIM-CAMERA-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "unavailable",
+      "reason": "no-shell",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.unavailable"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000045"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000045",
+    "writtenBy": "hal-client",
+    "contractVersion": 1,
+    "call": "hal.camera.photo",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "unavailable",
+    "errorReason": "no-shell",
+    "workstationId": null,
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

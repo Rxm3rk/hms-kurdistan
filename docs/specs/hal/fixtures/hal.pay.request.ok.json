@@ -1,0 +1,37 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.pay.request.ok",
+  "provenance": "synthetic",
+  "description": "Shape for WP-1.9 only: an approved card payment from a future terminal simulator, with no card data. Until the WP-1.9 simulator exists the shell returns the unavailable fixture (not-implemented) for every hal.pay.request call.",
+  "contractVersion": 1,
+  "call": "hal.pay.request",
+  "request": {
+    "terminalId": "SIM-TERMINAL-01",
+    "amount": "25000",
+    "currency": "IQD",
+    "reference": "SYN-PAYREF-0001"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "outcome": "approved",
+      "amount": "25000",
+      "currency": "IQD",
+      "terminalId": "SIM-TERMINAL-01",
+      "terminalTransactionId": "SIM-TXN-000001",
+      "batchId": "SIM-BATCH-0001"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000003b"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000003b",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.pay.request",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-TERMINAL-01"
+  }
+}

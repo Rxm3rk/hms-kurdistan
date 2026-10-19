@@ -1,0 +1,42 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.document.timeout",
+  "provenance": "synthetic",
+  "description": "The device or the user did not respond within the call's time limit. The device may already have acted, so outcomeUnknown is true and the call is not retryable as it stands.",
+  "contractVersion": 1,
+  "call": "hal.print.document",
+  "request": {
+    "printerId": "SIM-DOC-01",
+    "mediaType": "application/pdf",
+    "content": "JVBERi0xLjcKJSBTWU5USEVUSUMgLSBOT1QgRk9SIENMSU5JQ0FMIFVTRQo=",
+    "contentEncoding": "base64",
+    "templateId": "SYN-DOCUMENT-A4",
+    "templateVersion": "1",
+    "copies": 1,
+    "duplex": false
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "timeout",
+      "reason": "device-timeout",
+      "retryable": false,
+      "outcomeUnknown": true,
+      "messageKey": "hal.error.timeout"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000015"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000015",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.document",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "timeout",
+    "errorReason": "device-timeout",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-DOC-01"
+  }
+}

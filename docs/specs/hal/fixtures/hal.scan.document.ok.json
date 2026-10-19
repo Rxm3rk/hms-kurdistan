@@ -1,0 +1,37 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.scan.document.ok",
+  "provenance": "synthetic",
+  "description": "A simulated document scanner returns a two-page PDF as a shell-held blob.",
+  "contractVersion": 1,
+  "call": "hal.scan.document",
+  "request": {
+    "deviceId": "SIM-DOCSCAN-01",
+    "mediaType": "application/pdf",
+    "resolutionDpi": 300,
+    "colour": "greyscale",
+    "duplex": false
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "mediaType": "application/pdf",
+      "blobRef": "hal-blob:019a3c00-0000-7000-8000-00000000001d",
+      "sha256": "3f1c7c5e0d2b4a6f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f",
+      "byteLength": 48213,
+      "pageCount": 2
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000001c"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000001c",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.scan.document",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-DOCSCAN-01"
+  }
+}

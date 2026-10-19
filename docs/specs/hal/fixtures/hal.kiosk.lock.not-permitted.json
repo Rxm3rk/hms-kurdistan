@@ -1,0 +1,34 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.kiosk.lock.not-permitted",
+  "provenance": "synthetic",
+  "description": "The workstation profile or the user's role does not grant this capability (§13.5).",
+  "contractVersion": 1,
+  "call": "hal.kiosk.lock",
+  "request": {
+    "state": "locked"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "not-permitted",
+      "reason": "capability-not-granted",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.notPermitted"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000004d"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000004d",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.kiosk.lock",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "not-permitted",
+    "errorReason": "capability-not-granted",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

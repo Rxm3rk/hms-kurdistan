@@ -1,0 +1,41 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.label.ok",
+  "provenance": "synthetic",
+  "description": "A simulated label printer accepts a synthetic wristband rendered as ZPL.",
+  "contractVersion": 1,
+  "call": "hal.print.label",
+  "request": {
+    "printerId": "SIM-LABEL-01",
+    "labelType": "wristband",
+    "format": "zpl",
+    "content": "^XA^CI28^FO40,40^A0N,32,32^FDSYN-PATIENT-0001^FS^FO40,90^BXN,6,200^FDSYN-MRN-0000001^FS^XZ",
+    "contentEncoding": "utf-8",
+    "templateId": "SYN-WRISTBAND-ADULT",
+    "templateVersion": "1",
+    "copies": 1
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "jobId": "019a3c00-0000-7000-8000-000000000002",
+      "printerId": "SIM-LABEL-01",
+      "status": "sent"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000001"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000001",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.label",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-LABEL-01",
+    "jobId": "019a3c00-0000-7000-8000-000000000002",
+    "templateId": "SYN-WRISTBAND-ADULT",
+    "templateVersion": "1"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.raw.unavailable",
+  "provenance": "synthetic",
+  "description": "No shell is present (plain browser): hal-client refuses the call and writes its own audit record.",
+  "contractVersion": 1,
+  "call": "hal.print.raw",
+  "request": {
+    "printerId": "SIM-RAW-01",
+    "language": "esc-pos",
+    "content": "G0BTWU4tVE9LRU4tMDQyCh1WAA==",
+    "contentEncoding": "base64"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "unavailable",
+      "reason": "no-shell",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.unavailable"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000000a"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000000a",
+    "writtenBy": "hal-client",
+    "contractVersion": 1,
+    "call": "hal.print.raw",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "unavailable",
+    "errorReason": "no-shell",
+    "workstationId": null,
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

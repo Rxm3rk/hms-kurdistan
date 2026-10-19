@@ -1,0 +1,41 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.document.ok",
+  "provenance": "synthetic",
+  "description": "A simulated document printer accepts a synthetic PDF.",
+  "contractVersion": 1,
+  "call": "hal.print.document",
+  "request": {
+    "printerId": "SIM-DOC-01",
+    "mediaType": "application/pdf",
+    "content": "JVBERi0xLjcKJSBTWU5USEVUSUMgLSBOT1QgRk9SIENMSU5JQ0FMIFVTRQo=",
+    "contentEncoding": "base64",
+    "templateId": "SYN-DOCUMENT-A4",
+    "templateVersion": "1",
+    "copies": 1,
+    "duplex": false
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "jobId": "019a3c00-0000-7000-8000-000000000010",
+      "printerId": "SIM-DOC-01",
+      "status": "sent"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000000f"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000000f",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.document",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-DOC-01",
+    "jobId": "019a3c00-0000-7000-8000-000000000010",
+    "templateId": "SYN-DOCUMENT-A4",
+    "templateVersion": "1"
+  }
+}

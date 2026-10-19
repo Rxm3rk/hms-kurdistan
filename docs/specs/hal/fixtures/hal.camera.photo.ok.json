@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.camera.photo.ok",
+  "provenance": "synthetic",
+  "description": "A simulated camera returns a registration photo as a shell-held blob.",
+  "contractVersion": 1,
+  "call": "hal.camera.photo",
+  "request": {
+    "purpose": "patient-photo",
+    "deviceId": "SIM-CAMERA-01"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "mediaType": "image/jpeg",
+      "blobRef": "hal-blob:019a3c00-0000-7000-8000-000000000044",
+      "sha256": "3f1c7c5e0d2b4a6f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f",
+      "byteLength": 182044,
+      "widthPx": 640,
+      "heightPx": 800
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000043"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000043",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.camera.photo",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-CAMERA-01"
+  }
+}

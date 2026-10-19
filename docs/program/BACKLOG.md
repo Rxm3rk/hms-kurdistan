@@ -14,7 +14,7 @@ Statuses (§3.1): `todo`, `spec`, `in-progress`, `built` (Definition of Done ite
 
 | Phase | Feature IDs | todo | spec | in-progress | built | verified |
 |---|---|---|---|---|---|---|
-| R1 | 110 | 110 | 0 | 0 | 0 | 0 |
+| R1 | 110 | 106 | 4 | 0 | 0 | 0 |
 | R1.1 | 3 | 3 | 0 | 0 | 0 | 0 |
 | R2a | 9 | 9 | 0 | 0 | 0 | 0 |
 | R2b | 25 | 25 | 0 | 0 | 0 | 0 |
@@ -22,14 +22,14 @@ Statuses (§3.1): `todo`, `spec`, `in-progress`, `built` (Definition of Done ite
 | P2 | 48 | 48 | 0 | 0 | 0 | 0 |
 | P3 | 19 | 19 | 0 | 0 | 0 | 0 |
 | DROPPED-K | 14 | 14 | 0 | 0 | 0 | 0 |
-| **All** | **234** | **234** | **0** | **0** | **0** | **0** |
+| **All** | **234** | **230** | **4** | **0** | **0** | **0** |
 
 ### By status
 
 | Status | Feature IDs | Part rows |
 |---|---|---|
-| todo | 234 | 2 |
-| spec | 0 | 0 |
+| todo | 230 | 2 |
+| spec | 4 | 0 |
 | in-progress | 0 | 0 |
 | built | 0 | 0 |
 | verified | 0 | 0 |
@@ -107,9 +107,9 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 | `PLT-CFG-02` | Country packs | M | R1 | B | todo | WP-1.1 | — | — |
 | `PLT-CFG-03` | Forms engine | L | R1 | B | todo | WP-1.1 | — | — |
 | `PLT-CFG-04` | Extension SDK | M | P2 | B | todo | Phase 5 | — | — |
-| `PLT-UX-01` | Design system | M | R1 | B | todo | WP-0.7 | — | HAZ-0016 |
-| `PLT-UX-02` | Workstation shell | M | R1 | B | todo | WP-0.7 | — | HAZ-0001, HAZ-0011, HAZ-0016 |
-| `PLT-UX-03` | i18n / RTL | L | R1 | B | todo | WP-0.7 (base) | — | HAZ-0001, HAZ-0016 |
+| `PLT-UX-01` | Design system | M | R1 | B | spec | WP-0.7 | — | HAZ-0016 |
+| `PLT-UX-02` | Workstation shell | M | R1 | B | spec | WP-0.7 | — | HAZ-0001, HAZ-0011, HAZ-0016 |
+| `PLT-UX-03` | i18n / RTL | L | R1 | B | spec | WP-0.7 (base) | — | HAZ-0001, HAZ-0016 |
 | `PLT-UX-04` | Mobile app framework | L | R2b | B | todo | WP-3.3 | — | HAZ-0002, HAZ-0004, HAZ-0013, HAZ-0015, HAZ-0016 |
 | `PLT-OPS-01` | Cells | XL | R1 | B | todo | WP-1.13 | — | HAZ-0020 |
 | `PLT-OPS-02` | On-prem install | L | R1 | B | todo | WP-1.13 | — | — |
@@ -404,7 +404,7 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 
 | ID | Title | Size | Phase | Stance | Status | Work packages | Tests | Hazards |
 |---|---|---|---|---|---|---|---|---|
-| `KRI-LOC-01` | Trilingual UI/outputs | M | R1 | B† | todo | WP-0.7 (base); WP-1.10 | — | HAZ-0001, HAZ-0016 |
+| `KRI-LOC-01` | Trilingual UI/outputs | M | R1 | B† | spec | WP-0.7 (base); WP-1.10 | — | HAZ-0001, HAZ-0016 |
 | `KRI-LOC-02` | Badini templates | S | R1 | B† | todo | WP-1.10 (framework) | — | — |
 | `KRI-ID-01` | Iraqi identity + cross-script EMPI | L (+12 net) | R1 | B† | todo | WP-1.2 | — | HAZ-0001, HAZ-0008 |
 | `KRI-RCM-01` | Dual-currency cashiering | M | R1 | B† | todo | WP-1.9 | — | — |

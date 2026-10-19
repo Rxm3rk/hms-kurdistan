@@ -1,0 +1,39 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.scan.document.cancelled",
+  "provenance": "synthetic",
+  "description": "The user cancelled at the device.",
+  "contractVersion": 1,
+  "call": "hal.scan.document",
+  "request": {
+    "deviceId": "SIM-DOCSCAN-01",
+    "mediaType": "application/pdf",
+    "resolutionDpi": 300,
+    "colour": "greyscale",
+    "duplex": false
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "cancelled",
+      "reason": "user-cancelled",
+      "retryable": true,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.cancelled"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000023"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000023",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.scan.document",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "cancelled",
+    "errorReason": "user-cancelled",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-DOCSCAN-01"
+  }
+}

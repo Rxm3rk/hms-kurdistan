@@ -1,0 +1,37 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.sign.capture.cancelled",
+  "provenance": "synthetic",
+  "description": "The user cancelled at the device.",
+  "contractVersion": 1,
+  "call": "hal.sign.capture",
+  "request": {
+    "purpose": "consent",
+    "promptKey": "hal.sign.prompt.consent",
+    "deviceId": "SIM-SIGNPAD-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "cancelled",
+      "reason": "user-cancelled",
+      "retryable": true,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.cancelled"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000003a"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000003a",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.sign.capture",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "cancelled",
+    "errorReason": "user-cancelled",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-SIGNPAD-01"
+  }
+}

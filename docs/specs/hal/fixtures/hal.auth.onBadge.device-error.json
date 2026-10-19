@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.auth.onBadge.device-error",
+  "provenance": "synthetic",
+  "description": "The device reports a fault.",
+  "contractVersion": 1,
+  "call": "hal.auth.onBadge",
+  "request": {
+    "deviceId": "SIM-BADGE-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "device-error",
+      "reason": "device-offline",
+      "retryable": true,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.deviceError"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000032"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000032",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.auth.onBadge",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "device-error",
+    "errorReason": "device-offline",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-BADGE-01"
+  }
+}

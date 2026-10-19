@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.id.read.not-permitted",
+  "provenance": "synthetic",
+  "description": "Shape for WP-1.2 only: the workstation profile or the user's role does not grant this capability (§13.5). Until then every hal.id.read call returns unavailable (not-implemented from the shell, no-shell without one).",
+  "contractVersion": 1,
+  "call": "hal.id.read",
+  "request": {
+    "type": "passport-mrz",
+    "deviceId": "SIM-IDREADER-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "not-permitted",
+      "reason": "capability-not-granted",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.notPermitted"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000026"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000026",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.id.read",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "not-permitted",
+    "errorReason": "capability-not-granted",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

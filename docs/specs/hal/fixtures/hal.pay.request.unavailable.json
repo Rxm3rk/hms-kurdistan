@@ -1,0 +1,37 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.pay.request.unavailable",
+  "provenance": "synthetic",
+  "description": "Fail closed: the shell returns unavailable (not-implemented) for every hal.pay.request call until the simulator of WP-1.9 exists (§3.7). With no shell, hal-client's transport-none returns no-shell instead (hal.pay.request.unavailable.no-shell).",
+  "contractVersion": 1,
+  "call": "hal.pay.request",
+  "request": {
+    "terminalId": "SIM-TERMINAL-01",
+    "amount": "25000",
+    "currency": "IQD",
+    "reference": "SYN-PAYREF-0001"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "unavailable",
+      "reason": "not-implemented",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.unavailable"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000003c"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000003c",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.pay.request",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "unavailable",
+    "errorReason": "not-implemented",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

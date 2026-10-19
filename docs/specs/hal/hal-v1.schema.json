@@ -1,0 +1,4162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hms-kurdistan:spec:hal:v1",
+  "title": "HMS Kurdistan hardware abstraction layer (HAL) contract, version 1: one call exchange",
+  "description": "One HAL call as a contract fixture: the request the web app sends, the typed result the Tauri shell returns ({ok, value | error, auditId}), the events of a subscription, and the local audit record the call produced. The request, value, event, error and audit-record definitions under $defs are the contract that frontend/packages/hal-client and the shell's hal-core implement (BUILD-PROMPT.md §12.8, §13.5; docs/specs/hal/README.md). Every object is closed, so no field outside the contract can carry data.",
+  "type": "object",
+  "required": [
+    "fixture",
+    "provenance",
+    "description",
+    "contractVersion",
+    "call",
+    "request",
+    "response",
+    "audit"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "fixture": {
+      "type": "string",
+      "pattern": "^hal\\.[a-z]+(\\.[a-zA-Z]+)?\\.(ok|unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)(\\.(no-shell|not-implemented|no-device|capability-not-granted|step-up-refused|invalid-request|unsupported-format|unknown-device|device-offline|media-out|device-fault|device-timeout|user-timeout|user-cancelled))?$",
+      "description": "The fixture name: <call>.<ok or error kind>, with an optional .<reason> suffix where a call has more than one fixture of a kind; equal to the file name without .json."
+    },
+    "provenance": {
+      "const": "synthetic",
+      "description": "Every fixture is synthetic data, NOT FOR CLINICAL USE (§18.10)."
+    },
+    "description": {
+      "$ref": "#/$defs/text"
+    },
+    "contractVersion": {
+      "const": 1
+    },
+    "call": {
+      "$ref": "#/$defs/callName"
+    },
+    "request": {
+      "type": "object"
+    },
+    "response": {
+      "$ref": "#/$defs/result"
+    },
+    "events": {
+      "type": "array"
+    },
+    "audit": {
+      "$ref": "#/$defs/auditRecord"
+    },
+    "eventAudits": {
+      "type": "array",
+      "description": "The audit record of each subscription event, in the order of events."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.print.label"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.print\\.label\\."
+          },
+          "request": {
+            "$ref": "#/$defs/printLabelRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/printJobValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.print.label"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.print.raw"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.print\\.raw\\."
+          },
+          "request": {
+            "$ref": "#/$defs/printRawRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/printRawValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.print.raw"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.print.document"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.print\\.document\\."
+          },
+          "request": {
+            "$ref": "#/$defs/printDocumentRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/printJobValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.print.document"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.scan.onBarcode"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.scan\\.onBarcode\\."
+          },
+          "request": {
+            "$ref": "#/$defs/subscribeRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/subscriptionValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "device-error"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.scan.onBarcode"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/barcodeEvent"
+            }
+          },
+          "eventAudits": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/auditRecord"
+                }
+              ],
+              "required": [
+                "event"
+              ],
+              "properties": {
+                "call": {
+                  "const": "hal.scan.onBarcode"
+                },
+                "event": {
+                  "const": "barcode-read"
+                }
+              }
+            }
+          }
+        },
+        "dependentRequired": {
+          "events": [
+            "eventAudits"
+          ],
+          "eventAudits": [
+            "events"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.scan.document"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.scan\\.document\\."
+          },
+          "request": {
+            "$ref": "#/$defs/scanDocumentRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/scanDocumentValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.scan.document"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.id.read"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.id\\.read\\."
+          },
+          "request": {
+            "$ref": "#/$defs/idReadRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/idReadValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.id.read"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.auth.onBadge"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.auth\\.onBadge\\."
+          },
+          "request": {
+            "$ref": "#/$defs/subscribeRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/subscriptionValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "device-error"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.auth.onBadge"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/badgeEvent"
+            }
+          },
+          "eventAudits": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/auditRecord"
+                }
+              ],
+              "required": [
+                "event"
+              ],
+              "properties": {
+                "call": {
+                  "const": "hal.auth.onBadge"
+                },
+                "event": {
+                  "const": "badge-tap"
+                }
+              }
+            }
+          }
+        },
+        "dependentRequired": {
+          "events": [
+            "eventAudits"
+          ],
+          "eventAudits": [
+            "events"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.sign.capture"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.sign\\.capture\\."
+          },
+          "request": {
+            "$ref": "#/$defs/signCaptureRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/signCaptureValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.sign.capture"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.pay.request"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.pay\\.request\\."
+          },
+          "request": {
+            "$ref": "#/$defs/payRequestRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/payRequestValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": false
+                          },
+                          "outcomeUnknown": {
+                            "const": true
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.pay.request"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.camera.photo"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.camera\\.photo\\."
+          },
+          "request": {
+            "$ref": "#/$defs/cameraPhotoRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/cameraPhotoValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request",
+                        "device-error",
+                        "timeout",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "device-error"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "if": {
+                        "properties": {
+                          "kind": {
+                            "const": "timeout"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      "then": {
+                        "properties": {
+                          "retryable": {
+                            "const": true
+                          },
+                          "outcomeUnknown": {
+                            "const": false
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.camera.photo"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.kiosk.lock"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.kiosk\\.lock\\."
+          },
+          "request": {
+            "$ref": "#/$defs/kioskLockRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/kioskLockValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable",
+                        "not-permitted",
+                        "invalid-request"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.kiosk.lock"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call": {
+            "const": "hal.capabilities"
+          }
+        },
+        "required": [
+          "call"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fixture": {
+            "pattern": "^hal\\.capabilities\\."
+          },
+          "request": {
+            "$ref": "#/$defs/emptyRequest"
+          },
+          "response": {
+            "if": {
+              "properties": {
+                "ok": {
+                  "const": true
+                }
+              },
+              "required": [
+                "ok"
+              ]
+            },
+            "then": {
+              "properties": {
+                "value": {
+                  "$ref": "#/$defs/capabilitiesValue"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "error": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "unavailable"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "audit": {
+            "properties": {
+              "call": {
+                "const": "hal.capabilities"
+              },
+              "event": {
+                "const": "call"
+              }
+            }
+          }
+        },
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "events"
+              ]
+            },
+            {
+              "required": [
+                "eventAudits"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": true
+              }
+            },
+            "required": [
+              "ok"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "outcome": {
+                "const": "ok"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "outcome": {
+                "const": "error"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "kind": {
+                    "const": "unavailable"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorKind": {
+                "const": "unavailable"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "kind": {
+                    "const": "not-permitted"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorKind": {
+                "const": "not-permitted"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "kind": {
+                    "const": "invalid-request"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorKind": {
+                "const": "invalid-request"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "kind": {
+                    "const": "device-error"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorKind": {
+                "const": "device-error"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "kind": {
+                    "const": "timeout"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorKind": {
+                "const": "timeout"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "kind": {
+                    "const": "cancelled"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorKind": {
+                "const": "cancelled"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "no-shell"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "no-shell"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "not-implemented"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "not-implemented"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "no-device"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "no-device"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "capability-not-granted"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "capability-not-granted"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "step-up-refused"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "step-up-refused"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "invalid-request"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "invalid-request"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "unsupported-format"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "unsupported-format"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "unknown-device"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "unknown-device"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "device-offline"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "device-offline"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "media-out"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "media-out"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "device-fault"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "device-fault"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "device-timeout"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "device-timeout"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "user-timeout"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "user-timeout"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "response": {
+            "properties": {
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "user-cancelled"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            },
+            "required": [
+              "error"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "audit": {
+            "properties": {
+              "errorReason": {
+                "const": "user-cancelled"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.no-shell$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "no-shell"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.not-implemented$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "not-implemented"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.no-device$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "no-device"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.capability-not-granted$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "capability-not-granted"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.step-up-refused$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "step-up-refused"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.invalid-request$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "invalid-request"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.unsupported-format$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "unsupported-format"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.unknown-device$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "unknown-device"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.device-offline$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "device-offline"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.media-out$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "media-out"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.device-fault$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "device-fault"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.device-timeout$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "device-timeout"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.user-timeout$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "user-timeout"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fixture": {
+            "pattern": "\\.(unavailable|not-permitted|invalid-request|device-error|timeout|cancelled)\\.user-cancelled$"
+          }
+        },
+        "required": [
+          "fixture"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "properties": {
+              "ok": {
+                "const": false
+              },
+              "error": {
+                "properties": {
+                  "reason": {
+                    "const": "user-cancelled"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Text with at least one visible character."
+    },
+    "uuid7": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "A UUIDv7 in lower-case canonical form (BUILD-PROMPT.md §7: UUIDv7 identifiers)."
+    },
+    "auditId": {
+      "$ref": "#/$defs/uuid7",
+      "description": "Identifier of the audit record written for this call (README.md, \"Audit\")."
+    },
+    "utcTimestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$",
+      "description": "An RFC 3339 timestamp in UTC with the Z suffix."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Lower-case hexadecimal SHA-256 of the bytes the shell holds."
+    },
+    "blobRef": {
+      "type": "string",
+      "pattern": "^hal-blob:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "A handle to bytes held by the shell for this session (a scan, photo or signature). The web app reads the bytes through the shell and uploads them to the cell; the shell never writes them to a user folder or a device gallery (§9.4) and deletes them when the session ends."
+    },
+    "opaqueId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "description": "An opaque identifier of a device, printer, terminal, workstation, template or session. Never a patient identifier."
+    },
+    "messageKey": {
+      "type": "string",
+      "pattern": "^[a-z][a-zA-Z0-9-]*(?:\\.[a-z][a-zA-Z0-9-]*)+$",
+      "description": "A message key of the @hms/i18n catalogues (frontend/packages/i18n/README.md). The UI shows the catalogue text; the HAL carries no display text."
+    },
+    "decimalAmount": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,14})(\\.[0-9]{1,3})?$",
+      "description": "A non-negative decimal amount as a string. Neither the HAL nor the web app does arithmetic on it."
+    },
+    "callName": {
+      "enum": [
+        "hal.print.label",
+        "hal.print.raw",
+        "hal.print.document",
+        "hal.scan.onBarcode",
+        "hal.scan.document",
+        "hal.id.read",
+        "hal.auth.onBadge",
+        "hal.sign.capture",
+        "hal.pay.request",
+        "hal.camera.photo",
+        "hal.kiosk.lock",
+        "hal.capabilities"
+      ],
+      "description": "The HAL calls of BUILD-PROMPT.md §12.8."
+    },
+    "errorKind": {
+      "enum": [
+        "unavailable",
+        "not-permitted",
+        "invalid-request",
+        "device-error",
+        "timeout",
+        "cancelled"
+      ],
+      "description": "The error vocabulary (README.md, \"Errors\")."
+    },
+    "errorReason": {
+      "enum": [
+        "no-shell",
+        "not-implemented",
+        "no-device",
+        "capability-not-granted",
+        "step-up-refused",
+        "invalid-request",
+        "unsupported-format",
+        "unknown-device",
+        "device-offline",
+        "media-out",
+        "device-fault",
+        "device-timeout",
+        "user-timeout",
+        "user-cancelled"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "description": "A typed error. It carries no free text, no device output and no patient data.",
+      "required": [
+        "kind",
+        "reason",
+        "retryable",
+        "outcomeUnknown",
+        "messageKey"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/errorKind"
+        },
+        "reason": {
+          "$ref": "#/$defs/errorReason"
+        },
+        "retryable": {
+          "type": "boolean",
+          "description": "Whether repeating the same call may succeed without a change of configuration. False whenever outcomeUnknown is true."
+        },
+        "outcomeUnknown": {
+          "type": "boolean",
+          "description": "True when the device may already have acted (a print job printed, a card charged): a timeout or device error on a print or payment call. The screen then asks the user to check the device (hal.error.outcomeUnknown) and never repeats the call on its own; a reprint is a new, explicit request that names the earlier job (reprintOf)."
+        },
+        "messageKey": {
+          "$ref": "#/$defs/messageKey"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "no-shell",
+                  "not-implemented",
+                  "no-device"
+                ]
+              },
+              "messageKey": {
+                "const": "hal.error.unavailable"
+              },
+              "retryable": {
+                "const": false
+              },
+              "outcomeUnknown": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "not-permitted"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "capability-not-granted",
+                  "step-up-refused"
+                ]
+              },
+              "messageKey": {
+                "const": "hal.error.notPermitted"
+              },
+              "retryable": {
+                "const": false
+              },
+              "outcomeUnknown": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "invalid-request"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "invalid-request",
+                  "unsupported-format",
+                  "unknown-device"
+                ]
+              },
+              "messageKey": {
+                "const": "hal.error.invalidRequest"
+              },
+              "retryable": {
+                "const": false
+              },
+              "outcomeUnknown": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "device-error"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "device-offline",
+                  "media-out",
+                  "device-fault"
+                ]
+              },
+              "messageKey": {
+                "const": "hal.error.deviceError"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "timeout"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "device-timeout",
+                  "user-timeout"
+                ]
+              },
+              "messageKey": {
+                "const": "hal.error.timeout"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "cancelled"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason": {
+                "enum": [
+                  "user-cancelled"
+                ]
+              },
+              "messageKey": {
+                "const": "hal.error.cancelled"
+              },
+              "retryable": {
+                "const": true
+              },
+              "outcomeUnknown": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "okResult": {
+      "type": "object",
+      "required": [
+        "ok",
+        "value",
+        "auditId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "const": true
+        },
+        "value": {
+          "type": "object"
+        },
+        "auditId": {
+          "$ref": "#/$defs/auditId"
+        }
+      }
+    },
+    "errorResult": {
+      "type": "object",
+      "required": [
+        "ok",
+        "error",
+        "auditId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "const": false
+        },
+        "error": {
+          "$ref": "#/$defs/error"
+        },
+        "auditId": {
+          "$ref": "#/$defs/auditId"
+        }
+      }
+    },
+    "result": {
+      "description": "What every HAL call returns: {ok: true, value, auditId} or {ok: false, error, auditId}.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/okResult"
+        },
+        {
+          "$ref": "#/$defs/errorResult"
+        }
+      ]
+    },
+    "printLabelRequest": {
+      "type": "object",
+      "description": "A label already rendered for the target printer (ZPL text or PDF) by the renderer of WP-0.8; the template id and version go into the audit record and PrintJobCompleted (§12.8).",
+      "required": [
+        "labelType",
+        "format",
+        "content",
+        "contentEncoding",
+        "templateId",
+        "templateVersion",
+        "copies"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "printerId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "labelType": {
+          "enum": [
+            "wristband",
+            "specimen",
+            "medication",
+            "general"
+          ]
+        },
+        "format": {
+          "enum": [
+            "zpl",
+            "pdf"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1048576
+        },
+        "contentEncoding": {
+          "enum": [
+            "utf-8",
+            "base64"
+          ]
+        },
+        "templateId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "templateVersion": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "reprintOf": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/uuid7"
+            }
+          ],
+          "description": "Present only on an explicit reprint: the jobId of the earlier job, so a reprint (of a wristband above all) is a deliberate, audited request and never an automatic retry."
+        },
+        "copies": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "format": {
+                "const": "pdf"
+              }
+            },
+            "required": [
+              "format"
+            ]
+          },
+          "then": {
+            "properties": {
+              "contentEncoding": {
+                "const": "base64"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "printJobValue": {
+      "type": "object",
+      "required": [
+        "jobId",
+        "printerId",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "jobId": {
+          "$ref": "#/$defs/uuid7"
+        },
+        "printerId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "status": {
+          "enum": [
+            "sent",
+            "completed"
+          ],
+          "description": "sent: the printer accepted the job; completed: the printer reported it printed."
+        }
+      }
+    },
+    "printRawRequest": {
+      "type": "object",
+      "description": "Raw bytes for a raw-port printer. Raw print is a capability granted per workstation profile and role (§13.5).",
+      "required": [
+        "printerId",
+        "language",
+        "content",
+        "contentEncoding"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "printerId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "language": {
+          "enum": [
+            "zpl",
+            "esc-pos"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1048576
+        },
+        "contentEncoding": {
+          "enum": [
+            "utf-8",
+            "base64"
+          ]
+        }
+      }
+    },
+    "printRawValue": {
+      "type": "object",
+      "required": [
+        "jobId",
+        "printerId",
+        "bytesSent"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "jobId": {
+          "$ref": "#/$defs/uuid7"
+        },
+        "printerId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "bytesSent": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "printDocumentRequest": {
+      "type": "object",
+      "description": "A rendered PDF document for a spooled document printer.",
+      "required": [
+        "mediaType",
+        "content",
+        "contentEncoding",
+        "templateId",
+        "templateVersion",
+        "copies",
+        "duplex"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "printerId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "mediaType": {
+          "const": "application/pdf"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 33554432
+        },
+        "contentEncoding": {
+          "const": "base64"
+        },
+        "templateId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "templateVersion": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "reprintOf": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/uuid7"
+            }
+          ],
+          "description": "Present only on an explicit reprint: the jobId of the earlier job, so a reprint (of a wristband above all) is a deliberate, audited request and never an automatic retry."
+        },
+        "copies": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "duplex": {
+          "type": "boolean"
+        },
+        "tray": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "subscribeRequest": {
+      "type": "object",
+      "description": "Subscribe to events from one device, or from every permitted device of the class when deviceId is absent. The shell delivers a barcode read only to the subscriptions of the window that has the focus when the read arrives; a badge tap goes to every window of the shell, because a change of user clears every window's patient context (docs/specs/hal/README.md, \"Windows and patients\").",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "subscriptionValue": {
+      "type": "object",
+      "description": "The subscription handle. Each event carries its own audit ID; closing the subscription is a local unlisten, not a HAL call.",
+      "required": [
+        "subscriptionId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subscriptionId": {
+          "$ref": "#/$defs/uuid7"
+        }
+      }
+    },
+    "barcodeEvent": {
+      "type": "object",
+      "description": "One barcode read.",
+      "required": [
+        "subscriptionId",
+        "deviceId",
+        "symbology",
+        "data",
+        "auditId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subscriptionId": {
+          "$ref": "#/$defs/uuid7"
+        },
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "symbology": {
+          "enum": [
+            "code128",
+            "gs1-128",
+            "datamatrix",
+            "gs1-datamatrix",
+            "qr",
+            "pdf417",
+            "ean13",
+            "other"
+          ]
+        },
+        "aimId": {
+          "type": "string",
+          "pattern": "^\\][A-Za-z][0-9A-Za-z]$",
+          "description": "The AIM symbology identifier when the scanner sends it."
+        },
+        "data": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "The decoded data exactly as read, with GS1 FNC1 sent as the group separator U+001D (§12.8: scanners preserve GS1 FNC1/GS)."
+        },
+        "auditId": {
+          "$ref": "#/$defs/auditId"
+        }
+      }
+    },
+    "scanDocumentRequest": {
+      "type": "object",
+      "required": [
+        "mediaType",
+        "resolutionDpi",
+        "colour",
+        "duplex"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "mediaType": {
+          "enum": [
+            "application/pdf",
+            "image/png"
+          ]
+        },
+        "resolutionDpi": {
+          "enum": [
+            150,
+            200,
+            300
+          ]
+        },
+        "colour": {
+          "enum": [
+            "colour",
+            "greyscale",
+            "mono"
+          ]
+        },
+        "duplex": {
+          "type": "boolean"
+        }
+      }
+    },
+    "scanDocumentValue": {
+      "type": "object",
+      "required": [
+        "mediaType",
+        "blobRef",
+        "sha256",
+        "byteLength",
+        "pageCount"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mediaType": {
+          "enum": [
+            "application/pdf",
+            "image/png"
+          ]
+        },
+        "blobRef": {
+          "$ref": "#/$defs/blobRef"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pageCount": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "idReadRequest": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "national-card-barcode",
+            "residency-card-barcode",
+            "passport-mrz"
+          ],
+          "description": "The document technologies of §9.1 and §11.2. Card formats are open question Q-K12; parsing belongs to card-format plug-ins outside the HAL."
+        },
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "idReadValue": {
+      "type": "object",
+      "description": "The raw document read. hal.id.read returns unavailable (not-implemented) until the ID-card and MRZ reader simulators of WP-1.2 exist (§3.7).",
+      "required": [
+        "type",
+        "format",
+        "raw"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "national-card-barcode",
+            "residency-card-barcode",
+            "passport-mrz"
+          ]
+        },
+        "format": {
+          "enum": [
+            "pdf417",
+            "qr",
+            "datamatrix",
+            "mrz-td1",
+            "mrz-td2",
+            "mrz-td3",
+            "other"
+          ]
+        },
+        "raw": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "description": "The raw barcode data or MRZ lines (newline-separated), unparsed."
+        },
+        "mrzCheckDigitsValid": {
+          "type": "boolean",
+          "description": "MRZ only: whether every ICAO 9303 check digit matched."
+        }
+      }
+    },
+    "badgeEvent": {
+      "type": "object",
+      "description": "One badge tap, after the shell has run the step-up. The raw badge credential stays in the shell.",
+      "required": [
+        "subscriptionId",
+        "readerId",
+        "outcome",
+        "auditId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subscriptionId": {
+          "$ref": "#/$defs/uuid7"
+        },
+        "readerId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "outcome": {
+          "enum": [
+            "step-up-completed",
+            "step-up-refused"
+          ],
+          "description": "The result of the Keycloak step-up that the shell ran for this tap, bound to the workstation certificate (§12.8). A refusal does not say why (unknown badge, revoked, identity provider unreachable), so the event does not disclose the policy."
+        },
+        "stepUpRef": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{16,128}$",
+          "description": "Present only when the step-up completed: an opaque, single-use, short-lived reference to that step-up, which the cell accepts once and only for this workstation [P]; WP-0.4 designs its redemption for the session swap. It is not the badge credential: the badge credential never crosses the bridge. Never logged, never stored."
+        },
+        "auditId": {
+          "$ref": "#/$defs/auditId"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "step-up-completed"
+              }
+            },
+            "required": [
+              "outcome"
+            ]
+          },
+          "then": {
+            "required": [
+              "stepUpRef"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "stepUpRef"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "signCaptureRequest": {
+      "type": "object",
+      "description": "Capture an on-glass handwritten signature image. It is not the electronic signature of the sign and co-sign pattern, which is authenticated by the Trust Plane.",
+      "required": [
+        "purpose",
+        "promptKey"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "purpose": {
+          "enum": [
+            "consent",
+            "receipt",
+            "document"
+          ]
+        },
+        "promptKey": {
+          "$ref": "#/$defs/messageKey"
+        },
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "signCaptureValue": {
+      "type": "object",
+      "required": [
+        "mediaType",
+        "blobRef",
+        "sha256",
+        "byteLength",
+        "strokeCount",
+        "capturedAt"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mediaType": {
+          "enum": [
+            "image/svg+xml",
+            "image/png"
+          ]
+        },
+        "blobRef": {
+          "$ref": "#/$defs/blobRef"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "strokeCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "capturedAt": {
+          "$ref": "#/$defs/utcTimestamp"
+        }
+      }
+    },
+    "payRequestRequest": {
+      "type": "object",
+      "required": [
+        "amount",
+        "currency",
+        "reference"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "terminalId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "amount": {
+          "$ref": "#/$defs/decimalAmount"
+        },
+        "currency": {
+          "enum": [
+            "IQD",
+            "USD"
+          ]
+        },
+        "reference": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/opaqueId"
+            }
+          ],
+          "description": "The payment reference from the cashiering module; never a patient identifier."
+        }
+      }
+    },
+    "payRequestValue": {
+      "type": "object",
+      "description": "No card PAN, masked or not, and no card data ever reaches the HMS (§12.8); the closed object has no field for it. hal.pay.request returns unavailable (not-implemented) until the card-terminal simulator of WP-1.9 exists (§3.7).",
+      "required": [
+        "outcome",
+        "amount",
+        "currency",
+        "terminalId",
+        "terminalTransactionId",
+        "batchId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {
+          "enum": [
+            "approved",
+            "declined"
+          ],
+          "description": "A declined payment is a result, not an error."
+        },
+        "amount": {
+          "$ref": "#/$defs/decimalAmount"
+        },
+        "currency": {
+          "enum": [
+            "IQD",
+            "USD"
+          ]
+        },
+        "terminalId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "terminalTransactionId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "batchId": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "cameraPhotoRequest": {
+      "type": "object",
+      "required": [
+        "purpose"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "purpose": {
+          "enum": [
+            "patient-photo",
+            "clinical-photo",
+            "document"
+          ]
+        },
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "cameraPhotoValue": {
+      "type": "object",
+      "required": [
+        "mediaType",
+        "blobRef",
+        "sha256",
+        "byteLength",
+        "widthPx",
+        "heightPx"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mediaType": {
+          "enum": [
+            "image/jpeg",
+            "image/png"
+          ]
+        },
+        "blobRef": {
+          "$ref": "#/$defs/blobRef"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "widthPx": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "heightPx": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "kioskLockRequest": {
+      "type": "object",
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "enum": [
+            "locked",
+            "unlocked"
+          ]
+        }
+      }
+    },
+    "kioskLockValue": {
+      "type": "object",
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "enum": [
+            "locked",
+            "unlocked"
+          ]
+        }
+      }
+    },
+    "emptyRequest": {
+      "type": "object",
+      "description": "This call takes no arguments.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "device": {
+      "type": "object",
+      "required": [
+        "deviceId",
+        "class",
+        "status",
+        "permitted",
+        "simulated"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "class": {
+          "enum": [
+            "label-printer",
+            "document-printer",
+            "raw-printer",
+            "barcode-scanner",
+            "document-scanner",
+            "id-reader",
+            "badge-reader",
+            "signature-pad",
+            "payment-terminal",
+            "camera"
+          ]
+        },
+        "status": {
+          "enum": [
+            "healthy",
+            "degraded",
+            "offline"
+          ]
+        },
+        "permitted": {
+          "type": "boolean",
+          "description": "Granted to this workstation profile and user (§13.5)."
+        },
+        "simulated": {
+          "type": "boolean"
+        },
+        "model": {
+          "$ref": "#/$defs/opaqueId"
+        }
+      }
+    },
+    "callAvailability": {
+      "enum": [
+        "available",
+        "not-permitted",
+        "no-device",
+        "not-implemented"
+      ]
+    },
+    "capabilitiesValue": {
+      "type": "object",
+      "description": "What is attached, healthy and permitted for this workstation profile and user (§12.8).",
+      "required": [
+        "contractVersion",
+        "supportedContractVersions",
+        "shell",
+        "workstationProfile",
+        "devices",
+        "calls"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "contractVersion": {
+          "const": 1
+        },
+        "supportedContractVersions": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "shell": {
+          "type": "object",
+          "required": [
+            "version",
+            "simulated"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"
+            },
+            "simulated": {
+              "type": "boolean",
+              "description": "True when every device is simulated (development and test builds)."
+            }
+          }
+        },
+        "workstationProfile": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/device"
+          }
+        },
+        "calls": {
+          "type": "object",
+          "required": [
+            "hal.print.label",
+            "hal.print.raw",
+            "hal.print.document",
+            "hal.scan.onBarcode",
+            "hal.scan.document",
+            "hal.id.read",
+            "hal.auth.onBadge",
+            "hal.sign.capture",
+            "hal.pay.request",
+            "hal.camera.photo",
+            "hal.kiosk.lock",
+            "hal.capabilities"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "hal.print.label": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.print.raw": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.print.document": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.scan.onBarcode": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.scan.document": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.id.read": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.auth.onBadge": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.sign.capture": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.pay.request": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.camera.photo": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.kiosk.lock": {
+              "$ref": "#/$defs/callAvailability"
+            },
+            "hal.capabilities": {
+              "$ref": "#/$defs/callAvailability"
+            }
+          }
+        }
+      }
+    },
+    "auditRecord": {
+      "type": "object",
+      "description": "The local audit record of one call or event. A closed allowlist of fields with no PHI (H13, SI-20): no patient identifier or name, no label, document or barcode content, no image or signature, no ID-document data, no badge credential and no payment amount or reference.",
+      "required": [
+        "auditId",
+        "writtenBy",
+        "contractVersion",
+        "call",
+        "at",
+        "outcome",
+        "workstationId",
+        "sessionRef"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "auditId": {
+          "$ref": "#/$defs/auditId"
+        },
+        "writtenBy": {
+          "enum": [
+            "shell",
+            "hal-client"
+          ],
+          "description": "hal-client writes the record only when no shell is present (outcome error, reason no-shell)."
+        },
+        "contractVersion": {
+          "const": 1
+        },
+        "call": {
+          "$ref": "#/$defs/callName"
+        },
+        "event": {
+          "enum": [
+            "call",
+            "barcode-read",
+            "badge-tap"
+          ],
+          "description": "Absent or call for a call; the event kind for a subscription event (barcode-read only for hal.scan.onBarcode, badge-tap only for hal.auth.onBadge)."
+        },
+        "at": {
+          "$ref": "#/$defs/utcTimestamp"
+        },
+        "outcome": {
+          "enum": [
+            "ok",
+            "error"
+          ]
+        },
+        "errorKind": {
+          "$ref": "#/$defs/errorKind"
+        },
+        "errorReason": {
+          "$ref": "#/$defs/errorReason"
+        },
+        "workstationId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/opaqueId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sessionRef": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/opaqueId"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Opaque reference to the staff session; null before sign-in."
+        },
+        "deviceId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "jobId": {
+          "$ref": "#/$defs/uuid7"
+        },
+        "templateId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "templateVersion": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "reprintOf": {
+          "$ref": "#/$defs/uuid7"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "outcome": {
+                "const": "error"
+              }
+            },
+            "required": [
+              "outcome"
+            ]
+          },
+          "then": {
+            "required": [
+              "errorKind",
+              "errorReason"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "errorKind"
+                  ]
+                },
+                {
+                  "required": [
+                    "errorReason"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "writtenBy": {
+                "const": "hal-client"
+              }
+            },
+            "required": [
+              "writtenBy"
+            ]
+          },
+          "then": {
+            "properties": {
+              "outcome": {
+                "const": "error"
+              },
+              "errorReason": {
+                "const": "no-shell"
+              }
+            },
+            "required": [
+              "errorReason"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorReason": {
+                "const": "no-shell"
+              }
+            },
+            "required": [
+              "errorReason"
+            ]
+          },
+          "then": {
+            "properties": {
+              "writtenBy": {
+                "const": "hal-client"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorKind": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "errorKind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "errorReason": {
+                "enum": [
+                  "no-shell",
+                  "not-implemented",
+                  "no-device"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorKind": {
+                "const": "not-permitted"
+              }
+            },
+            "required": [
+              "errorKind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "errorReason": {
+                "enum": [
+                  "capability-not-granted",
+                  "step-up-refused"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorKind": {
+                "const": "invalid-request"
+              }
+            },
+            "required": [
+              "errorKind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "errorReason": {
+                "enum": [
+                  "invalid-request",
+                  "unsupported-format",
+                  "unknown-device"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorKind": {
+                "const": "device-error"
+              }
+            },
+            "required": [
+              "errorKind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "errorReason": {
+                "enum": [
+                  "device-offline",
+                  "media-out",
+                  "device-fault"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorKind": {
+                "const": "timeout"
+              }
+            },
+            "required": [
+              "errorKind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "errorReason": {
+                "enum": [
+                  "device-timeout",
+                  "user-timeout"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "errorKind": {
+                "const": "cancelled"
+              }
+            },
+            "required": [
+              "errorKind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "errorReason": {
+                "enum": [
+                  "user-cancelled"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

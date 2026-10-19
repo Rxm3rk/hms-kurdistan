@@ -1,0 +1,38 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.pay.request.cancelled",
+  "provenance": "synthetic",
+  "description": "Shape for WP-1.9 only: the user cancelled at the device. Until then every hal.pay.request call returns unavailable (not-implemented from the shell, no-shell without one).",
+  "contractVersion": 1,
+  "call": "hal.pay.request",
+  "request": {
+    "terminalId": "SIM-TERMINAL-01",
+    "amount": "25000",
+    "currency": "IQD",
+    "reference": "SYN-PAYREF-0001"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "cancelled",
+      "reason": "user-cancelled",
+      "retryable": true,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.cancelled"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000041"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000041",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.pay.request",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "cancelled",
+    "errorReason": "user-cancelled",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-TERMINAL-01"
+  }
+}

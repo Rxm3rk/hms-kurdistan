@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.raw.ok",
+  "provenance": "synthetic",
+  "description": "A simulated raw-port receipt printer accepts synthetic ESC/POS bytes for a queue token.",
+  "contractVersion": 1,
+  "call": "hal.print.raw",
+  "request": {
+    "printerId": "SIM-RAW-01",
+    "language": "esc-pos",
+    "content": "G0BTWU4tVE9LRU4tMDQyCh1WAA==",
+    "contentEncoding": "base64"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "jobId": "019a3c00-0000-7000-8000-000000000009",
+      "printerId": "SIM-RAW-01",
+      "bytesSent": 19
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000008"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000008",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.raw",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-RAW-01",
+    "jobId": "019a3c00-0000-7000-8000-000000000009"
+  }
+}

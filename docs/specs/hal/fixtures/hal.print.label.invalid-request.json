@@ -1,0 +1,42 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.label.invalid-request",
+  "provenance": "synthetic",
+  "description": "The shell rejects a request that matches the schema but that it cannot carry out.",
+  "contractVersion": 1,
+  "call": "hal.print.label",
+  "request": {
+    "printerId": "SIM-LABEL-01",
+    "labelType": "wristband",
+    "format": "zpl",
+    "content": "^XA^CI28^FO40,40^A0N,32,32^FDSYN-PATIENT-0001^FS^FO40,90^BXN,6,200^FDSYN-MRN-0000001^FS^XZ",
+    "contentEncoding": "utf-8",
+    "templateId": "SYN-WRISTBAND-ADULT",
+    "templateVersion": "1",
+    "copies": 1
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "invalid-request",
+      "reason": "unsupported-format",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.invalidRequest"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000005"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000005",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.label",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "invalid-request",
+    "errorReason": "unsupported-format",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-LABEL-01"
+  }
+}

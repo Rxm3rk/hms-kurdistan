@@ -1109,6 +1109,17 @@ hazards:
         planned_verification:
           - "UnitTest:clinical-number-ismp-display-rules"
           - "AcceptanceTest:SAC-50"
+        notes: >-
+          Tightening [P] (§3.4 item 1), proposed in WP-0.7 (OQ-141, DN-030, DN-031): the ISMP
+          display rules apply to every clinical numeral, results included; Western digits are used
+          for every number in the staff UI; units are shown through a governed UCUM display map that
+          replaces ISMP's error-prone abbreviations (ug → mcg; U and IU → units), and an unmapped
+          unit is shown as an invalid value; integer parts of 1000 and above are grouped with a
+          narrow no-break space. §2.1 (acceptance criteria), §6.5 and SAC-50 name the leading-zero,
+          trailing-zero and naked-decimal rules for doses and Western digits for clinical numerals,
+          and say nothing of results, units or grouping. The grouping departs from the letter of
+          ISMP's comma (DN-031), and the effect on reported result precision is DN-030. They add to
+          clause b and replace no clause; the CSO confirms or removes them [HUMAN].
     residual_risk: {proposed: null, accepted_by: null}
     status: open
     owner: medications-squad
@@ -2811,6 +2822,15 @@ hazards:
           - "UnitTest:banner-renders-every-field"
           - "E2E:banner-trilingual-rtl (en, ckb, ar; WP-0.7)"
           - "AcceptanceTest:SAC-02"
+        notes: >-
+          Tightening [P] (§3.4 item 1), proposed in WP-0.7 (DN-029, DN-032): the banner shows the
+          Kurdish, Arabic and Latin name forms and flags each missing one; its error state (patient
+          id, MRN or every name form missing or invalid) disables clinical actions, and a missing or
+          invalid date of birth disables signing. §2.1 SI-16 requires "trilingual name display" and
+          §11.2 stores the three forms, but neither says what a missing form shows or whether
+          missing identity data blocks signing. They add to clauses a and c and replace no clause;
+          the CSO confirms or removes them [HUMAN]. Gap: WP-0.7 builds no sensitivity indicators
+          (WP-0.4) and no mobile or print banner (KA-026, KA-033).
       - id: CTRL-0016-4
         type: design
         risk_control_option: design
@@ -2867,6 +2887,12 @@ hazards:
           context per window and patient-context management, but name no confirmation step. It adds
           a step and replaces no clause; the CSO confirms or removes it [HUMAN]
           (docs/safety/README.md, "Tightenings").
+          Further tightenings [P] proposed in WP-0.7 (DN-028, DN-032): a change of user clears the
+          patient context of every window of the workstation session; the context, never a URL,
+          selects whose data a clinical route shows; a device capture whose result arrives after a
+          context change is discarded, and a barcode read goes only to the focused window; a switch
+          cannot be confirmed while the requested patient's identity data is invalid. They add to
+          clause e and replace no clause; the CSO confirms or removes them [HUMAN].
       - id: CTRL-0016-7
         type: design
         risk_control_option: protective
@@ -2881,6 +2907,16 @@ hazards:
         planned_verification:
           - "PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change"
           - "E2E:sign-after-context-change-forces-re-verification"
+        notes: >-
+          Tightening [P] (§3.4 item 1): "within the last 60 s" is read inclusively (exactly 60.000 s
+          still requires re-verification) on a monotonic clock, and an unknown change time, an
+          unreadable clock or a negative elapsed time counts as within the window; a re-verification
+          counts only if the user who authenticates for the signature confirmed it; after a "Not
+          this patient" answer every sign step in the window requires re-verification until the
+          context changes. §2.1 SI-16, §8.4 (order: sign, "<60 s ago") and §9.4 acceptance ("within
+          60 s") fix no bound, say nothing of an unreadable clock and do not say who re-verifies.
+          These add to clause f and replace no clause; the CSO confirms or removes them [HUMAN]
+          (DN-026, DN-027; docs/safety/README.md, "Tightenings").
       - id: CTRL-0016-8
         type: design
         risk_control_option: protective

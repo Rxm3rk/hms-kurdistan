@@ -1,0 +1,38 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.raw.device-error",
+  "provenance": "synthetic",
+  "description": "The device reports a fault. The device may already have acted, so outcomeUnknown is true and the call is not retryable as it stands.",
+  "contractVersion": 1,
+  "call": "hal.print.raw",
+  "request": {
+    "printerId": "SIM-RAW-01",
+    "language": "esc-pos",
+    "content": "G0BTWU4tVE9LRU4tMDQyCh1WAA==",
+    "contentEncoding": "base64"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "device-error",
+      "reason": "media-out",
+      "retryable": false,
+      "outcomeUnknown": true,
+      "messageKey": "hal.error.deviceError"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000000d"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000000d",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.raw",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "device-error",
+    "errorReason": "media-out",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-RAW-01"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.id.read.ok",
+  "provenance": "synthetic",
+  "description": "Shape for WP-1.2 only: a passport MRZ read from a future simulator. Until the WP-1.2 simulator exists the shell returns the unavailable fixture (not-implemented) for every hal.id.read call. The MRZ is synthetic and its check digits do not match.",
+  "contractVersion": 1,
+  "call": "hal.id.read",
+  "request": {
+    "type": "passport-mrz",
+    "deviceId": "SIM-IDREADER-01"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "type": "passport-mrz",
+      "format": "mrz-td3",
+      "raw": "P<SYNSYNTHETIC<<EXAMPLE<PERSON<<<<<<<<<<<<<<\nSYN0000017SYN8001014M3001012<<<<<<<<<<<<<<08",
+      "mrzCheckDigitsValid": false
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000024"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000024",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.id.read",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-IDREADER-01"
+  }
+}

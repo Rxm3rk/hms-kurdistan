@@ -1,0 +1,35 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.id.read.unavailable",
+  "provenance": "synthetic",
+  "description": "Fail closed: the shell returns unavailable (not-implemented) for every hal.id.read call until the simulator of WP-1.2 exists (§3.7). With no shell, hal-client's transport-none returns no-shell instead (hal.id.read.unavailable.no-shell).",
+  "contractVersion": 1,
+  "call": "hal.id.read",
+  "request": {
+    "type": "passport-mrz",
+    "deviceId": "SIM-IDREADER-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "unavailable",
+      "reason": "not-implemented",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.unavailable"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000025"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000025",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.id.read",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "unavailable",
+    "errorReason": "not-implemented",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}

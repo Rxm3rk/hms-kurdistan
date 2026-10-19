@@ -4,6 +4,7 @@ Read first: BUILD-PROMPT §2.1 (SI-01, SI-16); §4.1 (web client, desktop shell,
 Depends on: WP-0.1 (badge flow: WP-0.4)   Simulators needed: the simulated devices behind the HAL (badge reader; label and wristband printers as a capture endpoint that stores the ZPL or PDF; scanners) (§3.7, §21)
 Entry criteria:
 - WP-0.1 merged, or reviewed and stacked (§3.6, §21).
+- Branch `wp/0.7-design-system` cut from `wp/0.1-programme-bootstrap` and fast-forwarded to the WP-0.1 review-fix commit `05f159a` before its first commit, stacked on it (§3.6; DN-011, DN-020): done.
 - On this host the web parts can start after WP-0.1, and the Tauri shell can be built in the WSL build host, which has Rust and the Tauri 2 Linux prerequisites (DN-004, closed). The badge-tap exit criterion needs the badge flow from WP-0.4, which waits on WP-0.2. iOS builds need macOS and Windows packaging of the shell needs Windows; a human provides those build steps when they are needed ("Before the first session").
 Deliverables:
 - The web workspace frame: React with strict TypeScript and React Aria Components; Vite; TanStack Router and TanStack Query; FormatJS (ICU MessageFormat); Zod (§4.1) (`PLT-UX-01`).
@@ -16,6 +17,8 @@ Deliverables:
 - The React Native (New Architecture, Expo) app skeleton for one app with nurse and physician modes (§15).
 - Playwright, axe and RTL-diff harnesses, with pseudo-localisation (§14.7, §18.9).
 - Accessibility rules from §6.5: text contrast ≥4.5:1; colour never the only carrier of meaning; targets ≥24×24 px; WCAG 2.2 AA.
+- Built in slices [P]: S0 specification; S1 dependency gate; S2 i18n; S3 `ui-core`; S4 design-system foundation; S5a banner; S5b sign/co-sign, command palette and density; S6 web frame and demo route; S7 end-to-end harness; S8 HAL client and printer simulator; S9 Tauri shell; S10 mobile skeleton; S11 CI and tools wiring; S12 close-out; S13 the badge-tap measurement, after WP-0.4. Programme files change only at the S0 and S12 checkpoints.
+- S0, written on 19 October 2026 (specification only; no code exists yet and no test it names has run): `docs/specs/modules/design-system.md` (the module specification, with its test table in §9 and the message keys in §10); `docs/specs/state-machines/patient-context.yaml` and `patient-context.md` (Appendix B.3; approval requested, every transition proposed; OQ-149); `docs/specs/hal/` (HAL contract v1: README, `hal-v1.schema.json` and 69 synthetic fixtures; OQ-150); decisions DN-020 to DN-032, open questions OQ-140 to OQ-152 and known anomalies KA-025 to KA-036; tightenings in the `notes` of CTRL-0005-17, CTRL-0016-3, CTRL-0016-6 and CTRL-0016-7 (every control stays `planned`).
 Exit criteria (evidence required):
 - A demo route renders the banner in three languages with correct RTL.
 - axe clean.
@@ -28,3 +31,6 @@ Hazards touched:
 [HUMAN] gates:
 - None in §21.
 - Clinician review of translations is a later release gate (§11.1), not part of this work package's exit.
+- Clinician review of the agent-drafted ckb and ar text before any hospital use (DN-021, OQ-151).
+- Approval of the patient-context state machine (OQ-149).
+- The CSO's answers to DN-026 to DN-032.

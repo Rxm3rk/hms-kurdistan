@@ -1,0 +1,38 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.print.raw.invalid-request",
+  "provenance": "synthetic",
+  "description": "The shell rejects a request that matches the schema but that it cannot carry out.",
+  "contractVersion": 1,
+  "call": "hal.print.raw",
+  "request": {
+    "printerId": "SIM-RAW-99",
+    "language": "esc-pos",
+    "content": "G0BTWU4tVE9LRU4tMDQyCh1WAA==",
+    "contentEncoding": "base64"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "invalid-request",
+      "reason": "unknown-device",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.invalidRequest"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000000c"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000000c",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.print.raw",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "invalid-request",
+    "errorReason": "unknown-device",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-RAW-01"
+  }
+}

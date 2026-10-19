@@ -1,0 +1,53 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.scan.onBarcode.ok",
+  "provenance": "synthetic",
+  "description": "A subscription to a simulated scanner and one GS1 DataMatrix read with a group separator (U+001D) preserved.",
+  "contractVersion": 1,
+  "call": "hal.scan.onBarcode",
+  "request": {
+    "deviceId": "SIM-SCANNER-01"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "subscriptionId": "019a3c00-0000-7000-8000-000000000017"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000016"
+  },
+  "events": [
+    {
+      "subscriptionId": "019a3c00-0000-7000-8000-000000000017",
+      "deviceId": "SIM-SCANNER-01",
+      "symbology": "gs1-datamatrix",
+      "aimId": "]d2",
+      "data": "0109506000134352\u001d10SYN0001",
+      "auditId": "019a3c00-0000-7000-8000-000000000018"
+    }
+  ],
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000016",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.scan.onBarcode",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-SCANNER-01"
+  },
+  "eventAudits": [
+    {
+      "auditId": "019a3c00-0000-7000-8000-000000000018",
+      "writtenBy": "shell",
+      "contractVersion": 1,
+      "call": "hal.scan.onBarcode",
+      "event": "barcode-read",
+      "at": "2026-10-19T09:00:00.000Z",
+      "outcome": "ok",
+      "workstationId": "SYN-WS-0001",
+      "sessionRef": "SYN-SESSION-0001",
+      "deviceId": "SIM-SCANNER-01"
+    }
+  ]
+}

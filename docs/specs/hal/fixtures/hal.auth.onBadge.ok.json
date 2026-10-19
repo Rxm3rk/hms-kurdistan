@@ -1,0 +1,72 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.auth.onBadge.ok",
+  "provenance": "synthetic",
+  "description": "A subscription to a simulated badge reader and two taps after the shell's simulated step-up: one completed, with an opaque synthetic single-use step-up reference, and one refused. No badge credential crosses the bridge.",
+  "contractVersion": 1,
+  "call": "hal.auth.onBadge",
+  "request": {
+    "deviceId": "SIM-BADGE-01"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "subscriptionId": "019a3c00-0000-7000-8000-00000000002d"
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000002c"
+  },
+  "events": [
+    {
+      "subscriptionId": "019a3c00-0000-7000-8000-00000000002d",
+      "readerId": "SIM-BADGE-01",
+      "outcome": "step-up-completed",
+      "stepUpRef": "SYN-STEPUP-0000000000000001",
+      "auditId": "019a3c00-0000-7000-8000-00000000002e"
+    },
+    {
+      "subscriptionId": "019a3c00-0000-7000-8000-00000000002d",
+      "readerId": "SIM-BADGE-01",
+      "outcome": "step-up-refused",
+      "auditId": "019a3c00-0000-7000-8000-00000000002f"
+    }
+  ],
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000002c",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.auth.onBadge",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-BADGE-01"
+  },
+  "eventAudits": [
+    {
+      "auditId": "019a3c00-0000-7000-8000-00000000002e",
+      "writtenBy": "shell",
+      "contractVersion": 1,
+      "call": "hal.auth.onBadge",
+      "event": "badge-tap",
+      "at": "2026-10-19T09:00:00.000Z",
+      "outcome": "ok",
+      "workstationId": "SYN-WS-0001",
+      "sessionRef": "SYN-SESSION-0001",
+      "deviceId": "SIM-BADGE-01"
+    },
+    {
+      "auditId": "019a3c00-0000-7000-8000-00000000002f",
+      "writtenBy": "shell",
+      "contractVersion": 1,
+      "call": "hal.auth.onBadge",
+      "event": "badge-tap",
+      "at": "2026-10-19T09:00:00.000Z",
+      "outcome": "error",
+      "errorKind": "not-permitted",
+      "errorReason": "step-up-refused",
+      "workstationId": "SYN-WS-0001",
+      "sessionRef": "SYN-SESSION-0001",
+      "deviceId": "SIM-BADGE-01"
+    }
+  ]
+}

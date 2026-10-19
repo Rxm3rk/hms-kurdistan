@@ -1,0 +1,36 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.sign.capture.ok",
+  "provenance": "synthetic",
+  "description": "A simulated signature pad returns an on-glass signature image as a shell-held blob.",
+  "contractVersion": 1,
+  "call": "hal.sign.capture",
+  "request": {
+    "purpose": "consent",
+    "promptKey": "hal.sign.prompt.consent",
+    "deviceId": "SIM-SIGNPAD-01"
+  },
+  "response": {
+    "ok": true,
+    "value": {
+      "mediaType": "image/svg+xml",
+      "blobRef": "hal-blob:019a3c00-0000-7000-8000-000000000034",
+      "sha256": "3f1c7c5e0d2b4a6f8e9d0c1b2a3f4e5d6c7b8a9f0e1d2c3b4a5f6e7d8c9b0a1f",
+      "byteLength": 3120,
+      "strokeCount": 7,
+      "capturedAt": "2026-10-19T09:00:00.000Z"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000033"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000033",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.sign.capture",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-SIGNPAD-01"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.camera.photo.invalid-request",
+  "provenance": "synthetic",
+  "description": "The shell rejects a request that matches the schema but that it cannot carry out.",
+  "contractVersion": 1,
+  "call": "hal.camera.photo",
+  "request": {
+    "purpose": "document",
+    "deviceId": "SIM-CAMERA-01"
+  },
+  "response": {
+    "ok": false,
+    "error": {
+      "kind": "invalid-request",
+      "reason": "unsupported-format",
+      "retryable": false,
+      "outcomeUnknown": false,
+      "messageKey": "hal.error.invalidRequest"
+    },
+    "auditId": "019a3c00-0000-7000-8000-000000000047"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-000000000047",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.camera.photo",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "error",
+    "errorKind": "invalid-request",
+    "errorReason": "unsupported-format",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001",
+    "deviceId": "SIM-CAMERA-01"
+  }
+}

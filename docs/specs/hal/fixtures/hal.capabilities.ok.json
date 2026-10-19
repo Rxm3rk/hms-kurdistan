@@ -1,0 +1,108 @@
+{
+  "$schema": "../hal-v1.schema.json",
+  "fixture": "hal.capabilities.ok",
+  "provenance": "synthetic",
+  "description": "A simulated workstation profile: every device simulated and permitted; hal.id.read and hal.pay.request not implemented.",
+  "contractVersion": 1,
+  "call": "hal.capabilities",
+  "request": {},
+  "response": {
+    "ok": true,
+    "value": {
+      "contractVersion": 1,
+      "supportedContractVersions": [
+        1
+      ],
+      "shell": {
+        "version": "0.1.0",
+        "simulated": true
+      },
+      "workstationProfile": "SYN-PROFILE-WARD-NURSE",
+      "devices": [
+        {
+          "deviceId": "SIM-LABEL-01",
+          "class": "label-printer",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true,
+          "model": "SIM-ZPL-203DPI"
+        },
+        {
+          "deviceId": "SIM-RAW-01",
+          "class": "raw-printer",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true,
+          "model": "SIM-ESCPOS"
+        },
+        {
+          "deviceId": "SIM-DOC-01",
+          "class": "document-printer",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true
+        },
+        {
+          "deviceId": "SIM-SCANNER-01",
+          "class": "barcode-scanner",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true
+        },
+        {
+          "deviceId": "SIM-DOCSCAN-01",
+          "class": "document-scanner",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true
+        },
+        {
+          "deviceId": "SIM-BADGE-01",
+          "class": "badge-reader",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true
+        },
+        {
+          "deviceId": "SIM-SIGNPAD-01",
+          "class": "signature-pad",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true
+        },
+        {
+          "deviceId": "SIM-CAMERA-01",
+          "class": "camera",
+          "status": "healthy",
+          "permitted": true,
+          "simulated": true
+        }
+      ],
+      "calls": {
+        "hal.print.label": "available",
+        "hal.print.raw": "available",
+        "hal.print.document": "available",
+        "hal.scan.onBarcode": "available",
+        "hal.scan.document": "available",
+        "hal.id.read": "not-implemented",
+        "hal.auth.onBadge": "available",
+        "hal.sign.capture": "available",
+        "hal.pay.request": "not-implemented",
+        "hal.camera.photo": "available",
+        "hal.kiosk.lock": "available",
+        "hal.capabilities": "available"
+      }
+    },
+    "auditId": "019a3c00-0000-7000-8000-00000000004f"
+  },
+  "audit": {
+    "auditId": "019a3c00-0000-7000-8000-00000000004f",
+    "writtenBy": "shell",
+    "contractVersion": 1,
+    "call": "hal.capabilities",
+    "at": "2026-10-19T09:00:00.000Z",
+    "outcome": "ok",
+    "workstationId": "SYN-WS-0001",
+    "sessionRef": "SYN-SESSION-0001"
+  }
+}
