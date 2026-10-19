@@ -180,6 +180,32 @@ class Evidence(Fixture):
         self.assertEqual(report.evidence_path.name, f"{today}-merge-{short}-dirty.json")
         self.assertIn("new.txt", report.record["git"]["dirty_files"])
 
+    def test_untracked_evidence_counts_unless_the_caller_ignores_it(self) -> None:
+        out = self.root / "docs" / "program" / "evidence" / "cell"
+        out.mkdir(parents=True)
+        (out / "record.json").write_text("{}\n", encoding="utf-8")
+        default = runner.git_info(self.root)
+        self.assertTrue(default["dirty"])
+        self.assertNotIn("untracked_evidence_outputs_ignored", default)
+        ignoring = runner.git_info(self.root, ignore_untracked_under="docs/program/evidence/")
+        self.assertFalse(ignoring["dirty"], ignoring)
+        self.assertEqual(ignoring["untracked_evidence_outputs_ignored"], 1)
+        (self.root / "README.md").write_text("changed\n", encoding="utf-8")
+        (self.root / "scratch.txt").write_text("x\n", encoding="utf-8")
+        ignoring = runner.git_info(self.root, ignore_untracked_under="docs/program/evidence/")
+        self.assertTrue(ignoring["dirty"])
+        self.assertEqual(ignoring["dirty_files_total"], 2)
+        self.assertEqual(sorted(ignoring["dirty_files"]), ["README.md", "scratch.txt"])
+
+    def test_unstaged_change_listed_first_keeps_its_whole_path(self) -> None:
+        # Porcelain prints " M README.md" (a leading space) first: stripping the whole output once cut it to
+        # "EADME.md" in the record's dirty_files.
+        (self.root / "README.md").write_text("changed\n", encoding="utf-8")
+        status = self.git("status", "--porcelain=v1", "--untracked-files=all")
+        self.assertTrue(status.startswith(" M "), status)
+        for info in (runner.git_info(self.root), runner.git_info(self.root, ignore_untracked_under="docs/")):
+            self.assertEqual(info["dirty_files"], ["README.md"])
+
     def test_evidence_is_lf_utf8_json(self) -> None:
         report = self.run_steps([CommandStep("a", py("print('§ Sorani کوردی')"))])
         data = report.evidence_path.read_bytes()
@@ -382,7 +408,7 @@ class Tiers(unittest.TestCase):
     def test_fast_tier_steps_in_order(self) -> None:
         names = [s.name for s in tiers.tier_steps("fast", self.ROOT)]
         self.assertEqual(names, ["doctor-fast", "repo-check", "python-unit-tests", "safety-check", "backlog-check",
-                                 "backend-fast", "frontend-fast", "secret-scan"])
+                                 "cell-lint", "backend-fast", "frontend-fast", "secret-scan"])
         self.assertFalse(any(isinstance(s, NotBuiltStep) for s in tiers.tier_steps("fast", self.ROOT)))
 
     def test_fast_commands_match_the_contract(self) -> None:
@@ -393,7 +419,8 @@ class Tiers(unittest.TestCase):
         self.assertEqual(steps["frontend-fast"].cwd, "frontend")
         self.assertEqual(steps["python-unit-tests"].argv[1:],
                          ["-I", "-m", "unittest", "discover", "-s", "tools", "-t", "tools", "-p", "test_*.py"])
-        for name in ["doctor-fast", "repo-check", "safety-check", "backlog-check"]:
+        self.assertEqual(steps["cell-lint"].argv, ["sh", "tools/hms", "cell", "lint", "--json"])
+        for name in ["doctor-fast", "repo-check", "safety-check", "backlog-check", "cell-lint"]:
             self.assertIn("--json", steps[name].argv)
             self.assertTrue(steps[name].check_json)
 

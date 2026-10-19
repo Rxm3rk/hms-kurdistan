@@ -1,0 +1,254 @@
+[
+ {
+  "Id": "d1672839a6d5c1852189cd6df917e91491a7bc5edb44adfbfba05345534ef928",
+  "Name": "/k3d-hms-lite-server-0",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T09:47:42.48682569Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 3221225472
+  },
+  "Config": {
+   "Image": "localhost:5000/rancher/k3s@sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.cluster.imageVolume": "k3d-hms-lite-images",
+    "k3d.cluster.network": "k3d-hms-lite",
+    "k3d.cluster.network.external": "false",
+    "k3d.cluster.network.id": "b558c0c38d588858eb8075bf1c9abf7517523822e1a36862979b9bcffef0b478",
+    "k3d.cluster.network.iprange": "10.213.2.0/24",
+    "k3d.cluster.url": "https://k3d-hms-lite-server-0:6443",
+    "k3d.node.staticIP": "10.213.2.3",
+    "k3d.role": "server",
+    "k3d.server.api.host": "127.0.0.1",
+    "k3d.server.api.hostIP": "127.0.0.1",
+    "k3d.server.api.port": "6550",
+    "k3d.server.init": "true",
+    "k3d.server.loadbalancer": "k3d-hms-lite-serverlb",
+    "k3d.version": "v5.8.3",
+    "org.opencontainers.image.created": "2026-09-30T16:08:55.060Z",
+    "org.opencontainers.image.description": "Lightweight Kubernetes",
+    "org.opencontainers.image.licenses": "Apache-2.0",
+    "org.opencontainers.image.revision": "58877f27435fe86ee292859db3d0df2ca5423991",
+    "org.opencontainers.image.source": "https://github.com/k3s-io/k3s",
+    "org.opencontainers.image.title": "k3s",
+    "org.opencontainers.image.url": "https://github.com/k3s-io/k3s",
+    "org.opencontainers.image.version": "v1.35.9-k3s1"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.3"
+     },
+     "Aliases": null,
+     "DNSNames": [
+      "k3d-hms-lite-server-0",
+      "d1672839a6d5"
+     ],
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.3",
+     "IPPrefixLen": 24
+    }
+   }
+  }
+ },
+ {
+  "Id": "6204da4b769fd74ea5d3874b2ae05eff31ff5a6e5aeedeca60a9b515c2024a72",
+  "Name": "/k3d-hms-lite-server-1",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T09:47:48.772980955Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 3221225472
+  },
+  "Config": {
+   "Image": "localhost:5000/rancher/k3s@sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.cluster.imageVolume": "k3d-hms-lite-images",
+    "k3d.cluster.network": "k3d-hms-lite",
+    "k3d.cluster.network.external": "false",
+    "k3d.cluster.network.id": "b558c0c38d588858eb8075bf1c9abf7517523822e1a36862979b9bcffef0b478",
+    "k3d.cluster.network.iprange": "10.213.2.0/24",
+    "k3d.cluster.url": "https://k3d-hms-lite-server-0:6443",
+    "k3d.node.staticIP": "10.213.2.4",
+    "k3d.role": "server",
+    "k3d.server.api.host": "127.0.0.1",
+    "k3d.server.api.hostIP": "127.0.0.1",
+    "k3d.server.api.port": "6550",
+    "k3d.server.init": "false",
+    "k3d.server.loadbalancer": "k3d-hms-lite-serverlb",
+    "k3d.version": "v5.8.3",
+    "org.opencontainers.image.created": "2026-09-30T16:08:55.060Z",
+    "org.opencontainers.image.description": "Lightweight Kubernetes",
+    "org.opencontainers.image.licenses": "Apache-2.0",
+    "org.opencontainers.image.revision": "58877f27435fe86ee292859db3d0df2ca5423991",
+    "org.opencontainers.image.source": "https://github.com/k3s-io/k3s",
+    "org.opencontainers.image.title": "k3s",
+    "org.opencontainers.image.url": "https://github.com/k3s-io/k3s",
+    "org.opencontainers.image.version": "v1.35.9-k3s1"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.4"
+     },
+     "Aliases": null,
+     "DNSNames": [
+      "k3d-hms-lite-server-1",
+      "6204da4b769f"
+     ],
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.4",
+     "IPPrefixLen": 24
+    }
+   }
+  }
+ },
+ {
+  "Id": "a7f01d3568d4fbc6d7d24570b9fa4fa084351eaf80a4e7e4dfbbd248575b793e",
+  "Name": "/k3d-hms-lite-server-2",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T09:48:23.582195409Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 3221225472
+  },
+  "Config": {
+   "Image": "localhost:5000/rancher/k3s@sha256:b87c71679c0be70cab5eb34f05ebe5e2906bf80fbd1d99b389c1e9643954520c",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.cluster.imageVolume": "k3d-hms-lite-images",
+    "k3d.cluster.network": "k3d-hms-lite",
+    "k3d.cluster.network.external": "false",
+    "k3d.cluster.network.id": "b558c0c38d588858eb8075bf1c9abf7517523822e1a36862979b9bcffef0b478",
+    "k3d.cluster.network.iprange": "10.213.2.0/24",
+    "k3d.cluster.url": "https://k3d-hms-lite-server-0:6443",
+    "k3d.node.staticIP": "10.213.2.5",
+    "k3d.role": "server",
+    "k3d.server.api.host": "127.0.0.1",
+    "k3d.server.api.hostIP": "127.0.0.1",
+    "k3d.server.api.port": "6550",
+    "k3d.server.init": "false",
+    "k3d.server.loadbalancer": "k3d-hms-lite-serverlb",
+    "k3d.version": "v5.8.3",
+    "org.opencontainers.image.created": "2026-09-30T16:08:55.060Z",
+    "org.opencontainers.image.description": "Lightweight Kubernetes",
+    "org.opencontainers.image.licenses": "Apache-2.0",
+    "org.opencontainers.image.revision": "58877f27435fe86ee292859db3d0df2ca5423991",
+    "org.opencontainers.image.source": "https://github.com/k3s-io/k3s",
+    "org.opencontainers.image.title": "k3s",
+    "org.opencontainers.image.url": "https://github.com/k3s-io/k3s",
+    "org.opencontainers.image.version": "v1.35.9-k3s1"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.5"
+     },
+     "Aliases": null,
+     "DNSNames": [
+      "k3d-hms-lite-server-2",
+      "a7f01d3568d4"
+     ],
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.5",
+     "IPPrefixLen": 24
+    }
+   }
+  }
+ },
+ {
+  "Id": "da8730f52610a4d80ed42fd16b7193219607ad3ef988ba51d4277411574f9a3c",
+  "Name": "/k3d-hms-lite-serverlb",
+  "State": {
+   "Status": "running",
+   "Running": true,
+   "OOMKilled": false,
+   "StartedAt": "2026-10-19T09:48:52.20562209Z",
+   "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "HostConfig": {
+   "RestartPolicy": {
+    "Name": "unless-stopped",
+    "MaximumRetryCount": 0
+   },
+   "Memory": 0
+  },
+  "Config": {
+   "Image": "localhost:5000/k3d-io/k3d-proxy@sha256:86df1112d4ba91b3c5c8cfabfad384e562612305a18f7473057cc0c00045bfd2",
+   "Labels": {
+    "app": "k3d",
+    "k3d.cluster": "hms-lite",
+    "k3d.cluster.imageVolume": "k3d-hms-lite-images",
+    "k3d.cluster.network": "k3d-hms-lite",
+    "k3d.cluster.network.external": "false",
+    "k3d.cluster.network.id": "b558c0c38d588858eb8075bf1c9abf7517523822e1a36862979b9bcffef0b478",
+    "k3d.cluster.network.iprange": "10.213.2.0/24",
+    "k3d.cluster.url": "https://k3d-hms-lite-server-0:6443",
+    "k3d.role": "loadbalancer",
+    "k3d.server.loadbalancer": "k3d-hms-lite-serverlb",
+    "k3d.version": "v5.8.3",
+    "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>",
+    "org.opencontainers.image.created": "2025-02-15T19:07:40.209Z",
+    "org.opencontainers.image.description": "Little helper to run CNCF's k3s in Docker",
+    "org.opencontainers.image.licenses": "MIT",
+    "org.opencontainers.image.revision": "201b614ea6798f0ee9e75c63360eef891b36bb19",
+    "org.opencontainers.image.source": "https://github.com/k3d-io/k3d",
+    "org.opencontainers.image.title": "k3d",
+    "org.opencontainers.image.url": "https://github.com/k3d-io/k3d",
+    "org.opencontainers.image.version": "5"
+   }
+  },
+  "NetworkSettings": {
+   "Networks": {
+    "k3d-hms-lite": {
+     "IPAMConfig": {
+      "IPv4Address": "10.213.2.6"
+     },
+     "Aliases": [],
+     "DNSNames": [
+      "k3d-hms-lite-serverlb",
+      "da8730f52610"
+     ],
+     "Gateway": "10.213.2.1",
+     "IPAddress": "10.213.2.6",
+     "IPPrefixLen": 24
+    }
+   }
+  }
+ }
+]
