@@ -7,7 +7,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRootRoute, createRouter } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { Group } from 'react-aria-components';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// The first import of the workspace packages takes several seconds when this package's other test files load
+// beside it on a busy host; the 5 s default failed on load alone. A longer limit lets no failing assertion pass.
+vi.setConfig({ testTimeout: 20_000 });
 
 describe('web workspace wiring', () => {
   // Dynamic imports inside the test, so that a workspace package whose entry point throws while loading fails
