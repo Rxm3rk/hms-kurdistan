@@ -44,7 +44,7 @@ Statuses (§3.1): `todo`, `spec`, `in-progress`, `built` (Definition of Done ite
 
 ### Hazards
 
-101 of 234 feature IDs are named by at least one entry of `docs/safety/hazard-log.yaml` (27 entries in all); the Hazards column lists those entries. The other 133 are named by no entry yet, which does not mean that they carry no hazard.
+101 of 234 feature IDs are named by at least one entry of `docs/safety/hazard-log.yaml` (29 entries in all); the Hazards column lists those entries. The other 133 are named by no entry yet, which does not mean that they carry no hazard.
 
 ### Placements marked [P]
 
@@ -111,15 +111,15 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 | `PLT-UX-02` | Workstation shell | M | R1 | B | todo | WP-0.7 | — | HAZ-0001, HAZ-0011, HAZ-0016 |
 | `PLT-UX-03` | i18n / RTL | L | R1 | B | todo | WP-0.7 (base) | — | HAZ-0001, HAZ-0016 |
 | `PLT-UX-04` | Mobile app framework | L | R2b | B | todo | WP-3.3 | — | HAZ-0002, HAZ-0004, HAZ-0013, HAZ-0015, HAZ-0016 |
-| `PLT-OPS-01` | Cells | XL | R1 | B | todo | WP-1.13 | — | HAZ-0020 |
+| `PLT-OPS-01` | Cells | XL | R1 | B | todo | WP-1.13 | — | HAZ-0020, HAZ-0028 |
 | `PLT-OPS-02` | On-prem install | L | R1 | B | todo | WP-1.13 | — | — |
 | `PLT-OPS-03` | Edge cell | XL | P3 | B | todo | Phase 6 (multi-site edge cell (after a dedicated reconciliation hazard analysis)) | — | — |
-| `PLT-OPS-04` | HA + DR | L | R1 | B | todo | WP-1.13 | — | HAZ-0020 |
+| `PLT-OPS-04` | HA + DR | L | R1 | B | todo | WP-1.13 | — | HAZ-0020, HAZ-0028, HAZ-0029 |
 | `PLT-OPS-05` | Observability | M | R1 | B | todo | WP-1.13 | — | HAZ-0003, HAZ-0020 |
 | `PLT-OPS-06` | Performance gate | M | R1 | B | todo | WP-0.6 | — | — |
 | `PLT-OPS-07` | Zero-downtime releases | M | R1 | B | todo | WP-1.13 | — | — |
 | `PLT-EDGE-01` | Site edge agent (BP new) | L | R1 | B† | todo | WP-1.13 | — | HAZ-0015 |
-| `PLT-SITE-01` | On-site cell (K new) | L+M | R1 | B† | todo | WP-1.13 | — | HAZ-0015, HAZ-0020 |
+| `PLT-SITE-01` | On-site cell (K new) | L+M | R1 | B† | todo | WP-1.13 | — | HAZ-0015, HAZ-0020, HAZ-0028, HAZ-0029 |
 | `PLT-PWR-01` | Power-loss resilience (K new) | M | R1 | B† | todo | WP-1.13 | — | — |
 
 ## A.2 TRU: Trust plane, security, downtime
@@ -131,7 +131,7 @@ A.18's note (BUILD-PROMPT.md line 2774): "These per-feature sums differ slightly
 | `TRU-IAM-03` | Break-the-glass | S | R1 | B | todo | WP-0.4 | — | HAZ-0021, HAZ-0027 |
 | `TRU-PRV-01` | Sensitivity labels | M | R1 | B | todo | WP-0.4 | — | HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027 |
 | `TRU-PRV-02` | Consent management | M | R1 | B | todo | WP-1.2 | — | HAZ-0021 |
-| `TRU-AUD-01` | BALP audit | M | R1 | B | todo | WP-0.4 | — | HAZ-0010, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027 |
+| `TRU-AUD-01` | BALP audit | M | R1 | B | todo | WP-0.4 | — | HAZ-0010, HAZ-0021, HAZ-0022, HAZ-0023, HAZ-0024, HAZ-0025, HAZ-0026, HAZ-0027, HAZ-0029 |
 | `TRU-AUD-02` | Privacy monitoring | M | P2 | B+I | todo | Phase 5 | — | — |
 | `TRU-KEY-01` | Per-tenant KMS | M | R1 | B+I | todo | WP-0.4 (base); WP-1.13 (full) | — | HAZ-0020 |
 | `TRU-SEC-01` | Secure SDLC | M | R1 | B | todo | WP-0.9 | — | — |
