@@ -83,11 +83,13 @@ ktlint {
         reporter(ReporterType.PLAIN)
         reporter(ReporterType.CHECKSTYLE)
     }
-    // Generated sources under the build directory (later: jOOQ classes) are not linted.
+    // Generated sources under the build directory (later: jOOQ classes) are not linted. The prefix ends with
+    // the separator: without it, "<project>/build.gradle.kts" also starts with "<project>/build", and no
+    // project's build script was ever linted (found in WP-0.5).
     val generatedRoot =
         layout.buildDirectory
             .get()
-            .asFile.absolutePath
+            .asFile.absolutePath + File.separator
     filter {
         exclude { element -> element.file.absolutePath.startsWith(generatedRoot) }
     }

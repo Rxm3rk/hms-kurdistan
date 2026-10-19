@@ -1,0 +1,181 @@
+# The lifecycle of one result (BUILD-PROMPT §8.4 "Result (approval: lab CSO + physician panel):
+# registered → preliminary → final → amended or corrected; cancelled; entered-in-error. Every
+# correction notifies the orderer and everyone who acknowledged the earlier version. Final requires
+# technologist validation until autoverification is active."; R11 §10.5, R11 §8 "corrected is a
+# child of amended"). Template: BUILD-PROMPT Appendix B.3 with the DN-059 additions. Explanation:
+# docs/specs/state-machines/result.md. Format and checks: docs/specs/modules/state-machines-and-invariants.md.
+#
+# Owner: the `results` module (§5.2). Predicates live once in backend/modules/results, package
+# hms.results.domain.result (spec §3.1). Several predicates read answers another module owns (the
+# Trust Plane's privileges, the LIS's QC and specimen states, ADT's encounter class and state, the
+# critical-result policy's verdict, the Boundary Register's entry, the reg-lis-rules verdict); each
+# description says so (spec §3.1 "Facts, not aggregates").
+#
+# "Release" in this file means release to clinicians in the record. Release of a report to the
+# patient (OTP link, §9.8 "Patient release", §9.30) is a front-door concern and not in this machine;
+# SI-21's "labelled results and pregnancy tests are never released by message" is enforced there.
+#
+# Every reading of an SI or of §8.4 that a guard or an effect encodes beyond its text is an item of
+# this machine's approval request, DN-055, for the lab CSO and the physician panel; the defaults
+# below are the safest readings that neither let harm through nor over-alert (result.md, "DN-055 items").
+machine: result
+version: 1
+owner: results
+approval: {status: requested, required: [lab-cso, physician-panel], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [registered, preliminary, final, amended, corrected, cancelled, entered-in-error]
+# final, amended and corrected are terminal: the laboratory's lifecycle for the released content has
+# ended. Leaving them (a later amendment, correction or entered-in-error) is an audited correction,
+# so every such transition carries privilegedAndAudited (spec §1.2). Terminal never means
+# "acknowledged" or "acted on": that closure is owned work in the results inbox (SI-03 clause b)
+# (DN-055 item 1).
+terminal: [final, amended, corrected, cancelled, entered-in-error]
+initial: registered
+# The laboratory registers the result when it accepts the order (§9.7 "one lifecycle"). Until a
+# value arrives, the result is owned through the order's "not yet resulted" view (CTRL-0003-3).
+created_by: [RegisterResult]
+predicates:   # each implemented once in hms.results.domain.result and unit-tested
+  technologistValidated: "a person holding the laboratory result-validation privilege for this test (the Trust Plane's answer for the test's laboratory section, §9.26; another module owns it) recorded validation of exactly the version being filed: the validation names this version's id, was recorded at or after the version's last value change and not after now, and the validating user is the user issuing this command. The validator is an authenticated human user: a system, integration or AI-agent account never validates (SI-07 applies from P2). This is §8.4's technologist validation, the manual validation of §9.8, required for every release to clinicians, preliminary included (DN-055 item 2)"
+  specimenUsable: "every specimen on which a new or changed value of the version being filed was measured is, by the LIS's answer (the specimen machine; lis owns it), in none of the states rejected, lost, cancelled or entered-in-error at now; a value from a reference laboratory must also carry that laboratory's own specimen reference (a missing one makes this false), and the LIS's answer for the specimen we sent is used the same way. A value with no specimen reference, or a specimen whose state is unknown, makes this false (fails closed). Values carried unchanged from an earlier released version are not checked again; withdrawing them is entered-in-error or a correction (DN-055 item 11)"
+  qcAllowsRelease: "QC lockout (§9.8 'no release while QC has failed or is overdue'; §9.8 acceptance 2), over every value that is new or changed in the version being filed: (a) a value from a new in-house measurement needs the QC covering its run to have passed and not been overdue at the measurement time (valid from at or before the measurement, valid until after it), and the analyser's current QC for the test to have passed and not be overdue at now (valid from at or before now, valid until after now); (b) a changed value with no new measurement (a transcription or unit correction) needs the QC of its original run to have passed and not been overdue at that measurement time; (c) a value performed by a reference laboratory needs that laboratory's identification on the value (§9.8 performing-lab identification). QC states and validity times are the LIS's answer (lis owns QC, DX-LAB-04); this predicate compares the times. Unknown, missing, failed or overdue QC makes it false (fails closed). Values carried unchanged are not checked again: a retrospective QC failure on their run is the LIS look-back, an owned task. A version that only withdraws values has nothing to check, and entered-in-error has no QC guard, so pulling a dangerous value never waits on QC (DN-055 item 6)"
+  criticalValueFlagged: "at least one value of the version being filed is critical: the governed critical-result policy (§9.7 policy tables per test or analyte, location and age; thresholds approved by the laboratory director and the CSO [HUMAN]) gives every orderable test an explicit verdict per value (critical, not critical, or no-critical-limits for a test the policy records as having none), and this holds when a verdict is critical; or when the value is not evaluated because its test is missing from the policy table or context the test's policy needs (age, location) is missing (fails closed; a missing test is a catalogue error that catalogue validation rejects, WP-1.7); or when the validating technologist marked it critical. The verdict per value is the critical-result policy's answer; this machine holds no threshold (DN-055 item 4)"
+  noCriticalValueFlagged: "the exact complement of criticalValueFlagged: every value of the version being filed has the policy verdict not critical or no-critical-limits, and the technologist marked none critical"
+  patientDischarged: "at the time of the command the result is for a discharged patient, read from ADT's answers (another module owns them) about the encounter the result's order was placed in: the encounter's class is inpatient, emergency or day-case and its state is anything other than planned, arrived, triaged, in-progress or on-leave (so discharged-not-closed, finished, cancelled, entered-in-error, an unknown state, or a state added later); or the encounter's class is unknown; or the order's encounter link is missing or does not resolve (fails closed: the result goes to the owned queue). Not discharged: the order records positively, when placed, that it has no encounter (an outpatient-tier order from an external referring doctor, §9.7), or the encounter's class is outpatient (its results stay in the ordering clinician's owned inbox, routeToResponsibleClinician), or an inpatient, emergency or day-case encounter is in one of the five active states (DN-055 item 8)"
+  patientNotDischarged: "the literal negation of patientDischarged (not patientDischarged), so that the pair stays an exact complement whatever encounter classes or states are added later"
+  correctionReasonEntered: "the user chose a reason for this change from the governed correction-reason list (content [HUMAN]; synthetic samples are marked NOT FOR CLINICAL USE): a coded reason the user selected, never a preselected or defaulted value (SI-02's never-defaulted rule, applied here as this build's proposal), optionally with text; text alone does not count. The reason is stored with the new version and carried by the notification (DN-055 item 10)"
+  cancellationReasonEntered: "the user chose a reason for cancelling the result from the governed cancellation-reason list (content [HUMAN]): a coded reason the user selected, never preselected or defaulted, optionally with text; text alone does not count (DN-055 item 10)"
+  errorReasonEntered: "the user chose a reason for marking the result entered in error from the governed entered-in-error reason list (content [HUMAN]), for example that it was filed against the wrong patient: a coded reason the user selected, never preselected or defaulted, optionally with text; text alone does not count (DN-055 item 10)"
+  privilegedAndAudited: "B.3's name: the acting user is an authenticated human user who holds the privilege for this action on this result (the Trust Plane's answer for the command: amend, correct, cancel a released preliminary, mark entered in error; §9.26; another module owns it), and the command carries a complete audit context (the acting user, a time not after now, the result, and the version acted on, which is the result's current version, or none when no version has been filed yet), so the change is written with its audit record. A system, integration or AI-agent account never holds it"
+  autoverificationActive: "autoverification (reg-lis-rules, a Tier 2 function: §9.8, §9.7 'rules', A.20 'LIS rules') is active for this result: the tenant's flag for it is on AND the Regulatory Boundary Register's entry for reg-lis-rules, for the function version that is running and the tenant's jurisdiction, has status cleared or not-required, with a stored written local opinion that has not expired at now (SI-18 clauses a and c; §10.2), AND the result's test (laboratory section, analyte, specimen type, method and analyser) lies within the scope recorded in that opinion and the opinion's intended purpose is the release of results by autoverification (SI-18 clause b), AND the rule-set version named by the reg-lis-rules verdict is the version validated under that Register entry (§9.8: revalidation after any instrument or method change; SI-18 clause c 'on any change'). The Register entry is the Register's answer (another module owns it). The flag alone never makes this true: a configuration toggle cannot override the Register (SI-18 clause d). No entry, any other status (not-assessed, required, withdrawn), no stored opinion, an expired opinion, a version, jurisdiction, scope, purpose or rule-set version that differs makes it false. No Register entry exists today, so it is false for every tenant (DN-055 item 3)"
+  autoverificationRulesPassed: "reg-lis-rules returned a release verdict for exactly the version being filed after running every rule of the §9.8 stack in order (instrument error codes and QC status, HIL indices, measurement range and dilution, absurd limits, critical value, delta check, cross-analyte consistency, patient context), and the verdict names the rule-set version. The verdict is reg-lis-rules' answer (another module owns it); no verdict, a hold, a verdict for another version or one without a rule-set version makes it false. The rules are governed content [HUMAN]"
+effects:
+  queueForValidation: "the new measurement's result is owned work in the laboratory verification queue (§9.7 'verification queues'; §9.8 'exception review queue') with an SLA, ordered by priority: a value whose critical-result policy verdict is critical or not evaluated goes first, with the critical-result timeliness target (SAC-29) as its SLA, and escalates to the laboratory supervisor when the SLA is breached. SLA values are governed content [HUMAN]. Idempotent per measurement (DN-055 item 12)"
+  routeToResponsibleClinician: "the filed version goes to the results inbox of the result's responsible clinician, and of the ordering clinician where they differ, as owned work with an SLA and surrogate cover for absence; an unacknowledged item escalates on SLA breach (SI-03 clause b; §9.18 'every result has an ordering and a responsible clinician'). For an order placed with no encounter by an external referring doctor, the owner is the facility's outpatient results queue, which delivers the result to the referrer as an owned seam task until the referrer's receipt is logged (SI-03 clause d; §9.7 acceptance 5) (DN-055 item 14)"
+  routeToDischargedPatientQueue: "the filed version also lands in the explicit owned queue for results of discharged patients, with a responsible clinician and an SLA, and raises a task; never only in the inbox of a closed encounter (SI-17; §9.18 and its acceptance; CTRL-0017-4). When the patient has a current active encounter (readmitted since), its responsible clinician is also notified (DN-055 item 8)"
+  routeToPendingAtDischargeQueue: "the result, still pending (registered or preliminary) when its patient is discharged, is placed in the explicit owned queue for results pending at discharge with a responsible clinician and an SLA, so that the discharge summary lists it with its owner (SI-17 clause a; §8.4 encounter 'Discharge'; §9.18; CTRL-0017-3). Idempotent per result and discharge: a repeated discharge notice, or a second discharge after a cancelled one, never creates a second queue item for the same discharge"
+  handToCriticalResultService: "each critical value of the filed version is handed to the critical-result service (§9.7; SI-04), which runs its own lifecycle (§8.4 'Critical result: flagged → named recipient → read-back → acknowledged, otherwise escalated'; a separate machine, not specified in WP-0.5): a recipient picked from the directory, read-back when phoned, a timed escalation chain, external referring doctors for outpatient-tier results. The service links a critical value of a new version to an open communication about the same value. Filing is never held back until the communication completes"
+  updateCriticalResultCommunications: "every open critical-result communication about an earlier version of this result, if any, is updated in the critical-result service: linked to the new version when the new version holds the same critical value, otherwise closed as superseded (or as withdrawn, for a cancellation or entered-in-error) with the reason, and its escalation stops; the people already reached are told through notifyOrdererAndAcknowledgers or notifyAcknowledgersOfFinal (DN-055 item 5)"
+  supersedeEarlierVersion: "the filed values become a new version that supersedes the current one; the earlier version is never overwritten or deleted, stays readable, is linked to its successor and keeps its acknowledgements and critical-result communications (corrections are new versions; R11 §8 'corrected is a child of amended'; SI-06's pattern applied to results, DN-055 item 7). Every downstream copy (interfaces, reports already released, summaries and letters sent to referrers, CDS that used the earlier version) receives the new version flagged as superseded or corrected, and a report already released to the patient (§9.30) is withdrawn and re-released through the front door with a notice (DN-055 item 5)"
+  notifyOrdererAndAcknowledgers: "the ordering clinician and every user who acknowledged any earlier version of this result, including every recipient of its critical-result communications (preliminary versions included), are notified of the change with its reason and the earlier and the new content (or that the result was cancelled or entered in error), and the result is visibly flagged as changed in every view (§8.4; R11 §10.5; §9.8 acceptance 3; §9.18 'amended results notify and are visibly flagged'). Each notification is owned work until it is read (SI-03) (DN-055 item 5)"
+  notifyAcknowledgersOfFinal: "every user who acknowledged a preliminary version of this result, and every recipient of a critical-result communication about a preliminary version, is notified that the final version is filed, with the preliminary and the final content, so that a difference from what they acted on is seen (DN-055 item 5)"
+  markEveryVersionEnteredInError: "every version of the result, if any, is marked entered in error and stays readable as such; nothing is deleted (entered-in-error replaces delete); every downstream copy (interfaces, portal, CDS, reports, letters to referrers) receives the entered-in-error status"
+  resultErrorReviewTaskRaised: "an owned task with an SLA is raised for the laboratory and the ordering clinician to find where the value belongs: refile it to the right patient through review (never silently moved, §8.4 'Identity'), or order a recollection; the order stays open for it (SI-03 clause b; H3) (DN-055 item 13)"
+  recordAutoverificationBasis: "the release records the reg-lis-rules rule-set version and the Boundary Register entry and opinion it relied on (§9.8 acceptance 4 'each release records the rule-set version')"
+# Abbreviations in the comments: T technologistValidated, S specimenUsable, Q qcAllowsRelease,
+# C criticalValueFlagged, ¬C noCriticalValueFlagged, D patientDischarged, ¬D patientNotDischarged.
+# Where an effect depends on a fact (a critical value, a discharged patient), the transition is split
+# into alternatives on an exact-complement predicate pair, so exactly one alternative can hold (spec
+# §1.2) and property P6 can check the effect. Alternatives from final and from [amended, corrected]
+# are not merged: the generator marks a transition proposed when any of its edges is proposed, so a
+# merge would turn the drawn final → amended and final → corrected paths into proposed ones.
+transitions:
+  # --- A measurement arrives (instrument gateway or manual entry) before release, or after a
+  # preliminary (proposed self-loops: registered → registered, preliminary → preliminary). It is
+  # owned, prioritised validation work, critical first (DN-055 item 12). The state does not change.
+  - {from: registered, on: RecordMeasurement, effects: [queueForValidation], to: registered}
+  - {from: preliminary, on: RecordMeasurement, effects: [queueForValidation], to: preliminary}
+  # --- First release to clinicians as preliminary (drawn: registered → preliminary). Technologist
+  # validation, a usable specimen and QC lockout on every release (DN-055 items 2, 11 and 6).
+  - {from: registered, on: ReleasePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService], to: preliminary}
+  - {from: registered, on: ReleasePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService], to: preliminary}
+  - {from: registered, on: ReleasePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue], to: preliminary}
+  - {from: registered, on: ReleasePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician], to: preliminary}
+  # --- A revised preliminary (proposed: preliminary → preliminary). It replaces a version clinicians
+  # may have acted on, so it is a correction: reason required, new version, open critical-result
+  # communications updated, orderer and acknowledgers notified (DN-055 item 5).
+  - {from: preliminary, on: RevisePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: preliminary}
+  - {from: preliminary, on: RevisePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: preliminary}
+  - {from: preliminary, on: RevisePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: preliminary}
+  - {from: preliminary, on: RevisePreliminary, guard: [technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: preliminary}
+  # --- Final straight from registered by technologist validation (proposed: registered → final; R11
+  # draws final only after preliminary). Approving this edge for ReleaseFinal does not approve the
+  # Autoverify transitions on the same edge (DN-055 item 3).
+  - {from: registered, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService], to: final}
+  - {from: registered, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService], to: final}
+  - {from: registered, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue], to: final}
+  - {from: registered, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician], to: final}
+  # --- Final after preliminary (drawn: preliminary → final). The final version supersedes the
+  # preliminary; whoever acknowledged the preliminary or received its critical-result communication
+  # is told (DN-055 item 5).
+  - {from: preliminary, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyAcknowledgersOfFinal], to: final}
+  - {from: preliminary, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyAcknowledgersOfFinal], to: final}
+  - {from: preliminary, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, supersedeEarlierVersion, updateCriticalResultCommunications, notifyAcknowledgersOfFinal], to: final}
+  - {from: preliminary, on: ReleaseFinal, guard: [technologistValidated, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, supersedeEarlierVersion, updateCriticalResultCommunications, notifyAcknowledgersOfFinal], to: final}
+  # --- Autoverification (Tier 2, reg-lis-rules), on registered → final only. Inactive until the
+  # Boundary Register allows it (autoverificationActive is false for every tenant today; SI-18). It
+  # never releases a critical value (the §9.8 stack sends critical values to manual review), never a
+  # preliminary, and never an amendment or a correction. Each transition carries its own proposed
+  # flag, so its approval is a separate decision from the manual ReleaseFinal on the same edge.
+  - {from: registered, on: Autoverify, guard: [autoverificationActive, autoverificationRulesPassed, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, recordAutoverificationBasis], to: final, proposed: true, description: "Autoverification release to final for a discharged patient; a separate approval from ReleaseFinal on the same edge (DN-055 item 3)"}
+  - {from: registered, on: Autoverify, guard: [autoverificationActive, autoverificationRulesPassed, specimenUsable, qcAllowsRelease, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, recordAutoverificationBasis], to: final, proposed: true, description: "Autoverification release to final; a separate approval from ReleaseFinal on the same edge (DN-055 item 3)"}
+  # --- Amendment of a final result (drawn: final → amended). Leaves a terminal state, so
+  # privilegedAndAudited; a new validated version with a reason; orderer and acknowledgers notified.
+  - {from: final, on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  - {from: final, on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  - {from: final, on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  - {from: final, on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  # --- A further amendment of an amended or corrected result (proposed: amended → amended,
+  # corrected → amended).
+  - {from: [amended, corrected], on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  - {from: [amended, corrected], on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  - {from: [amended, corrected], on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  - {from: [amended, corrected], on: Amend, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: amended}
+  # --- Correction of an error in a final result (drawn: final → corrected).
+  - {from: final, on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  - {from: final, on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  - {from: final, on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  - {from: final, on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  # --- A further correction of an amended or corrected result (proposed: amended → corrected,
+  # corrected → corrected).
+  - {from: [amended, corrected], on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  - {from: [amended, corrected], on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, criticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, handToCriticalResultService, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  - {from: [amended, corrected], on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientDischarged], effects: [routeToResponsibleClinician, routeToDischargedPatientQueue, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  - {from: [amended, corrected], on: Correct, guard: [privilegedAndAudited, technologistValidated, specimenUsable, qcAllowsRelease, correctionReasonEntered, noCriticalValueFlagged, patientNotDischarged], effects: [routeToResponsibleClinician, supersedeEarlierVersion, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: corrected}
+  # --- The patient is discharged while the result is still pending (proposed: registered →
+  # registered, preliminary → preliminary). The results module's side of the encounter's discharge
+  # effect routePendingResultsToOwnedQueues, for results not yet final; the state does not change.
+  # Final results not yet acknowledged are re-routed by the results routing service as inbox work,
+  # with no transition here (result.md "Discharge"). The two self-loops cannot be one transition,
+  # because each returns to its own state.
+  - {from: registered, on: RecordPatientDischarged, guard: [patientDischarged], effects: [routeToPendingAtDischargeQueue], to: registered}
+  - {from: preliminary, on: RecordPatientDischarged, guard: [patientDischarged], effects: [routeToPendingAtDischargeQueue], to: preliminary}
+  # --- Cancelled: the test will not be completed (proposed: registered → cancelled, preliminary →
+  # cancelled). Withdrawing a released preliminary is privileged and audited (DN-055 item 9).
+  - {from: registered, on: Cancel, guard: [cancellationReasonEntered], effects: [notifyOrdererAndAcknowledgers], to: cancelled}
+  - {from: preliminary, on: Cancel, guard: [privilegedAndAudited, cancellationReasonEntered], effects: [updateCriticalResultCommunications, notifyOrdererAndAcknowledgers], to: cancelled}
+  # --- Entered in error from every other state, the terminal ones included (proposed: * →
+  # entered-in-error). Replaces delete (H6); always privileged and audited, with a reason; raises an
+  # owned task to find where the value belongs (DN-055 item 13).
+  - {from: "*", on: MarkEnteredInError, guard: [privilegedAndAudited, errorReasonEntered], effects: [markEveryVersionEnteredInError, updateCriticalResultCommunications, notifyOrdererAndAcknowledgers, resultErrorReviewTaskRaised], to: entered-in-error}
+# §8.4 and R11 §10.5 draw registered → preliminary → final → (amended | corrected) and name cancelled
+# and entered-in-error without saying from where. Every other edge is proposed, for the lab CSO and
+# the physician panel (A.20); the Autoverify transitions also carry their own proposed flag.
+proposed:
+  - "registered→registered"
+  - "preliminary→preliminary"
+  - "registered→final"
+  - "amended→amended"
+  - "corrected→amended"
+  - "amended→corrected"
+  - "corrected→corrected"
+  - "registered→cancelled"
+  - "preliminary→cancelled"
+  - "*→entered-in-error"
+invariants: [SI-03, SI-04, SI-17, SI-18]
+# §8.5 names. An amended result publishes ResultCorrected with its status (corrected is a child of
+# amended, R11 §8); the events for cancelled and entered-in-error, and whether amended gets its own
+# ResultAmended, are open questions (result.md "Open questions"). ResultAcknowledged is published by
+# the results inbox, not by a transition of this machine.
+events: [ResultPreliminary, ResultFinal, ResultCorrected]
+hazards: [HAZ-0003, HAZ-0004, HAZ-0017, HAZ-0018]
+sources:
+  - "BUILD-PROMPT §8.4 (Result; Critical result; Identity; Encounter 'Discharge' effect)"
+  - "BUILD-PROMPT §2.1 SI-03, SI-04, SI-06, SI-17, SI-18, SI-21"
+  - "BUILD-PROMPT §5.2 (results: result filing, acknowledgement, critical-result service, amended-result notices, pending-at-discharge routing)"
+  - "BUILD-PROMPT §9.7 (one lifecycle; verification queues; rules belong to reg-lis-rules when they release a result without human review; the critical-result service; acceptance 5)"
+  - "BUILD-PROMPT §9.8 (post-analytic; QC lockout; autoverification R1.1 Tier 2; patient release; acceptance 1 to 4)"
+  - "BUILD-PROMPT §9.18 (results inbox; queues for results pending at discharge and for discharged patients; acceptance)"
+  - "BUILD-PROMPT §10.2 (Regulatory Boundary Register); A.20 'LIS rules'"
+  - "BUILD-PROMPT §14.3 and R15 §11 #10 (over-alerting fails as a missed alert does)"
+  - "BUILD-PROMPT §18.4 SAC-29, SAC-30, SAC-31; §21 rows 1.7 and 3.11"
+  - "R11 §8 (Result statuses; corrected is a child of amended); R11 §10.5"
