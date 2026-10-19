@@ -1,0 +1,12 @@
+// Test fixture of tools/hms statemachines rule 12 (copied to <project>/src/main/kotlin as ToyLightGuards.kt).
+// NOT FOR CLINICAL USE. The KDoc below names ToyLightPredicates; a comment is not an implementation.
+package hms.adt.domain.toylight
+
+/** The only implementation of [ToyLightPredicates]: "object Fake : ToyLightPredicates" in a string is not one. */
+object ToyLightGuards : ToyLightPredicates {
+    override fun powerAvailable(facts: ToyLightFacts): Boolean = facts.mainsOn || facts.generatorOn
+
+    override fun lampIntact(facts: ToyLightFacts): Boolean = facts.inspectionPassed
+
+    override fun privilegedAndAudited(facts: ToyLightFacts): Boolean = facts.privileged && facts.audited
+}

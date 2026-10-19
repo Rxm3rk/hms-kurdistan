@@ -359,6 +359,25 @@ class JunitSteps(Fixture):
         self.assertEqual(report.record["steps"][0]["result"], FAIL)
         self.assertEqual(report.record["steps"][0]["counts"]["tests"], 1)
 
+    def test_backend_globs_include_the_tests_projects(self) -> None:
+        # tests/invariants and tests/scenarios build outside backend/ (state-machines-and-invariants.md §7).
+        stale = self.root / "tests" / "scenarios" / "build" / "test-results" / "test" / "TEST-old.xml"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("<testsuite>" + "<testcase name='x'/>" * 50 + "</testsuite>", encoding="utf-8")
+        target = self.root / "tests" / "invariants" / "build" / "test-results" / "propertyTest" / "TEST-si.xml"
+        writer = (
+            f"import pathlib; p = pathlib.Path({str(target)!r}); p.parent.mkdir(parents=True, exist_ok=True); "
+            "p.write_text(\"<testsuite><testcase name='a'/><testcase name='b'/></testsuite>\")"
+        )
+        step = CommandStep(
+            "backend-fast", py(writer), prepare=tiers.clear_junit(tiers.BACKEND_JUNIT),
+            evaluate=tiers.evaluate_junit(tiers.BACKEND_JUNIT, "fake gradle"),
+        )
+        outcome = self.run_steps([step]).record["steps"][0]
+        self.assertEqual(outcome["result"], PASS)
+        self.assertEqual(outcome["counts"]["tests"], 2)
+        self.assertFalse(stale.exists())
+
 
 class UnittestStep(Fixture):
     def test_zero_tests_fail(self) -> None:
@@ -381,8 +400,8 @@ class Tiers(unittest.TestCase):
 
     def test_fast_tier_steps_in_order(self) -> None:
         names = [s.name for s in tiers.tier_steps("fast", self.ROOT)]
-        self.assertEqual(names, ["doctor-fast", "repo-check", "python-unit-tests", "safety-check", "backlog-check",
-                                 "backend-fast", "frontend-fast", "secret-scan"])
+        self.assertEqual(names, ["doctor-fast", "repo-check", "python-unit-tests", "safety-check", "state-machines-check",
+                                 "backlog-check", "backend-fast", "frontend-fast", "secret-scan"])
         self.assertFalse(any(isinstance(s, NotBuiltStep) for s in tiers.tier_steps("fast", self.ROOT)))
 
     def test_fast_commands_match_the_contract(self) -> None:
@@ -393,7 +412,8 @@ class Tiers(unittest.TestCase):
         self.assertEqual(steps["frontend-fast"].cwd, "frontend")
         self.assertEqual(steps["python-unit-tests"].argv[1:],
                          ["-I", "-m", "unittest", "discover", "-s", "tools", "-t", "tools", "-p", "test_*.py"])
-        for name in ["doctor-fast", "repo-check", "safety-check", "backlog-check"]:
+        self.assertEqual(steps["state-machines-check"].argv, ["sh", "tools/hms", "statemachines", "check", "--json"])
+        for name in ["doctor-fast", "repo-check", "safety-check", "state-machines-check", "backlog-check"]:
             self.assertIn("--json", steps[name].argv)
             self.assertTrue(steps[name].check_json)
 

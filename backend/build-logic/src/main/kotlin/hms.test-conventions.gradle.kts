@@ -16,6 +16,7 @@
 
 import hms.buildlogic.ArchitectureClassesArgument
 import hms.buildlogic.HmsBuild
+import hms.buildlogic.PbtCountsDirArgument
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
@@ -73,11 +74,14 @@ dependencies {
 }
 
 val mainClassesDirs = mainSourceSet.output.classesDirs
+// The state-machine sequence harness writes <name>.json here: the actual sequence counts of each run (§19.1).
+val pbtCountsDir = layout.buildDirectory.dir(HmsBuild.PBT_COUNTS_DIR)
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     systemProperty(HmsBuild.PBT_SEQUENCES_PROPERTY, pbtSequences)
     jvmArgumentProviders.add(ArchitectureClassesArgument(files(mainClassesDirs)))
+    jvmArgumentProviders.add(PbtCountsDirArgument(pbtCountsDir))
     reports {
         junitXml.required = true
         html.required = true
