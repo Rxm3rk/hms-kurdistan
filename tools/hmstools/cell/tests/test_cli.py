@@ -64,5 +64,43 @@ class CellCliTest(unittest.TestCase):
         self.assertIn("HMS_S3_ACCESS_KEY", err.getvalue())
 
 
+
+class CellLintCliTest(unittest.TestCase):
+    """`tools/hms cell lint --json`, the fast-tier step: exit code and the JSON contract line."""
+
+    def run_lint(self, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "cell.yaml"
+            path.write_text(text, encoding="utf-8")
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = main(["lint", "--file", str(path), "--json"])
+        return code, json.loads(out.getvalue().strip().splitlines()[-1])
+
+    def test_pass_and_fail(self):
+        from hmstools.cell.tests.test_config import GOOD
+
+        code, last = self.run_lint(GOOD)
+        self.assertEqual((code, last["check"], last["ok"]), (0, "cell-lint", True))
+        code, last = self.run_lint(GOOD.replace("licence: MIT", "licence: SSPL-1.0"))
+        self.assertEqual((code, last["ok"]), (1, False))
+        self.assertTrue(any("denied" in e for e in last["errors"]))
+
+    def test_charts_verify_fails_on_an_empty_cell_home(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), mock.patch.dict(os.environ, {"HMS_CELL_HOME": tmp}):
+                code = main(["charts", "verify", "--json"])
+        last = json.loads(out.getvalue().strip().splitlines()[-1])
+        self.assertEqual((code, last["check"], last["ok"]), (1, "charts-verify", False))
+        self.assertTrue(last["files"])
+        self.assertTrue(all("charts fetch" in f["detail"] for f in last["files"]))
+
+    def test_an_unknown_images_action_is_a_usage_error(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as caught:
+            main(["images", "publish"])
+        self.assertEqual(caught.exception.code, 2)
+
+
 if __name__ == "__main__":
     unittest.main()

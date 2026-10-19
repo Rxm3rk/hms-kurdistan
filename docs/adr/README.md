@@ -37,10 +37,11 @@ No ADR claims a guard result beyond a stored CI record it cites (ADR-010 and ADR
 | [ADR-027](ADR-027-fleet-operations.md) | Fleet operations: outbound-only management, co-signed local break-glass and supported hardware | accepted | Break-glass tests | WP-1.13 (`PLT-SITE-01`), although §21's exit evidence for WP-1.13 does not name the test |
 | [ADR-028](ADR-028-search-postgresql.md) | Search: PostgreSQL full-text and trigram indexes in the product; OpenSearch only centrally | accepted | Search performance test | WP-1.2 (exit evidence: cross-script search ≤200 ms p95; dev-cell numbers are indicative); the nightly scaled day; the 300-bed day on the reference cell [HUMAN: hardware] |
 | [ADR-029](ADR-029-object-storage-seaweedfs.md) | Object storage: SeaweedFS with S3 Object Lock, chosen by the dependency scorecard and the WORM test | accepted | WORM test with a post-restart re-check (§4.1) | `sh tools/hms cell worm` (`tools/hmstools/cell/`), WP-0.2: compose stack and the dev cell's smoke test; records in `docs/program/evidence/cell/` |
+| [ADR-030](ADR-030-signature-enforcement-kyverno.md) | Signature enforcement in the cell: Kyverno admission control verifies locally signed images offline | proposed | Signature-enforcement tests SIG-01 to SIG-07 (§4.3) | `sh tools/hms cell signatures --evidence` and `cell verify-running` (`tools/hmstools/cell/`), WP-0.2, not built yet; records in `docs/program/evidence/cell/` |
 
 ## Adding an ADR
 
-1. **Number and name.** The next free number is ADR-030. Name the file `docs/adr/ADR-nnn-<slug>.md`, one file per number.
+1. **Number and name.** The next free number is ADR-031. Name the file `docs/adr/ADR-nnn-<slug>.md`, one file per number.
 2. **Use template B.1** (BUILD-PROMPT Appendix B):
 
    ```markdown

@@ -29,7 +29,7 @@ Date: 2026-10-18   Source: K §7.2, §7.6, §15.4 (S18-K), K-13; BP §7.2, §7.7
 
 ## Pinned set
 
-**Where the pins live.** The authoritative pins are in `backend/gradle/libs.versions.toml`, `frontend/pnpm-lock.yaml`, `tools/hmstools/bootstrap/steps.py` for the JDK (the catalogue holds the JDK major only) and, later, the Helm charts under `deploy/helm/`. This section is a record of them. If it ever differs from those files, the files win and this section is corrected. Pins are re-resolved only at phase boundaries, through the dependency scorecard (BUILD-PROMPT §4.3).
+**Where the pins live.** The authoritative pins are in `backend/gradle/libs.versions.toml`, `frontend/pnpm-lock.yaml`, `tools/hmstools/bootstrap/steps.py` for the JDK (the catalogue holds the JDK major only), `deploy/site-cell/cell.yaml` for the cell's images and charts and, later, the Helm charts under `deploy/helm/`. This section is a record of them. If it ever differs from those files, the files win and this section is corrected. Pins are re-resolved only at phase boundaries, through the dependency scorecard (BUILD-PROMPT §4.3).
 
 **Backend** (resolved for Phase 0 under the version rule above; `backend/gradle/libs.versions.toml`, which also records each licence):
 - JDK: Eclipse Temurin 25.0.4.1+1 (OpenJDK 25.0.4.1; Adoptium release `jdk-25.0.4.1+1`). The release and the SHA-256 of each platform's archive (Linux x64 and aarch64, Windows x64, macOS x64 and aarch64) are pinned in `tools/hmstools/bootstrap/steps.py` (`JDK_RELEASE`, `JDK_ARCHIVES`); `backend/gradle/libs.versions.toml` holds the major only (`java = "25"`), used through `jvmToolchain(25)`. `sh tools/bootstrap jdk` installs exactly that release, project-local under `.tools/jdk-25.0.4.1+1` (git-ignored), after checking the archive against the recorded SHA-256. It fetches no other release or vendor: a JDK in `.tools/` that does not report `Temurin-25.0.4.1+1` (build `25.0.4.1+1-LTS`) is not used, and a failed download fails the step. `tools/doctor` passes its JDK item only for that release (KA-002). Like every pin here, the release and its checksums are re-resolved only at a phase boundary (BUILD-PROMPT §4.1), in one commit that changes `steps.py` and this line.
@@ -58,7 +58,22 @@ Date: 2026-10-18   Source: K §7.2, §7.6, §15.4 (S18-K), K-13; BP §7.2, §7.7
 
 **Programme tools** (build and CI only, never shipped to a site): Python 3.12 in the project venv under `.tools/` with PyYAML 6.0.3 and jsonschema 4.26.0, plus jsonschema's dependencies attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.9.1 and typing_extensions 4.16.0, installed with `pip --require-hashes` from `tools/requirements.txt`, the tools' authoritative pin. gitleaks 8.30.1, checked against its release checksums.
 
-**Not yet pinned.** The servers, operators, images and charts that later work packages bring in are pinned by the work package that first uses them, under the same rule, and recorded here: PostgreSQL (18; 17 minimum) on CloudNativePG, Kafka brokers on Strimzi, the Temporal server, Keycloak, OpenFGA, Valkey, the object store, Argo CD, the OpenTelemetry collector and their Helm charts in WP-0.2; OpenBao, SoftHSM2 and swtpm when keys arrive (WP-0.4). No version is recorded for them here until it is resolved.
+**Dev and lite cell** (resolved for Phase 0 on 19 October 2026 in WP-0.2, slice S1; `deploy/site-cell/cell.yaml` is the authoritative pin: every image by the digest of its linux/amd64 manifest, every chart by version and the SHA-256 of its `.tgz`, which equals the digest in the publisher's Helm repository index; how the rule was read: OQ-107, OQ-125, OQ-136):
+- Kubernetes: k3s v1.35.9+k3s1, the newest line that Kyverno 1.19, Strimzi 1.0.1 and CloudNativePG 1.30 all support; with its system images pause 3.10.2, CoreDNS 1.14.7, local-path-provisioner 0.0.37 and BusyBox 1.37.0. k3d 5.8.3 creates the cell (its proxy and tools images 5.8.3).
+- PostgreSQL 18.6 (CloudNativePG's `minimal-trixie` image) on CloudNativePG 1.30.1 (chart 0.29.1).
+- Kafka 4.2.0 in KRaft mode on Strimzi 1.0.1 (chart 1.0.1).
+- Temporal server and admin-tools 1.32.1 (chart 1.7.0; the UI 2.54.1 in the dev profile only).
+- Keycloak and the Keycloak Operator 26.8.1 (the operator's manifests at the commit of tag 26.8.1, each with its SHA-256).
+- OpenFGA v1.18.3 (chart 0.3.12; OQ-137).
+- Valkey 9.1.2 (the official image, in our own template).
+- SeaweedFS 4.48 (ADR-029).
+- OpenTelemetry Collector 0.162.0, `k8s` distribution (chart 0.176.0).
+- Kyverno 1.19.1 (chart 3.9.1; ADR-030, OQ-137).
+- Argo CD 3.5.5 (chart 10.10.5), dev profile only; its Redis image is not pinned yet (OQ-138).
+- CNCF Distribution 3.1.2 as the local registry.
+- Build-only tools, run from their images by digest: cosign v3.1.3 (signing with a signing configuration without Rekor, OQ-135) and crane v0.22.1 (go-containerregistry).
+
+**Not yet pinned.** OpenBao, SoftHSM2 and swtpm when keys arrive (WP-0.4); Testcontainers' Ryuk image when WP-0.2 wires Testcontainers (slice S9). No version is recorded for them here until it is resolved.
 
 ## Consequences (including safety and licence impact)
 
