@@ -1,0 +1,174 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "metadata": {
+        "name": "k3d-hms-lite-server-0",
+        "labels": {
+          "node-role.kubernetes.io/control-plane": "true",
+          "node-role.kubernetes.io/etcd": "true"
+        }
+      },
+      "status": {
+        "addresses": [
+          {
+            "address": "10.213.2.3",
+            "type": "InternalIP"
+          },
+          {
+            "address": "k3d-hms-lite-server-0",
+            "type": "Hostname"
+          }
+        ],
+        "conditions": [
+          {
+            "type": "EtcdIsVoter",
+            "status": "True",
+            "reason": "MemberNotLearner",
+            "lastHeartbeatTime": "2026-10-19T09:48:24Z"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "reason": "KubeletHasSufficientMemory",
+            "lastHeartbeatTime": "2026-10-19T09:51:21Z"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "reason": "KubeletHasNoDiskPressure",
+            "lastHeartbeatTime": "2026-10-19T09:51:21Z"
+          },
+          {
+            "type": "PIDPressure",
+            "status": "False",
+            "reason": "KubeletHasSufficientPID",
+            "lastHeartbeatTime": "2026-10-19T09:51:21Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "reason": "KubeletReady",
+            "lastHeartbeatTime": "2026-10-19T09:51:21Z"
+          }
+        ],
+        "nodeInfo": {
+          "kubeletVersion": "v1.35.9+k3s1"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "name": "k3d-hms-lite-server-1",
+        "labels": {
+          "node-role.kubernetes.io/control-plane": "true",
+          "node-role.kubernetes.io/etcd": "true"
+        }
+      },
+      "status": {
+        "addresses": [
+          {
+            "address": "10.213.2.4",
+            "type": "InternalIP"
+          },
+          {
+            "address": "k3d-hms-lite-server-1",
+            "type": "Hostname"
+          }
+        ],
+        "conditions": [
+          {
+            "type": "EtcdIsVoter",
+            "status": "True",
+            "reason": "MemberNotLearner",
+            "lastHeartbeatTime": "2026-10-19T09:48:39Z"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "reason": "KubeletHasSufficientMemory",
+            "lastHeartbeatTime": "2026-10-19T09:48:23Z"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "reason": "KubeletHasNoDiskPressure",
+            "lastHeartbeatTime": "2026-10-19T09:48:23Z"
+          },
+          {
+            "type": "PIDPressure",
+            "status": "False",
+            "reason": "KubeletHasSufficientPID",
+            "lastHeartbeatTime": "2026-10-19T09:48:23Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "reason": "KubeletReady",
+            "lastHeartbeatTime": "2026-10-19T09:48:23Z"
+          }
+        ],
+        "nodeInfo": {
+          "kubeletVersion": "v1.35.9+k3s1"
+        }
+      }
+    },
+    {
+      "metadata": {
+        "name": "k3d-hms-lite-server-2",
+        "labels": {
+          "node-role.kubernetes.io/control-plane": "true",
+          "node-role.kubernetes.io/etcd": "true"
+        }
+      },
+      "status": {
+        "addresses": [
+          {
+            "address": "10.213.2.5",
+            "type": "InternalIP"
+          },
+          {
+            "address": "k3d-hms-lite-server-2",
+            "type": "Hostname"
+          }
+        ],
+        "conditions": [
+          {
+            "type": "EtcdIsVoter",
+            "status": "True",
+            "reason": "MemberNotLearner",
+            "lastHeartbeatTime": "2026-10-19T09:48:56Z"
+          },
+          {
+            "type": "MemoryPressure",
+            "status": "False",
+            "reason": "KubeletHasSufficientMemory",
+            "lastHeartbeatTime": "2026-10-19T09:48:53Z"
+          },
+          {
+            "type": "DiskPressure",
+            "status": "False",
+            "reason": "KubeletHasNoDiskPressure",
+            "lastHeartbeatTime": "2026-10-19T09:48:53Z"
+          },
+          {
+            "type": "PIDPressure",
+            "status": "False",
+            "reason": "KubeletHasSufficientPID",
+            "lastHeartbeatTime": "2026-10-19T09:48:53Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "reason": "KubeletReady",
+            "lastHeartbeatTime": "2026-10-19T09:48:53Z"
+          }
+        ],
+        "nodeInfo": {
+          "kubeletVersion": "v1.35.9+k3s1"
+        }
+      }
+    }
+  ]
+}

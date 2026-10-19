@@ -28,6 +28,7 @@ scopes:
 
 # ---------------------------------------------------------------------------------------------
 # Allowlist (§4.3): Apache-2.0, MIT, BSD, ISC, MPL-2.0, LGPL, EPL, OFL (fonts). SPDX identifiers.
+# PostgreSQL: the human lead's answer to DN-017 (19 October 2026, option 1), as §4.1 and ADR-001 read it.
 allowed:
   - Apache-2.0
   - MIT
@@ -43,6 +44,7 @@ allowed:
   - LGPL-3.0-or-later
   - EPL-1.0
   - EPL-2.0
+  - PostgreSQL         # the PostgreSQL Licence (DN-017)
   - OFL-1.1            # fonts
   - OFL-1.1-RFN        # fonts
   - OFL-1.1-no-RFN     # fonts

@@ -45,6 +45,8 @@ categorizations:
     categories: ["allowed"]
   - id: "EPL-2.0"
     categories: ["allowed"]
+  - id: "PostgreSQL"   # DN-017, option 1 (19 October 2026)
+    categories: ["allowed"]
   - id: "OFL-1.1"
     categories: ["allowed"]
   - id: "OFL-1.1-RFN"

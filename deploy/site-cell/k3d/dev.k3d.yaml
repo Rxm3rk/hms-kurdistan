@@ -1,0 +1,45 @@
+# The dev cell's substrate: three k3s servers in one k3d cluster on a 32 GB host (WP-0.2 plan §2.1, slices S2
+# and S10; OQ-122). It differs from lite.k3d.yaml only in its name, subnet, API port and server memory. It has
+# never run on this host (KA-015).
+#
+# 'tools/hms cell up --only substrate --profile dev' checks this file against cell.yaml, fills in the k3s image
+# as <registry>/rancher/k3s@<pinned digest> (after verifying its signature offline), writes the result to
+# HMS_CELL_HOME/k3d/dev.k3d.yaml and runs 'k3d cluster create --config' on it. It never edits this file.
+# Fixed addresses, the load balancer and the registry-only pulls work as in lite.k3d.yaml.
+# - --servers-memory 8g [P]: three servers take 24 GiB of the 32 GB host. The dev cell's memory has not been
+#   measured, so 'cell up' asks for all of it to be available before it starts.
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: hms-dev
+servers: 3
+agents: 0
+subnet: 10.213.3.0/24
+kubeAPI:
+  host: 127.0.0.1
+  hostIP: 127.0.0.1
+  hostPort: "6551"
+registries:
+  use:
+    - k3d-hms-registry.localhost:5000
+options:
+  k3d:
+    wait: true
+    # k3d's own limit on creating the cluster, not the 300 s readiness bound of R1 and 'cell up'. On
+    # 2026-10-19 a create on this host timed out at 300 s with etcd logging slow disk writes, and the same
+    # create took 110 s a few minutes later.
+    timeout: 600s
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik,servicelb,metrics-server
+        nodeFilters: ["server:*"]
+      - arg: --system-default-registry=k3d-hms-registry.localhost:5000
+        nodeFilters: ["server:*"]
+      - arg: --disable-default-registry-endpoint
+        nodeFilters: ["server:*"]
+  kubeconfig:
+    updateDefaultKubeconfig: false
+    switchCurrentContext: false
+  runtime:
+    serversMemory: 8g

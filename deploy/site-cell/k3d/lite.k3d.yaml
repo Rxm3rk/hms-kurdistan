@@ -1,0 +1,54 @@
+# The lite cell's substrate: three k3s servers in one k3d cluster (WP-0.2 plan §1, §2.1, slice S2; OQ-122).
+#
+# 'tools/hms cell up --only substrate --profile lite' checks this file against cell.yaml, fills in the k3s
+# image as <registry>/rancher/k3s@<pinned digest> (after verifying its signature offline), writes the result
+# to HMS_CELL_HOME/k3d/lite.k3d.yaml and runs 'k3d cluster create --config' on it. It never edits this file.
+#
+# - Three servers, each also a worker, with embedded etcd (k3d adds --cluster-init to server-0): the on-site
+#   shape, so losing two nodes also loses the control-plane quorum.
+# - A fixed subnet, so k3d's IPAM gives every node a fixed address (IPAMConfig) and Docker can never hand the
+#   nodes each other's addresses after a restart, which broke the prototype's etcd (DN-015, KA-022). k3d 5.8.3
+#   does not fix the load balancer's or the registry's address on this network; 'cell up' re-attaches both
+#   at the address they hold, as fixed addresses. The subnet lies outside 172.16.0.0/12 (WSL's own network
+#   was 172.28.192.0/20 on 2026-10-19) and outside Docker's default pools; 'cell up' checks that it overlaps
+#   no host route.
+# - The k3d server load balancer is kept, so kubectl reaches the API while any one server is down. The API
+#   is published on loopback only.
+# - --servers-memory 3g [P]: each kubelet schedules against 3 GiB.
+# - k3s pulls every image from the local registry only: --system-default-registry names it and
+#   --disable-default-registry-endpoint stops any fall-back to the publishers' registries.
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: hms-lite
+servers: 3
+agents: 0
+subnet: 10.213.2.0/24
+kubeAPI:
+  host: 127.0.0.1
+  hostIP: 127.0.0.1
+  hostPort: "6550"
+registries:
+  use:
+    - k3d-hms-registry.localhost:5000
+options:
+  k3d:
+    wait: true
+    # k3d's own limit on creating the cluster, not the 300 s readiness bound of R1 and 'cell up'. On
+    # 2026-10-19 a create on this host timed out at 300 s with etcd logging slow disk writes, and the same
+    # create took 110 s a few minutes later.
+    timeout: 600s
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik,servicelb,metrics-server
+        nodeFilters: ["server:*"]
+      - arg: --system-default-registry=k3d-hms-registry.localhost:5000
+        nodeFilters: ["server:*"]
+      - arg: --disable-default-registry-endpoint
+        nodeFilters: ["server:*"]
+  kubeconfig:
+    updateDefaultKubeconfig: false
+    switchCurrentContext: false
+  runtime:
+    serversMemory: 3g

@@ -1,0 +1,86 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "metadata": {
+        "namespace": "kube-system",
+        "name": "coredns-646fb8cbdb-gjr44"
+      },
+      "spec": {
+        "nodeName": "k3d-hms-lite-server-0",
+        "containers": [
+          {
+            "name": "coredns",
+            "image": "k3d-hms-registry.localhost:5000/rancher/mirrored-coredns-coredns:1.14.7"
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "PodReadyToStartContainers",
+            "status": "True"
+          },
+          {
+            "type": "Initialized",
+            "status": "True"
+          },
+          {
+            "type": "Ready",
+            "status": "True"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True"
+          }
+        ]
+      }
+    },
+    {
+      "metadata": {
+        "namespace": "kube-system",
+        "name": "local-path-provisioner-56465ff8cb-864m5"
+      },
+      "spec": {
+        "nodeName": "k3d-hms-lite-server-0",
+        "containers": [
+          {
+            "name": "local-path-provisioner",
+            "image": "k3d-hms-registry.localhost:5000/rancher/local-path-provisioner:v0.0.37"
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "PodReadyToStartContainers",
+            "status": "True"
+          },
+          {
+            "type": "Initialized",
+            "status": "True"
+          },
+          {
+            "type": "Ready",
+            "status": "True"
+          },
+          {
+            "type": "ContainersReady",
+            "status": "True"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True"
+          }
+        ]
+      }
+    }
+  ]
+}

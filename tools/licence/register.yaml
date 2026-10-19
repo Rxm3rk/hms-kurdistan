@@ -25,4 +25,21 @@
 #   added_in:    the work package that added the component (for example WP-1.1b)
 #   notes:       free text, or null
 schema_version: 1
-entries: []
+entries:
+  # DN-017, option 1 (the human lead's answer, 19 October 2026): k3s's local-path provisioner starts helper
+  # pods from this image to create and remove volume directories, so every cell that uses local-path
+  # volumes ships it (deploy/site-cell/cell.yaml, image k3s-local-path-helper).
+  - component: '^pkg:docker/rancher/mirrored-library-busybox@'
+    licence: GPL-2.0-only
+    rule: gpl-separate-container
+    unmodified: true
+    source_offer: >-
+      The product publishes the complete corresponding source of BusyBox 1.37.0 (busybox.net's
+      busybox-1.37.0 release, the version in docker.io/rancher/mirrored-library-busybox:1.37.0) with every
+      site release, on the release's offline media and where the site's customers obtain the release, so
+      they can get BusyBox's source code; checked on every release (§4.3). Not published yet: no release
+      exists, and the release pipeline (WP-0.9) builds the publication.
+    added_in: WP-0.2
+    notes: >-
+      Used unmodified, as k3s's default helper image, in its own container (a separate program run by the
+      local-path provisioner, not linked into any product code). Pinned by digest in deploy/site-cell/cell.yaml.

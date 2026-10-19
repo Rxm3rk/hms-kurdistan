@@ -1,0 +1,80 @@
+[
+  {
+    "Id": "f76d3514bb4073d450b2b6001420c5e5cc51d26773c1bc9df986d1caf3fdc836",
+    "Name": "/k3d-hms-registry.localhost",
+    "State": {
+      "Status": "running",
+      "Running": true,
+      "OOMKilled": false,
+      "StartedAt": "2026-10-19T04:21:37.942397512Z",
+      "FinishedAt": "0001-01-01T00:00:00Z"
+    },
+    "HostConfig": {
+      "RestartPolicy": {
+        "Name": "unless-stopped",
+        "MaximumRetryCount": 0
+      },
+      "Memory": 0
+    },
+    "Config": {
+      "Image": "docker.io/distribution/distribution@sha256:b92d85255a404bc3933c6ae76bc0835a1031dfad6dba623cc6e027f5cef72acd",
+      "Labels": {
+        "app": "k3d",
+        "k3d.cluster": "",
+        "k3d.registry.host": "127.0.0.1",
+        "k3d.registry.hostIP": "127.0.0.1",
+        "k3d.role": "registry",
+        "k3d.version": "v5.8.3",
+        "k3s.registry.port.external": "5000",
+        "k3s.registry.port.internal": "5000",
+        "org.opencontainers.image.created": "2026-09-24T12:02:33.611Z",
+        "org.opencontainers.image.description": "The toolkit to pack, ship, store, and distribute container content",
+        "org.opencontainers.image.licenses": "Apache-2.0",
+        "org.opencontainers.image.revision": "3220848f15d9279c66a41aa0a257469e6aede1e9",
+        "org.opencontainers.image.source": "https://github.com/distribution/distribution",
+        "org.opencontainers.image.title": "Distribution",
+        "org.opencontainers.image.url": "https://github.com/distribution/distribution",
+        "org.opencontainers.image.version": "3.1.2"
+      }
+    },
+    "NetworkSettings": {
+      "Networks": {
+        "hms-cell-offline": {
+          "IPAMConfig": {},
+          "Aliases": [],
+          "DNSNames": [
+            "k3d-hms-registry.localhost",
+            "f76d3514bb40"
+          ],
+          "Gateway": "",
+          "IPAddress": "10.213.1.2",
+          "IPPrefixLen": 24
+        },
+        "hms-registry": {
+          "IPAMConfig": null,
+          "Aliases": null,
+          "DNSNames": [
+            "k3d-hms-registry.localhost",
+            "f76d3514bb40"
+          ],
+          "Gateway": "10.213.0.1",
+          "IPAddress": "10.213.0.2",
+          "IPPrefixLen": 24
+        },
+        "k3d-hms-lite": {
+          "IPAMConfig": {
+            "IPv4Address": "10.213.2.2"
+          },
+          "Aliases": [],
+          "DNSNames": [
+            "k3d-hms-registry.localhost",
+            "f76d3514bb40"
+          ],
+          "Gateway": "10.213.2.1",
+          "IPAddress": "10.213.2.2",
+          "IPPrefixLen": 24
+        }
+      }
+    }
+  }
+]
