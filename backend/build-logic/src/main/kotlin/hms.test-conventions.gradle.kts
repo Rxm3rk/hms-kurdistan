@@ -4,7 +4,8 @@
 //   src/test              test             unit tests, including each project's             fast
 //                                          ArchitectureTest (§6.8 #3)
 //   src/propertyTest      propertyTest     property-based tests, hms.pbt.sequences          fast (1,000 sequences);
-//                                          sequences per property                           nightly (10^6)
+//                                          sequences per property (-Phms.pbt.seed=N         nightly (10^6)
+//                                          replays a sequence run)
 //   src/integrationTest   integrationTest  integration tests with real infrastructure       merge (compiled in fast)
 //                                          (Testcontainers)
 //
@@ -16,6 +17,7 @@
 
 import hms.buildlogic.ArchitectureClassesArgument
 import hms.buildlogic.HmsBuild
+import hms.buildlogic.PbtCountsDirArgument
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
@@ -72,12 +74,49 @@ dependencies {
     }
 }
 
+// -Phms.pbt.seed=N fixes the master seed of every state-machine sequence run, to replay a failure exactly
+// (docs/specs/modules/state-machines-and-invariants.md §3.3: "a failure prints the seed that reproduces it").
+val pbtSeedProperty = "hms.pbt.seed"
+val pbtSeed: Long? =
+    providers.gradleProperty(pbtSeedProperty).orNull?.takeIf { it.isNotBlank() }?.let { raw ->
+        raw.trim().toLongOrNull()
+            ?: throw GradleException("-P$pbtSeedProperty must be a whole number (a master seed a failed run printed), got '$raw'")
+    }
+
 val mainClassesDirs = mainSourceSet.output.classesDirs
+
+// The testFixtures classes (the <P>Arbs facts generators), checked by the ArchitectureTest template for system-clock
+// reads and unseeded randomness (spec §3.1, §3.3). Empty for a project without the java-test-fixtures plugin.
+val testFixturesClassesDirs = objects.fileCollection()
+pluginManager.withPlugin("java-test-fixtures") {
+    testFixturesClassesDirs.from(sourceSets.getByName(HmsBuild.TEST_FIXTURES).output.classesDirs)
+}
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     systemProperty(HmsBuild.PBT_SEQUENCES_PROPERTY, pbtSequences)
+    if (pbtSeed != null) systemProperty(pbtSeedProperty, pbtSeed)
+    // The harness prints a replay command naming this task.
+    systemProperty("hms.pbt.testTask", path)
     jvmArgumentProviders.add(ArchitectureClassesArgument(files(mainClassesDirs)))
+
+    // The sequence harness writes <name>.json here: the actual sequence counts of each run (§19.1). One directory per
+    // test task, declared as the task's output (so a cached result restores it) and emptied before the task runs (so
+    // no file of a renamed or removed test survives).
+    val countsDir = layout.buildDirectory.dir("${HmsBuild.PBT_COUNTS_DIR}/$name")
+    jvmArgumentProviders.add(PbtCountsDirArgument(countsDir))
+    outputs.dir(countsDir).withPropertyName("pbtCounts")
+
+    val fixturesDirs = testFixturesClassesDirs
+    inputs
+        .files(fixturesDirs)
+        .withPropertyName("archTestFixturesClasses")
+        .withNormalizer(ClasspathNormalizer::class.java)
+    doFirst {
+        countsDir.get().asFile.deleteRecursively()
+        (this as Test).systemProperty("hms.arch.testFixturesClassesDirs", fixturesDirs.asPath)
+    }
+
     reports {
         junitXml.required = true
         html.required = true

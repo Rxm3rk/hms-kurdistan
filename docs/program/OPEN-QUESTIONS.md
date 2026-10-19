@@ -442,3 +442,23 @@ Choices the build made where the plan of record sets no value. They bind until a
 - **Sources:** §10.1 gives the hazard record "linked features, invariants, incidents and releases"; neither §3.5 nor §10.1 says whether adding such a link is a change that a risk acceptance must cover again.
 - **Who confirms:** the CSO [HUMAN]: should a hazard's risk acceptance survive linking a release or an incident to it? No hazard is accepted yet and no entry links a release or an incident.
 - **Status:** open
+
+## (g) Engineering choices [P] and questions from WP-0.5
+
+### OQ-200: A generated TypeScript model for the patient-context machine
+- **Choice:** the WP-0.5 generator validates `patient-context.yaml` (a client-side machine in `frontend/packages/ui-core`) against the shared schema and every rule that does not need Kotlin, but generates no model for it. Its `.md` says the hand-written model "must later pass the same tests" as a generated one; a TypeScript target for the generator would make that checkable.
+- **Sources:** `docs/specs/state-machines/patient-context.md` on `wp/0.7-design-system` (`fcadc88`); `docs/specs/modules/state-machines-and-invariants.md` §2.1.
+- **Who confirms:** the human lead, when `wp/0.7-design-system` and `wp/0.5-state-machines` meet.
+- **Status:** open
+
+### OQ-201: Executable specifications with committed generated models; predicate packages ahead of their modules
+- **Choice:** `sh tools/hms statemachines generate` (Python) writes each machine's Kotlin model and generated property test into the owning module, and the generated files are committed; `sh tools/hms statemachines check` fails when they are not current. Each owning module (`adt`, `orders`, `medications`, `lis`, `results`, `scheduling`, and the `rcm` satellite) is created now as a Gradle project holding only its state-machine domain package, because §8.4 puts each predicate in "the module's domain package" and no clinical module exists yet. The alternative, generation at build time inside Gradle, needs a YAML library in `build-logic` (a new dependency) and leaves no generated source for a reviewer to read. To become ADR-035 (DN-061).
+- **Sources:** §8.4; §6.1; §5.2; `docs/specs/modules/state-machines-and-invariants.md` §2.3 and §3.1.
+- **Who confirms:** the human lead.
+- **Status:** open
+
+### OQ-202: Cross-module test projects under `tests/` in the backend build
+- **Choice:** the SI test scaffold (`tests/invariants`) and the scenario-suite framework (`tests/scenarios`) are Gradle projects of the backend build (`:tests:invariants`, `:tests:scenarios`) whose directories sit at the repository root, as `tests/README.md` places cross-module tests. They build under `tests/<name>/build`; the fast tier's JUnit collection includes that path. To become ADR-036 (DN-061).
+- **Sources:** §6.1 (monorepo layout); §18.1, §18.5; `tests/README.md`.
+- **Who confirms:** the human lead.
+- **Status:** open

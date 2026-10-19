@@ -1,6 +1,6 @@
 # Backend
 
-The HMS Kurdistan backend: Kotlin on JDK 25 with Spring Boot and Spring Modulith (ADR-002, ADR-003), built with Gradle (Kotlin DSL). This directory is the Gradle root (BUILD-PROMPT §6.1). WP-0.1 built the skeleton: the build, the version catalogue, the convention plugins, the test tiers, the quality gates and the architecture rules. No application code exists yet.
+The HMS Kurdistan backend: Kotlin on JDK 25 with Spring Boot and Spring Modulith (ADR-002, ADR-003), built with Gradle (Kotlin DSL). This directory is the Gradle root (BUILD-PROMPT §6.1). WP-0.1 built the skeleton: the build, the version catalogue, the convention plugins, the test tiers, the quality gates and the architecture rules. WP-0.5 added the state-machine engine, the sequence-property harness and the executable models of the §8.4 machines (docs/specs/modules/state-machines-and-invariants.md). No other application code exists yet: no aggregate, command handler, repository or application.
 
 ## Layout
 
@@ -9,12 +9,13 @@ The HMS Kurdistan backend: Kotlin on JDK 25 with Spring Boot and Spring Modulith
 | `build-logic/` | Convention plugins: `hms.kotlin-conventions`, `hms.quality-conventions`, `hms.test-conventions` (later also jOOQ and Flyway) | WP-0.1 |
 | `gradle/libs.versions.toml` | The version catalogue: every pinned backend component, with its licence (§4.1, ADR-002) | WP-0.1 |
 | `config/detekt/detekt.yml` | detekt rules on top of the default configuration | WP-0.1 |
-| `platform/` | Shared kernel libraries (`hms.kernel.<lib>`) | WP-0.1 (`arch-rules`, `testing`), WP-0.3 onwards |
-| `modules/` | One directory per application module (§5.2) | WP-0.3 onwards |
+| `platform/` | Shared kernel libraries (`hms.kernel.<lib>`) | WP-0.1 (`arch-rules`, `testing`), WP-0.5 (`state-machine`, the harness in `testing`), WP-0.3 onwards |
+| `modules/` | One directory per application module (§5.2). `adt`, `lis`, `medications`, `orders`, `results` and `scheduling` exist and hold only their state-machine domain packages (spec §3.1, ADR-035) | WP-0.5 (machine packages), WP-0.3 onwards |
 | `app-hms/` | The modular-monolith Spring Boot application | WP-0.3 |
 | `regulated/` | Tier 2 sidecars, each its own deployable and release train | Phase 1 onwards |
 | `hub/` | The Integration Hub satellite | Phase 1 (§12) |
-| `satellites/` | RCM (with finance-export), the document renderer, analytics, the AI gateway (P2) | WP-0.8, Phase 1 onwards |
+| `satellites/` | RCM (with finance-export), the document renderer, analytics, the AI gateway (P2). `rcm` exists and holds only the credit-claim machine's domain package | WP-0.5 (machine package), WP-0.8, Phase 1 onwards |
+| `../tests/` | Cross-module test projects built from this root: `:tests:invariants` (the SI test scaffold) and `:tests:scenarios` (the §18.5 scenario-suite framework). They build in `tests/<name>/build` | WP-0.5 |
 
 **Packages [P].** The base package is `hms`. A module uses `hms.<module>` with hyphens turned into dots (`trust-identity` → `hms.trust.identity`, `reg-dose` → `hms.reg.dose`), with the layer sub-packages `api`, `domain`, `application`, `infrastructure`, `web` and `events` (§6.1). Other modules may import only `api`. Shared kernel libraries use `hms.kernel.<lib>`.
 
@@ -43,6 +44,8 @@ Each tier has its own source set [P] (OQ-096), so a task runs exactly the tests 
 | `src/integrationTest` | `integrationTest` | Integration tests with real infrastructure (Testcontainers) | merge (compiled in the fast tier) |
 
 The property and integration source sets see the main code, including `internal` declarations, and inherit the unit-test dependencies. Never hard-code an iteration count in a property test.
+
+**State-machine sequence properties.** `hms.kernel.testing.statemachine` (in `platform/testing`) drives a generated machine model with random command sequences: `runSequences` checks properties P1 to P6 after every step, and `machineSequenceProperties`, the test each generated `<P>GeneratedPropertyTest` includes, adds P7 (every transition fired) from 1,000 sequences (spec §3.3). Sequences come from seeds drawn from one master seed; a failure prints the master seed, the sequence's seed, the step and the sequence up to it. Each run writes its counts to `build/pbt-counts/<name>.json`: `hms.test-conventions` passes that directory to every test JVM as `hms.pbt.countsDir`, so the CI record holds the actual sequence counts (§19.1). The directory is not a tracked task output: a test task restored from the build cache writes no counts file. On the Windows host (not evidence of record) the toy machine of the harness's tests, ten transitions, ran 100,000 sequences of up to 32 steps in about 10 seconds.
 
 ## Quality gates
 
