@@ -504,6 +504,70 @@ class WithdrawalTest(RecordCase):
                     role="nurse-panel", name="SYN-TEST-PANEL-B", subject_version=1)
         self.assertFailsWith(self.box.run(), "medication-administration approval.status is filled ('approved')", "withdrawn by SO-2099-0010 (returned)")
 
+    def test_a_record_for_another_subject_cannot_end_a_rejection(self) -> None:
+        # W11: a nurse-panel signer's record about another subject named the CSO's rejection in supersedes, and the
+        # acceptance the rejection withdrew authorised again.
+        self.record("SO-2099-0001")
+        self.record("SO-2099-0002", decision="rejected", date="2099-02-01")
+        self.record("SO-2099-0003", subject="HAZ-0002", field="signed_by", decision="approved", role="nurse-panel",
+                    name=SIGNER_B, supersedes="SO-2099-0002", date="2099-03-01")
+        self.assertFailsWith(
+            self.run_with(accept_hazard_0001),
+            "SO-2099-0003.yaml: supersedes SO-2099-0002, a record for HAZ-0001 residual_risk.accepted_by, but is itself for "
+            "HAZ-0002 signed_by; a record supersedes only a record for the same subject and field",
+            "SO-2099-0001 (withdrawn by SO-2099-0002 (rejected) at the same subject version) are withdrawn",
+        )
+
+    def test_another_role_cannot_end_a_rejection(self) -> None:
+        self.record("SO-2099-0001")
+        self.record("SO-2099-0002", decision="rejected", date="2099-02-01")
+        self.record("SO-2099-0003", role="nurse-panel", name=SIGNER_B, supersedes="SO-2099-0002", date="2099-03-01")
+        self.assertFailsWith(
+            self.run_with(accept_hazard_0001),
+            f"SO-2099-0003.yaml: supersedes SO-2099-0002, which {SIGNER_A} signed as cso (rejected), but is signed as nurse-panel "
+            f"by {SIGNER_B}; only the person who rejected or returned, or a record in the same role, ends a rejection or a return",
+            "withdrawn by SO-2099-0002 (rejected)",
+        )
+
+    def test_another_person_in_the_same_role_ends_a_rejection(self) -> None:
+        self.record("SO-2099-0001")
+        self.record("SO-2099-0002", decision="rejected", date="2099-02-01")
+        self.record("SO-2099-0003", name=SIGNER_B, supersedes="SO-2099-0002", date="2099-03-01")
+        result = self.run_with(lambda d: accept_hazard_0001(d, SIGNER_B))
+        self.assertTrue(result.ok, "\n".join(result.errors))
+
+    def test_a_return_by_one_panel_is_not_ended_by_another_role(self) -> None:
+        self.box.add_state_machine("state-machines/filled-with-record/medication-administration.yaml")
+        self.panel_records("pharmacist-panel", "nurse-panel", "cso")
+        self.record("SO-2099-0010", subject=self.MACHINE, field="approval.approved_by", decision="returned",
+                    role="nurse-panel", name="SYN-TEST-PANEL-B", subject_version=1)
+        self.record("SO-2099-0011", subject=self.MACHINE, field="approval.approved_by", decision="approved",
+                    role="cso", supersedes="SO-2099-0010", subject_version=1)
+        self.assertFailsWith(self.box.run(), "SO-2099-0011.yaml: supersedes SO-2099-0010", "withdrawn by SO-2099-0010 (returned)")
+
+    def test_superseding_a_record_of_another_subject_is_an_error_until_superseded(self) -> None:
+        self.record("SO-2099-0001")
+        self.record("SO-2099-0002", subject="HAZ-0002", field="signed_by", decision="approved", supersedes="SO-2099-0001")
+        result = self.run_with(accept_hazard_0001)
+        self.assertFailsWith(result, "SO-2099-0002.yaml: supersedes SO-2099-0001, a record for HAZ-0001")
+        self.assertFalse(any("HAZ-0001 residual_risk.accepted_by is filled" in e for e in result.errors), result.errors)  # SO-2099-0001 stands
+        self.record("SO-2099-0003", subject="HAZ-0002", field="signed_by", decision="approved", supersedes="SO-2099-0002")
+        result = self.run_with(accept_hazard_0001)
+        self.assertTrue(result.ok, "\n".join(result.errors))
+
+    def test_withdrawals_check_supersedes_against_every_record_with_the_id(self) -> None:
+        def rec(record_id: str, **fields: Any) -> so.SignoffRecord:
+            data = {"id": record_id, "subject": "S", "field": "f", "subject_version": "1", "decision": "approved",
+                    "role": "cso", "name": "N1", **fields}
+            return so.SignoffRecord(Path(f"{record_id}.yaml"), data)
+
+        # A removed record's two versions share an id: a record that may supersede one but not the other withdraws nothing.
+        withdrawn, errors = so.withdrawals([
+            rec("SO-1"), rec("SO-1", decision="rejected"), rec("SO-2", role="nurse-panel", name="N2", supersedes="SO-1"),
+        ])
+        self.assertNotIn("SO-1", {k for k, v in withdrawn.items() if v.startswith("superseded")})
+        self.assertTrue(errors and "only the person who rejected or returned" in errors[0], errors)
+
     def test_supersedes_must_name_a_record_that_is_here(self) -> None:
         self.record("SO-2099-0001", supersedes="SO-2099-0099")
         self.assertFailsWith(self.run_with(accept_hazard_0001), "SO-2099-0001.yaml: supersedes SO-2099-0099, but no valid sign-off record has that id")

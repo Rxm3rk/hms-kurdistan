@@ -7,9 +7,11 @@ with real merges, are tested in test_signed_commits.py.
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +82,7 @@ class FakeGit:
         self.not_a_repo = False
         self.status: dict[str, str] = {}
         self.listing: str | None = None  # replaces the rev-list output of the list's history
+        self.verifiers = ""  # git config --show-scope --get-regexp output for the verifier programs ("" for none)
 
     def _new_id(self) -> str:
         """A commit id whose first 12 digits (as messages print it) differ from every other commit's."""
@@ -156,6 +159,8 @@ class FakeGit:
             return done(0, f"{sig}\x00{fpr}\x00{primary}\x00{body}\n")
         if args[0] == "status":
             return done(0, self.status.get(args[-1], ""))
+        if args[:3] == ("config", "--show-scope", "--get-regexp"):
+            return done(0, self.verifiers) if self.verifiers else done(1)
         raise AssertionError(f"unexpected git call {args}")
 
 
@@ -845,6 +850,102 @@ class TrustChainTest(GitCase):
         self.git.change(signers_text(A, comment="x"), parents=[settled, agent])
         self.assertEqual(self.trust().errors, [])
 
+    def test_a_merge_that_keeps_the_version_in_conflict_approves_nothing(self) -> None:
+        # D1 (F01, F01b, F01c): the agent merges its line, which lists the human's key and its own, keeping its list;
+        # then the human signs a routine merge of other work that does not touch the list. --full-history lists that
+        # merge, but it writes no version of the list, so it approves nothing, whoever signs it.
+        root = self.git.change(signers_text())
+        human = self.git.change(signers_text(A), parents=[root])
+        agent = self.git.change(signers_text(A, XA), parents=[root])
+        for label, body, parents_of_routine in (
+            ("F01: one rewritten parent", "chore: merge\n", lambda merge: [merge]),
+            ("F01b: other work forked before the conflict", "chore: merge\n", lambda merge: [merge, human]),
+            ("F01c: the agent's merge carries an AI trailer", AI_BODY, lambda merge: [merge]),
+        ):
+            with self.subTest(label):
+                self.git.commits = self.git.commits[:3]
+                merge = self.git.change(signers_text(A, XA), body=body, parents=[human, agent])
+                routine = self.git.change(signers_text(A, XA), "G", KEY_A, parents=parents_of_routine(merge))
+                trust = self.trust()
+                self.assertLocked(trust, f"the version of commit {human[:12]}, which lists {KEY_A}")
+                self.assertFalse(any(routine[:12] in e for e in trust.errors), trust.errors)
+                self.assertFalse(any("settled" in w for w in trust.warnings), trust.warnings)
+        # A signed commit that writes a version (a comment-only edit is enough) approves, as before.
+        self.git.change(signers_text(A, XA, comment="the human approves the merged list"), "G", KEY_A)
+        trust = self.trust()
+        self.assertEqual(trust.errors, [])
+        self.assertEqual(len(trust.signers), 2)
+
+    def test_a_merge_that_approves_nothing_settles_on_the_approvals_its_lines_gave(self) -> None:
+        # D4 (X02b): each line approved the merged list with its own key; a merge of the two lines with an AI trailer
+        # approves nothing, but the approvals already given cover every side, so it settles, as an unsigned one does.
+        human, agent = self.conflict()
+        one = self.git.change(signers_text(A, XA), "G", KEY_A, parents=[human, agent])
+        two = self.git.change(signers_text(XA, A), "G", KEY_X, parents=[agent, human])
+        for body in ("chore: merge\n", AI_BODY):
+            with self.subTest(body=body):
+                self.git.commits = self.git.commits[:5]
+                merge = self.git.change(signers_text(A, XA), body=body, parents=[one, two])
+                trust = self.trust()
+                self.assertEqual(trust.errors, [])
+                self.assertEqual(len(trust.signers), 2)
+                self.assertTrue(any(f"merge {merge[:12]} settled the conflict" in w for w in trust.warnings), trust.warnings)
+        # An AI-trailer merge whose lines have not approved its signers on every side stays in conflict, and the error
+        # still names the side whose approval is missing.
+        self.git.commits = self.git.commits[:5]
+        self.git.change(signers_text(A), body=AI_BODY, parents=[one, two])
+        self.assertLocked(self.trust(), f"the version of commit {agent[:12]}, which lists {KEY_X}")
+
+    def test_a_line_that_settled_the_conflict_does_not_discard_a_later_signed_change(self) -> None:
+        # D6 (X18): the human signs the merged list (approving the agent's key for the human's side); the agent forks
+        # there and settles it on its line; the human then signs a change back to the human's key alone. Merging the
+        # agent's line back, unsigned, keeping its list, does not discard that signed change: the conflict's sides stay
+        # sides, of a new conflict with the settled version.
+        human, agent = self.conflict()
+        merge = self.git.change(signers_text(XA, A), "G", KEY_A, parents=[human, agent])
+        settled = self.git.change(signers_text(XA, A, comment="settled on the agent's line"), "G", KEY_X, parents=[merge])
+        back = self.git.change(signers_text(A), "G", KEY_A, parents=[merge])  # the human changes their mind, signed
+        self.assertLocked(self.trust(), f"the version of commit {agent[:12]}")
+        self.git.change(signers_text(XA, A, comment="settled on the agent's line"), parents=[back, settled])
+        trust = self.trust()
+        self.assertLocked(trust, f"the version of commit {human[:12]}, which lists {KEY_A}")
+        self.assertIn(f"the version of commit {settled[:12]}", trust.errors[-1])
+        # The agent's key alone cannot settle the new conflict; the human's side must approve again.
+        self.git.change(signers_text(XA, A, comment="again"), "G", KEY_X)
+        self.assertLocked(self.trust(), f"the version of commit {human[:12]}, which lists {KEY_A}")
+        # Control: a change on the conflict's line that no side's key signed is not a decision, so the settled line
+        # replaces the conflict's sides as before.
+        self.git.commits = self.git.commits[:5]
+        unsigned = self.git.change(signers_text(A), parents=[merge])
+        self.git.change(signers_text(XA, A, comment="settled on the agent's line"), parents=[unsigned, settled])
+        trust = self.trust()
+        self.assertEqual(trust.errors, [])
+        self.assertEqual(len(trust.signers), 2)
+
+    def test_an_approval_given_on_a_parallel_line_does_not_reopen_a_settled_conflict(self) -> None:
+        # X07: the agent approves the merged list on a line forked inside the conflict; main settles on the human's
+        # list with the agent's key. That approval withdraws nothing main's settlement rests on (it was given on
+        # another line, not after it), so merging the line keeps main's settled version.
+        human, agent = self.conflict()
+        merge = self.git.change(signers_text(A), parents=[human, agent])
+        forked = self.git.change(signers_text(XA, A), "G", KEY_X, parents=[merge])
+        settled = self.git.change(signers_text(A, comment="settled on main"), "G", KEY_X, parents=[merge])
+        self.git.change(signers_text(A, comment="settled on main"), parents=[settled, forked])
+        trust = self.trust()
+        self.assertEqual(trust.errors, [])
+        self.assertEqual([s.fingerprint for s in trust.signers], [KEY_A])
+
+    def test_an_approval_withdrawn_on_another_line_does_not_count_after_a_merge(self) -> None:
+        # D6, criss-cross form: the human signs the merged list, then on another line signs a change back to the
+        # human's key alone; a merge of the two lines, signed by the agent's key, keeping the merged list, does not
+        # settle on the human's first approval, which the human has withdrawn since.
+        human, agent = self.conflict()
+        merge = self.git.change(signers_text(XA, A), "G", KEY_A, parents=[human, agent])
+        one = self.git.change(signers_text(XA, A, comment="unsigned edit"), parents=[merge])
+        two = self.git.change(signers_text(A), "G", KEY_A, parents=[merge])
+        self.git.change(signers_text(XA, A, comment="unsigned edit"), "G", KEY_X, parents=[one, two])
+        self.assertLocked(self.trust(), f"the version of commit {human[:12]}, which lists {KEY_A}")
+
     def test_a_side_that_lists_no_key_approves_only_a_list_without_keys(self) -> None:
         base = self.anchor()
         emptied = self.git.change(signers_text(), "G", KEY_A, parents=[base])  # every key withdrawn, signed
@@ -895,6 +996,66 @@ class TrustChainTest(GitCase):
         trust = self.trust()
         self.assertEqual((trust.signers, trust.errors), ([], []))
         self.assertTrue(any("no signer is trusted" in w for w in trust.warnings))
+
+    def test_a_symbolic_link_on_the_path_of_the_list_trusts_no_one(self) -> None:
+        # D2 (X13, X14): a link would make the gate read the history of the file it points to.
+        self.anchor()
+        elsewhere = self.root / "elsewhere"
+        elsewhere.mkdir()
+        (elsewhere / "allowed-signers.yaml").write_text(signers_text(X), encoding="utf-8")
+        signoffs = self.signers_path.parent
+        for link, target in ((self.signers_path, elsewhere / "allowed-signers.yaml"), (signoffs, elsewhere)):
+            with self.subTest(link=link.name):
+                moved = link.with_name(link.name + ".moved")
+                link.rename(moved)
+                try:
+                    try:
+                        link.symlink_to(target, target_is_directory=target.is_dir())
+                    except OSError as exc:  # Windows without the symlink privilege
+                        self.skipTest(f"this host cannot make a symbolic link: {exc}")
+                    trust = self.trust()
+                    self.assertEqual(trust.signers, [])
+                    rel = link.relative_to(self.root).as_posix()
+                    self.assertTrue(any(f"{rel} is a symbolic link in the working tree" in e for e in trust.errors), trust.errors)
+                    errors = self.authenticator(so.SignerTrust(signers=[signer(A)]))(self.record())
+                    if link == signoffs:
+                        self.assertTrue(errors and f"{rel} is a symbolic link" in errors[0], errors)
+                finally:
+                    link.unlink(missing_ok=True)
+                    moved.rename(link)
+
+    def test_repository_paths_are_taken_lexically(self) -> None:
+        auth = self.authenticator()
+        self.assertEqual(auth._relative(self.signers_path), SIGNERS_REL)
+        self.assertEqual(auth._relative(self.root / "docs" / "x" / ".." / "safety" / "signoffs" / "allowed-signers.yaml"), SIGNERS_REL)
+        self.assertIsNone(auth._relative(self.root))
+        self.assertIsNone(auth._relative(self.root.parent / "elsewhere.yaml"))
+
+    def test_a_verifier_program_the_repository_sets_trusts_no_one(self) -> None:
+        # A gpg.program in .git/config (not in any commit) can report a good signature by any key it names.
+        self.anchor()
+        for scope, key in (("local", "gpg.program"), ("worktree", "gpg.ssh.program"), ("command", "gpg.openpgp.program")):
+            with self.subTest(scope=scope):
+                self.git.verifiers = f"global\tgpg.x509.program gpgsm\n{scope}\t{key} /tmp/verifier\n"
+                trust = self.trust()
+                self.assertEqual(trust.signers, [])
+                self.assertTrue(any(f"{key} is set in the {scope} git configuration, not the host's" in e for e in trust.errors), trust.errors)
+        self.git.verifiers = "global\tgpg.program gpg\nsystem\tgpg.ssh.program ssh-keygen\n"  # the host's own: allowed
+        self.assertEqual(self.names(self.trust()), ["SYN-TEST-SIGNER-A"])
+
+    def test_git_runs_without_grafts_replace_refs_or_the_commit_graph(self) -> None:
+        # D3: a local view of history (.git/info/grafts, replace refs, a commit-graph file) never reaches the gate.
+        seen: dict[str, Any] = {}
+
+        def fake_run(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+            seen.update(argv=argv, env=kwargs.get("env"))
+            return subprocess.CompletedProcess(argv, 0, b"", b"")
+
+        auth = so.GitAuthenticator(self.root, self.signers_path, self.read)
+        with unittest.mock.patch.object(so.subprocess, "run", fake_run):
+            auth.run("rev-list", "HEAD")
+        self.assertEqual(seen["argv"][:4], ["git", "--no-replace-objects", "-c", "core.commitGraph=false"])
+        self.assertEqual((seen["env"]["GIT_GRAFT_FILE"], seen["env"]["GIT_NO_REPLACE_OBJECTS"]), (os.devnull, "1"))
 
     def test_records_are_checked_against_the_trusted_list(self) -> None:
         self.anchor()

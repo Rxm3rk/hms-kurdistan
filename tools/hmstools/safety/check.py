@@ -23,13 +23,15 @@ Rules (docs/safety/README.md lists them for reviewers):
     authenticated sign-off record with the same subject and field, the decision that field needs,
     the subject's current version and a role the field accepts; a record is authenticated only by
     commits with a good signature by a key in docs/safety/signoffs/allowed-signers.yaml, whose own
-    history must support it (signoffs.GitAuthenticator).
+    history must support it (signoffs.GitAuthenticator). A record committed at HEAD must be in the
+    working tree, and a record HEAD no longer holds still withdraws what its signed versions withdrew.
 """
 
 from __future__ import annotations
 
 import datetime as _dt
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -90,10 +92,18 @@ class SafetyPaths:
         )
 
     def label(self, path: Path) -> str:
+        return _repository_path(self, path) or path.as_posix()
+
+
+def _repository_path(paths: SafetyPaths, path: Path) -> str:
+    """The repository path of ``path``, taken lexically (a symbolic link on the way is not followed); "" outside."""
+    target = Path(os.path.abspath(path))
+    for base in dict.fromkeys((Path(os.path.abspath(paths.root)), paths.root.resolve())):
         try:
-            return path.resolve().relative_to(self.root.resolve()).as_posix()
+            return target.relative_to(base).as_posix()
         except ValueError:
-            return path.as_posix()
+            continue
+    return ""
 
 
 # --------------------------------------------------------------------------------------------- YAML
@@ -617,16 +627,67 @@ def _check_allowed_signers(
         )
 
 
-def _load_signoffs(paths: SafetyPaths, authenticate: so.Authenticator, result: CheckResult) -> list[so.SignoffRecord]:
+def _removed_records(
+    paths: SafetyPaths, authenticate: so.Authenticator, versions: list[tuple[str, str, str]], schema: dict[str, Any],
+    result: CheckResult,
+) -> list[so.SignoffRecord]:
+    """The versions of removed records that still withdraw: those that validate and that their commits authenticate.
+
+    A record is never removed, so a removal cannot bring back what a record withdrew: each version of a record
+    that HEAD's history held but HEAD does not still withdraws (supersedes, rejected, returned), if it was a valid
+    record signed as a record at HEAD must be; it authorises nothing. The removal is reported as a warning, since
+    the commit that removed it stays in the record's history for good.
+    """
+    import yaml
+
+    check = getattr(authenticate, "removed_record_errors", None)
+    kept: list[so.SignoffRecord] = []
+    for rel in sorted({rel for rel, _commit, _text in versions}):
+        result.warnings.append(
+            f"{rel}: a sign-off record that HEAD's history holds is not at HEAD (removed or renamed); a committed record "
+            "is never removed, so each signed version of it still withdraws what it withdrew (it authorises nothing)"
+        )
+    for rel, commit, text in versions:
+        try:
+            data = _normalise(yaml.load(text, Loader=_strict_loader()))  # noqa: S506 - a SafeLoader subclass
+        except yaml.YAMLError:
+            continue
+        if _schema_errors(data, schema, rel):
+            continue
+        record = so.SignoffRecord(paths.root / rel, data)
+        try:
+            _dt.date.fromisoformat(record.date)
+        except ValueError:
+            continue
+        if Path(rel).stem != record.id or not callable(check) or check(record, rel, commit):
+            continue
+        kept.append(record)
+    return kept
+
+
+def _load_signoffs(
+    paths: SafetyPaths, authenticate: so.Authenticator, result: CheckResult,
+) -> tuple[list[so.SignoffRecord], list[so.SignoffRecord]]:
+    """The valid, authenticated records in the working tree, and the removed record versions that still withdraw."""
     records: list[so.SignoffRecord] = []
     files = list(so.iter_record_files(paths.signoffs_dir))
     result.counts["signoff_records"] = len(files)
-    if not files:
-        return records
+    history = getattr(authenticate, "history_records", None)
+    committed, removed, problems = history(paths.signoffs_dir) if callable(history) else (set(), [], [])
+    result.errors.extend(problems)
+    present = {_repository_path(paths, path) for path in files}
+    for rel in sorted(committed - present):
+        result.errors.append(
+            f"{rel}: sign-off record is committed at HEAD but is not in the working tree (deleted, or hidden by "
+            "assume-unchanged or skip-worktree); a record is never removed, and the check reads it only as committed"
+        )
+    if not files and not removed:
+        return records, []
     schema = _load_schema(paths.signoff_schema, paths.label(paths.signoff_schema), result)
     if schema is None:
         result.errors.append("sign-off records cannot be validated without their schema; none of them counts")
-        return records
+        return records, []
+    withdrawing = _removed_records(paths, authenticate, removed, schema, result)
     seen: dict[str, str] = {}
     for path in files:
         label = paths.label(path)
@@ -657,10 +718,14 @@ def _load_signoffs(paths: SafetyPaths, authenticate: so.Authenticator, result: C
             valid = False
         if valid:
             records.append(record)
-    return records
+    return records, withdrawing
 
 
-def _gate(paths: SafetyPaths, hazard_doc: Any, records: list[so.SignoffRecord], result: CheckResult) -> None:
+def _gate(
+    paths: SafetyPaths, hazard_doc: Any, records: list[so.SignoffRecord], result: CheckResult,
+    removed: list[so.SignoffRecord] | None = None,
+) -> None:
+    """Match every filled approval field to the records; ``removed`` (versions of removed records) only withdraw."""
     gate_fields: list[so.GateField] = []
     if hazard_doc is not None:
         gate_fields += so.scan_gate_fields(hazard_doc, paths.label(paths.hazard_log), "hazard-log", hazard_log=True).fields
@@ -686,7 +751,7 @@ def _gate(paths: SafetyPaths, hazard_doc: Any, records: list[so.SignoffRecord], 
             gate_fields += so.scan_gate_fields(document, paths.label(path), path.stem).fields
 
     result.counts["approval_fields_filled"] = len(gate_fields)
-    withdrawn, problems = so.withdrawals(records, lambda record: paths.label(record.path))
+    withdrawn, problems = so.withdrawals([*records, *(removed or [])], lambda record: paths.label(record.path))
     result.errors.extend(problems)
     for gate in gate_fields:
         error = so.match_gate_field(gate, records, withdrawn)
@@ -743,8 +808,8 @@ def run_check(paths: SafetyPaths, authenticate: so.Authenticator | None = None) 
                 _check_hazards(hazard_doc, plan, features, seeded, matrix, label, result)
 
     _check_allowed_signers(paths, read_signers, authenticate, result)
-    records = _load_signoffs(paths, authenticate, result)
-    _gate(paths, hazard_doc, records, result)
+    records, removed = _load_signoffs(paths, authenticate, result)
+    _gate(paths, hazard_doc, records, result, removed)
     return result
 
 

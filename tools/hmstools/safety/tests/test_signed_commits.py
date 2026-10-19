@@ -4,10 +4,11 @@ Each test builds a throwaway repository holding a sandbox copy of the safety fil
 keys generated for the test class in a temporary GnuPG home (and temporary SSH key files), and runs the
 whole check, so git's own signature verification decides %G?. HistoryShapeTest builds, with real git, the
 bypasses found when the R-01 fix was verified: forged commit messages, merges that git's default history
-simplification hides, a record changed behind git status, and a schema change. MergeConflictTest builds the
-merges of probe-merge.sh (a line on which the agent anchored its own key, merged into the human's line) and
-the ways such a conflict is settled or stays open. GpgSignedRecordTest also shows that a signed rejection
-withdraws an acceptance until a later record supersedes it. Nothing touches the user's keyring or git
+simplification hides, a record changed behind git status, a schema change, grafts and symbolic links.
+MergeConflictTest builds the merges of probe-merge.sh (a line on which the agent anchored its own key, merged
+into the human's line) and the ways such a conflict is settled or stays open, a routine signed merge and a
+graft included. GpgSignedRecordTest also shows that a signed rejection withdraws an acceptance until a later
+record supersedes it, however the rejection is removed. Nothing touches the user's keyring or git
 configuration: GNUPGHOME, GIT_CONFIG_GLOBAL and GIT_CONFIG_NOSYSTEM point at temporary files while a test
 runs, and the temporary GnuPG homes set ignore-time-conflict, because the WSL clock can step back after the
 keys are made. The test classes skip, saying why, on a host without git, gpg or ssh-keygen.
@@ -163,6 +164,13 @@ class SignedRepoCase(unittest.TestCase):
 
     def head(self) -> str:
         return self.git("rev-parse", "HEAD").strip()
+
+    def graft(self, commit: str, *parents: str) -> None:
+        """Give ``commit`` other parents in this clone only (.git/info/grafts), and check that git honours it."""
+        info = self.root / ".git" / "info"
+        info.mkdir(exist_ok=True)
+        (info / "grafts").write_text(f"{commit} {' '.join(parents)}\n", encoding="utf-8", newline="\n")
+        self.assertEqual(self.git("rev-list", "--parents", "-1", commit).split()[1:], list(parents))
 
     def branch(self) -> str:
         return self.git("rev-parse", "--abbrev-ref", "HEAD").strip()
@@ -330,6 +338,82 @@ class GpgSignedRecordTest(SignedRepoCase):
         self.write_record("SO-2099-0003", "accepted", gpg_key=self.key_a, supersedes="SO-2099-0002")
         self.assertPasses(self.check())
 
+    REJECTION_REL = "docs/safety/signoffs/SO-2099-0002.yaml"
+
+    def reject_the_acceptance(self) -> Path:
+        """The CSO's signed acceptance of HAZ-0001, then their signed rejection of it; returns the rejection's path."""
+        self.list_signers(self.entry(NAME_A, self.key_a))
+        self.accept_hazard_0001(gpg_key=self.key_a)
+        self.write_record("SO-2099-0002", "rejected", gpg_key=self.key_a)
+        self.assertFailsWith(self.check(), "withdrawn by SO-2099-0002 (rejected)")
+        return self.root / self.REJECTION_REL
+
+    def test_a_committed_rejection_missing_from_the_working_tree_fails(self) -> None:
+        # Record rules D1, D3: the rejection deleted in the working tree, plainly or behind a flag that hides it from
+        # git status, once brought the acceptance it withdrew back.
+        rejection = self.reject_the_acceptance()
+        text = rejection.read_text(encoding="utf-8")
+        for flag in (None, "assume-unchanged", "skip-worktree"):
+            with self.subTest(flag=flag):
+                if flag:
+                    self.git("update-index", f"--{flag}", self.REJECTION_REL)
+                rejection.unlink()
+                try:
+                    if flag:
+                        self.assertEqual(self.git("status", "--porcelain"), "")
+                    self.assertFailsWith(self.check(), f"{self.REJECTION_REL}: sign-off record is committed at HEAD but is not in the working tree")
+                finally:
+                    rejection.write_text(text, encoding="utf-8", newline="\n")
+                    if flag:
+                        self.git("update-index", f"--no-{flag}", self.REJECTION_REL)
+
+    def test_a_rejection_removed_in_a_commit_still_withdraws(self) -> None:
+        # Record rules D2, D4: a commit nobody signed removed or renamed the rejection, and the acceptance it withdrew
+        # authorised again. A record is never removed: each signed version of it still withdraws.
+        rejection = self.reject_the_acceptance()
+        rejected, main = self.head(), self.branch()
+        acceptance = self.git("rev-parse", "HEAD~1").strip()
+
+        def removed_unsigned() -> None:
+            self.git("rm", "-q", self.REJECTION_REL)
+            self.commit("chore: tidy the sign-off records")
+
+        def renamed_unsigned() -> None:
+            rejection.rename(rejection.with_suffix(".txt"))
+            self.commit("chore: rename a sign-off record")
+
+        def edited_then_removed() -> None:  # the unsigned edit does not authenticate; the signed version still counts
+            rejection.write_text(rejection.read_text(encoding="utf-8").replace("decision: rejected", "decision: accepted"),
+                                 encoding="utf-8", newline="\n")
+            self.commit("chore: edit a sign-off record")
+            removed_unsigned()
+
+        def dropped_by_a_merge() -> None:  # a line from before the rejection merges it in and drops it
+            self.git("checkout", "-q", "-b", "other", acceptance)
+            (self.root / "notes.txt").write_text("Synthetic unrelated work.\n", encoding="utf-8", newline="\n")
+            self.commit("chore: synthetic unrelated work")
+            self.merge_keeping_tree_of(main, "HEAD")
+
+        for remove in (removed_unsigned, renamed_unsigned, edited_then_removed, dropped_by_a_merge):
+            with self.subTest(remove.__name__):
+                self.git("checkout", "-q", "-f", main)
+                self.git("reset", "-q", "--hard", rejected)
+                if self.git("branch", "--list", "other").strip():
+                    self.git("branch", "-q", "-D", "other")
+                remove()
+                self.assertFalse(rejection.exists())
+                result = self.check()
+                self.assertFailsWith(result, "SO-2099-0001 (withdrawn by SO-2099-0002 (rejected) at the same subject version) are withdrawn")
+                self.assertTrue(any(f"{self.REJECTION_REL}: a sign-off record that HEAD's history holds is not at HEAD" in w
+                                    for w in result.warnings), result.warnings)
+
+    def test_a_removed_acceptance_authorises_nothing(self) -> None:
+        self.list_signers(self.entry(NAME_A, self.key_a))
+        self.accept_hazard_0001(gpg_key=self.key_a)
+        self.git("rm", "-q", "docs/safety/signoffs/SO-2099-0001.yaml")
+        self.commit("chore: tidy the sign-off records")
+        self.assertFailsWith(self.check(), "HAZ-0001 residual_risk.accepted_by is filled", "no sign-off record")
+
     def test_a_rejection_the_list_does_not_back_withdraws_nothing_and_fails(self) -> None:
         self.list_signers(self.entry(NAME_A, self.key_a))
         self.accept_hazard_0001(gpg_key=self.key_a)
@@ -477,6 +561,80 @@ class HistoryShapeTest(SignedRepoCase):
         self.git("merge", "-q", "--no-ff", "--no-edit", "acceptance")
         self.assertPasses(self.check())
 
+    def test_grafts_do_not_hide_an_unsigned_commit_of_a_record(self) -> None:
+        # Record rules G1: a graft re-parented a signed edit past the unsigned commit that added the record.
+        self.list_signers(self.entry(NAME_A, self.key_a))
+        base = self.head()
+        self.accept_hazard_0001()  # unsigned
+        record = self.root / self.RECORD_REL
+        record.write_text(record.read_text(encoding="utf-8") + "notes: Synthetic edit.\n", encoding="utf-8", newline="\n")
+        self.commit("docs(safety): edit the record", gpg_key=self.key_a)
+        self.assertFailsWith(self.check(), "no good signature (git %G? = N")
+        self.graft(self.head(), base)
+        self.assertFailsWith(self.check(), "no good signature (git %G? = N")
+
+    def test_a_verifier_program_set_in_the_repository_trusts_no_one(self) -> None:
+        # A gpg.program in .git/config is in no commit and could report a good signature by any key it names (the
+        # real gpg here, so the test needs no stand-in verifier); only the host's global or system setting counts.
+        self.list_signers(self.entry(NAME_A, self.key_a))
+        self.accept_hazard_0001(gpg_key=self.key_a)
+        self.assertPasses(self.check())
+        self.git("config", "--local", "gpg.program", "gpg")
+        result = self.check()
+        self.assertFailsWith(result, "gpg.program is set in the local git configuration, not the host's", "no signer is trusted")
+        self.assertEqual(result.counts["allowed_signers"], 0)
+
+    def link_or_skip(self, link: Path, target: str, directory: bool = False) -> None:
+        try:
+            link.symlink_to(target, target_is_directory=directory)
+        except OSError as exc:
+            self.skipTest(f"this host cannot make a symbolic link: {exc}")
+
+    def committed_link_or_skip(self, rel: str) -> None:
+        if not self.git("ls-tree", "HEAD", "--", rel).startswith("120000 "):
+            self.skipTest("git on this host does not commit symbolic links (core.symlinks)")
+
+    def test_a_symbolic_link_cannot_redirect_the_list(self) -> None:
+        # D2 (X13): after the human's anchor, an unsigned commit replaced the list by a link to the agent's own list,
+        # and the gate walked the history of the link's target, where that list was a new trust anchor.
+        self.list_signers(self.entry(NAME_A, self.key_a))  # the human's anchor
+        evil = self.root / "evil"
+        evil.mkdir()
+        (evil / "allowed-signers.yaml").write_text(self.signers_text(self.entry(NAME_A, self.key_b)), encoding="utf-8", newline="\n")
+        path = self.root / SIGNERS_REL
+        path.unlink()
+        self.link_or_skip(path, "../../../evil/allowed-signers.yaml")
+        self.commit("chore: tidy the signers file")  # unsigned, no trailer
+        self.committed_link_or_skip(SIGNERS_REL)
+        self.accept_hazard_0001(gpg_key=self.key_b)
+        result = self.check()
+        self.assertFailsWith(result, f"{SIGNERS_REL}: {SIGNERS_REL} is a symbolic link in the working tree")
+        self.assertEqual(result.counts["allowed_signers"], 0)
+        self.assertFalse(any("evil/" in w for w in result.warnings), result.warnings)
+        # A plain file in its place (a host that checks links out as files): the committed link is a change of the
+        # list's own path, which no listed key signed.
+        path.unlink()
+        path.write_text((evil / "allowed-signers.yaml").read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
+        self.git("update-index", "--assume-unchanged", SIGNERS_REL)
+        self.assertFailsWith(self.check(), "changed the list without a good signature (git %G? = N)")
+
+    def test_a_symbolic_link_cannot_redirect_the_signoffs_directory(self) -> None:
+        # D2 (X14): the signoffs directory became a link to a directory holding the agent's own list.
+        self.list_signers(self.entry(NAME_A, self.key_a))  # the human's anchor
+        self.git("mv", "docs/safety/signoffs", "docs/safety/signoffs-old")
+        alternative = self.box.safety / "signoffs-alt"
+        alternative.mkdir()
+        for name in ("signoff.schema.json", so.ALLOWED_SIGNERS_SCHEMA_FILE):
+            shutil.copy2(self.box.safety / "signoffs-old" / name, alternative)
+        (alternative / so.ALLOWED_SIGNERS_FILE).write_text(self.signers_text(self.entry(NAME_A, self.key_b)), encoding="utf-8", newline="\n")
+        self.link_or_skip(self.box.safety / "signoffs", "signoffs-alt", directory=True)
+        self.commit("chore: reorganise the signoffs directory")  # unsigned
+        self.committed_link_or_skip("docs/safety/signoffs")
+        self.accept_hazard_0001(gpg_key=self.key_b)  # written through the link
+        result = self.check()
+        self.assertFailsWith(result, "docs/safety/signoffs is a symbolic link in the working tree", "HAZ-0001 residual_risk.accepted_by is filled")
+        self.assertEqual(result.counts["allowed_signers"], 0)
+
     def test_a_merge_that_keeps_an_unsigned_version_of_a_record_fails(self) -> None:
         # The record's history follows the content it has at HEAD, through merges.
         self.list_signers(self.entry(NAME_A, self.key_a))
@@ -510,7 +668,8 @@ class MergeConflictTest(SignedRepoCase):
         self.agent = self.head()
         self.git("checkout", "-q", self.main)
 
-    def merge(self, *others: str, entries: tuple[dict[str, Any], ...] | None = None, gpg_key: str | None = None) -> str:
+    def merge(self, *others: str, entries: tuple[dict[str, Any], ...] | None = None, gpg_key: str | None = None,
+              message: str = "Merge (synthetic)") -> str:
         """Make HEAD a merge of HEAD and ``others`` (an octopus for two or more) with HEAD's tree and the list
         set to ``entries`` if given, as ``git commit-tree`` lets anyone, signed with ``gpg_key`` if given."""
         if entries is not None:
@@ -519,7 +678,7 @@ class MergeConflictTest(SignedRepoCase):
         tree = self.git("write-tree").strip()
         parents = [arg for parent in ("HEAD", *others) for arg in ("-p", parent)]
         sign = ["-c", "gpg.format=openpgp", "commit-tree", f"--gpg-sign={gpg_key}!"] if gpg_key else ["commit-tree"]
-        merge = self.git(*sign, *parents, "-m", "Merge (synthetic)", tree).strip()
+        merge = self.git(*sign, *parents, "-m", message, tree).strip()
         self.git("reset", "-q", "--hard", merge)
         return merge
 
@@ -610,6 +769,55 @@ class MergeConflictTest(SignedRepoCase):
         result = self.check()
         self.assertPasses(result)
         self.assertEqual(result.counts["allowed_signers"], 2)
+
+    def test_a_routine_signed_merge_does_not_approve_the_list(self) -> None:
+        # D1 (F01): the agent merges its line keeping its own list; the human then signs a routine merge of other work
+        # that leaves the list alone. That merge writes no version of the list, so it approves nothing.
+        self.merge("side", entries=(self.entry(NAME_A, self.key_b),))
+        self.assertLocked(self.check(), f"the version of commit {self.human[:12]}")
+        self.git("checkout", "-q", "-b", "feature")
+        (self.root / "notes.txt").write_text("Synthetic unrelated work.\n", encoding="utf-8", newline="\n")
+        self.commit("chore: synthetic unrelated work")
+        self.git("checkout", "-q", self.main)
+        self.git("-c", "gpg.format=openpgp", "merge", "-q", "--no-ff", "--no-edit", f"--gpg-sign={self.key_a}!", "feature")
+        self.assertEqual(self.git("log", "-1", "--format=%G?").strip(), "G")
+        self.accept_hazard_0001(gpg_key=self.key_b)
+        self.assertLocked(self.check(), f"the version of commit {self.human[:12]}, which lists {self.key_a}")
+
+    def test_a_line_that_settled_the_conflict_does_not_discard_a_later_signed_change(self) -> None:
+        # D6 (X18): the human signs the merged list; the agent settles it on a line forked there; the human then signs
+        # a change back to their own key. Merging the agent's line back, unsigned, keeping its list, does not bring the
+        # agent's key back without the human's signature.
+        self.merge("side", entries=self.both(), gpg_key=self.key_a)
+        self.git("checkout", "-q", "-b", "y")
+        self.approve(self.key_b, "the agent settles the merged list on its own line")
+        self.git("checkout", "-q", self.main)
+        self.list_signers(self.entry(NAME_A, self.key_a), gpg_key=self.key_a)  # the human changes their mind, signed
+        self.git("checkout", "y", "--", SIGNERS_REL)
+        self.merge("y")  # unsigned, keeping y's list
+        self.accept_hazard_0001(gpg_key=self.key_b)
+        self.assertLocked(self.check(), f"the version of commit {self.human[:12]}, which lists {self.key_a}")
+
+    def test_a_criss_cross_merge_with_an_ai_trailer_settles_on_the_approvals_given(self) -> None:
+        # D4 (X02b): each line approved the merged list with its own key; their merge carries an AI trailer, so it
+        # approves nothing, but the approvals already given cover every side.
+        self.merge("side", entries=self.both(), gpg_key=self.key_a)
+        self.git("checkout", "-q", "side")
+        two = self.merge(self.human, entries=self.both(), gpg_key=self.key_b)
+        self.git("checkout", "-q", self.main)
+        merge = self.merge(two, message="Merge (synthetic)" + AI_TRAILER)
+        result = self.check()
+        self.assertPasses(result)
+        self.assertEqual(result.counts["allowed_signers"], 2)
+        self.assertTrue(any(f"merge {merge[:12]} settled the conflict" in w for w in result.warnings), result.warnings)
+
+    def test_grafts_do_not_hide_the_humans_anchor(self) -> None:
+        # D3 (F04): a graft gave the agent's merge the agent's line as its only parent, at the same branch tip.
+        merge = self.merge("side", entries=(self.entry(NAME_A, self.key_b),))
+        self.accept_hazard_0001(gpg_key=self.key_b)
+        self.assertLocked(self.check(), f"the version of commit {self.human[:12]}, which lists {self.key_a}")
+        self.graft(merge, self.agent)
+        self.assertLocked(self.check(), f"the version of commit {self.human[:12]}, which lists {self.key_a}")
 
     def test_an_octopus_merge_needs_the_approval_of_every_side(self) -> None:
         self.git("checkout", "-q", "-b", "third", f"{self.agent}^")

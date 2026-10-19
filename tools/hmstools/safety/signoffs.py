@@ -6,7 +6,9 @@ signed with a key listed for them in docs/safety/signoffs/allowed-signers.yaml
 must be backed by a record with the same subject and field, the decision that field needs, the
 subject's current version and a role the field accepts, which no other record has withdrawn (a record
 that names it in ``supersedes``, or a rejection or return of the same subject version and field);
-otherwise the check fails.
+otherwise the check fails. Records are never removed: a record committed at HEAD must be in the working
+tree, and a record that HEAD's history once held but HEAD does not still withdraws what each signed
+version of it withdrew (GitAuthenticator.history_records).
 """
 
 from __future__ import annotations
@@ -14,10 +16,11 @@ from __future__ import annotations
 import datetime as _dt
 import hashlib
 import json
+import os
 import re
 import subprocess
 from dataclasses import dataclass, field, replace
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Iterator
 
 # Keys whose non-empty value always needs a sign-off record, wherever they appear.
@@ -337,38 +340,67 @@ def _overlaps(first: str, second: str) -> bool:
     return first == second or first.startswith(second + ".") or second.startswith(first + ".")
 
 
+def _superseding_problem(record: SignoffRecord, target: SignoffRecord) -> str | None:
+    """Why ``record`` may not supersede ``target`` (None if it may).
+
+    A record supersedes only a record for the same subject whose field is its field, a parent or a child of
+    it. A record that supersedes a rejection or a return ends it, so it must be by the person who rejected or
+    returned, or sign in the same role: one panel or one role cannot end another's rejection or return.
+    """
+    if record.subject != target.subject or not _overlaps(record.field, target.field):
+        return (
+            f"supersedes {target.id}, a record for {target.subject} {target.field}, but is itself for {record.subject} "
+            f"{record.field}; a record supersedes only a record for the same subject and field (or a parent or a child of it)"
+        )
+    if target.decision in WITHDRAWING_DECISIONS and record.name != target.name and record.role != target.role:
+        return (
+            f"supersedes {target.id}, which {target.name} signed as {target.role} ({target.decision}), but is signed as "
+            f"{record.role} by {record.name}; only the person who rejected or returned, or a record in the same role, ends a "
+            "rejection or a return"
+        )
+    return None
+
+
 def withdrawals(
     records: list[SignoffRecord], label: Callable[[SignoffRecord], str] = lambda r: r.path.name,
 ) -> tuple[dict[str, str], list[str]]:
     """The records that authorise nothing any more, each with the reason, and the errors in ``supersedes``.
 
-    A record withdraws the record its ``supersedes`` names, whatever either of them decides; a record
-    replaced this way stays withdrawn even if its replacement is replaced in turn. A ``rejected`` or
+    A record withdraws the record its ``supersedes`` names, whatever either of them decides, if the two are
+    for the same subject and the same field (or a parent or a child of it), and, where the record it names is
+    a rejection or a return, if it is by the same person or signs in the same role (_superseding_problem); a
+    record replaced this way stays withdrawn even if its replacement is replaced in turn. A ``rejected`` or
     ``returned`` record that no record supersedes withdraws every record for the same subject at the same
     subject_version whose field is its field, a parent or a child of it, whatever their role or date: a
     rejection or a return stands until a record supersedes it, or until the subject changes. ``supersedes``
-    must name another valid record; a record whose ``supersedes`` does not is an error until a later record
-    supersedes it.
+    must name another valid record that it may supersede; a record whose ``supersedes`` does not withdraws
+    nothing, and is an error until a later record supersedes it. ``records`` may hold several records with
+    one id (a removed record's versions); ``supersedes`` then names all of them, and must be allowed for each.
     """
-    ids = {r.id for r in records}
+    by_id: dict[str, list[SignoffRecord]] = {}
+    for record in records:
+        by_id.setdefault(record.id, []).append(record)
     ordered = sorted(records, key=lambda r: r.id)
     withdrawn: dict[str, str] = {}
+    faulty: list[tuple[SignoffRecord, str]] = []
     for record in ordered:
         target = record.supersedes
-        if target is not None and target != record.id and target in ids:
-            withdrawn.setdefault(target, f"superseded by {record.id}")
-    errors = []
-    for record in ordered:
-        target = record.supersedes
-        if target is None or record.id in withdrawn:
+        if target is None:
             continue
         if target == record.id:
-            errors.append(f"{label(record)}: supersedes itself; 'supersedes' names the earlier record this one replaces")
-        elif target not in ids:
-            errors.append(
-                f"{label(record)}: supersedes {target}, but no valid sign-off record has that id, so nothing is "
-                "withdrawn; a later record that supersedes this one ends the error"
-            )
+            faulty.append((record, "supersedes itself; 'supersedes' names the earlier record this one replaces"))
+        elif target not in by_id:
+            faulty.append((record, (
+                f"supersedes {target}, but no valid sign-off record has that id, so nothing is withdrawn; a later record "
+                "that supersedes this one ends the error"
+            )))
+        else:
+            problem = next((p for t in by_id[target] if (p := _superseding_problem(record, t)) is not None), None)
+            if problem is None:
+                withdrawn.setdefault(target, f"superseded by {record.id}")
+            else:
+                faulty.append((record, f"{problem}; so nothing is withdrawn, and a later record that supersedes this one ends the error"))
+    errors = [f"{label(record)}: {message}" for record, message in faulty if record.id not in withdrawn]
     for record in ordered:
         if record.decision not in WITHDRAWING_DECISIONS or record.id in withdrawn:
             continue
@@ -538,6 +570,8 @@ class SignerTrust:
 _COMMIT_ID = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?")
 # What git's %G? can print.
 _SIGNATURE_CODES = frozenset("GBUXYREN")
+# The git settings that choose the program git verifies signatures with (git config --get-regexp, lower case).
+_VERIFIER_SETTINGS = r"^gpg\.((openpgp|x509|ssh)\.)?program$"
 
 # Trusted "versions" that are not one version of the file (they never equal a blob id or None):
 _CONFLICT = object()  # merged lines of history that trust different versions, until every side approves one
@@ -577,11 +611,19 @@ class _Trusted:
     keepers: tuple[AllowedSigner, ...] | None  # the signers who may change it next; None if unknown
     since: str | None  # the commit that made it the trusted version (or the conflict's latest state); None before the file's history
     keyed: bool  # True once this line of history has trusted a key
+    # Outside a conflict: the approvals given with a side's key that a settled conflict rested on, (side's since,
+    # the commit that gave it), kept by every later trusted version of this line, whose trust rests on them too.
+    relied: frozenset[tuple[str | None, str]] = frozenset()
     # Only in a conflict (blob _CONFLICT):
     sides: tuple[_Trusted, ...] = ()  # the trusted version of each side; every one must approve the version that settles it
-    approvals: frozenset[tuple[_Signers, str]] = frozenset()  # (signer content, side's since): who has approved what
+    # Who has approved what: (signer content, side's since, the commit whose signature by that side's key gave the
+    # approval, or None where the side approves because its own version lists those signers).
+    approvals: frozenset[tuple[_Signers, str | None, str | None]] = frozenset()
     opened: str | None = None  # the merge that brought these sides together
     notes: tuple[str, ...] = ()  # what each commit since then did, for the error messages
+    # The latest approval with each side's key on each line of this conflict: (side's since, commit, signer content).
+    # A later one of other signers withdraws that side's earlier approvals it descends from (_withdrawn).
+    decided: frozenset[tuple[str | None, str, _Signers]] = frozenset()
 
     @property
     def holds_no_key(self) -> bool:
@@ -614,7 +656,16 @@ class GitAuthenticator:
     (``git rev-list HEAD -- <record>``: the commits that wrote the committed content and every earlier
     version on that line of history) has a good signature (git %G? = G) by a key that the trusted list
     holds, for a signer whose name is the record's name and whose roles include the record's role, with
-    no AI co-author trailer.
+    no AI co-author trailer. Records are never removed (history_records): a record committed at HEAD
+    must be in the working tree, and each version of a record that HEAD's history held but HEAD does not
+    still withdraws, if the same rules authenticate it on the history up to the commit that held it.
+
+    The list, its schema and the records are read at their own repository paths, taken lexically: a
+    symbolic link (or a junction) on the way in the working tree is an error, and the history read is
+    that of the path itself, never that of a file a link points to. Git runs without replace refs,
+    grafts or the commit-graph file, so the history is the one the commits record, as in any clone, and
+    no signer is trusted if the program git verifies signatures with is set by the repository's own
+    configuration or the command line rather than the host's (_verifier_override).
 
     The trusted list is the committed allowed-signers.yaml, as far as its history allows (trust()). The
     walk reads that history with ``git rev-list --full-history --parents``, so every merge is seen, and
@@ -645,19 +696,26 @@ class GitAuthenticator:
     they list (or, if they list none, is a trust anchor when it adds a key). Otherwise the sides are in
     conflict.
 
-    A conflict is settled, by the merge or by any later commit that changes the list, once every side has
-    approved the signers of one version: a side approves the signers it already trusts, and any other
-    signers through a commit with a good signature by a key that side lists and no AI co-author trailer.
+    A conflict is settled, by the merge or by a later commit that writes a version of the list (one whose
+    list differs from the version in conflict), once every side has approved the signers of one version: a
+    side approves the signers it already trusts, and any other signers through such a commit with a good
+    signature by a key that side lists and no AI co-author trailer. A commit that keeps the version in
+    conflict, such as a routine merge of other work, writes nothing and approves nothing, whoever signs it.
     Approvals count for the signers, not the text, so a comment-only edit can carry a further one, and a
     change of signers starts them again; a commit with an AI co-author trailer or with a version that does
-    not validate approves nothing. So the keys of one side cannot make a signer trusted that another side
-    does not already trust, a side that lists no key approves only a list without keys, and a key listed
-    on every side settles a conflict in one commit. Until it is settled, no signer is trusted, and the
-    error names the sides whose approval the committed version lacks; a revert of the merge is a change
-    like any other. A later merge with a third line that changed the list on its own makes that line one
-    more side: of the open conflict, whose approvals so far stand, or of a new conflict with the version
-    that settled it. Criss-cross and octopus merges follow the same rules, and the approvals given on each
-    line count.
+    not validate approves nothing, though a merge whose lines have already approved its signers on every
+    side (a criss-cross merge) settles on those approvals whatever it carries. So the keys of one side
+    cannot make a signer trusted that another side does not already trust, a side that lists no key
+    approves only a list without keys (after which the next key is a trust anchor), and a key listed on
+    every side settles a conflict in one commit. Until it is settled, no signer is trusted, and the error
+    names the sides whose approval the committed version lacks; a revert of the merge is a change like any
+    other. A later merge with a third line that changed the list on its own makes that line one more side:
+    of the open conflict, whose approvals so far stand, or of a new conflict with the version that settled
+    it. A version that settled the conflict on one line replaces the sides of the same conflict on another
+    line only if it descends from that line's latest commit that approved a version with a side's key;
+    otherwise that line's sides stay sides, of a new conflict with the settled version, so a signed change
+    made on the conflict's line after the fork is not discarded. Criss-cross and octopus merges follow the
+    same rules, and the approvals given on each line count.
 
     ``runner`` replaces the git call in tests; ``trust`` replaces the history walk.
     """
@@ -678,12 +736,17 @@ class GitAuthenticator:
         self.signers_label = rel or signers_path.as_posix()
 
     def _default_run(self, *args: str, input: str | None = None) -> subprocess.CompletedProcess[str]:  # noqa: A002 - as subprocess
+        # The gate reads the commit graph as the commits record it, whatever this clone holds besides: no replace
+        # refs (--no-replace-objects), no grafts (.git/info/grafts: GIT_GRAFT_FILE names the null device, which
+        # holds none) and no commit-graph file, a local cache that could give a commit other parents. Each changes
+        # the history git shows without changing a commit, so the gate would pass here and fail in any other clone.
         # Bytes in and out, decoded here, so that no platform translates line endings on the way.
         completed = subprocess.run(
-            ["git", "--no-replace-objects", "-C", str(self.root), *args],
+            ["git", "--no-replace-objects", "-c", "core.commitGraph=false", "-C", str(self.root), *args],
             input=None if input is None else input.encode("utf-8"),
             capture_output=True,
             check=False,
+            env={**os.environ, "GIT_GRAFT_FILE": os.devnull, "GIT_NO_REPLACE_OBJECTS": "1"},
         )
         return subprocess.CompletedProcess(
             completed.args, completed.returncode,
@@ -691,10 +754,26 @@ class GitAuthenticator:
         )
 
     def _relative(self, path: Path) -> str | None:
-        try:
-            return path.resolve().relative_to(self.root.resolve()).as_posix()
-        except ValueError:
-            return None
+        """The repository path of ``path``, taken lexically: a symbolic link on the way is not followed, so the
+        gate reads the history of the path itself, never that of a file a link points to (_symlink reports it)."""
+        target = Path(os.path.abspath(path))
+        for base in dict.fromkeys((Path(os.path.abspath(self.root)), self.root.resolve())):
+            try:
+                rel = target.relative_to(base).as_posix()
+            except ValueError:
+                continue
+            return rel if rel not in ("", ".") else None
+        return None
+
+    def _symlink(self, rel: str) -> str | None:
+        """The first part of the repository path ``rel`` that is a symbolic link (or a junction) in the working
+        tree, if any: the list, its schema and the records are read only at their own paths."""
+        path = self.root
+        for count, part in enumerate(PurePosixPath(rel).parts, start=1):
+            path = path / part
+            if path.is_symlink() or getattr(path, "is_junction", lambda: False)():
+                return PurePosixPath(*PurePosixPath(rel).parts[:count]).as_posix()
+        return None
 
     # ------------------------------------------------------------------ reading git
 
@@ -792,6 +871,13 @@ class GitAuthenticator:
         if rel is None or schema_rel is None:
             trust.errors.append(f"{self.signers_label}: the allowed-signers list or its schema is outside the repository; no signer is trusted")
             return trust
+        linked = self._symlink(rel) or self._symlink(schema_rel)
+        if linked is not None:
+            trust.errors.append(
+                f"{rel}: {linked} is a symbolic link in the working tree; the list and its schema count only as committed "
+                "at their own paths, so no signer is trusted until it is a plain directory or file again"
+            )
+            return trust
         try:
             probe = self.run("rev-parse", "--is-shallow-repository")
         except FileNotFoundError:
@@ -804,10 +890,13 @@ class GitAuthenticator:
         head = self._blob("HEAD", rel)
         if self._differs_from(head, self.signers_path):
             trust.warnings.append(f"{rel}: has uncommitted changes or is not committed; the check trusts only the committed version")
-        if probe.stdout.strip() == "true":
+        override = self._verifier_override()
+        if override is not None or probe.stdout.strip() == "true":
             listed, _errors = self._signers_in(head, self._blob("HEAD", schema_rel), f"{rel} at HEAD")
-            message = f"{rel}: this is a shallow clone, so the history of the list cannot be checked; no signer is trusted (fetch the full history)"
-            (trust.errors if listed is None or listed else trust.warnings).append(message)
+            message = f"{rel}: {override}; no signer is trusted" if override is not None else (
+                f"{rel}: this is a shallow clone, so the history of the list cannot be checked; no signer is trusted (fetch the full history)"
+            )
+            (trust.errors if listed is None or listed else trust.warnings).append(message)  # an error once the list holds a key
             return trust
 
         listing = self.run("rev-list", "--full-history", "--parents", "--topo-order", "--reverse", "HEAD", "--", rel)
@@ -829,6 +918,11 @@ class GitAuthenticator:
             before = self._before(sha, [state.get(p) for p in parents], graph) if parents else _NO_FILE
             blob = objects[sha, rel]
             if before.sides:  # merged lines of history trust different versions: this commit may approve one
+                if before.opened != sha and blob == objects.get((str(before.since), rel), _UNKNOWN):
+                    # It keeps the version in conflict (a routine merge, listed because --full-history lists every
+                    # merge): it writes no version of the list, so it approves nothing and changes nothing.
+                    state[sha] = before
+                    continue
                 listed, _errors = self._signers_in(blob, objects[sha, schema_rel], f"{rel} at {sha[:12]}")
                 state[sha] = self._approve(sha, len(parents) > 1, before, blob, listed)
                 if not state[sha].sides:
@@ -851,7 +945,8 @@ class GitAuthenticator:
                 rejected.append(f"commit {sha[:12]} {problem}")
                 continue
             keepers = before.keepers if listed is None else listed
-            state[sha] = _Trusted(blob, listed, keepers, sha, before.keyed or bool(listed))
+            relied = frozenset() if anchor else before.relied  # a later version's trust rests on the same approvals
+            state[sha] = _Trusted(blob, listed, keepers, sha, before.keyed or bool(listed), relied)
             if anchor and listed:
                 trust.anchors.append(sha)
                 trust.warnings.append(
@@ -885,6 +980,26 @@ class GitAuthenticator:
         trust.signers = list(trusted.listed)
         return trust
 
+    def _verifier_override(self) -> str | None:
+        """Why git's signature verdicts cannot be trusted here (None: they can): a setting that chooses the program
+        git verifies signatures with (gpg.program, gpg.<format>.program) that is not the host's own (global or
+        system) configuration but the repository's (.git/config, a worktree's) or the command line's. Such a program
+        is not part of any commit, and it could report a good signature by any key, so the gate refuses it."""
+        found = self.run("config", "--show-scope", "--get-regexp", _VERIFIER_SETTINGS)
+        if found.returncode == 1 and not found.stdout.strip():
+            return None  # none is set anywhere: git uses gpg, gpgsm and ssh-keygen from the host's PATH
+        if found.returncode != 0:
+            return f"git cannot show which program verifies signatures ({found.stderr.strip() or 'git config failed'})"
+        for line in found.stdout.splitlines():
+            scope, _, setting = line.partition("\t")
+            if scope not in ("global", "system"):
+                return (
+                    f"{setting.split(' ', 1)[0]} is set in the {scope or 'unknown'} git configuration, not the host's (global or "
+                    "system), and the program it names could report a good signature by any key; the check verifies "
+                    "signatures only with the host's own configuration"
+                )
+        return None
+
     def _before(self, sha: str, states: list[_Trusted | None], graph: dict[str, tuple[str, ...]]) -> _Trusted:
         """The trusted version that a commit changes: its parent's; for a merge, the newest side's, the
         version every side holds, or the conflict between the sides' versions."""
@@ -898,21 +1013,59 @@ class GitAuthenticator:
         if newest is not None:
             return newest
         # The sides: the trusted version of each line (a conflict brings its own sides, and the approvals
-        # they have given), less any version that a trusted change on another side's line has replaced.
-        found = {side.since: side for s in keyed for side in (s.sides or (s,))}
-        sides = [s for s in found.values() if not any(o is not s and self._descends(graph, s.since, o.since) for o in found.values())]
+        # they have given), less any version that a trusted change on another side's line has replaced. A
+        # version whose trust rests on an approval that a side gave with its key (a settled conflict) does not
+        # replace the sides of a conflict whose line holds a later approval of other signers with that side's
+        # key: the side has withdrawn the approval on that line since (a signed change back, say), so the sides
+        # stay sides, of a new conflict with that version. The approvals that such a later one withdraws do not
+        # count either.
+        found: dict[str | None, _Trusted] = {}
+        holders: dict[str | None, list[_Trusted]] = {}
+        for s in keyed:
+            for side in s.sides or (s,):
+                found.setdefault(side.since, side)
+                if s.sides:
+                    holders.setdefault(side.since, []).append(s)
+
+        def undermined(version: _Trusted, side: _Trusted) -> bool:
+            decisions = [d for conflict in holders.get(side.since, ()) for d in conflict.decided]
+            signers = _signers_of(version.listed)
+            return any(self._withdrawn(graph, by, given, signers, decisions) for by, given in version.relied)
+
+        def replaced(side: _Trusted) -> bool:
+            return any(
+                other is not side and self._descends(graph, side.since, other.since) and not undermined(other, side)
+                for other in found.values()
+            )
+
+        sides = [s for s in found.values() if not replaced(s)]
         first = sides[0]
         if len(sides) == 1:
             return first
+        relied = frozenset(r for s in sides for r in s.relied)
         if all(s.listed is not None for s in sides):
             if all(s.blob == first.blob for s in sides):
-                return _Trusted(first.blob, first.listed, first.listed, sha, True)  # the same version on every side
+                return _Trusted(first.blob, first.listed, first.listed, sha, True, relied)  # the same version on every side
             if len({_signers_of(s.listed) for s in sides}) == 1:
-                return _Trusted(_AGREED, first.listed, first.listed, sha, True)  # the same signers in different texts
+                return _Trusted(_AGREED, first.listed, first.listed, sha, True, relied)  # the same signers in different texts
         current = {s.since for s in sides}
-        approvals = frozenset(a for s in keyed for a in s.approvals if a[1] in current)
+        decided = frozenset(d for s in keyed for d in s.decided)
+        approvals = frozenset(
+            (signers, side, given) for s in keyed for signers, side, given in s.approvals
+            if side in current and (given is None or not self._withdrawn(graph, side, given, signers, decided))
+        )
         notes = tuple(dict.fromkeys(note for s in keyed for note in s.notes))
-        return _Trusted(_CONFLICT, None, (), sha, True, tuple(sides), approvals, sha, notes)
+        return _Trusted(_CONFLICT, None, (), sha, True, frozenset(), tuple(sides), approvals, sha, notes, decided)
+
+    def _withdrawn(
+        self, graph: dict[str, tuple[str, ...]], side: str | None, given: str, signers: _Signers | None, decisions: Any,
+    ) -> bool:
+        """True if ``decisions`` (side, commit, signer content) hold an approval with the key of ``side`` of other
+        signers than ``signers``, made after (in a descendant of) the commit ``given`` that approved them."""
+        return any(
+            by == side and content != signers and commit != given and self._descends(graph, given, commit)
+            for by, commit, content in decisions
+        )
 
     def _newest(self, sides: list[_Trusted], graph: dict[str, tuple[str, ...]]) -> _Trusted | None:
         """The side whose trusted version was set by a commit that descends from every other side's, if any."""
@@ -970,12 +1123,20 @@ class GitAuthenticator:
         commit with a good signature by a key the side lists and no AI co-author trailer; a side that lists
         no key therefore approves only a list without keys. Approvals count for one signer content: a
         commit that changes the signers starts them again, and a comment-only edit keeps them. A commit
-        with an AI co-author trailer, or with a version that does not validate, approves nothing.
+        with an AI co-author trailer, or with a version that does not validate, approves nothing; but where
+        the approvals already given on the lines it joins cover every side for its signers (a criss-cross
+        merge), it settles the conflict on them, as any merge of those lines would. The caller passes only
+        the merge that opened the conflict and the commits that write a version of the list: a commit that
+        keeps the version in conflict (a routine merge) approves nothing (_walk).
         """
         what = "merged lines of history that trust different versions of the list" if merge else "changed the list while its history is in conflict"
         signers = _signers_of(listed)
-        approved = {side for content, side in before.approvals if content == signers} if signers is not None else set()
+        every = {s.since for s in before.sides}
+        given = {a for a in before.approvals if a[0] == signers} if signers is not None else set()
+        if signers is not None and {a[1] for a in given} >= every:
+            return self._settled(blob, listed, sha, given)
         commit = self._commit(sha)
+        decided = before.decided
         if signers is None:
             note = f"{what}, to a version that does not validate, which no side can approve"
         elif commit is None:
@@ -984,9 +1145,12 @@ class GitAuthenticator:
             note = f"{what} in a commit that carries an AI co-author trailer, which approves nothing"
         else:
             by_key = {s.since for s in before.sides if _may_change(s.keepers, commit)}
-            approved |= by_key | {s.since for s in before.sides if _signers_of(s.listed) == signers}
-            if approved >= {s.since for s in before.sides}:
-                return _Trusted(blob, listed, listed, sha, True)
+            # The latest approval with each side's key on this line (it descends from the earlier ones it replaces).
+            decided = frozenset(d for d in before.decided if d[0] not in by_key) | {(side, sha, signers) for side in by_key}
+            given |= {(signers, side, sha) for side in by_key}
+            given |= {(signers, s.since, None) for s in before.sides if _signers_of(s.listed) == signers}
+            if {a[1] for a in given} >= every:
+                return self._settled(blob, listed, sha, given)
             if commit.signature != "G":
                 note = f"{what} without a good signature (git %G? = {commit.signature or '?'})"
             elif not by_key:
@@ -997,9 +1161,14 @@ class GitAuthenticator:
                     "this version only for the sides that list that key"
                 )
         return replace(
-            before, since=sha, notes=(*before.notes, f"commit {sha[:12]} {note}"),
-            approvals=frozenset((signers, side) for side in approved) if signers is not None else frozenset(),
+            before, since=sha, notes=(*before.notes, f"commit {sha[:12]} {note}"), decided=decided,
+            approvals=frozenset(given),
         )
+
+    @staticmethod
+    def _settled(blob: str | None, listed: tuple[AllowedSigner, ...] | None, sha: str, given: set[Any]) -> _Trusted:
+        """The trusted version that settles a conflict, resting on the approvals given with the sides' keys."""
+        return _Trusted(blob, listed, listed, sha, True, frozenset((side, commit) for _signers, side, commit in given if commit))
 
     def _conflict_error(self, rel: str, conflict: _Trusted) -> str:
         """What a conflict at HEAD means, and exactly what settles it."""
@@ -1012,8 +1181,10 @@ class GitAuthenticator:
                 return f"the version of commit {str(s.since)[:12]}, which lists no key"
             return f"the version of commit {str(s.since)[:12]}, which lists {keys}"
 
-        approved = {s for _content, s in conflict.approvals}
-        missing = [side(s) for s in conflict.sides if s.since not in approved]
+        approved = {side for _signers, side, _given in conflict.approvals}
+        # _approve settles a conflict once its approvals cover every side, so some side is always missing here;
+        # should none be, every side is named rather than an empty list.
+        missing = [side(s) for s in conflict.sides if s.since not in approved] or [side(s) for s in conflict.sides]
         return (
             f"{rel}: no signer is trusted, because merge {str(conflict.opened)[:12]} joined lines of history that trust "
             f"different versions of the list ({'; '.join(side(s) for s in conflict.sides)}), and no version since has "
@@ -1030,6 +1201,9 @@ class GitAuthenticator:
         rel = self._relative(record.path)
         if rel is None:
             return [f"{record.path}: sign-off record is outside the repository; it cannot be authenticated"]
+        linked = self._symlink(rel)
+        if linked is not None:
+            return [f"{rel}: {linked} is a symbolic link in the working tree; a sign-off record counts only as committed at its own path"]
         try:
             status = self.run("status", "--porcelain", "--", rel)
         except FileNotFoundError:
@@ -1046,7 +1220,67 @@ class GitAuthenticator:
                 f"{rel}: sign-off record differs from the committed one although git status shows no change "
                 "(assume-unchanged or skip-worktree hides it); only the committed, signed record counts"
             ]
-        listing = self.run("rev-list", "HEAD", "--", rel)
+        return self._history_errors(rel, record, "HEAD")
+
+    def removed_record_errors(self, record: SignoffRecord, rel: str, commit: str) -> list[str]:
+        """Why a version of a record that HEAD no longer holds, as ``commit`` committed it, is not authenticated
+        (the rules of a record at HEAD, on the history up to that commit)."""
+        return self._history_errors(rel, record, commit)
+
+    def history_records(self, directory: Path) -> tuple[set[str], list[tuple[str, str, str]], list[str]]:
+        """The sign-off records in ``directory`` that HEAD holds, and every version of each record that HEAD's
+        history once held but HEAD does not, with the errors.
+
+        Returns the repository paths of the records committed at HEAD; for each record path that a commit in
+        HEAD's history held (``git log --full-history -m``, so a record a merge dropped counts too, and
+        ``--no-renames``, so a rename removes the old path) but HEAD does not, each distinct version with the
+        first commit that held it and its text; and the errors. Outside a git repository, or before the first
+        commit, nothing is committed and nothing is returned: no record can then be authenticated anyway.
+        """
+        rel = self._relative(directory)
+        if rel is None:
+            return set(), [], []
+        try:
+            head = self.run("rev-parse", "--verify", "--quiet", "HEAD^{commit}")
+        except FileNotFoundError:
+            return set(), [], []
+        if head.returncode != 0:
+            return set(), [], []
+        failed = f"{rel}: git did not list the sign-off records committed in HEAD's history; no record removed from it can be checked"
+        listed = self.run("ls-tree", "-z", "--name-only", "HEAD", "--", f"{rel}/")
+        if listed.returncode != 0:
+            return set(), [], [failed]
+        committed = {p for p in listed.stdout.split("\0") if _is_record_path(p, rel)}
+        names = self.run(
+            "log", "--full-history", "--no-renames", "--diff-merges=separate", "--root", "-z", "--format=", "--name-only",
+            "HEAD", "--", f"{rel}/",
+        )
+        if names.returncode != 0:
+            return committed, [], [failed]
+        removed = sorted({p for p in re.split(r"[\0\n]", names.stdout) if _is_record_path(p, rel)} - committed)
+        versions: list[tuple[str, str, str]] = []
+        errors: list[str] = []
+        for path in removed:
+            listing = self.run("rev-list", "--full-history", "--topo-order", "--reverse", "HEAD", "--", path)
+            history = self._history(listing.stdout) if listing.returncode == 0 else None
+            objects = self._paths_at([sha for sha, _ in history], (path,)) if history else None
+            if objects is None:
+                errors.append(f"{path}: git did not list the versions of this removed sign-off record; what they withdrew cannot be checked")
+                continue
+            seen: set[str] = set()
+            for sha, _parents in history or ():
+                blob = objects[sha, path]
+                if blob is None or blob in seen:
+                    continue
+                seen.add(blob)
+                text = self._text(blob)
+                if text is not None:
+                    versions.append((path, sha, text))
+        return committed, versions, errors
+
+    def _history_errors(self, rel: str, record: SignoffRecord, rev: str) -> list[str]:
+        """Why the commits in the history of a record up to ``rev`` do not authenticate it (none: they do)."""
+        listing = self.run("rev-list", rev, "--", rel)
         history = self._history(listing.stdout) if listing.returncode == 0 else None
         if not history:
             return [f"{rel}: git did not list the commits of the record ({listing.stderr.strip() or 'no commit'})"]
@@ -1095,6 +1329,12 @@ class GitAuthenticator:
             }:
                 errors.append(f"{rel}: authentication.signer_key {record.signer_key!r} is not the key that signed commit {short}")
         return errors
+
+
+def _is_record_path(path: str, directory: str) -> bool:
+    """True if the repository path names a sign-off record in ``directory`` (as iter_record_files lists them)."""
+    parent, _, name = path.rpartition("/")
+    return parent == directory and name != ALLOWED_SIGNERS_FILE and PurePosixPath(name).suffix in (".yaml", ".yml")
 
 
 def iter_record_files(directory: Path) -> Iterator[Path]:
