@@ -1,0 +1,27 @@
+# A toy machine for the tests of tools/hms statemachines. NOT FOR CLINICAL USE: it describes a lamp, not a
+# clinical lifecycle, and is never copied into docs/specs/state-machines. It uses every key of the format and
+# the reading traps of §1.2: a state called `on` and the transition key `on`, written unquoted.
+machine: toy-light
+version: 1
+owner: adt
+approval: {status: requested, required: [cso], approved_by: [], record: null}
+states: [off, on, retired]
+terminal: [retired]
+initial: off
+created_by: [Install]
+predicates:
+  powerAvailable: "mains or generator power is present"
+  lampIntact: "the lamp's filament and its holder passed the last inspection, and the inspection is not older than the interval the site configures; a lamp with no inspection on record counts as not intact (fails closed)"
+  privilegedAndAudited: "the user holds the privilege and the action is audited"
+effects:
+  logsSwitch: "appends a \"switch\" entry to the lamp's log; a $ sign, a \\ backslash and a */ stay literal"
+transitions:
+  - {from: off, on: SwitchOn, guard: [powerAvailable, lampIntact], effects: [logsSwitch], to: on}
+  # proposed: true marks a transition proposed although its edge is not in the top-level list.
+  - {from: on, on: SwitchOff, effects: [logsSwitch], to: off, description: "switching off never needs power", proposed: true}
+  - {from: "*", on: Retire, to: retired}
+  - {from: [retired], on: Reinstate, guard: [privilegedAndAudited], to: off}
+proposed: ["*→retired"]
+invariants: []
+events: [LampSwitched]
+sources: ["toy fixture, no source"]

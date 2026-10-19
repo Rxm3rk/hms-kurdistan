@@ -1,0 +1,27 @@
+# A toy machine for the tests of tools/hms statemachines. NOT FOR CLINICAL USE. Its long name (prefix
+# ToyWrappingDemonstration, as long as MedicationAdministration) and long lists make the generator take every
+# wrapped layout: type arguments one per line, lists one item per line, descriptions split into concatenations.
+machine: toy-wrapping-demonstration
+version: 3
+owner: medications
+approval: {status: requested, required: [cso, nurse-panel], approved_by: [], record: null}
+states: [first-waiting-state, second-waiting-state, third-waiting-state, fourth-waiting-state, finished-normally, finished-in-error]
+terminal: [finished-normally, finished-in-error]
+created_by: [CreateFromFirstSource, CreateFromSecondSource, CreateFromThirdSource, CreateFromFourthSource]
+predicates:
+  firstVeryLongPredicateNameForWrapping: "a description longer than one line of Kotlin: it goes on and on, it keeps going past the column limit, and it still has more to say when the second line is full as well, so that the generator has to split it into three pieces at word boundaries"
+  secondVeryLongPredicateNameForWrapping: "short"
+  thirdVeryLongPredicateNameForWrapping: "a word longer than any line: Pneumonoultramicroscopicsilicovolcanoconiosis-Pneumonoultramicroscopicsilicovolcanoconiosis-Pneumonoultramicroscopicsilicovolcanoconiosis"
+  privilegedAndAudited: "the user holds the privilege and the action is audited"
+transitions:
+  - {from: first-waiting-state, on: Step, to: second-waiting-state}
+  - {from: second-waiting-state, on: Step, to: third-waiting-state}
+  - from: [first-waiting-state, second-waiting-state, third-waiting-state]
+    on: Advance
+    guard: [firstVeryLongPredicateNameForWrapping, secondVeryLongPredicateNameForWrapping, thirdVeryLongPredicateNameForWrapping]
+    to: fourth-waiting-state
+  - {from: fourth-waiting-state, on: Finish, to: finished-normally}
+  - {from: "*", on: MarkEnteredInError, guard: [privilegedAndAudited], to: finished-in-error}
+proposed: ["first-waiting-state→fourth-waiting-state"]
+invariants: [SI-02]
+events: []

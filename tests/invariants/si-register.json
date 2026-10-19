@@ -1,0 +1,1069 @@
+{
+  "version": 1,
+  "description": "The SI register of the SI test scaffold (docs/specs/modules/state-machines-and-invariants.md §4; BUILD-PROMPT §2.1, §3.5, §18.1, §18.3). One entry per SI-01…SI-21, in order. A domain_layer of NOT-BUILT is declared, fails closed and is tracked by KA-060; it never means that the SI is enforced. spec_layer lists the specification-layer properties the scaffold runs and the hazard-log clauses each covers at that layer only. domain_watch: the SI's domain-layer test fails while it says NOT-BUILT and a watched path exists and holds an entry that its known list does not name (a path with an empty known list trips as soon as it exists, a file as soon as it exists). The first watched path is the domain_marker: the domain package that will enforce the SI, or, where that module already holds WP-0.5 state-machine packages (known), the module's domain package, which trips when anything else appears in it. Read by tests/invariants (hms.tests.invariants) and by sh tools/hms statemachines si-status.",
+  "entries": [
+    {
+      "si": "SI-01",
+      "title": "At least two identifiers on every patient-affecting action, label, wristband, MAR entry and print; never room or bed. The name prints in the patient's script plus a Latin transliteration. The second identifier is the MRN (with check digit) plus date of birth, or the approximate-DOB flag",
+      "title_source": "BUILD-PROMPT §2.1 SI-01, the Invariant column, verbatim",
+      "enforced_in": "Identity service; print templates",
+      "hazards": [
+        "HAZ-0001"
+      ],
+      "planned_test": "PropertyTest:SI-01-*",
+      "planned_tests": [
+        "PropertyTest:SI-01-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-01",
+        "PropertyTest:SI-01-*",
+        "PropertyTest:SI-01-two-identifiers-on-every-patient-affecting-command",
+        "PropertyTest:SI-01-location-never-an-identifier",
+        "PropertyTest:SI-01-print-has-script-and-latin-name",
+        "PropertyTest:SI-01-invalid-mrn-rejected-at-entry-and-scan"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-1.2",
+      "waits_on_source": "§21 WP-1.2 (Identity and registration: EMPI, Iraqi identity and registration; 'wristbands and labels print correctly') builds the identity service of §2.1's 'Enforced in'; the print templates come with WP-0.8",
+      "backlog": [
+        "ACC-ID-01",
+        "KRI-ID-01",
+        "ACC-REG-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/empi/src/main/kotlin/hms/empi/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/empi/src/main/kotlin/hms/empi/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/platform-docs/src/main/kotlin/hms/platform/docs/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/lis/src/main/kotlin/hms/lis/domain",
+          "known": [
+            "specimen"
+          ]
+        },
+        {
+          "path": "backend/modules/scheduling/src/main/kotlin/hms/scheduling/domain",
+          "known": [
+            "appointment"
+          ]
+        },
+        {
+          "path": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+          "known": [
+            "bed",
+            "common",
+            "encounter"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-02",
+      "title": "No administration without an active verified order or a documented override. Override reasons are never defaulted, and every override is reportable",
+      "title_source": "BUILD-PROMPT §2.1 SI-02, the Invariant column, verbatim",
+      "enforced_in": "MAR aggregate",
+      "hazards": [
+        "HAZ-0002"
+      ],
+      "planned_test": "PropertyTest:SI-02-*",
+      "planned_tests": [
+        "PropertyTest:SI-02-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-02",
+        "PropertyTest:SI-02-*",
+        "PropertyTest:SI-02-no-administration-without-active-verified-order-or-documented-override",
+        "PropertyTest:SI-02-override-never-waives-SI-01-SI-12-SI-13-SI-15",
+        "PropertyTest:SI-02-override-reason-never-defaulted",
+        "PropertyTest:SI-02-every-override-reportable"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.3",
+      "waits_on_source": "§21 WP-3.3 (eMAR and BCMA; 'property tests for SI-02, SI-13 and SI-15 at 10⁶ sequences') builds the MAR aggregate",
+      "backlog": [
+        "MED-MAR-01",
+        "MED-BCM-01",
+        "MED-INF-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-03",
+      "title": "Every order reaches a terminal state. Every task, result, message, letter and referral has an owner and an SLA. Unowned work raises `TaskOrphaned` within 5 minutes. Seam messages to a hospital still on paper or legacy systems are owned tasks",
+      "title_source": "BUILD-PROMPT §2.1 SI-03, the Invariant column, verbatim",
+      "enforced_in": "Task engine",
+      "hazards": [
+        "HAZ-0003"
+      ],
+      "planned_test": "PropertyTest:SI-03-*",
+      "planned_tests": [
+        "PropertyTest:SI-03-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-03",
+        "PropertyTest:SI-03-*",
+        "PropertyTest:SI-03-every-order-reaches-a-terminal-state",
+        "PropertyTest:SI-03-owner-and-sla-on-every-work-item",
+        "PropertyTest:SI-03-orphan-alarm-within-5-minutes"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.3",
+      "waits_on_source": "§21 WP-0.3 (Platform kernel: 'task engine with owners, SLA timers, escalation and TaskOrphaned') builds the task engine",
+      "backlog": [
+        "PLT-CORE-07"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/platform-tasks/src/main/kotlin/hms/platform/tasks/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/platform-tasks/src/main/kotlin/hms/platform/tasks/domain",
+          "known": []
+        },
+        {
+          "path": "backend/platform",
+          "known": [
+            "README.md",
+            "arch-rules",
+            "state-machine",
+            "testing"
+          ]
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        },
+        {
+          "path": "backend/modules/results/src/main/kotlin/hms/results/domain",
+          "known": [
+            "result"
+          ]
+        },
+        {
+          "path": "backend/modules/scheduling/src/main/kotlin/hms/scheduling/domain",
+          "known": [
+            "appointment"
+          ]
+        },
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+          "known": [
+            "bed",
+            "common",
+            "encounter"
+          ]
+        },
+        {
+          "path": "backend/modules/lis/src/main/kotlin/hms/lis/domain",
+          "known": [
+            "specimen"
+          ]
+        },
+        {
+          "path": "backend/satellites/rcm/src/main/kotlin/hms/rcm/domain",
+          "known": [
+            "creditclaim"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-04",
+      "title": "Critical results go to a **named** recipient (chosen from a picker, never free text), with read-back and a timed escalation chain. This includes **external referring doctors** for outpatient-tier results",
+      "title_source": "BUILD-PROMPT §2.1 SI-04, the Invariant column, verbatim",
+      "enforced_in": "Critical-result service",
+      "hazards": [
+        "HAZ-0004"
+      ],
+      "planned_test": "PropertyTest:SI-04-*",
+      "planned_tests": [
+        "PropertyTest:SI-04-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-04",
+        "PropertyTest:SI-04-*",
+        "PropertyTest:SI-04-recipient-always-picked-from-directory",
+        "PropertyTest:SI-04-phoned-result-needs-read-back"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-1.7",
+      "waits_on_source": "§21 WP-1.7 (Diagnostics and LIS: 'critical results to named internal and external recipients with read-back') builds the critical-result service",
+      "backlog": [
+        "DX-CRT-01",
+        "DX-ORD-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/results/src/main/kotlin/hms/results/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/results/src/main/kotlin/hms/results/domain",
+          "known": [
+            "result"
+          ]
+        },
+        {
+          "path": "backend/modules/lis/src/main/kotlin/hms/lis/domain",
+          "known": [
+            "specimen"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-05",
+      "title": "One dated, sourced dosing weight. UCUM units; no unit-less doses. **Dose arithmetic only in the Dose Engine** (static analysis fails the build otherwise). Hard stop at 10×/100× deviation. **The Dose Engine is P2.** Until it is active at a site, the **extended fallback control set** applies (§10.3): a system-enforced independent pharmacist double check on every weight- or BSA-based dose at any age, every high-alert infusion and every neonatal order; a drug-KB result ≥10× the maximum dose is a Tier A hard stop with the KB output shown verbatim; a pharmacist-cover alarm; review within 4 h of any dose given before verification. Core sites apply the double check at transcription. NICU and PICU go live with the rest of the site, never later",
+      "title_source": "BUILD-PROMPT §2.1 SI-05, the Invariant column, verbatim",
+      "enforced_in": "Dose Engine or fallback control set; CI static analysis",
+      "hazards": [
+        "HAZ-0005"
+      ],
+      "planned_test": "PropertyTest:SI-05-*",
+      "planned_tests": [
+        "PropertyTest:SI-05-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-05",
+        "PropertyTest:SI-05-*",
+        "PropertyTest:SI-05-one-dated-sourced-dosing-weight",
+        "PropertyTest:SI-05-no-weight-based-medicine-signed-without-dated-weight",
+        "PropertyTest:SI-05-no-unitless-dose-on-any-channel",
+        "PropertyTest:SI-05-no-rounding-or-recalculation-before-dose-engine",
+        "PropertyTest:SI-05-10x-or-100x-deviation-is-a-hard-stop",
+        "PropertyTest:SI-05-before-dose-engine-kb-10x-hard-stop-or-pharmacist-review",
+        "PropertyTest:SI-05-fallback-set-a-in-force-while-dose-engine-inactive",
+        "PropertyTest:SI-05-double-check-required-for-weight-bsa-high-alert-infusion-neonatal",
+        "PropertyTest:SI-05-kb-10x-maximum-is-tier-a-hard-stop",
+        "PropertyTest:SI-05-review-task-within-4h-of-dose-before-verification",
+        "PropertyTest:clinical-tier-has-no-partial-loop"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.2",
+      "waits_on_source": "The Dose Engine is P2 (§2.1; MED-DOSE-01, §21 Phase 5). Until it is active the extended fallback control set applies; §21 WP-3.2 (Verification and dispensing: 'control set A, the KB ≥10× hard stop, the pharmacist-cover alarm') builds it",
+      "backlog": [
+        "MED-PHV-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        },
+        {
+          "path": "backend/regulated/reg-dose",
+          "known": []
+        }
+      ]
+    },
+    {
+      "si": "SI-06",
+      "title": "Signed notes are immutable. Amendments are versions, addenda are links, entered-in-error replaces delete, and the signed rendering is hashed",
+      "title_source": "BUILD-PROMPT §2.1 SI-06, the Invariant column, verbatim",
+      "enforced_in": "Clinical journal",
+      "hazards": [
+        "HAZ-0006"
+      ],
+      "planned_test": "PropertyTest:SI-06-*",
+      "planned_tests": [
+        "PropertyTest:SI-06-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-06",
+        "PropertyTest:SI-06-*",
+        "PropertyTest:SI-06-signed-note-immutable-on-every-channel",
+        "PropertyTest:SI-06-amendment-is-a-new-version",
+        "PropertyTest:SI-06-addendum-is-a-link",
+        "PropertyTest:SI-06-entered-in-error-replaces-delete"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.3",
+      "waits_on_source": "§21 WP-0.3 (Platform kernel, PLT-CORE-01 clinical journal) builds the clinical journal of §2.1's 'Enforced in'; clinical notes follow in WP-1.4",
+      "backlog": [
+        "PLT-CORE-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/platform-journal/src/main/kotlin/hms/platform/journal/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/platform-journal/src/main/kotlin/hms/platform/journal/domain",
+          "known": []
+        },
+        {
+          "path": "backend/platform",
+          "known": [
+            "README.md",
+            "arch-rules",
+            "state-machine",
+            "testing"
+          ]
+        },
+        {
+          "path": "backend/modules/record/src/main/kotlin/hms/record/domain",
+          "known": []
+        }
+      ]
+    },
+    {
+      "si": "SI-07",
+      "title": "AI output stays `draft-ai` until a human signs it. AI never signs orders, files results or messages patients (applies from P2)",
+      "title_source": "BUILD-PROMPT §2.1 SI-07, the Invariant column, verbatim",
+      "enforced_in": "AI control plane",
+      "hazards": [
+        "HAZ-0007"
+      ],
+      "planned_test": "PropertyTest:SI-07-*",
+      "planned_tests": [
+        "PropertyTest:SI-07-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-07",
+        "PropertyTest:SI-07-*",
+        "PropertyTest:SI-07-draft-ai-until-a-human-signs",
+        "PropertyTest:SI-07-ai-never-signs-orders",
+        "PropertyTest:SI-07-ai-never-files-results",
+        "PropertyTest:SI-07-ai-never-messages-patients"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "Phase 5",
+      "waits_on_source": "The AI control plane is P2: §21 Phase 5 lists the AI platform and products (AI-GW-01, AI-GOV-01; none of it starts before company gate G3)",
+      "backlog": [
+        "AI-GW-01",
+        "AI-GOV-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/satellites/ai-gateway",
+      "domain_watch": [
+        {
+          "path": "backend/satellites/ai-gateway",
+          "known": []
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        },
+        {
+          "path": "backend/modules/results/src/main/kotlin/hms/results/domain",
+          "known": [
+            "result"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-08",
+      "title": "Merges are reversible links propagated downstream (HL7 A40 / FHIR `Patient.link`). Overlays are safety incidents. Auto-merge precision ≥99.9%, measured on a cross-script Kurdish/Arabic/Latin gold set",
+      "title_source": "BUILD-PROMPT §2.1 SI-08, the Invariant column, verbatim",
+      "enforced_in": "EMPI",
+      "hazards": [
+        "HAZ-0008"
+      ],
+      "planned_test": "PropertyTest:SI-08-*",
+      "planned_tests": [
+        "PropertyTest:SI-08-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-08",
+        "PropertyTest:SI-08-*",
+        "PropertyTest:SI-08-unmerge-restores-every-re-pointed-record",
+        "PropertyTest:SI-08-auto-merge-disabled-below-precision-floor"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-1.2",
+      "waits_on_source": "§21 WP-1.2 (Identity and registration: 'reversible merge with downstream propagation') builds the EMPI",
+      "backlog": [
+        "ACC-ID-01",
+        "KRI-ID-01",
+        "ACC-ID-03"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/empi/src/main/kotlin/hms/empi/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/empi/src/main/kotlin/hms/empi/domain",
+          "known": []
+        }
+      ]
+    },
+    {
+      "si": "SI-09",
+      "title": "Medication reconciliation cannot complete while any item is undecided",
+      "title_source": "BUILD-PROMPT §2.1 SI-09, the Invariant column, verbatim",
+      "enforced_in": "Med-rec aggregate",
+      "hazards": [
+        "HAZ-0009"
+      ],
+      "planned_test": "PropertyTest:SI-09-*",
+      "planned_tests": [
+        "PropertyTest:SI-09-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-09",
+        "PropertyTest:SI-09-*",
+        "PropertyTest:SI-09-cannot-complete-with-an-undecided-item",
+        "PropertyTest:SI-09-late-input-becomes-undecided-item"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.11",
+      "waits_on_source": "§21 WP-3.11 (Results, discharge, handoff, med rec: 'med rec blocked while undecided') builds the med-rec aggregate",
+      "backlog": [
+        "CLN-MRC-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-10",
+      "title": "Clinical time is distinct from system time. Back-dating is privileged and audited. Back-entry keeps the original clinical times and is labelled. Back-entry after outages will be frequent, so tooling and audit are sized for it",
+      "title_source": "BUILD-PROMPT §2.1 SI-10, the Invariant column, verbatim",
+      "enforced_in": "Bitemporal journal",
+      "hazards": [
+        "HAZ-0010"
+      ],
+      "planned_test": "PropertyTest:SI-10-*",
+      "planned_tests": [
+        "PropertyTest:SI-10-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-10",
+        "PropertyTest:SI-10-*",
+        "PropertyTest:SI-10-clinical-time-distinct-from-system-time",
+        "PropertyTest:SI-10-back-dating-is-privileged-and-audited",
+        "PropertyTest:SI-10-back-entry-keeps-clinical-time-and-label"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.3",
+      "waits_on_source": "§21 WP-0.3 (Platform kernel: 'clinical vs recorded time; bitemporal journal-as-outbox') builds the bitemporal journal",
+      "backlog": [
+        "PLT-CORE-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/platform-journal/src/main/kotlin/hms/platform/journal/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/platform-journal/src/main/kotlin/hms/platform/journal/domain",
+          "known": []
+        },
+        {
+          "path": "backend/platform",
+          "known": [
+            "README.md",
+            "arch-rules",
+            "state-machine",
+            "testing"
+          ]
+        },
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+          "known": [
+            "bed",
+            "common",
+            "encounter"
+          ]
+        },
+        {
+          "path": "backend/modules/lis/src/main/kotlin/hms/lis/domain",
+          "known": [
+            "specimen"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-11",
+      "title": "Transfusion requires a wristband ↔ unit ↔ order ↔ sample match plus a two-person electronic witness; a mismatch is a hard stop. Units from public blood banks are relabelled at receipt under two-person **blind double entry** of unit number, ABO/Rh, product and expiry from the original label and the issue note. The original label is never covered; the new label prints the unit number and ABO/Rh beside the barcode; the bedside witness also confirms the unit number on the original label; any mismatch quarantines the unit. Until T2 is activated: a scripted two-person check (identifiers scanned and shown side by side, both electronic signatures required, no automated pass/fail)",
+      "title_source": "BUILD-PROMPT §2.1 SI-11, the Invariant column, verbatim",
+      "enforced_in": "Transfusion verification (T2) or fallback",
+      "hazards": [
+        "HAZ-0011"
+      ],
+      "planned_test": "PropertyTest:SI-11-*",
+      "planned_tests": [
+        "PropertyTest:SI-11-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-11",
+        "PropertyTest:SI-11-*",
+        "PropertyTest:SI-11-wristband-unit-order-sample-match",
+        "PropertyTest:SI-11-sample-needs-concordant-second-determination",
+        "PropertyTest:SI-11-two-different-witnesses-both-signed",
+        "PropertyTest:SI-11-blind-double-entry",
+        "PropertyTest:SI-11-witness-confirms-original-unit-number",
+        "PropertyTest:SI-11-any-mismatch-quarantines",
+        "PropertyTest:SI-11-quarantined-unit-never-issued-or-administered"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.10",
+      "waits_on_source": "§21 WP-3.10 (Transfusion: relabel with blind double entry and quarantine on mismatch; reg-transfusion T2 and the scripted fallback) builds transfusion verification",
+      "backlog": [
+        "DX-BB-01",
+        "DX-BB-KRI-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/transfusion/src/main/kotlin/hms/transfusion/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/transfusion/src/main/kotlin/hms/transfusion/domain",
+          "known": []
+        },
+        {
+          "path": "backend/regulated/reg-transfusion",
+          "known": []
+        },
+        {
+          "path": "backend/modules/lis/src/main/kotlin/hms/lis/domain",
+          "known": [
+            "specimen"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-12",
+      "title": "Bill clearance, deposits and pre-authorisation never block discharge or emergency care. No payment, deposit or counter rule may delay a verified time-critical inpatient dose (STAT and first doses, antimicrobials, insulin, anticoagulants, anticonvulsants); it is charged to the running bill. Medicines bought by families are received by pharmacy (identified, expiry-checked, relabelled to the patient, flagged \"patient-supplied\"); unverified outside medicines cannot be scanned for administration",
+      "title_source": "BUILD-PROMPT §2.1 SI-12, the Invariant column, verbatim",
+      "enforced_in": "RCM ↔ ADT/MAR boundary",
+      "hazards": [
+        "HAZ-0012"
+      ],
+      "planned_test": "PropertyTest:SI-12-*",
+      "planned_tests": [
+        "PropertyTest:SI-12-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-12",
+        "PropertyTest:SI-12-*",
+        "PropertyTest:SI-12-no-rcm-state-blocks-a-clinical-command",
+        "PropertyTest:SI-12-ed-registration-and-emergency-orders-never-blocked",
+        "PropertyTest:SI-12-pre-authorisation-never-blocks-discharge-or-emergency-care",
+        "PropertyTest:SI-12-payment-hold-never-delays-a-time-critical-dose",
+        "PropertyTest:SI-12-patient-supplied-medicine-lifecycle",
+        "PropertyTest:SI-12-unverified-outside-medicine-cannot-be-scanned"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-2.1",
+      "waits_on_source": "§21 WP-2.1 (ADT and bed board: 'discharge never blocked by money (SI-12 property tests)') builds the ADT side of the RCM ↔ ADT/MAR boundary; the MAR side follows in WP-3.3, RCM in WP-1.9",
+      "backlog": [
+        "ACC-ADT-01",
+        "OPS-FLW-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+          "known": [
+            "bed",
+            "common",
+            "encounter"
+          ]
+        },
+        {
+          "path": "backend/satellites/rcm/src/main/kotlin/hms/rcm/domain",
+          "known": [
+            "creditclaim"
+          ]
+        },
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        },
+        {
+          "path": "backend/modules/scheduling/src/main/kotlin/hms/scheduling/domain",
+          "known": [
+            "appointment"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-13",
+      "title": "High-alert medications require a documented independent double check",
+      "title_source": "BUILD-PROMPT §2.1 SI-13, the Invariant column, verbatim",
+      "enforced_in": "MAR; formulary",
+      "hazards": [
+        "HAZ-0013"
+      ],
+      "planned_test": "PropertyTest:SI-13-*",
+      "planned_tests": [
+        "PropertyTest:SI-13-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-13",
+        "PropertyTest:SI-13-*",
+        "PropertyTest:SI-13-high-alert-administration-needs-documented-independent-double-check",
+        "PropertyTest:SI-13-double-check-needs-two-different-people"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.3",
+      "waits_on_source": "§21 WP-3.3 (eMAR and BCMA: 'high-alert double check'; 'property tests for SI-02, SI-13 and SI-15 at 10⁶ sequences') builds the MAR",
+      "backlog": [
+        "MED-MAR-01",
+        "MED-BCM-01",
+        "MED-INF-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-14",
+      "title": "Hard stops come only from a governed list. Every interruptive rule has an owner, evidence, a measured PPV and a review-by date. The vendor-validated go-live baseline (Tier A/B) is interruptive from day 0. New or locally modified rules run silent first. Tier A/B rules are never retired on override rate alone",
+      "title_source": "BUILD-PROMPT §2.1 SI-14, the Invariant column, verbatim",
+      "enforced_in": "CDS registry",
+      "hazards": [
+        "HAZ-0014"
+      ],
+      "planned_test": "PropertyTest:SI-14-*",
+      "planned_tests": [
+        "PropertyTest:SI-14-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-14",
+        "PropertyTest:SI-14-*",
+        "PropertyTest:SI-14-hard-stop-only-from-governed-list",
+        "PropertyTest:SI-14-rule-without-measured-ppv-never-interruptive",
+        "PropertyTest:SI-14-baseline-exception-only-from-sign-off-record",
+        "PropertyTest:SI-14-new-or-modified-rule-starts-silent",
+        "PropertyTest:SI-14-promotion-to-interruptive-needs-ppv-from-silent-run-or-replay"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-1.5",
+      "waits_on_source": "§21 WP-1.5 (CDS foundation: alert tiers, silent mode, kill switches, override telemetry) builds the CDS registry",
+      "backlog": [
+        "CLN-CDS-01",
+        "CLN-CDS-03"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/cds/src/main/kotlin/hms/cds/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/cds/src/main/kotlin/hms/cds/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-15",
+      "title": "Offline: no new prescribing without full CDS, no bed or OT allocation, no identifiers outside pre-allocated blocks, no controlled-drug stock movement, no identity merges. Offline commands are revalidated by the server. No last-writer-wins or CRDT merges on clinical state. **Losing the internet does not make an on-site cell \"offline\":** this rule governs losing the on-site cell itself, edge-agent mode and mobile offline mode",
+      "title_source": "BUILD-PROMPT §2.1 SI-15, the Invariant column, verbatim",
+      "enforced_in": "Offline matrix; command handler",
+      "hazards": [
+        "HAZ-0015"
+      ],
+      "planned_test": "PropertyTest:SI-15-*",
+      "planned_tests": [
+        "PropertyTest:SI-15-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-15",
+        "PropertyTest:SI-15-*",
+        "PropertyTest:SI-15-no-new-prescribing-without-full-cds-offline",
+        "PropertyTest:SI-15-no-bed-or-ot-allocation-offline",
+        "PropertyTest:SI-15-identifiers-only-from-pre-allocated-blocks",
+        "PropertyTest:SI-15-no-controlled-drug-stock-movement-offline",
+        "PropertyTest:SI-15-no-identity-merges-offline",
+        "PropertyTest:SI-15-offline-commands-revalidated-by-server",
+        "PropertyTest:SI-15-offline-administration-only-against-orders-verified-before-outage",
+        "PropertyTest:SI-15-no-last-writer-wins-on-clinical-state"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.3",
+      "waits_on_source": "§21 WP-3.3 (eMAR and BCMA: 'offline mode with revalidation and flagged facts'; 'property tests for SI-02, SI-13 and SI-15 at 10⁶ sequences'); the offline matrix of the on-site cell and the edge agent follows in WP-1.13",
+      "backlog": [
+        "MED-BCM-01",
+        "PLT-UX-04"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/medications/src/main/kotlin/hms/medications/domain",
+          "known": [
+            "medicationadministration"
+          ]
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        },
+        {
+          "path": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+          "known": [
+            "bed",
+            "common",
+            "encounter"
+          ]
+        },
+        {
+          "path": "backend/modules/lis/src/main/kotlin/hms/lis/domain",
+          "known": [
+            "specimen"
+          ]
+        },
+        {
+          "path": "backend/modules/platform-site/src/main/kotlin/hms/platform/site/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/empi/src/main/kotlin/hms/empi/domain",
+          "known": []
+        }
+      ]
+    },
+    {
+      "si": "SI-16",
+      "title": "The banner (photo, two identifiers, allergies with \"NKA\" distinct from \"not assessed\", code status, isolation, dated weight, trilingual name display) appears on every clinical screen, mobile view and print. One patient context per window. Identity is re-verified at signing if the context changed within the last 60 s",
+      "title_source": "BUILD-PROMPT §2.1 SI-16, the Invariant column, verbatim",
+      "enforced_in": "Design-system shell",
+      "hazards": [
+        "HAZ-0016"
+      ],
+      "planned_test": "PropertyTest:SI-16-*",
+      "planned_tests": [
+        "PropertyTest:SI-16-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-16",
+        "PropertyTest:SI-16-*",
+        "PropertyTest:SI-16-re-verification-at-signing-after-recent-context-change"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.7",
+      "waits_on_source": "§21 WP-0.7 (Design system and client shells: 'banner component (SI-16) with patient-context management and re-verification at signing') builds the design-system shell, on its own branch (KA-063)",
+      "backlog": [
+        "PLT-UX-01",
+        "PLT-UX-02"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "frontend/packages/ui-core",
+      "domain_watch": [
+        {
+          "path": "frontend/packages/ui-core",
+          "known": []
+        },
+        {
+          "path": "backend/modules/orders/src/main/kotlin/hms/orders/domain",
+          "known": [
+            "order"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-17",
+      "title": "Results pending at discharge, and results for discharged patients, go to owned queues",
+      "title_source": "BUILD-PROMPT §2.1 SI-17, the Invariant column, verbatim",
+      "enforced_in": "Results routing",
+      "hazards": [
+        "HAZ-0017"
+      ],
+      "planned_test": "PropertyTest:SI-17-*",
+      "planned_tests": [
+        "PropertyTest:SI-17-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-17",
+        "PropertyTest:SI-17-*",
+        "PropertyTest:SI-17-pending-results-at-discharge-go-to-owned-queue",
+        "PropertyTest:SI-17-result-for-discharged-patient-goes-to-owned-queue"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-3.11",
+      "waits_on_source": "§21 WP-3.11 (Results, discharge, handoff, med rec: 'pending-at-discharge queues') builds results routing",
+      "backlog": [
+        "CLN-RES-01",
+        "CLN-DOC-03"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/results/src/main/kotlin/hms/results/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/results/src/main/kotlin/hms/results/domain",
+          "known": [
+            "result"
+          ]
+        },
+        {
+          "path": "backend/modules/adt/src/main/kotlin/hms/adt/domain",
+          "known": [
+            "bed",
+            "common",
+            "encounter"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-18",
+      "title": "A Tier 2 function activates for a tenant only where the Regulatory Boundary Register says \"cleared\" or \"not required\", backed by a stored written local opinion (scope, intended purpose, version, jurisdiction; expires after 24 months or on any change). Configuration toggles cannot override it",
+      "title_source": "BUILD-PROMPT §2.1 SI-18, the Invariant column, verbatim",
+      "enforced_in": "Boundary Register service",
+      "hazards": [
+        "HAZ-0018"
+      ],
+      "planned_test": "PropertyTest:SI-18-*",
+      "planned_tests": [
+        "PropertyTest:SI-18-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-18",
+        "PropertyTest:SI-18-*",
+        "PropertyTest:SI-18-activation-only-when-cleared-or-not-required",
+        "PropertyTest:SI-18-opinion-expires-after-24-months",
+        "PropertyTest:SI-18-any-change-expires-the-opinion",
+        "PropertyTest:SI-18-configuration-toggle-cannot-override-register"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.9",
+      "waits_on_source": "§21 WP-0.9 (Safety registry and release evidence: the Regulatory Boundary Register) builds the Boundary Register service",
+      "backlog": [
+        "TRU-REG-01",
+        "TRU-REG-02"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/safety-registry/src/main/kotlin/hms/safety/registry/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/safety-registry/src/main/kotlin/hms/safety/registry/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/results/src/main/kotlin/hms/results/domain",
+          "known": [
+            "result"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-19",
+      "title": "Every CDS rule and clinical-behaviour flag has a kill switch. Safety-relevant changes default to off",
+      "title_source": "BUILD-PROMPT §2.1 SI-19, the Invariant column, verbatim",
+      "enforced_in": "Flag service",
+      "hazards": [
+        "HAZ-0019"
+      ],
+      "planned_test": "PropertyTest:SI-19-*",
+      "planned_tests": [
+        "PropertyTest:SI-19-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-19",
+        "PropertyTest:SI-19-*",
+        "PropertyTest:SI-19-every-rule-and-flag-has-a-kill-switch",
+        "PropertyTest:SI-19-safety-relevant-flags-default-off"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.3",
+      "waits_on_source": "§21 WP-0.3 (Platform kernel: 'flags and kill switches') builds the flag service",
+      "backlog": [
+        "PLT-CFG-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/platform-config/src/main/kotlin/hms/platform/config/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/platform-config/src/main/kotlin/hms/platform/config/domain",
+          "known": []
+        },
+        {
+          "path": "backend/platform",
+          "known": [
+            "README.md",
+            "arch-rules",
+            "state-machine",
+            "testing"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-20",
+      "title": "Usable PHI stays in the hospital's on-site cell and the Kurdistan DR site; anything off-site is ciphertext under hospital-held keys. The only exception is a per-tenant processor entry approved by the Safety Board (data processing agreement, zero retention, region pinning, minimisation, payload audit). Message bodies carry no clinical content. No PHI or PHI-derived data in telemetry, logs, prompts or support sessions that leave the cell",
+      "title_source": "BUILD-PROMPT §2.1 SI-20, the Invariant column, verbatim",
+      "enforced_in": "Trust Plane; AI gateway; egress tests",
+      "hazards": [
+        "HAZ-0020"
+      ],
+      "planned_test": "PropertyTest:SI-20-*",
+      "planned_tests": [
+        "PropertyTest:SI-20-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-20",
+        "PropertyTest:SI-20-*",
+        "PropertyTest:SI-20-processor-egress-needs-approved-entry"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.4",
+      "waits_on_source": "§21 WP-0.4 (Trust Plane v1: per-tenant envelope keys and crypto-shredding; PHI-safe logging with the canary scan) builds the Trust Plane part; the AI gateway is P2 and the egress tests come with WP-1.13",
+      "backlog": [
+        "TRU-KEY-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/trust-keys/src/main/kotlin/hms/trust/keys/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/trust-keys/src/main/kotlin/hms/trust/keys/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/trust-policy/src/main/kotlin/hms/trust/policy/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/scheduling/src/main/kotlin/hms/scheduling/domain",
+          "known": [
+            "appointment"
+          ]
+        },
+        {
+          "path": "backend/satellites/rcm/src/main/kotlin/hms/rcm/domain",
+          "known": [
+            "creditclaim"
+          ]
+        }
+      ]
+    },
+    {
+      "si": "SI-21",
+      "title": "Sensitivity labels and purpose-of-use are enforced at the policy enforcement point for every channel: UI, API, print, exports, interfaces, AI grounding and analytics. Labels: HIV, mental health, reproductive and sexual health, gender-based violence, forensic/MLC, VIP (public figures and officials). Each label has its own hazard entry and property tests. Labelled results and pregnancy tests are never released by message",
+      "title_source": "BUILD-PROMPT §2.1 SI-21, the Invariant column, verbatim",
+      "enforced_in": "Trust Plane PEP; print and export services",
+      "hazards": [
+        "HAZ-0021",
+        "HAZ-0022",
+        "HAZ-0023",
+        "HAZ-0024",
+        "HAZ-0025",
+        "HAZ-0026",
+        "HAZ-0027"
+      ],
+      "planned_test": "PropertyTest:SI-21-*",
+      "planned_tests": [
+        "PropertyTest:SI-21-channels-*",
+        "PropertyTest:config-chain-vendor-lock-SI-21",
+        "PropertyTest:SI-21-*",
+        "PropertyTest:SI-21-pep-on-every-channel",
+        "PropertyTest:SI-21-purpose-of-use-required-on-every-access",
+        "PropertyTest:SI-21-labels-propagate-to-derived-artefacts",
+        "PropertyTest:SI-21-label-*",
+        "PropertyTest:SI-21-labelled-results-and-pregnancy-tests-never-released-by-message",
+        "PropertyTest:SI-21-label-hiv-propagation",
+        "PropertyTest:SI-21-label-hiv-pep-on-every-channel",
+        "PropertyTest:SI-21-label-hiv-*",
+        "PropertyTest:SI-21-label-hiv-never-released-by-message",
+        "PropertyTest:SI-21-label-mental-health-propagation",
+        "PropertyTest:SI-21-label-mental-health-pep-on-every-channel",
+        "PropertyTest:SI-21-label-mental-health-*",
+        "PropertyTest:SI-21-label-mental-health-never-released-by-message",
+        "PropertyTest:SI-21-label-reproductive-sexual-health-propagation",
+        "PropertyTest:SI-21-label-reproductive-sexual-health-pep-on-every-channel",
+        "PropertyTest:SI-21-label-reproductive-sexual-health-*",
+        "PropertyTest:SI-21-label-reproductive-sexual-health-never-released-by-message",
+        "PropertyTest:SI-21-pregnancy-tests-never-released-by-message",
+        "PropertyTest:SI-21-label-gender-based-violence-propagation",
+        "PropertyTest:SI-21-label-gender-based-violence-pep-on-every-channel",
+        "PropertyTest:SI-21-label-gender-based-violence-*",
+        "PropertyTest:SI-21-label-gender-based-violence-never-released-by-message",
+        "PropertyTest:SI-21-label-forensic-mlc-propagation",
+        "PropertyTest:SI-21-label-forensic-mlc-pep-on-every-channel",
+        "PropertyTest:SI-21-label-forensic-mlc-*",
+        "PropertyTest:SI-21-label-forensic-mlc-never-released-by-message",
+        "PropertyTest:SI-21-label-vip-propagation",
+        "PropertyTest:SI-21-label-vip-pep-on-every-channel",
+        "PropertyTest:SI-21-label-vip-*",
+        "PropertyTest:SI-21-label-vip-never-released-by-message"
+      ],
+      "spec_layer": [],
+      "domain_layer": "NOT-BUILT",
+      "waits_on": "WP-0.4",
+      "waits_on_source": "§21 WP-0.4 (Trust Plane v1: the policy decision point with labels and purpose-of-use; policy enforcement for API, print and export) builds the Trust Plane PEP",
+      "backlog": [
+        "TRU-PRV-01",
+        "TRU-IAM-02",
+        "TRU-IAM-03",
+        "TRU-AUD-01"
+      ],
+      "ka": "KA-060",
+      "domain_marker": "backend/modules/trust-policy/src/main/kotlin/hms/trust/policy/domain",
+      "domain_watch": [
+        {
+          "path": "backend/modules/trust-policy/src/main/kotlin/hms/trust/policy/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/trust-audit/src/main/kotlin/hms/trust/audit/domain",
+          "known": []
+        },
+        {
+          "path": "backend/modules/scheduling/src/main/kotlin/hms/scheduling/domain",
+          "known": [
+            "appointment"
+          ]
+        }
+      ]
+    }
+  ]
+}

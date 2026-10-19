@@ -1,0 +1,24 @@
+// Test fixture of tools/hms statemachines rule 12 (copied to <project>/src/test/kotlin as ToyLightGuardsTest.kt).
+// NOT FOR CLINICAL USE. Every predicate is named in a test name; the comment "lampIntact" does not count.
+package hms.adt.domain.toylight
+
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+
+class ToyLightGuardsTest :
+    FunSpec({
+        val off = ToyLightFacts(mainsOn = false, generatorOn = false, inspectionPassed = false, privileged = false, audited = false)
+
+        test("powerAvailable holds on mains power") {
+            ToyLightGuards.powerAvailable(off.copy(mainsOn = true)) shouldBe true
+        }
+
+        context("lampIntact") {
+            test("holds after a passed inspection") { ToyLightGuards.lampIntact(off.copy(inspectionPassed = true)) shouldBe true }
+            test("does not hold without one") { ToyLightGuards.lampIntact(off) shouldBe false }
+        }
+
+        test("privilegedAndAudited needs ${"both"} the privilege and the audit") {
+            ToyLightGuards.privilegedAndAudited(off.copy(privileged = true)) shouldBe false
+        }
+    })
