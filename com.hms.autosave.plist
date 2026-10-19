@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- HMS auto-save on the MacBook: runs ~/.hms-snapshot/snapshot.sh every 10 minutes. Install with
+     sed "s#__HOME__#$HOME#g", then launchctl bootstrap gui/$(id -u) <this file>. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.hms.autosave</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>__HOME__/.hms-snapshot/snapshot.sh</string>
+  </array>
+  <key>StartInterval</key><integer>600</integer>
+  <key>RunAtLoad</key><true/>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>__HOME__/.hms-snapshot/launchd.out</string>
+  <key>StandardErrorPath</key><string>__HOME__/.hms-snapshot/launchd.err</string>
+</dict>
+</plist>
