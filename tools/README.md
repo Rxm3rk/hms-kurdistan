@@ -15,6 +15,10 @@ the last stdout line is one JSON object `{check, ok, counts, errors, warnings}`.
 | `sh tools/hms licence check --sbom F \| --pnpm F` | The licence policy (see `tools/licence/README.md`) |
 | `sh tools/hms backlog check`, `sh tools/hms safety check` | Backlog and hazard-log checks (their own packages) |
 
+Simulators of external parties and devices live under `tools/simulators/<party>/` (BUILD-PROMPT.md §3.7,
+ADR-014), standard library only, each with its own README and tests: `label_printer` is the raw port-9100
+label-printer capture endpoint (`python -I tools/simulators/label_printer/capture.py --out <directory>`).
+
 Unit tests: `.tools/venv/Scripts/python.exe -I -m unittest discover -s tools -t tools -p "test_*.py"`
 (on Linux `.tools/venv/bin/python`). Configuration data lives in `tools/config/` (tenant identifiers) and
 `tools/licence/` (licence policy). Python dependencies are pinned with hashes in `tools/requirements.txt`,

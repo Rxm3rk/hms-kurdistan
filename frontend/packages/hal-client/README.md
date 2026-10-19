@@ -1,10 +1,33 @@
 # packages/hal-client
 
-The typed client for the workstation shell's hardware abstraction layer, HAL contract v1 (WP-0.7, open questions
-OQ-140 and OQ-150; BUILD-PROMPT.md §12.8). The contract is `docs/specs/hal/`: every call returns
-`{ok, value | error, auditId}`. Slice S8 builds `contract.ts` and three transports: Tauri (the shell, through
-`@tauri-apps/api`), none (no shell: every call returns `unavailable` / `no-shell`) and a simulator for tests.
-Slice S1 created the package with a smoke test.
+The typed client for the workstation shell's hardware abstraction layer, HAL contract v1 (WP-0.7 slice S8;
+open questions OQ-140, OQ-150 and OQ-157; BUILD-PROMPT.md §12.8, §13.5). The contract is `docs/specs/hal/`:
+every call returns `{ok, value | error, auditId}` and nothing else, and no call throws across the bridge.
 
-Tests run with Vitest: `corepack pnpm --filter @hms/hal-client test`. Ajv validates the fixtures in
-`docs/specs/hal/fixtures/` against `hal-v1.schema.json` itself.
+| File                     | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/contract.ts`        | The contract as TypeScript types and Zod schemas: the twelve calls, their requests, values and events, the error vocabulary (`halError` builds the one error the contract allows for a call, kind and reason, with its `retryable` and `outcomeUnknown` flags), the message keys, and the closed audit record. Every object is strict                                                                                                                                                                                                                                                                                                           |
+| `src/transport.ts`       | The `HalTransport` interface and the errors the client makes itself: `unusableReply` (a reply the client cannot use, or none), `refusedRequest` (a request outside the contract, never sent) and `deadlinePassed` (no reply by the client deadline). Their audit IDs are fresh and name no record (KA-040)                                                                                                                                                                                                                                                                                                                                      |
+| `src/transport-tauri.ts` | The shell, over Tauri IPC (`hal_call`, `hal_subscribe` with a channel per subscription, `hal_release_blob`; OQ-157). Every request is checked against the contract before it is sent; every reply is checked too. A malformed reply, a rejected invoke, a `no-shell` reason from the shell, no reply within the client deadline (180 s by default), or a success reply to `hal.id.read` (becomes `unavailable` / `not-implemented`) or `hal.pay.request` (outcome unknown) becomes an error result (`hal.id.read` and `hal.pay.request` are not implemented in WP-0.7, KA-027). Malformed events and events of another subscription are dropped |
+| `src/transport-none.ts`  | No shell (a plain browser): every call returns `unavailable` / `no-shell`, and hal-client writes its own audit record (`writtenBy: hal-client`) with nothing from the request                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `src/transport-sim.ts`   | A simulated shell for tests and the demo, with the devices of fixture `hal.capabilities.ok`; `hal.id.read` and `hal.pay.request` return `unavailable` / `not-implemented`; barcode reads reach only the focused window; a malformed request is refused like the shell refuses it, and nothing of it reaches the audit record                                                                                                                                                                                                                                                                                                                    |
+| `src/capture.ts`         | Binds `hal.camera.photo`, `hal.scan.document`, `hal.id.read` and `hal.sign.capture` to the window's patient: a result that arrives after the window's patient context changed is discarded with `hal.capture.discardedAfterContextChange` and its blob released; the capture holds the window's modal guard while it waits                                                                                                                                                                                                                                                                                                                      |
+| `src/client.ts`          | `createHalClient`: the Tauri transport inside the shell, otherwise no shell. The simulator is only ever passed in explicitly                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+
+Screens show `errorMessageKeys(error)`: the kind's `hal.error.*` key, or `hal.error.outcomeUnknown` after a
+print or payment that may already have happened, and the reason's `hal.reason.*` key. They never repeat a
+call whose outcome is unknown; a reprint is a new request with `reprintOf`.
+
+## Tests
+
+`corepack pnpm --filter @hms/hal-client test` (Vitest):
+
+- `hal-contract-fixtures`: every fixture in `docs/specs/hal/fixtures/` validates against
+  `hal-v1.schema.json` with Ajv and round-trips through the Zod schemas unchanged, with the README's
+  cross-checks 1 to 5; the Zod schemas and the JSON Schema agree on every error each call allows, and both
+  reject wrong flags and fields outside the contract;
+- `no-shell-fails-closed`: with no shell every call returns `unavailable` / `no-shell` with an audit ID and
+  a valid audit record;
+- `hal-capture-discarded-after-context-change`;
+- `transport-tauri` and `transport-sim` (the shell transport against a fake IPC, and the simulator's
+  exchanges against the schema of record).
