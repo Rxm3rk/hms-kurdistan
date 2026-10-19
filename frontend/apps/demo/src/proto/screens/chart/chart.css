@@ -1,0 +1,6 @@
+/* The chart screen. Prefix: chart-. Logical properties and design-system tokens only. */
+.chart-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}

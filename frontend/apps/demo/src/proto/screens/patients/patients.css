@@ -1,0 +1,6 @@
+/* The patients screen. Prefix: patients-. Logical properties and design-system tokens only. */
+.patients-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}

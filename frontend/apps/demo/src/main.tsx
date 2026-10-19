@@ -1,27 +1,27 @@
 /**
- * The web app's entry point (docs/specs/modules/design-system.md §4). The stylesheets are imported once
- * here: the design system's (fonts, tokens, components) and the frame's. The demo module is `null` unless
- * the build sets `VITE_HMS_DEMO=1` (vite.config.ts; OQ-142).
+ * Entry point of the HMS Kurdistan clickable prototype (throwaway demo, SYNTHETIC DATA, NOT FOR CLINICAL
+ * USE). The design system's stylesheet is imported once here, then the frame's; the prototype's own
+ * stylesheets come with its modules (src/proto/ui/ui.css, src/proto/shell/shell.css, one per screen).
  */
 import '@hms/design-system/styles.css';
 import './app.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './app/app.tsx';
 import { createAppServices } from './app/create-services.ts';
-import { demoModule } from './demo/selected.ts';
-import { createAppRouter } from './routing/route-tree.tsx';
+import { ProtoApp } from './proto/shell/app.tsx';
+import { protoModule } from './proto/shell/proto-module.ts';
+import { createProtoRouter } from './proto/shell/routes.tsx';
 
 const container = document.getElementById('root');
 if (container === null) {
   throw new Error('index.html has no #root element');
 }
 
-const services = createAppServices({ demo: demoModule });
-const router = createAppRouter({ demo: demoModule });
+const services = createAppServices({ demo: protoModule });
+const router = createProtoRouter();
 
 createRoot(container).render(
   <StrictMode>
-    <App services={services} router={router} />
+    <ProtoApp services={services} router={router} />
   </StrictMode>,
 );

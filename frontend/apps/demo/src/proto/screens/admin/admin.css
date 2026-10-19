@@ -1,0 +1,6 @@
+/* The admin screen. Prefix: admin-. Logical properties and design-system tokens only. */
+.admin-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}

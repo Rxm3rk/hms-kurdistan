@@ -1,0 +1,6 @@
+/* The lab screen. Prefix: lab-. Logical properties and design-system tokens only. */
+.lab-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}

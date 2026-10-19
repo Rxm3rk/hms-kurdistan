@@ -1,0 +1,663 @@
+/*
+ * The prototype frame (src/proto/shell). Logical properties only, tokens only. Prefix: shell-.
+ *
+ * Layout: a full-height grid. The ribbon and the top bar stay at the top; the side navigation and the main
+ * region scroll on their own, so the ribbon is in every screenshot. On patient-scoped screens the
+ * PatientBanner sticks to the top of the main region while the screen scrolls under it.
+ */
+.shell {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  block-size: 100vh;
+  block-size: 100dvh;
+  overflow: hidden;
+  background-color: var(--hms-color-bg-raised);
+}
+
+.shell-skip-link {
+  position: absolute;
+  inset-block-start: var(--hms-space-2);
+  inset-inline-start: var(--hms-space-2);
+  z-index: var(--hms-z-modal-status);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+  transform: translateY(-300%);
+}
+
+.shell-skip-link:focus {
+  transform: none;
+}
+
+/* Ribbon */
+.shell-ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hms-space-1) var(--hms-space-4);
+  padding-block: 0.1875rem;
+  padding-inline: var(--hms-space-4);
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--hms-color-danger-text);
+  background-color: var(--hms-color-danger-bg);
+  border-block-end: calc(2 * var(--hms-border-width)) solid var(--hms-color-danger-border);
+  user-select: none;
+}
+
+.shell-ribbon__translation {
+  letter-spacing: 0;
+}
+
+/* Top bar */
+.shell-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2) var(--hms-space-5);
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-4);
+  background-color: var(--hms-color-bg);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  box-shadow: var(--ui-shadow);
+  position: relative;
+  z-index: 2;
+}
+
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--hms-space-3);
+  min-inline-size: 0;
+  max-inline-size: 22rem;
+  color: var(--hms-color-text);
+  text-decoration: none;
+  border-radius: var(--hms-radius-md);
+}
+
+.shell-brand[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.shell-brand__mark {
+  display: inline-flex;
+  flex: none;
+  color: var(--hms-color-accent-bg);
+}
+
+.shell-brand__text {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  line-height: 1.3;
+}
+
+.shell-brand__hospital {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.shell-brand__product {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-topbar__clock {
+  display: flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+  padding-block: var(--hms-space-1);
+  padding-inline: var(--hms-space-3);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+  background-color: var(--hms-color-bg-raised);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.shell-topbar__clock > span {
+  display: inline-flex;
+  gap: var(--hms-space-2);
+}
+
+.shell-topbar__time {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text);
+}
+
+.shell-topbar__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2) var(--hms-space-4);
+  margin-inline-start: auto;
+}
+
+.shell-topbar__palette {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.shell-kbd {
+  padding-block: 0.0625rem;
+  padding-inline: var(--hms-space-2);
+  font-family: inherit;
+  font-size: calc(var(--hms-font-size-sm) * 0.9);
+  color: var(--hms-color-text-muted);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-block-end-width: calc(2 * var(--hms-border-width));
+  border-radius: var(--hms-radius-sm);
+}
+
+/* The language and density settings in the top bar: compact, labels read aloud but not shown. */
+.shell-topbar .hms-density-control__label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.shell-topbar .hms-density-control__options {
+  gap: 0.1875rem;
+  padding: 0.1875rem;
+  background-color: var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-md);
+}
+
+.shell-topbar .hms-density-control__option {
+  min-block-size: max(24px, calc(var(--hms-target-min-size) - 0.5rem));
+  padding-inline: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+  background-color: transparent;
+  border-color: transparent;
+  border-radius: var(--hms-radius-sm);
+}
+
+.shell-topbar .hms-density-control__option[data-selected] {
+  background-color: var(--hms-color-bg);
+  border-width: var(--hms-border-width);
+  border-color: var(--hms-color-border);
+  box-shadow: var(--ui-shadow);
+}
+
+.shell-topbar .hms-palette-trigger {
+  border-color: var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+  background-color: var(--hms-color-bg);
+}
+
+/* Role switcher */
+.shell-role__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+  min-block-size: var(--hms-target-min-size);
+  padding-block: var(--hms-space-1);
+  padding-inline: var(--hms-space-2) var(--hms-space-3);
+  font: inherit;
+  text-align: start;
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.shell-role__button[data-hovered] {
+  background-color: var(--hms-color-bg-raised);
+}
+
+.shell-role__button[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.shell-role__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-inline-size: 0;
+}
+
+.shell-role__name {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.shell-role__role {
+  font-size: calc(var(--hms-font-size-sm) * 0.9);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-role__popover {
+  min-inline-size: 20rem;
+}
+
+.shell-role__option {
+  gap: var(--hms-space-3);
+  padding-block: var(--hms-space-2);
+}
+
+/* Body: navigation and main */
+.shell-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-block-size: 0;
+}
+
+.shell-nav {
+  display: flex;
+  flex-direction: column;
+  inline-size: 15.5rem;
+  min-block-size: 0;
+  background-color: var(--hms-color-bg);
+  border-inline-end: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.shell-nav--collapsed {
+  inline-size: 4.25rem;
+}
+
+.shell-nav__scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-block: var(--hms-space-3);
+  padding-inline: var(--hms-space-3);
+}
+
+.shell-nav__group + .shell-nav__group {
+  margin-block-start: var(--hms-space-4);
+  padding-block-start: var(--hms-space-3);
+  border-block-start: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+}
+
+.shell-nav__group-label {
+  margin: 0 0 var(--hms-space-2);
+  padding-inline: var(--hms-space-2);
+  font-size: calc(var(--hms-font-size-sm) * 0.92);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shell-nav__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--hms-space-3);
+  min-block-size: var(--hms-target-min-size);
+  padding-block: var(--hms-space-1);
+  padding-inline: var(--hms-space-3);
+  color: var(--hms-color-text);
+  text-decoration: none;
+  border-radius: var(--hms-radius-md);
+  cursor: pointer;
+}
+
+.shell-nav--collapsed .shell-nav__link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.shell-nav__link[data-hovered] {
+  background-color: var(--hms-color-bg-raised);
+}
+
+.shell-nav__link[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: calc(-1 * var(--hms-focus-ring-width));
+}
+
+/* The current screen: bold, tinted and marked at the inline start, so colour is not the only carrier. */
+.shell-nav__link[aria-current='page'] {
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-info-text);
+  background-color: var(--hms-color-info-bg);
+}
+
+.shell-nav__link[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset-block: var(--hms-space-2);
+  inset-inline-start: 0;
+  inline-size: 0.25rem;
+  background-color: var(--hms-color-accent-bg);
+  border-radius: 999px;
+}
+
+.shell-nav__icon {
+  flex: none;
+  color: var(--hms-color-text-muted);
+}
+
+.shell-nav__link[aria-current='page'] .shell-nav__icon {
+  color: var(--hms-color-accent-bg);
+}
+
+.shell-nav__text {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.shell-nav__patient {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  margin-block-end: var(--hms-space-2);
+  padding: var(--hms-space-3);
+  background-color: var(--hms-color-bg-raised);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-md);
+}
+
+.shell-nav__patient-label {
+  font-size: calc(var(--hms-font-size-sm) * 0.9);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-nav__patient-none {
+  font-size: var(--hms-font-size-sm);
+  font-style: italic;
+  color: var(--hms-color-text-muted);
+}
+
+.shell-nav__patient-name {
+  display: flex;
+  flex-direction: column;
+  font-weight: var(--hms-font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.shell-nav__patient-mrn {
+  font-size: calc(var(--hms-font-size-sm) * 0.9);
+  font-weight: var(--hms-font-weight-regular);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-nav__patient-button {
+  margin-block-start: var(--hms-space-1);
+  justify-content: flex-start;
+}
+
+.shell-nav__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+  min-block-size: var(--hms-target-min-size);
+  margin: var(--hms-space-2);
+  padding-inline: var(--hms-space-3);
+  font: inherit;
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--hms-radius-md);
+  cursor: pointer;
+}
+
+.shell-nav--collapsed .shell-nav__toggle {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.shell-nav__toggle[data-hovered] {
+  background-color: var(--hms-color-bg-raised);
+}
+
+.shell-main {
+  min-inline-size: 0;
+  min-block-size: 0;
+  overflow-y: auto;
+  padding-block: var(--hms-space-5) calc(var(--hms-space-6) * 2);
+  padding-inline: var(--hms-space-6);
+  outline: none;
+  scroll-padding-block-start: var(--hms-space-6);
+}
+
+/* Patient-scoped screens: the banner runs edge to edge and sticks; the screen is padded below it. */
+.shell-main:has(.shell-clinical) {
+  padding: 0;
+}
+
+.shell-clinical__banner {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  box-shadow: var(--ui-shadow);
+}
+
+.shell-clinical__banner .hms-banner {
+  padding-inline: var(--hms-space-6);
+  background-color: var(--hms-color-bg);
+}
+
+.shell-clinical__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.shell-clinical__content {
+  padding-block: var(--hms-space-5) calc(var(--hms-space-6) * 2);
+  padding-inline: var(--hms-space-6);
+}
+
+.shell-sign-action {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.shell-sign-action__reason {
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-warning-text);
+}
+
+/* No patient: the friendly chooser */
+.shell-no-patient {
+  max-inline-size: 72rem;
+  padding-block: var(--hms-space-5);
+  padding-inline: var(--hms-space-6);
+}
+
+.shell-no-patient__header {
+  margin-block-end: var(--hms-space-5);
+}
+
+.shell-no-patient__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--hms-space-2);
+  margin: 0 0 var(--hms-space-1);
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-no-patient__title {
+  margin: 0;
+  font-size: calc(var(--hms-font-size-xl) * 1.15);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.shell-no-patient__intro {
+  margin: var(--hms-space-2) 0 0;
+  max-inline-size: 48rem;
+  color: var(--hms-color-text-muted);
+}
+
+/* Patient picker */
+.shell-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.shell-picker__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--hms-space-3) var(--hms-space-4);
+}
+
+.shell-picker__search {
+  flex: 1 1 20rem;
+}
+
+.shell-picker__count {
+  margin: 0;
+  margin-inline-start: auto;
+  padding-block-end: var(--hms-space-2);
+  font-size: var(--hms-font-size-sm);
+  color: var(--hms-color-text-muted);
+}
+
+.shell-picker__empty {
+  margin: 0;
+  padding: var(--hms-space-5);
+  text-align: center;
+  color: var(--hms-color-text-muted);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) dashed var(--hms-color-border);
+  border-radius: var(--hms-radius-md);
+}
+
+.shell-picker__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+.shell-picker__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--hms-space-3) var(--hms-space-5);
+  padding-block: var(--hms-space-3);
+  padding-inline: var(--hms-space-4);
+  color: var(--hms-color-text);
+  background-color: var(--hms-color-bg);
+  border: var(--hms-border-width) solid var(--hms-color-bg-sunken);
+  border-radius: var(--hms-radius-md);
+  box-shadow: var(--ui-shadow);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.shell-picker__item[data-hovered] {
+  border-color: var(--hms-color-border);
+}
+
+.shell-picker__item[data-focus-visible] {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+.shell-picker__identity {
+  flex: 1 1 28rem;
+  min-inline-size: 0;
+}
+
+.shell-picker__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--hms-space-2);
+  flex: 0 1 auto;
+}
+
+.shell-picker__where {
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+  color: var(--hms-color-text-muted);
+  text-align: end;
+}
+
+.shell-picker__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-1);
+}
+
+.shell-chooser-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+  inline-size: min(60rem, calc(100vw - 6 * var(--hms-space-5)));
+}
+
+.shell-chooser-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+}
+
+.shell-chooser-dialog__title {
+  margin: 0;
+  font-size: var(--hms-font-size-xl);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* The patient context's messages: a status line at the bottom of the window. */
+.shell-context-status {
+  position: fixed;
+  inset-block-end: var(--hms-space-4);
+  inset-inline-start: 50%;
+  z-index: var(--hms-z-modal-status);
+  max-inline-size: min(40rem, calc(100vw - 2 * var(--hms-space-5)));
+  padding-block: var(--hms-space-2);
+  padding-inline: var(--hms-space-4);
+  color: var(--hms-color-info-text);
+  background-color: var(--hms-color-info-bg);
+  border: var(--hms-border-width) solid var(--hms-color-info-border);
+  border-radius: var(--hms-radius-md);
+  box-shadow: var(--ui-shadow-raised);
+  transform: translateX(-50%);
+}
+
+[dir='rtl'] .shell-context-status {
+  transform: translateX(50%);
+}
+
+/* Narrow screens and projectors at 1024 px: tighter padding. */
+@media (max-width: 1100px) {
+  .shell-main,
+  .shell-clinical__content,
+  .shell-no-patient {
+    padding-inline: var(--hms-space-4);
+  }
+
+  .shell-clinical__banner .hms-banner {
+    padding-inline: var(--hms-space-4);
+  }
+
+  .shell-topbar__date {
+    display: none;
+  }
+}

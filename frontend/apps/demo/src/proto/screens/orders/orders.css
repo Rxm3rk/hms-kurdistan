@@ -1,0 +1,6 @@
+/* The orders screen. Prefix: orders-. Logical properties and design-system tokens only. */
+.orders-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}

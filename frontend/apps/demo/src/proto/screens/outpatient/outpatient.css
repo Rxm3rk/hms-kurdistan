@@ -1,0 +1,6 @@
+/* The outpatient screen. Prefix: outpatient-. Logical properties and design-system tokens only. */
+.outpatient-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
