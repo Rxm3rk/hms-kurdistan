@@ -1,63 +1,22 @@
 /**
- * Vite for the web app (BUILD-PROMPT.md §4.1; docs/specs/modules/design-system.md §4, §5, §8).
+ * Vite for the HMS Kurdistan clickable prototype (throwaway demo, outside the product repository).
  *
- *   corepack pnpm --filter @hms/web dev                       development server
- *   corepack pnpm --filter @hms/web build                     production build: no demo
- *   VITE_HMS_DEMO=1 corepack pnpm --filter @hms/web build     demo build: /demo/banner and the fixtures
- *   corepack pnpm --filter @hms/web preview                   serves the last build
+ *   ../../node_modules/.bin/vite          development server on http://127.0.0.1:5200 (loopback only)
+ *   ../../node_modules/.bin/vite build    static build in dist/
  *
- * - **The demo exists only in demo builds** (OQ-142). The app imports its demo module from
- *   `src/demo/selected.ts`, which is null. Only when the build sets `VITE_HMS_DEMO=1` does the
- *   `hms-demo-module` plugin resolve that file to `src/demo/index.ts`. So a production bundle holds no demo
- *   route, fixture or simulated sign-in, and a mistake in the switch can only leave the demo out.
- * - **Nothing from another origin** (§4): fonts, icons and catalogues are bundled; servers listen on the
- *   loopback interface only; built pages carry a Content-Security-Policy that allows the page's own origin
- *   (and inline `data:` images and fonts, which Vite makes of small assets) and nothing else, so the browser
- *   itself refuses a request to anywhere else. The development server, whose React refresh needs an inline
- *   script, has no policy.
- * - Unit tests do not use this file: vitest.config.ts uses the workspace's shared settings, and tests import
- *   the demo module directly.
+ * - **The demo is always on.** `VITE_HMS_DEMO` is forced to `1` before Vite reads the environment, so the
+ *   design system's simulated sign-in (KA-032) is allowed in development and in the build alike. No switch
+ *   and no `.env` file is needed. SYNTHETIC DATA ONLY, NOT FOR CLINICAL USE.
+ * - **Nothing from another origin**: fonts, icons and data are bundled; the servers listen on the loopback
+ *   interface only; built pages carry a Content-Security-Policy that allows the page's own origin (and
+ *   inline `data:` images and fonts) and nothing else.
  */
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 
-const appRoot = path.dirname(fileURLToPath(import.meta.url));
-
-/** The demo module's two files: what the app imports, and what a demo build gets instead. */
-export const DEMO_MODULE_FILES = {
-  selected: path.join(appRoot, 'src', 'demo', 'selected.ts'),
-  enabled: path.join(appRoot, 'src', 'demo', 'index.ts'),
-} as const;
-
-/** True only when the build sets `VITE_HMS_DEMO` to exactly `1`. */
-export function isDemoBuild(env: Readonly<Record<string, string | undefined>>): boolean {
-  return env.VITE_HMS_DEMO === '1';
-}
-
-function samePath(a: string, b: string): boolean {
-  const normalise = (file: string): string => path.normalize(file.split('?')[0] ?? file).toLowerCase();
-  return normalise(a) === normalise(b);
-}
-
-/** Resolves `src/demo/selected.ts` to `src/demo/index.ts` in demo builds; does nothing otherwise. */
-function demoModuleSwitch(demo: boolean): Plugin {
-  return {
-    name: 'hms-demo-module',
-    enforce: 'pre',
-    async resolveId(source, importer, options) {
-      if (!demo || importer === undefined) {
-        return null;
-      }
-      const resolved = await this.resolve(source, importer, { ...options, skipSelf: true });
-      if (resolved !== null && samePath(resolved.id, DEMO_MODULE_FILES.selected)) {
-        return DEMO_MODULE_FILES.enabled;
-      }
-      return null;
-    },
-  };
-}
+// Read by Vite's own environment loading (process.env wins over .env files), so import.meta.env.VITE_HMS_DEMO
+// is '1' in every mode.
+process.env.VITE_HMS_DEMO = '1';
 
 /** The Content-Security-Policy of built pages: the page's own origin only. */
 export const CONTENT_SECURITY_POLICY = [
@@ -90,11 +49,11 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => {
-  const demo = isDemoBuild(loadEnv(mode, appRoot, 'VITE_'));
-  return {
-    plugins: [demoModuleSwitch(demo), react(), contentSecurityPolicy()],
-    server: { host: '127.0.0.1' },
-    preview: { host: '127.0.0.1' },
-  };
+export default defineConfig({
+  plugins: [react(), contentSecurityPolicy()],
+  define: {
+    'import.meta.env.VITE_HMS_DEMO': JSON.stringify('1'),
+  },
+  server: { host: '127.0.0.1', port: 5200, strictPort: true },
+  preview: { host: '127.0.0.1', port: 5201, strictPort: true },
 });

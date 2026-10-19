@@ -3,12 +3,7 @@
   "compilerOptions": {
     "types": ["node", "vite/client"]
   },
-  "include": [
-    "src/**/*",
-    "test/**/*",
-    "e2e/**/*",
-    "vitest.config.ts",
-    "vite.config.ts",
-    "playwright.config.ts"
-  ]
+  // The prototype type-checks its sources and its Vite config. The tests in test/ were written for the
+  // product's demo switch (production builds without the demo) and are not part of the prototype.
+  "include": ["src/**/*", "vite.config.ts"]
 }
