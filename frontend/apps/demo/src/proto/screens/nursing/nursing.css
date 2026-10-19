@@ -1,4 +1,255 @@
+/* The Nursing brain-sheet screen. Prefix: nursing-. Logical properties and design-system tokens only. */
 .nursing-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.nursing-kpis {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
+}
+
+.nursing-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.nursing-label {
+  margin: var(--hms-space-3) 0 var(--hms-space-1);
+  font-weight: var(--hms-font-weight-bold);
+  font-size: var(--hms-font-size-sm);
+}
+
+.nursing-stack,
+.nursing-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.nursing-stack--tight {
+  gap: var(--hms-space-2);
+}
+
+.nursing-inline,
+.nursing-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.nursing-card__title {
+  display: inline-flex;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.nursing-bed {
+  padding: 0.1rem var(--hms-space-2);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg-sunken);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.nursing-news {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  text-align: end;
+}
+
+.nursing-news__score {
+  display: inline-block;
+  padding: 0.15rem var(--hms-space-2);
+  border-radius: var(--hms-radius-sm);
+  font-weight: var(--hms-font-weight-bold);
+  white-space: nowrap;
+}
+
+.nursing-score--low {
+  background: var(--hms-color-success-bg);
+  color: var(--hms-color-success-text);
+}
+
+.nursing-score--low-medium,
+.nursing-score--medium {
+  background: var(--hms-color-warning-bg);
+  color: var(--hms-color-warning-text);
+}
+
+.nursing-score--high {
+  background: var(--hms-color-danger-border);
+  color: var(--hms-color-bg);
+}
+
+.nursing-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nursing-checklist__item {
+  display: flex;
+  gap: var(--hms-space-2);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--hms-space-1) var(--hms-space-2);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg-sunken);
+}
+
+.nursing-checklist__item--overdue {
+  box-shadow: inset 3px 0 0 var(--hms-color-danger-border);
+}
+
+.nursing-checklist__text {
+  font-size: var(--hms-font-size-sm);
+}
+
+.nursing-task {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-start;
+}
+
+.nursing-drug {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.nursing-done-icon {
+  color: var(--hms-color-success-text);
+}
+
+/* NEWS2 parameter scores */
+.nursing-cell {
+  display: inline-block;
+  min-inline-size: 2.5rem;
+  padding: 0.1rem var(--hms-space-1);
+  border-radius: var(--hms-radius-sm);
+  text-align: center;
+}
+
+.nursing-part--1 {
+  background: var(--hms-color-warning-bg);
+}
+
+.nursing-part--2 {
+  background: color-mix(in srgb, var(--hms-color-warning-border) 55%, var(--hms-color-bg));
+}
+
+.nursing-part--3 {
+  background: var(--hms-color-danger-bg);
+  color: var(--hms-color-danger-text);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+/* Vitals dialog */
+.nursing-dialog-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nursing-vitals-grid {
+  display: grid;
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
+}
+
+.nursing-vital {
+  position: relative;
+}
+
+.nursing-vital .nursing-part {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  padding: 0 var(--hms-space-1);
+  border-radius: var(--hms-radius-sm);
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.nursing-part--0 {
+  color: var(--hms-color-text-muted);
+}
+
+.nursing-vital--bad .ui-input {
+  border-color: var(--hms-color-danger-border);
+  box-shadow: 0 0 0 1px var(--hms-color-danger-border);
+}
+
+.nursing-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-4);
+}
+
+.nursing-live {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+  align-items: center;
+  padding: var(--hms-space-3);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-sunken);
+}
+
+.nursing-live__label {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.nursing-live__score {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border-radius: var(--hms-radius-md);
+  font-size: var(--hms-font-size-xl);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.nursing-list {
+  margin: 0;
+  padding-inline-start: var(--hms-space-4);
+}
+
+/* Handover */
+.nursing-progress {
+  flex: 1 1 16rem;
+}
+
+.nursing-ipass-list {
+  display: grid;
+  gap: var(--hms-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(30rem, 100%), 1fr));
+}
+
+.nursing-ipass {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: var(--hms-space-3);
+  align-items: start;
+}
+
+.nursing-ipass__letter {
+  display: grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  margin-block-start: 1.4rem;
+  border-radius: 50%;
+  background: var(--hms-color-accent-bg);
+  color: var(--hms-color-accent-text);
+  font-weight: var(--hms-font-weight-bold);
 }

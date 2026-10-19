@@ -231,7 +231,7 @@ function reasonFor(clinicId: string, seed: number): Text3 {
 function patientFor(clinicId: string, seed: number): Patient {
   const age = clinicId === 'clinic-paeds' ? 1 + (seed % 12) : 22 + ((seed * 11) % 55);
   const sex = clinicId === 'clinic-obgyn' ? 'female' : seed % 2 === 0 ? 'male' : 'female';
-  return extPatient(seed, { sex, age: clinicId === 'clinic-obgyn' ? 21 + (seed % 18) : age });
+  return extPatient(1000 + seed, { sex, age: clinicId === 'clinic-obgyn' ? 21 + (seed % 18) : age });
 }
 
 /** A stable pseudo-random step, so the generated week looks the same at every demo. */

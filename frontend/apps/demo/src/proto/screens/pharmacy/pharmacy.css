@@ -1,4 +1,162 @@
-.pharmacy-screen {
+/* The pharmacy screen. Prefix: ph-. Logical properties and design-system tokens only. */
+.ph-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+}
+
+.ph-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.ph-split {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 27rem);
+  gap: var(--hms-space-4);
+  align-items: start;
+}
+
+.ph-split--pos {
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
+}
+
+@media (width < 72rem) {
+  .ph-split,
+  .ph-split--pos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ph-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+  padding: var(--hms-space-3) var(--hms-space-4);
+  border-block-end: var(--hms-border-width, 1px) solid var(--hms-color-border);
+}
+
+.ph-two {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.ph-end {
+  align-items: flex-end;
+}
+
+.ph-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hms-space-2);
+}
+
+.ph-row--end {
+  justify-content: flex-end;
+}
+
+.ph-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.ph-strong {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ph-big {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ph-drug {
+  font-weight: var(--hms-font-weight-bold);
+  letter-spacing: 0.01em;
+}
+
+.ph-drug--lg {
+  font-size: var(--hms-font-size-lg);
+}
+
+.ph-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.ph-brands {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ph-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Retail counter */
+.ph-cart {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ph-cart__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hms-space-2);
+  padding-block: var(--hms-space-2);
+  border-block-end: var(--hms-border-width, 1px) solid var(--hms-color-border);
+}
+
+.ph-qty {
+  min-inline-size: 1.5rem;
+  text-align: center;
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.ph-line-total {
+  min-inline-size: 7rem;
+  text-align: end;
+}
+
+.ph-totals {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hms-space-3);
+}
+
+.ph-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  padding: var(--hms-space-4);
+  border: var(--hms-border-width, 1px) dashed var(--hms-color-border-strong);
+  border-radius: var(--hms-radius-sm);
+  background: var(--hms-color-bg-sunken);
+}
+
+.ph-receipt p {
+  margin: 0;
+}
+
+.ph-receipt__head {
+  font-weight: var(--hms-font-weight-bold);
+  text-align: center;
 }

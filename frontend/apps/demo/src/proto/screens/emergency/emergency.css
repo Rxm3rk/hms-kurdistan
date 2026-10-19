@@ -1,4 +1,298 @@
+/* The Emergency department screen. Prefix: emergency-. Logical properties and design-system tokens only. */
 .emergency-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-5);
+
+  /* Triage colours from the status tokens; orange sits between danger and warning. */
+  --emergency-t1: var(--hms-color-danger-border);
+  --emergency-t2: color-mix(in srgb, var(--hms-color-danger-border) 45%, var(--hms-color-warning-border));
+  --emergency-t3: var(--hms-color-warning-border);
+  --emergency-t4: var(--hms-color-success-border);
+  --emergency-t5: var(--hms-color-info-border);
+}
+
+.emergency-kpis {
   display: grid;
-  gap: var(--hms-space-4, 16px);
+  gap: var(--hms-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+
+.emergency-muted {
+  color: var(--hms-color-text-muted);
+  font-size: var(--hms-font-size-sm);
+}
+
+.emergency-stack,
+.emergency-detail,
+.emergency-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-4);
+}
+
+.emergency-cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-start;
+}
+
+.emergency-inline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: center;
+}
+
+.emergency-h3 {
+  margin: 0;
+  font-size: var(--hms-font-size-md);
+}
+
+.emergency-label {
+  margin: 0 0 var(--hms-space-2);
+  font-weight: var(--hms-font-weight-bold);
+  font-size: var(--hms-font-size-sm);
+}
+
+/* Triage chip: a coloured square with the level, then the category. */
+.emergency-triage {
+  display: inline-flex;
+  gap: var(--hms-space-2);
+  align-items: center;
+  font-size: var(--hms-font-size-sm);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.emergency-triage__level {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.6rem;
+  block-size: 1.6rem;
+  border-radius: var(--hms-radius-sm);
+  background: var(--emergency-triage, var(--hms-color-border));
+  color: var(--hms-color-text);
+}
+
+.emergency-triage--1 {
+  --emergency-triage: var(--emergency-t1);
+}
+
+.emergency-triage--2 {
+  --emergency-triage: var(--emergency-t2);
+}
+
+.emergency-triage--3 {
+  --emergency-triage: var(--emergency-t3);
+}
+
+.emergency-triage--4 {
+  --emergency-triage: var(--emergency-t4);
+}
+
+.emergency-triage--5 {
+  --emergency-triage: var(--emergency-t5);
+}
+
+.emergency-triage--none {
+  --emergency-triage: var(--hms-color-border);
+
+  color: var(--hms-color-text-muted);
+}
+
+/* Legend with counts per category (also a filter). */
+.emergency-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+}
+
+.emergency-legend__item {
+  display: inline-flex;
+  gap: var(--hms-space-2);
+  align-items: center;
+  padding: var(--hms-space-2) var(--hms-space-3);
+  border: var(--hms-border-width) solid var(--hms-color-border);
+  border-inline-start: 6px solid var(--emergency-triage);
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg-raised);
+  color: var(--hms-color-text);
+  font: inherit;
+  font-size: var(--hms-font-size-sm);
+  cursor: pointer;
+}
+
+.emergency-legend__item--on {
+  background: color-mix(in srgb, var(--emergency-triage) 22%, var(--hms-color-bg));
+  border-color: var(--emergency-triage);
+}
+
+.emergency-legend__count {
+  font-size: var(--hms-font-size-lg);
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.emergency-legend__item:focus-visible,
+.emergency-picker__option:focus-visible,
+.emergency-clock__patient:focus-visible {
+  outline: var(--hms-focus-ring-width) solid var(--hms-color-focus);
+  outline-offset: var(--hms-focus-ring-offset);
+}
+
+/* Triage picker in dialogs */
+.emergency-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--hms-space-2);
+}
+
+.emergency-picker__option {
+  min-block-size: var(--hms-target-min-size);
+  padding: var(--hms-space-2);
+  border: var(--hms-border-width) solid var(--emergency-triage);
+  border-inline-start-width: 6px;
+  border-radius: var(--hms-radius-md);
+  background: var(--hms-color-bg);
+  color: var(--hms-color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.emergency-picker__option--on {
+  background: color-mix(in srgb, var(--emergency-triage) 35%, var(--hms-color-bg));
+  box-shadow: inset 0 0 0 2px var(--emergency-triage);
+}
+
+/* Detail */
+.emergency-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.emergency-detail__grid,
+.emergency-form__row {
+  display: grid;
+  gap: var(--hms-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  align-items: start;
+}
+
+.emergency-detail__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+}
+
+.emergency-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-1);
+  margin: 0;
+  padding-inline-start: var(--hms-space-4);
+}
+
+.emergency-timeline--pending {
+  color: var(--hms-color-text-muted);
+}
+
+.emergency-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hms-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Pathway clocks */
+.emergency-clock {
+  display: inline-flex;
+  gap: var(--hms-space-1);
+  align-items: center;
+  font-weight: var(--hms-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.emergency-clock--late {
+  color: var(--hms-color-danger-text);
+}
+
+.emergency-clock__patient {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--hms-space-2);
+  align-items: baseline;
+  margin-block-end: var(--hms-space-3);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--hms-color-text-link);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.emergency-steps {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emergency-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--hms-space-3);
+  align-items: center;
+  padding-block: var(--hms-space-2);
+  border-block-end: var(--hms-border-width) solid var(--hms-color-border);
+}
+
+.emergency-step:last-child {
+  border-block-end: 0;
+}
+
+.emergency-step__dot {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border-radius: 50%;
+  border: 2px solid var(--hms-color-border-strong);
+}
+
+.emergency-step--success .emergency-step__dot {
+  border-color: var(--hms-color-success-border);
+  background: var(--hms-color-success-border);
+}
+
+.emergency-step--warning .emergency-step__dot {
+  border-color: var(--hms-color-warning-border);
+  background: var(--hms-color-warning-border);
+}
+
+.emergency-step--danger .emergency-step__dot {
+  border-color: var(--hms-color-danger-border);
+}
+
+.emergency-step__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.emergency-step__label {
+  font-weight: var(--hms-font-weight-bold);
+}
+
+.emergency-step__state {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-end;
+  font-size: var(--hms-font-size-sm);
+  text-align: end;
 }
