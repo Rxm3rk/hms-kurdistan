@@ -1,0 +1,48 @@
+^XA
+^FX HMS S7-K kit 0.2.0 ZT03 page 1 of 2 300 dpi synthetic
+^CI28
+^PW1219
+^LL1829
+^LH0,0
+^PA1,1,1,1
+^FO36,36^A0N,38,38^FB1147,1,10,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO36,86^A0N,30,30^FB1147,2,8,L,0^FH\^FDHMS S7-K kit 0.2.0 | ZT03 bidi | 300 dpi | page 1/2 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO36,166^GB1147,4,4^FS
+^FO36,188^A0N,30,30^FB456,2,8,L,0^FH\^FDB1a name, own RTL field (Arabic font)^FS
+^FO516,188^A@N,51,51,E:NSARAB.TTF^FB667,2,13,R,0^FH\^FDئارام ڕێبوار^FS
+^FO36,321^A0N,30,30^FB456,3,8,L,0^FH\^FDB1b MRN, own LTR field (Latin font); expect SYN-000123-7^FS
+^FO516,321^A@N,51,51,E:NSLATN.TTF^FB667,2,13,L,0^FH\^FDSYN-000123-7^FS
+^FO36,454^A0N,30,30^FB456,3,8,L,0^FH\^FDB1c date, own LTR field (Latin font); expect 2024-03-21^FS
+^FO516,454^A@N,51,51,E:NSLATN.TTF^FB667,2,13,L,0^FH\^FD2024-03-21^FS
+^FO36,587^A0N,30,30^FB456,3,8,L,0^FH\^FDB1d digit identifier, own LTR field (Latin font); expect 0012345^FS
+^FO516,587^A@N,51,51,E:NSLATN.TTF^FB667,2,13,L,0^FH\^FD0012345^FS
+^FO36,720^A0N,30,30^FB456,3,8,L,0^FH\^FDB2a date alone, RTL field (Arabic font); expect 2024-03-21^FS
+^FO516,720^A@N,51,51,E:NSARAB.TTF^FB667,2,13,R,0^FH\^FD2024-03-21^FS
+^FO36,853^A0N,30,30^FB456,3,8,L,0^FH\^FDB2b digits alone, RTL field (Arabic font); expect 0012345^FS
+^FO516,853^A@N,51,51,E:NSARAB.TTF^FB667,2,13,R,0^FH\^FD0012345^FS
+^FO36,986^A0N,30,30^FB456,4,8,L,0^FH\^FDB3a name + MRN, one RTL field; UBA: SYN-000123-7 left of the name, intact^FS
+^FO516,986^A@N,51,51,E:NSARAB.TTF^FB667,3,13,R,0^FH\^FDئارام ڕێبوار SYN-000123-7^FS
+^FO36,1183^A0N,30,30^FB456,4,8,L,0^FH\^FDB3b name + date, one RTL field (diagnostic); UBA: 21-03-2024 left of the name^FS
+^FO516,1183^A@N,51,51,E:NSARAB.TTF^FB667,3,13,R,0^FH\^FDئارام ڕێبوار 2024-03-21^FS
+^FO36,1380^A0N,30,30^FB456,4,8,L,0^FH\^FDB3c name + digits, one RTL field; UBA: 0012345 left of the name, intact^FS
+^FO516,1380^A@N,51,51,E:NSARAB.TTF^FB667,2,13,R,0^FH\^FDئارام ڕێبوار 0012345^FS
+^FO36,1542^A0N,30,30^FB456,4,8,L,0^FH\^FDB4 escape check in a \5EFB field (resident font); expect exactly: Escape check: \5EXZ \7EJA end^FS
+^FO516,1542^A0N,42,42^FB667,2,11,L,0^FH\^FDEscape check: \5EXZ \7EJA end^FS
+^PQ1
+^XZ
+^XA
+^FX HMS S7-K kit 0.2.0 ZT03 page 2 of 2 300 dpi synthetic
+^CI28
+^PW1219
+^LL1829
+^LH0,0
+^PA1,1,1,1
+^FO36,36^A0N,38,38^FB1147,1,10,L,0^FH\^FDSYNTHETIC - NOT FOR CLINICAL USE^FS
+^FO36,86^A0N,30,30^FB1147,2,8,L,0^FH\^FDHMS S7-K kit 0.2.0 | ZT03 bidi | 300 dpi | page 2/2 | fonts E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF^FS
+^FO36,166^GB1147,4,4^FS
+^FO36,188^A0N,30,30^FB456,5,8,L,0^FH\^FDB4b backslash check in a field WITHOUT \5EFB (diagnostic): expect a backslash before 5E and before &^FS
+^FO516,188^A0N,42,42^FH\^FDBackslash check: \5C5E \5C& end^FS
+^FO36,388^A0N,30,30^FB456,4,8,L,0^FH\^FDB5 Eastern Arabic-Indic digits: non-clinical text only, never identifiers (11.1)^FS
+^FO516,388^A@N,51,51,E:NSARAB.TTF^FB667,2,13,R,0^FH\^FD٠١٢٣٤٥٦٧٨٩^FS
+^PQ1
+^XZ

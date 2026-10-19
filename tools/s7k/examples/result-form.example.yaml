@@ -1,0 +1,170 @@
+# EXAMPLE ONLY, NOT A TEST RESULT. A synthetic filled S7-K form that shows the shape of a real one
+# (tools/s7k/README.md). No printer was tested: the printer "SYN-EXAMPLE" does not exist and every result
+# below is invented to show both a pass and a fail. Never cite it as evidence (BUILD-PROMPT §3.5).
+# Check it with: .tools/venv/Scripts/python.exe -I tools/s7k/s7k.py check-form tools/s7k/examples/result-form.example.yaml
+form: "hms-s7k-result-form/1"
+kit_version: "0.2.0"
+provenance: example
+date: "2000-01-01"
+tester:
+  name: ""  # left empty: the person who runs a real test writes their own name
+  role: "example only"
+site:
+  name: "SYN-EXAMPLE site (example only)"
+  network: "isolated print VLAN, no internet route (example only)"
+printer:
+  make: "SYN-EXAMPLE"
+  model: "SYN-EXAMPLE-LP1"
+  serial: "SYN-0000"
+  firmware: "SYN-FW-0.0 (example only, not a test result)"
+  dpi: 203
+  kind: label
+  connection: network
+  host_identification: "SYN-EXAMPLE-LP1,SYN-FW-0.0,8,8192KB (example only)"
+  resident_font_listing: "SYN-EXAMPLE listing: E:NSARAB.TTF E:NSARABB.TTF E:NSLATN.TTF E:NSLATNB.TTF (example only)"
+  evidence: ["SYN-EXAMPLE-cfg-label.jpg"]
+fonts:
+  - file: "E:NSARAB.TTF"
+    source_file: "NotoSansArabic-Regular.ttf"
+    sha256: ""  # a real form records the sha256 that font-download prints (the pinned one)
+    download_sha256: ""
+    font_version: "example only"
+  - file: "E:NSARABB.TTF"
+    source_file: "NotoSansArabic-Bold.ttf"
+    sha256: ""
+    download_sha256: ""
+    font_version: "example only"
+  - file: "E:NSLATN.TTF"
+    source_file: "NotoSans-Regular.ttf"
+    sha256: ""
+    download_sha256: ""
+    font_version: "example only"
+  - file: "E:NSLATNB.TTF"
+    source_file: "NotoSans-Bold.ttf"
+    sha256: ""
+    download_sha256: ""
+    font_version: "example only"
+kit_files:
+  dpi_dir: "tools/s7k/patterns/203"
+  manifest_sha256: ""
+font_height_calibration:
+  h_dots: 64
+  cap_height_mm: 5.7  # example only, not a measurement
+  interpretation: em
+items:
+  - id: "CFG-01"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-cfg-label.jpg", "SYN-EXAMPLE-hi-reply.txt"]
+  - id: "FNT-01"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-dir-e.jpg", "SYN-EXAMPLE-hw-reply.txt"]
+  - id: "ZT-01"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt01-p1.jpg", "SYN-EXAMPLE-zt01-p2.jpg", "SYN-EXAMPLE-zt01-p3.jpg"]
+  - id: "ZT-02"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt02-p1.jpg"]
+  - id: "ZT-03"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt01-p1.jpg"]
+  - id: "ZT-04"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt03.jpg"]
+  - id: "ZT-05"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt03.jpg"]
+  - id: "ZT-06"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt03.jpg"]
+    observed: "B3a MRN intact; B3b showed 21-03-2024 as the UBA caption says; B3c intact (example only)"
+  - id: "ZT-07"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt03.jpg"]
+  - id: "ZT-08"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt04-scan-600dpi.png"]
+    smallest_legible_pt: 8
+    smallest_legible_pt_latin: 6
+  - id: "ZT-09"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt04-scan-600dpi.png"]
+  - id: "ZT-10"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt05-p1.jpg", "SYN-EXAMPLE-zt05-p2.jpg"]
+  - id: "ZT-11"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-zt05-cal.jpg"]
+  - id: "JA-01"
+    result: fail
+    notes: "example only, not a test result: the label after ~JA did not print"
+    evidence: ["SYN-EXAMPLE-ja01.jpg"]
+  - id: "BC-01"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-bc01.jpg"]
+    expected_payload: "HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002"
+    decoded_payloads:
+      - "HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002"
+      - "HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002"
+      - "HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002"
+      - "HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002"
+      - "HMS1|M:SYN-000123-7|E:SYN-E-000045|B:SYN-J-019A3C000000700080000000000002"
+    scanner: "SYN-EXAMPLE-SCANNER"
+    scanner_mode: hid-pos
+    grade: ""  # optional ISO/IEC 15415 grade; no verifier in this example
+  - id: "BC-02"
+    result: fail
+    notes: "example only, not a test result: the 0.25 mm symbol did not decode in 10 tries"
+    evidence: ["SYN-EXAMPLE-bc01.jpg"]
+    expected_payload: "HMS1|S:SYN-S-000077|M:SYN-000123-7"
+    decoded_payloads: []
+    scanner: "SYN-EXAMPLE-SCANNER"
+    scanner_mode: hid-pos
+  - id: "BC-03"
+    result: pass
+    notes: "example only, not a test result"
+    evidence: ["SYN-EXAMPLE-bc01.jpg"]
+    expected_payload: "SYN-S-000077"
+    decoded_payloads: ["SYN-S-000077", "SYN-S-000077", "SYN-S-000077", "SYN-S-000077", "SYN-S-000077"]
+    scanner: "SYN-EXAMPLE-SCANNER"
+    scanner_mode: keyboard-us-english
+  - id: "ZE-01"
+    result: not-run
+    notes: "HMS engine outputs not available yet"
+    evidence: []
+  - id: "ZR-01"
+    result: not-run
+    notes: "HMS engine outputs not available yet"
+    evidence: []
+  - id: "FB-01"
+    result: not-run
+    notes: "HMS engine outputs not available yet"
+    evidence: []
+  - id: "EP-01"
+    result: not-run
+    notes: "not applicable to a label printer"
+    evidence: []
+  - id: "EP-02"
+    result: not-run
+    notes: "not applicable to a label printer"
+    evidence: []
+  - id: "PD-01"
+    result: not-run
+    notes: "not applicable to a label printer"
+    evidence: []
+approval:  # human sign-off; the agent never fills it (BUILD-PROMPT §3.5)
+  status: requested
+  approved_by: []

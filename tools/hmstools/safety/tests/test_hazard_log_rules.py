@@ -17,7 +17,8 @@ class RealFilesTest(unittest.TestCase):
         self.assertTrue(result.ok, "\n".join(result.errors))
         self.assertEqual(result.counts["seeded_hazards"], 15)
         self.assertEqual(result.counts["sis_covered"], 21)
-        self.assertEqual(result.counts["hazards"], 27)
+        # 27 entries seeded in WP-0.1 (HAZ-0001 to HAZ-0027) plus HAZ-0045 to HAZ-0049 of WP-0.8 (printing).
+        self.assertEqual(result.counts["hazards"], 32)
         self.assertEqual(result.counts["sensitivity_label_entries"], 6)
         self.assertEqual(result.counts["controls"], result.counts["controls_planned"])
         self.assertEqual(result.counts["controls_verified"], 0)
