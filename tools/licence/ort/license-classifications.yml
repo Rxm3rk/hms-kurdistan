@@ -51,6 +51,13 @@ categorizations:
     categories: ["allowed"]
   - id: "OFL-1.1-no-RFN"
     categories: ["allowed"]
+  # added to the allowlist by the human lead's decision DN-022 (18 October 2026)
+  - id: "0BSD"
+    categories: ["allowed"]
+  - id: "Unicode-3.0"
+    categories: ["allowed"]
+  - id: "Zlib"
+    categories: ["allowed"]
   # conditional
   - id: "MPL-1.1"
     categories: ["conditional"]
@@ -97,8 +104,6 @@ categorizations:
   - id: "CC-BY-NC-SA-4.0"
     categories: ["denied"]
   # build-only acceptable [P]
-  - id: "0BSD"
-    categories: ["build-only-acceptable"]
   - id: "BlueOak-1.0.0"
     categories: ["build-only-acceptable"]
   - id: "BSL-1.0"
@@ -114,8 +119,6 @@ categorizations:
   - id: "Python-2.0"
     categories: ["build-only-acceptable"]
   - id: "Unlicense"
-    categories: ["build-only-acceptable"]
-  - id: "Zlib"
     categories: ["build-only-acceptable"]
   - id: "CDDL-1.0"
     categories: ["build-only-acceptable"]

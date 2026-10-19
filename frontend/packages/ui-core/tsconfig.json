@@ -1,0 +1,8 @@
+{
+  // DOM-free on purpose: the mobile app shares this package, so it extends the base without the DOM library.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src/**/*", "test/**/*", "vitest.config.ts"]
+}

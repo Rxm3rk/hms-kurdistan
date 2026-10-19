@@ -11,6 +11,10 @@
 frontend/reports/
 coverage/
 dist/
+# Playwright output (WP-0.7: frontend/apps/web) and Cargo build output (the Tauri shell, frontend/apps/shell).
+test-results/
+playwright-report/
+target/
 __pycache__/
 *.py[cod]
 

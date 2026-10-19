@@ -54,20 +54,20 @@ Checked from Git Bash at `d3e14de`. Use `bash -lc` (a login shell): it puts rust
 | `sh tools/hms repo check` (add `--json` for evidence) | No CRLF outside the plan of record; the programme control files exist; every ADR follows template B.1, the ADR numbers have no gap and the index links each one; no registered tenant identifier in source or configuration; branch names (§3.6); "Blocking now" ≤10 items; `STATUS.md` ≤150 lines; git's index holds the entry scripts and `backend/gradlew` and stores them as executable (100755) | Windows (19 October); WSL at `d3e14de` with `--json` through `tools/ci/run fast` (the record), an earlier version without the 100755 rule (`executables_checked`) and with a looser ADR template rule (review findings R-02, R-17) |
 | `sh tools/hms safety check` (add `--json`) | The hazard log against its schema; H1–H15 and SI-01…SI-21 covered; control states consistent; feature IDs exist in the backlog; every filled approval field has a matching human sign-off record, committed in commits signed by a key that `docs/safety/signoffs/allowed-signers.yaml` lists, as far as that list's history allows (§3.5). While the list holds no key, every run warns that no sign-off record can authorise any approval field (KA-011) | Windows (19 October); WSL at `d3e14de` with `--json` through `tools/ci/run fast` (the record), an earlier version without `allowed-signers.yaml`, which accepted a record signed by any key the host could verify (review findings R-01, R-20) |
 | `sh tools/hms backlog check` (add `--json`) | `backlog.yaml` against Appendix A (234 IDs), `BACKLOG.md` up to date, the A.18 totals, and each row's `hazards` against the `features` lists of `docs/safety/hazard-log.yaml` | Windows (19 October); WSL at `d3e14de` with `--json` through `tools/ci/run fast` (the record), an earlier version without the hazards cross-check (review finding R-05) |
-| `sh tools/hms licence check --pnpm <file> [--scope build-only]` (or `--sbom <cyclonedx.json>`) | Applies `tools/licence/policy.yaml`. Denied, excluded and unmapped licences fail, and so does a conditional licence until `tools/licence/register.yaml` has an entry that records it as unmodified, under the rule and licence the policy applies, and a register entry that does not follow the fields in the register's header | Windows (see below; on 19 October both frontend lists again, the same counts) |
+| `sh tools/hms licence check --pnpm <file> [--scope build-only]` (or `--sbom <cyclonedx.json>`) | Applies `tools/licence/policy.yaml`. Denied, excluded and unmapped licences fail, and so does a conditional licence until `tools/licence/register.yaml` has an entry that records it as unmodified, under the rule and licence the policy applies, and a register entry that does not follow the fields in the register's header | Windows (see below; on 19 October both frontend lists again, the same counts; again on 19 October after WP-0.7 slice S1, with the counts below) |
 
 The frontend licence check, run from `frontend/` (lists written to the git-ignored `build/`):
 
 ```sh
 cd frontend
-corepack pnpm --filter @hms/i18n licenses list --prod --json > ../build/licences-shipped.json   # what ships today
+corepack pnpm --filter @hms/i18n --filter @hms/ui-core --filter @hms/hal-client --filter @hms/design-system --filter @hms/web licenses list --prod --json > ../build/licences-shipped.json   # what ships
 corepack pnpm -r licenses list --json > ../build/licences-all.json                             # every dependency
 cd ..
-sh tools/hms licence check --pnpm build/licences-shipped.json                    # PASS: 2 components, shipped scope
-sh tools/hms licence check --pnpm build/licences-all.json --scope build-only     # PASS: 124 components, build-only scope
+sh tools/hms licence check --pnpm build/licences-shipped.json                    # FAIL: 39 components, isbot (Unlicense) unmapped until DN-033 (KA-037)
+sh tools/hms licence check --pnpm build/licences-all.json --scope build-only     # PASS: 280 components, build-only scope
 ```
 
-Only `@hms/i18n` ships today; the ESLint plugin and every development dependency are build-only (§4.3 scope rule). Add each app to the first command's `--filter` as it is built. Do not use `licenses list --prod` at the workspace root: it lists nothing, because the root has only development dependencies.
+The shipped packages are `@hms/i18n`, `@hms/ui-core`, `@hms/hal-client`, `@hms/design-system` and `@hms/web` (WP-0.7); the ESLint plugin and every development dependency are build-only (§4.3 scope rule). Add each new shipped package or app to the first command's `--filter`. Do not use `licenses list --prod` at the workspace root: it lists nothing, because the root has only development dependencies.
 
 ## 4. Tests and builds per part
 

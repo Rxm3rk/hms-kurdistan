@@ -439,7 +439,7 @@ Choices the build made where the plan of record sets no value. They bind until a
 - **Status:** open
 
 ### OQ-097: Licences acceptable for build-only tools
-- **Choice:** `tools/licence/policy.yaml` lists licences acceptable only for tools that never ship (for example 0BSD, CC0-1.0, the Boost licence BSL-1.0, and GPL or AGPL build tools). §4.3 checks build- and CI-only tools for use restrictions, not distribution terms; the list is not an extension of the shipped allowlist.
+- **Choice:** `tools/licence/policy.yaml` lists licences acceptable only for tools that never ship (for example CC0-1.0, the Boost licence BSL-1.0, and GPL or AGPL build tools). §4.3 checks build- and CI-only tools for use restrictions, not distribution terms; the list is not an extension of the shipped allowlist. 0BSD and Zlib were on it until DN-022 (decided 18 October 2026) added them to the shipped allowlist; slice S1 of WP-0.7 moved them on 19 October 2026.
 - **Status:** open
 
 ### OQ-098: When each §6.8 fitness function arrives
@@ -535,4 +535,35 @@ Choices WP-0.7 made where the plan of record sets no value, and readings of the 
   - `contractVersion` 1, changed only by addition.
 - **Sources:** §12.8 names the calls, requires "a typed result and an audit ID" and routes the badge "reader → shell → Keycloak step-up bound to the workstation certificate"; R16 §9.6 and §14.2. Neither gives shapes.
 - **Who confirms:** the human lead and the security owner (the badge routing).
+- **Status:** open
+
+### OQ-153: How the version rule was read for WP-0.7's frontend pins
+- **Choice:** "the newest generally available release that has had at least one patch release" is read per release line (major.minor): take the newest line that already has an x.y.1 or later, and pin the newest patch release of that line; pre-releases, canaries and experimental builds never count. The peer ranges of the packages that depend on a component then cap it, as TypeScript stays at 6.0.3 under typescript-eslint's `<6.1.0`. Applied in WP-0.7 slice S1 (ADR-002, "Added by WP-0.7"), this reading held back:
+  - `@types/react` to 19.2.18 and `@types/react-dom` to 19.2.7 (their 19.3 line has only 19.3.0), while React itself is 19.3.1;
+  - the Fontsource packages to 5.2.10 (5.3.0 has no patch release);
+  - `@axe-core/playwright` and axe-core to 4.12.1 (the 4.13 and 4.14 lines have no patch release);
+  - Ajv to 8.17.1 (8.18.0 and 8.20.0 have no patch release; 8.19 was never published).
+- **Sources:** §4.1 (the version rule). WP-0.1 pinned some `.0` releases (review finding O-3 in `docs/program/reviews/WP-0.1.md`), so its reading may differ; this entry records the reading WP-0.7 used.
+- **Who confirms:** the human lead.
+- **Status:** open
+
+### OQ-154: jsdom stays on 29.x while the Windows checkout runs Node 24.13
+- **Choice:** jsdom 29.1.1, not the newer 30.1.3. jsdom 30 declares `engines.node` `^22.22.2 || ^24.15.0 || >=26.0.0`. The workspace allows any Node 24 (`engines`: `>=24 <25`) and installs with `engineStrict`, and the Windows host has Node 24.13.0 (the WSL build host has 24.22.0, `DECISIONS-NEEDED.md`, "Host check"), so jsdom 30 cannot be installed on the Windows checkout. jsdom 29 supports every Node 24 release. jsdom is a build-only test environment for component tests; nothing ships from it.
+- **Sources:** §4.1 ("supported by the components that depend on it"; Node 24 LTS).
+- **Next:** at the next re-resolution, if the workspace's Node floor is raised to 24.15 or later (which needs the Windows host's Node upgraded [HUMAN], §3.4 item 9), jsdom moves to its newest line.
+- **Status:** open
+
+### OQ-155: Dependencies WP-0.7 added beyond its plan's list
+- **Choice:** WP-0.7 slice S1 pinned, besides the packages its plan named:
+  - Ajv 8.17.1 (build-only, in `@hms/hal-client`), so that the `hal-contract-fixtures` test validates every fixture against `docs/specs/hal/hal-v1.schema.json` itself (JSON Schema 2020-12) rather than against a second, hand-written copy of the schema;
+  - `@testing-library/jest-dom` 7.0.1 (build-only), for DOM matchers in component tests;
+  - `playwright-core` 1.64.1 as a direct development dependency of `@hms/web`: it is the peer dependency of `@axe-core/playwright`, and naming it pins it to the same version as `@playwright/test` instead of letting pnpm pick one;
+  - the type packages `@types/react`, `@types/react-dom` and `@types/fontkit` (build-only);
+  - `@hms/ui-core` as a dependency of `@hms/hal-client`, so that captures can be bound to the window's patient context (`docs/specs/hal/README.md`).
+- **Sources:** §4.1 (test tooling [P]); the WP-0.7 implementation plan, section 3.
+- **Status:** open
+
+### OQ-156: The fonts come from the Fontsource npm packages
+- **Choice:** Noto Sans Arabic and Noto Sans (OFL-1.1) are installed from the npm packages `@fontsource/noto-sans-arabic` and `@fontsource/noto-sans` 5.2.10, pinned in the lockfile like any other dependency, not downloaded from Google's font repository. Each package ships woff2 subsets with `unicode-range` declarations. Checked with fontkit on 19 October 2026 (Windows host): the `arabic` subset of Noto Sans Arabic (weights 400 and 700) has glyphs for all ten Sorani letters (ڕ ڵ ۆ ێ ە ڤ گ چ پ ژ) and for ی, ک, ه, ي and ك, but no Western digits; the digits are in the `latin` subsets of both families. So the `font-coverage` test must read the subsets the design system bundles together, not one file. Slice S4 still chooses the family by the `font-coverage` and `glyph-render` tests (OQ-148).
+- **Sources:** §4.1 "Fonts" [P]; §3.7 (registry downloads only).
 - **Status:** open

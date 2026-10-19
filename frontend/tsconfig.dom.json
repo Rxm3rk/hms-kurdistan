@@ -1,0 +1,11 @@
+{
+  // Shared settings for projects that run in the browser (the web app, the design system, the HAL client).
+  // It adds the DOM library and resolves modules as Vite does. DOM-free packages such as ui-core extend
+  // tsconfig.base.json instead, so a DOM reference there fails to type-check (OQ-140).
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2024", "dom"],
+    "module": "preserve",
+    "moduleResolution": "bundler"
+  }
+}

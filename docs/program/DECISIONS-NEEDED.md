@@ -11,7 +11,7 @@ At most ten items. Answer these first.
 1. **DN-005** The lite cell cannot show WP-0.2's single-node-loss criterion: choose how it will be met. WP-0.2 starts now on the default.
 2. **DN-011** No work package can merge into `main` until the merge tier exists and passes: confirm that the Phase 0 branches stack meanwhile, or choose another rule.
 
-Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5). From WP-0.7: DN-025 for its slice S10 (the mobile skeleton), DN-023 for the Windows shell bundle, and the CSO's readings of SI-16, SI-01 and SI-05, DN-026 to DN-032, before WP-1.2, WP-1.4 and WP-1.7 build on them (the stricter defaults are in use meanwhile).
+Next to block (not "now"): DN-013 when WP-0.2 pulls the cell's images; DN-009 for reference-cell runs (WP-0.6 and the Phase 0 exit); DN-010 for pushing, pull requests and human review routing; DN-014 for the CDS registry gate (WP-1.5). From WP-0.7: DN-025 for its slice S10 (the mobile skeleton), DN-023 for the Windows shell bundle, DN-033 for the shipped-scope licence check (isbot, Unlicense) before its close-out, and the CSO's readings of SI-16, SI-01 and SI-05, DN-026 to DN-032, before WP-1.2, WP-1.4 and WP-1.7 build on them (the stricter defaults are in use meanwhile).
 
 Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the build agent provisioned the Linux build host itself, a recorded deviation from §3.4 item 9) and DN-006 (confirmed); DN-021 (the `ckb` and `ar` UI text: agent drafts that a clinician reviews) and DN-022 (0BSD, Unicode-3.0 and Zlib allowed in shipped code), answered in chat through the question tool by the human lead.
 
@@ -513,3 +513,19 @@ Closed on 18 October 2026: DN-001 to DN-004 (on the human's instruction the buil
   1. **Default.**
   2. Option 1, plus blocking signing on a missing own-script or Latin form, as CTRL-0001-6 does for prints.
   3. Another rule the CSO states.
+
+## DN-033: isbot (Unlicense) in TanStack Router's dependencies
+
+- **Status:** open
+- **Blocks:** the shipped-scope licence check (`sh tools/hms licence check`, `COMMANDS.md` §3), which fails on it (KA-037), and with it WP-0.7's licence evidence at close-out (slice S12) and any delivery of the web bundle to a site. It does not block slices S2 to S11.
+- **Default in use:** TanStack Router 1.170.45 stays pinned with its dependency isbot 5.2.2. The shipped-scope check reports isbot as unmapped and fails; `tools/licence/policy.yaml` is not changed (§3.4 item 2). Nothing is delivered to a site in WP-0.7.
+- **Who decides:** the human lead (stop-and-ask item 2, §3.4).
+- **Context:**
+  - isbot declares `Unlicense`, a public-domain dedication with a permissive fallback. It is on the build-only list (OQ-097) but not on the §4.3 allowlist, and DN-022 added only 0BSD, Unicode-3.0 and Zlib.
+  - `@tanstack/react-router` lists isbot as a runtime dependency, so `pnpm licenses list --prod` puts it in the shipped scope. In 1.170.45 only the server-side rendering entry (`dist/esm/ssr/renderRouterToStream.js`) imports it; the web app renders on the client only, so isbot should not reach the web bundle. That has not been verified: the web build arrives with slice S6, and the licence check reads the dependency list, not the bundle.
+  - TanStack Router is a [P] choice of §4.1 ("[P] for the rest" of the web-client row).
+- **Options:**
+  1. Add `Unlicense` to the shipped allowlist, as DN-022 did for three other licences.
+  2. Treat isbot as not shipped once slice S6 shows it is absent from the production web bundle, recorded as a component-level scope decision. `tools/hms licence check` cannot express that for pnpm lists today, so the check would need a change (a recorded build-only component list) or an SBOM made from the bundle.
+  3. Replace TanStack Router with a router whose dependencies are all on the allowlist. This changes a §4.1 [P] choice and the route-tree design in `docs/specs/modules/design-system.md` §4.
+  4. Another rule the lead states.

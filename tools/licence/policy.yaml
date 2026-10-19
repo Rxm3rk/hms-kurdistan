@@ -28,6 +28,8 @@ scopes:
 
 # ---------------------------------------------------------------------------------------------
 # Allowlist (§4.3): Apache-2.0, MIT, BSD, ISC, MPL-2.0, LGPL, EPL, OFL (fonts). SPDX identifiers.
+# 0BSD, Unicode-3.0 and Zlib were added by the human lead's decision DN-022 (18 October 2026; §3.4 item 2),
+# which extends the §4.3 allowlist by exactly these three identifiers.
 allowed:
   - Apache-2.0
   - MIT
@@ -46,6 +48,9 @@ allowed:
   - OFL-1.1            # fonts
   - OFL-1.1-RFN        # fonts
   - OFL-1.1-no-RFN     # fonts
+  - 0BSD               # DN-022
+  - Unicode-3.0        # DN-022
+  - Zlib               # DN-022
 
 # ---------------------------------------------------------------------------------------------
 # Conditional (§4.3): allowed only unmodified and recorded in the licence register. The checker
@@ -152,9 +157,9 @@ excluded_components:
 # ---------------------------------------------------------------------------------------------
 # Build-only scope [P]: licences without use restrictions that are acceptable for tools that
 # never ship (in addition to the allowlist and the conditional list). This list is not an
-# extension of the shipped allowlist.
+# extension of the shipped allowlist. (0BSD and Zlib were listed here until DN-022 moved them to the
+# allowlist above.)
 build_only_acceptable:
-  - 0BSD
   - BlueOak-1.0.0
   - BSL-1.0            # Boost Software License
   - CC0-1.0
@@ -163,7 +168,6 @@ build_only_acceptable:
   - MIT-0
   - Python-2.0
   - Unlicense
-  - Zlib
   - GPL-2.0-only
   - GPL-2.0-or-later
   - GPL-3.0-only

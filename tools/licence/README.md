@@ -18,10 +18,13 @@ The licence and dependency policy of BUILD-PROMPT.md §4.3 (ADR-022), as data an
 - a CycloneDX JSON SBOM: `sh tools/hms licence check --sbom build/reports/bom.json`
   (a component with CycloneDX scope `excluded` counts as build-only; everything else as shipped);
 - the output of `pnpm licenses list --json`:
-  from `frontend/`, `corepack pnpm --filter @hms/i18n licenses list --json --prod > ../build/pnpm-prod.json`, then,
-  from the repository root, `sh tools/hms licence check --pnpm build/pnpm-prod.json --scope shipped`
-  (and the list of every dependency, `corepack pnpm -r licenses list --json`, with `--scope build-only`;
-  `docs/program/COMMANDS.md` §3 gives both commands).
+  from `frontend/`, `corepack pnpm licenses list --json --prod` with one `--filter` for every shipped
+  package, written to a file under `build/`, then, from the repository root,
+  `sh tools/hms licence check --pnpm <that file> --scope shipped`
+  (and the list of every dependency, `corepack pnpm -r licenses list --json`, with `--scope build-only`).
+  `docs/program/COMMANDS.md` §3 gives both commands and the current list of shipped packages; copy them
+  from there. A `--filter` that leaves out a shipped package gives a shipped-scope result that does not
+  cover it.
 
 It fails (exit 1) on a denied, excluded or unmapped licence, on a conditional one until `register.yaml`
 has an entry that matches the component, records the rule and the licence the policy applies to it and

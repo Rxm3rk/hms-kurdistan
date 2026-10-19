@@ -24,6 +24,7 @@
     "@hms/eslint-plugin": "workspace:*",
     "@types/node": "catalog:",
     "eslint": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",

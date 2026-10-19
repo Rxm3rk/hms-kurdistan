@@ -5,3 +5,6 @@ reports/
 **/build/
 **/coverage/
 **/test/fixtures/
+**/test-results/
+**/playwright-report/
+**/target/

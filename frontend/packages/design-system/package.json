@@ -1,0 +1,40 @@
+{
+  "name": "@hms/design-system",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HMS Kurdistan design system on React Aria Components: tokens and logical CSS, fonts, locale and density providers, ClinicalNumber, the patient banner, the sign and co-sign pattern and the command palette (BUILD-PROMPT.md §6.5, §14.2, §14.7).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans": "catalog:",
+    "@fontsource/noto-sans-arabic": "catalog:",
+    "@hms/i18n": "workspace:*",
+    "@hms/ui-core": "workspace:*",
+    "react": "catalog:",
+    "react-aria-components": "catalog:",
+    "react-dom": "catalog:",
+    "react-intl": "catalog:"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/fontkit": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "fast-check": "catalog:",
+    "fontkit": "catalog:",
+    "jsdom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

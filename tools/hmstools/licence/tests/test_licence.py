@@ -70,6 +70,14 @@ class Shipped(unittest.TestCase):
         for licence in ["Apache-2.0", "MIT", "BSD-3-Clause", "ISC", "MPL-2.0", "LGPL-2.1-only", "EPL-2.0", "OFL-1.1"]:
             self.assertEqual(verdict([licence]).level, ALLOWED, licence)
 
+    def test_licences_added_by_dn_022_are_allowed_in_shipped_code(self) -> None:
+        # The human lead's decision DN-022 (18 October 2026) extends the §4.3 allowlist by exactly these three.
+        for licence in ["0BSD", "Unicode-3.0", "Zlib"]:
+            for scope in ["shipped", "build-only"]:
+                self.assertEqual(verdict([licence], scope).level, ALLOWED, f"{licence} {scope}")
+        self.assertEqual(POLICY.allowed() & {"0BSD", "Unicode-3.0", "Zlib"}, {"0BSD", "Unicode-3.0", "Zlib"})
+        self.assertFalse(POLICY.build_only_acceptable() & {"0BSD", "Unicode-3.0", "Zlib"})
+
     def test_or_takes_the_best_option_and_takes_the_worst(self) -> None:
         self.assertEqual(verdict(["MIT OR GPL-3.0-only"]).level, ALLOWED)
         self.assertEqual(verdict(["MIT AND GPL-3.0-only"]).level, DENIED)
@@ -107,7 +115,7 @@ class Shipped(unittest.TestCase):
         self.assertEqual(verdict([]).level, UNMAPPED)
 
     def test_build_only_licences_are_not_shipped(self) -> None:
-        for licence in ["BlueOak-1.0.0", "0BSD", "CC-BY-4.0", "Python-2.0"]:
+        for licence in ["BlueOak-1.0.0", "MIT-0", "CC-BY-4.0", "Python-2.0"]:
             self.assertEqual(verdict([licence], "build-only").level, ALLOWED, licence)
             self.assertEqual(verdict([licence], "shipped").level, UNMAPPED, licence)
 
