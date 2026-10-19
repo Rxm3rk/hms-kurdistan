@@ -1,0 +1,333 @@
+# The order (request) lifecycle, one instance per order (BUILD-PROMPT §8.4 "Order"; §9.5 Orders and
+# CPOE; §9.7 "one order lifecycle"; §9.10 pharmacist verification; R11 §7 and §10.2). Template:
+# BUILD-PROMPT Appendix B.3. Explanation: docs/specs/state-machines/order.md.
+# Hazards: HAZ-0002 (SI-02), HAZ-0003 (SI-03), HAZ-0005 (SI-05), HAZ-0007 (SI-07), HAZ-0012 (SI-12),
+# HAZ-0014 (SI-14), HAZ-0015 (SI-15), HAZ-0016 (SI-16) in docs/safety/hazard-log.yaml.
+#
+# Every predicate is a pure function of the facts the order aggregate will hold when it decides the
+# command (WP-0.5 spec §3.1): the order and its orderable's governed flags, the issuer and their
+# privileges, the server-side patient context, the CDS evaluation, the verbal-order record, the
+# pharmacist's double check, the connectivity mode, the reason chosen and the server's clock reading.
+# Each is implemented once in backend/modules/orders, package hms.orders.domain.order. Where a fact is
+# another module's answer (the CDS registry's evaluation, the Trust Plane's authentication, the
+# fulfilling module's completion, the channel adapter's "chosen by the user" mark), the description
+# says so.
+#
+# Interface with medication-administration.yaml (agreed with its author; both files use this text):
+# - the order states are exactly [draft, pending-verification, active, on-hold, completed, revoked,
+#   entered-in-error];
+# - a medication order carries a verification status with the values pending, returned and verified
+#   (absent for every other order kind). Sign sets pending; Verify sets verified (recordVerification);
+#   both returns set returned (returnToPrescriber); Resubmit sets pending again
+#   (resubmitForVerification). Nothing else changes it: Hold and Resume keep it;
+# - returned means returned to the prescriber for any reason (a control set A mismatch on Verify, or
+#   ReturnToPrescriber) and allows no MAR override;
+# - the MAR reads activeVerifiedOrder as "state active and medication order" (a medication order in
+#   active is verified) and orderAwaitingVerification as "state pending-verification and verification
+#   status pending";
+# - the MAR schedule is created at Sign (createMarSchedule, §9.5), so doses exist while the order is
+#   pending verification (DN-052 item 5 records the §9.5/§9.10 conflict).
+#
+# The emergency and first-dose override (§8.4 "emergency/first-dose override path with review ≤4 h")
+# is not a transition of this machine: it is the MAR's verification override, taken while this order
+# stays in pending-verification.
+#
+# Commands that start or allow therapy (Sign, Verify, Resume, Resubmit) and corrections (Mark error)
+# are refused without the SI-16 re-verification. Commands that stop or restrict therapy (Hold,
+# Discontinue, the two returns) are never refused for it, nor for a missing privilege configuration or
+# an expired licence: they are journaled and flagged instead (flagIfIdentityNotReverified). No order can
+# become unstoppable (DN-052 items 2 and 14).
+#
+# SI-03 at the specification layer: completed, revoked or entered-in-error is reachable from every
+# state; drafts and holds carry owner tasks with timers (DraftReviewDue, HoldReviewDue). A modification
+# is a new order (DraftReplacement, with a `replaces` link) whose Sign revokes the old one in the same
+# atomic transaction (§9.5), through Discontinue with the reason "replaced".
+#
+# SI-12: no guard reads a bill, deposit, payment, pre-authorisation, coverage, counter or any other
+# financial fact, and the facts carry none, so no money rule can refuse or delay any order command,
+# emergency or not (§8.4 encounter table "no deposit rule blocks ED registration or emergency
+# orders"; CTRL-0012-3, CTRL-0012-4). The charge event of the order-sign transaction (§9.5) goes to the
+# outbox and never blocks.
+# SI-05: no predicate does dose arithmetic. The only quantity comparison is control set A's exact
+# comparison of the pharmacist's independently entered dose with the prescriber-entered dose in the
+# same UCUM unit (§2.1 dose arithmetic clause b). A drug-KB dose check that cannot answer never refuses
+# an order: it is recorded as "dose check unavailable" and routed to the pharmacist (§2.1 clause c).
+#
+# Every transition is journaled with actor, clinical time, recorded time and reason (§9.5; SI-10).
+# Readings of the SIs that the guards encode beyond the SI text are items of this machine's approval
+# request, DN-052 in docs/program/DECISIONS-NEEDED.md (listed in order.md); the defaults below are the
+# safer readings.
+machine: order
+version: 1
+owner: orders
+approval: {status: requested, required: [pharmacist-panel, nurse-panel, cso], approved_by: [], record: null}
+  # approved_by and record are written only from a human sign-off record (§3.5)
+states: [draft, pending-verification, active, on-hold, completed, revoked, entered-in-error]
+terminal: [completed, revoked, entered-in-error]
+initial: draft
+# §8.4 "(start) | Save unsigned; cutover pre-build 'pending prescriber signature' | — | draft". The
+# third creation command is this build's reading of "A modification is a new request that replaces the
+# old one": a new draft with a `replaces` link to the order being modified (R11 §7.2 basedOn/replaces).
+# A cutover pre-build (§21 row 3.13) is a draft built by a pharmacist from the paper chart of an active
+# inpatient, labelled "pending prescriber signature" and naming the prescriber who must sign it.
+created_by: [SaveUnsigned, PrebuildPendingSignature, DraftReplacement]
+predicates:   # each implemented once in the orders domain package and unit-tested
+  # ---- Order kind (fixed when the draft is created; never changes)
+  medicationOrder: "the order is a medication order: its orderable is a formulary medicine (R11 §7.1 MedicationRequest). The kind is set when the draft is created and never changes"
+  notMedicationOrder: "the exact complement of medicationOrder: any other order kind of §9.5 (laboratory, imaging, procedures, nursing, diet, activity, consults, referrals, blood products, isolation, ADT, therapy, respiratory, code status)"
+  # ---- Who acts
+  signerAuthenticatedHuman: "the command's principal is a human user who authenticated for this signature (§9.4 authentication, intent and manifestation; a Trust Plane answer, WP-0.4). An AI agent, a service principal, an interface or a migration loader never signs an order (SI-07 'AI never signs orders', applied before P2; DN-052 item 12). An unknown principal kind fails"
+  ordererPrivileged: "the ordering practitioner (the signer; for a verbal or telephone order, the practitioner who gave it) has a practitioner licence whose expiry is after the server's time of the command and holds, at this hospital, the delineated privilege that the governed privilege configuration requires for this orderable (§9.26 'privilege checks gate order entry'; 'an expired licence blocks new orders immediately'). A missing licence, an unknown expiry or a missing privilege fails. Used only on Sign: it never gates a stop"
+  actorPrivileged: "the issuer is a human user who holds, at this hospital, the privilege that the governed privilege configuration (§9.26, TRU-IAM-02) requires for this command on this order kind, with a licence valid at the server's time of the command where that privilege needs a licensed role. An unknown user, an unknown requirement or a missing privilege fails. Used on Discard, Resume and Resubmit, never on a stop"
+  mayHoldOrder: "the issuer may hold this order (DN-052 item 14): (a) a human user who holds the hold privilege that the governed configuration names for this order kind; or, when that configuration is missing or names nobody, any prescriber on the patient's care team (ADR-024) or any pharmacist (hold pending clarification), a vendor-locked baseline; or (b) a system or interface principal authenticated as itself and registered in governed configuration to hold orders for a system reason. The issuer's licence expiry is never checked (§9.26 blocks new orders, not stops). An AI agent never qualifies (SI-07). An unknown principal fails"
+  mayDiscontinueOrder: "the issuer may discontinue this order (DN-052 item 14): (a) a human user who holds the discontinue privilege that the governed configuration names for this order kind; or, when that configuration is missing or names nobody, any prescriber on the patient's care team (ADR-024), a vendor-locked baseline; or (b) a system or interface principal authenticated as itself and registered in governed configuration to discontinue orders for a system reason (for example a death or discharge recorded by ADT). The issuer's licence expiry is never checked. An AI agent never qualifies (SI-07). An unknown principal fails"
+  verifierIsPharmacist: "the issuer is a human user who holds the pharmacist verification privilege at this hospital (§9.10 MED-PHV-01; §9.26), with a pharmacist licence whose expiry is after the server's time of the command"
+  verifierIndependentOfOrderer: "the verifying pharmacist is not the ordering practitioner, not the user who signed the order, not the receiver of a verbal or telephone order, and not the user who created the draft (for a cutover pre-build, the pharmacist who pre-built it). DN-052 item 7"
+  # ---- SI-16: the server-side counterpart of patient-context.yaml's contextChangedWithinWindow and reverifiedSinceLastChange
+  identityReverificationSatisfied: "SI-16 'Identity is re-verified at signing if the context changed within the last 60 s', checked by the server (CTRL-0016-1, CTRL-0016-7) with the readings of DN-026, DN-027 and DN-028 (DN-052 items 1 and 2). The facts are the issuing session's last patient-context change time as recorded by the server-side patient context (not built: KA-025), the server's receipt time of the command, the tenant's re-verification window and the latest re-verification answer the command relies on. The window is the tenant's value but never less than 60 000 ms (vendor-locked: a tenant may lengthen it and never shorten it). The change is within the window when the elapsed time from the change to the receipt is at most the window, inclusive (DN-026), and also when the change time is unknown or the elapsed time is negative (fails closed). The predicate holds when either (a) the change is not within the window and no re-verification answer recorded after the change is 'Not this patient' (DN-027: a disputed identity needs re-verification even after 60 s); or (b) the latest re-verification answer recorded after the change (or, when the change time is unknown, recorded for this command) is a confirmation by the user who issues this command (DN-027). A change is any change of the context's patient id, including from none and to none (DN-028). The re-verification is one inline step of the sign dialog (patient-context.yaml), never a second screen. Guards Sign, Verify, Resume, Resubmit and Mark error only"
+  # ---- SI-15
+  notOfflineWithoutFullCds: "the command was issued while the on-site cell was reachable, or in an offline mode for which the offline matrix (ADR-012, CTRL-0015-3; governed data the CSO approves) lists full CDS as available; today no mode is listed, so every offline mode fails. The fact is the mode in which the user issued the command (from the command's offline envelope), not the mode when a queued command reaches the server: a command issued offline is refused when the server revalidates it (SI-15 'Offline commands are revalidated by the server'). Losing the internet or the WAN alone leaves an on-site cell online (SI-15 last sentence); only a lost on-site cell, edge-agent mode or mobile offline mode is offline. An unknown mode fails. Guards Sign and Verify only, never a stop. DN-052 item 3"
+  # ---- CDS (SI-14; §9.6; §2.1 dose arithmetic clause c). DN-052 item 8
+  localHardStopsSatisfied: "no governed local hard-stop rule whose trigger matches this order fired in the CDS evaluation for this command (Tier A rules on the governed list that run in the CDS runtime without the drug KB, for example a fatal route; the CDS registry's answer, CTRL-0014-3). A rule that fired is never overridable. The runtime evaluates local rules to completion, so a latency overrun alone never counts against this predicate. A matching rule that could not run (runtime error) fails closed (§9.6 'hard stops fail closed'), except for an orderable on the governed emergency override list or an order with priority STAT: then the predicate holds and the check is recorded as unavailable (recordCdsGaps) for the pharmacist or the ordering practitioner to review"
+  kbHardStopNotFired: "no drug-KB dose rule fired a Tier A hard stop for this command: either the KB answered with a ratio, flag or maximum in exactly the ordered unit and the governed ≥10× threshold was not met (§10.3 A.2; §2.1 clause c; CTRL-0005-10), or the KB gave no usable answer (outage, error, no ratio, flag or maximum, a unit other than the ordered unit, or no answer within its time budget). No usable answer never refuses: 'dose check unavailable' is recorded and shown, and the order is routed to pharmacist review (recordCdsGaps; §2.1 clause c; CTRL-0005-7). Holds for an order that no KB dose rule covers"
+  interruptiveAlertsAnswered: "every interruptive (Tier B) alert that the CDS evaluation for this command raised was resolved by changing the order (which runs the evaluation again) or overridden with an override reason the user chose (never defaulted, §6.5; SI-14; the channel adapter owns the 'chosen' mark, and a channel that cannot supply one cannot override). A service that did not answer within its budget raised no alert: it fails open with the §9.6 banner and is recorded by recordCdsGaps, never a refusal"
+  cdsGapsReviewed: "every CDS check recorded as unavailable for this order (recordCdsGaps: a KB dose check, or a local hard-stop check that could not run) has since answered without firing in the evaluation for this Verify, or the verifying pharmacist recorded a documented manual check for it with an attestation (the control set A pattern, §10.3 A.1). Holds when no gap is recorded"
+  # ---- Ordering rules (§8.4 Sign; §9.5 checks at ordering; §10.3 C)
+  coSignRuleSatisfied: "no governed co-sign rule (content [HUMAN]; for example a rule naming signer roles whose orders need a co-signature before they take effect) requires a co-signature before activation for this signer and orderable; or that co-signature is recorded by a practitioner other than the signer who satisfies ordererPrivileged's licence and privilege conditions for this orderable and authenticated for the co-signature (R11 §10.2 'signed (and co-signed if required)'). Whether such a rule exempts STAT orders is part of the governed rule (DN-052 item 18). The co-signature that a verbal order owes after activation is verbalOrderDocumented's, not this one"
+  verbalOrderPermitted: "the order is not a verbal or telephone order; or it is one entered in a situation the governed verbal-order policy allows (content [HUMAN]; §9.5 'only in defined situations') by a receiving user who holds the privilege to receive verbal orders"
+  verbalOrderDocumented: "the order is not a verbal or telephone order; or the read-back is recorded with the source practitioner, the receiving user and the time (§9.5 'read-back captured with source and receiver'), and a co-sign due time is set that is after the receipt time and no later than the receipt time plus the governed co-sign limit (content [HUMAN]; §8.4 'verbal orders carry read-back and a co-sign due time'). Time comparison only, never dose arithmetic"
+  notVerbalAntineoplastic: "the order is not a verbal or telephone order for an orderable flagged antineoplastic in the formulary (governed content [HUMAN]; an unknown flag counts as antineoplastic). §8.4 'refused for antineoplastics'; §9.5 'except hold or stop', which are Hold and Discontinue, never Sign"
+  restrictedAntimicrobialApproved: "the orderable is not a restricted antimicrobial (formulary restriction flag, governed content [HUMAN]; an unknown restriction flag on an antimicrobial counts as restricted); or an indication is recorded and either an approver is recorded who holds the antimicrobial-approval role of the stewardship policy and is not the signer (§10.3 C 'restricted antimicrobials need an indication and an approver at order entry'; §21 row 3.1), or the order's priority is STAT or ASAP, in which case the approval follows as an owned task (createAntimicrobialApprovalTask) so a time-critical first dose is never delayed (SI-12 time-critical list; DN-052 item 16)"
+  antimicrobialStopOrReviewDateSet: "the orderable is not an antimicrobial (formulary class flag, governed content [HUMAN]; an unknown class flag on a medicine counts as antimicrobial); or the order carries a stop date or a review date (§10.3 C 'every antimicrobial order carries a stop or review date')"
+  indicationRecordedWhereRequired: "the order is not an antimicrobial (unknown class counts as antimicrobial), a PRN order or an imaging order; or an indication is recorded (§9.5 'indication required for antimicrobials (with the stewardship control set), PRNs and imaging')"
+  datedWeightRecordedIfWeightBased: "the order's dose is not expressed per body weight or per body-surface area; or the patient has the one dosing weight of record that SI-05 requires, measured, stated or estimated, recorded with its date and its source (§9.5 'no weight-based medicine signable without a dated weight'; SI-05 clause a; CTRL-0005-3; R11 §15 item 3). An estimated weight with a date and source (for example in paediatric resuscitation) counts. No staleness limit is encoded: any limit is governed content [HUMAN]. The weight is shown, never used in a calculation"
+  replacedOrderDiscontinuable: "the draft replaces no order; or the order it replaces is in pending-verification, active or on-hold, no other signed order replaces it yet, and that order's replacement Discontinue would pass its guard for this signer and this command (mayDiscontinueOrder holds for the signer on that order). So revokeReplacedOrder can never fail once Sign's guard holds. DN-052 item 10"
+  # ---- Pharmacist verification (§8.4 'Pharmacist verifies | Control set A where it applies'; §10.3 A.1). DN-052 items 6 and 15
+  notReturned: "the order's verification status is not returned (pending or verified; absent for a non-medication order)"
+  verificationReturned: "the exact complement of notReturned: the verification status is returned (by Verify with a mismatch or by ReturnToPrescriber)"
+  controlSetASatisfied: "either control set A does not apply to this order and no independently calculated dose has been recorded for it since its last submission (Sign or Resubmit); or the latest independently calculated dose recorded since the last submission was recorded by the verifying pharmacist, who attested that it matches the order, and it equals the ordered dose exactly in value and UCUM unit (every bound of a dose range; §2.1 dose arithmetic clause b: exact comparison, no conversion). The ordered dose is the absolute dose amount the prescriber entered on the order; the system never derives it from a per-weight or per-area basis (SI-05 clause c), so an order to which control set A applies that carries no prescriber-entered absolute dose fails here (the pharmacist returns it). Control set A applies while the Dose Engine is not active at the site (always in the MVP: reg-dose is P2) to every dose based on weight or body-surface area at any age, every high-alert infusion (formulary high-alert flag and an infusion order) and every neonatal order (the governed neonatal definition, content [HUMAN]); an unknown flag counts as applying"
+  controlSetAMismatch: "an independently calculated dose has been recorded for this order since its last submission (whether or not control set A applies), and the latest one does not equal the ordered dose exactly in value and UCUM unit (a unit mismatch counts as a mismatch, §2.1 clause b). Disjoint from controlSetASatisfied, which needs no recorded dose or an exactly equal one. Earlier calculations stay on record"
+  returnReasonEntered: "the pharmacist chose an intervention reason from the governed list (outcome codes, §9.10; content [HUMAN]), never defaulted (§6.5; the channel adapter owns the 'chosen' mark)"
+  prescriberResponseRecorded: "the issuer recorded a response to the return: the order is confirmed as written, with a reason chosen by the issuer from the governed list (content [HUMAN]), never defaulted, and the issuer is the ordering practitioner or a practitioner who satisfies ordererPrivileged's licence and privilege conditions for this orderable, and is not the user who returned the order (the pharmacist cannot clear their own return, DN-052 item 15; an unknown issuer or an unknown returning user fails). A change to the order is never a response: it is a replacement (DraftReplacement)"
+  # ---- Hold and resume
+  holdReasonEntered: "the issuer chose a hold reason, never defaulted (§6.5): a code from the governed list (content [HUMAN]; R11 §10.2 'held (e.g., NPO, OR)'), or 'other' with free text, which is always offered so that a missing or incomplete list never blocks a hold; a registered system principal gives the system reason it is registered for"
+  verifiedOrNotMedication: "the order is not a medication order, or its verification status is verified (it was verified before it was held: no Verify happens in on-hold)"
+  medicationAwaitingVerification: "the exact complement of verifiedOrNotMedication: a medication order whose verification status is pending or returned"
+  # ---- SI-03 timers (sent by the scheduler)
+  draftReviewDue: "the clock reading in the facts is at or after the draft's next review time and no owner task for this review is open. The first review time is the creation time plus the governed draft review interval (a shorter interval for a cutover pre-build); later ones follow at the same interval. A missing interval uses the vendor default interval (governed content [HUMAN]), never zero. Schedule-time comparison only"
+  holdReviewDue: "the clock reading in the facts is at or after the hold's next review time (the hold time plus the governed hold review interval, or the review time the issuer set on the hold if earlier) and no review task for this hold is open. A missing interval uses the vendor default interval (governed content [HUMAN]), never zero"
+  # ---- Completion
+  fulfilmentComplete: "the fulfilling module reports the order's fulfilment complete (its answer, R11 §7.3 fulfilment as tasks). For a medication order: its stop date has passed (for a once-only or fixed-count order, the stop date is the due time of its last scheduled dose) and every dose of the order is in a terminal administration state, none scheduled or in-progress (medication-administration.yaml). For a diagnostic order: every requested item has a result in final, amended or corrected (result.yaml); a cancelled or entered-in-error result does not complete the order, which is re-run or discontinued. For any other order: its fulfilment tasks are done. An unknown answer fails"
+  # ---- Discontinue (§8.4 'Reason required') and replacement
+  reasonIsReplacement: "the discontinue reason is 'replaced', which only the signing of a replacing order sets; a user is never offered it"
+  reasonIsNotReplacement: "the exact complement of reasonIsReplacement (including no reason at all)"
+  discontinueReasonEntered: "the issuer chose a discontinue reason, never defaulted (§6.5): a code from the governed list (content [HUMAN]), or 'other' with free text, which is always offered so that a missing or incomplete list never blocks a stop; a registered system or interface principal gives the system reason it is registered for (for example the patient's death). The list never contains 'replaced'"
+  replacingOrderSignedTogether: "the replacing order named by the command carries a `replaces` link to this order and is signed by the same command (the same command id: one atomic order-sign transaction, §9.5)"
+  # ---- Correction
+  privilegedAndAudited: "the issuer holds the privilege that the governed configuration requires to mark an order entered in error (§9.26; a Trust Plane answer), and the audit record of the correction can be written with the command (an audit outage refuses the command; it never runs unaudited). B.3's name, required on every exit from a terminal state (WP-0.5 spec §1.2). The reason is errorReasonEntered's"
+  errorReasonEntered: "the issuer chose an entered-in-error reason from the governed list (content [HUMAN]), never defaulted (§6.5)"
+effects:
+  publishOrderSigned: "an OrderSigned event (§8.5; OML^O21, OMI^O23, OMG^O19, RDE^O11 by order kind) is journaled with the signer, the ordering practitioner, the clinical and recorded time, and for a verbal order the receiver and the read-back"
+  recordCdsOverrides: "the CDS override records of the evaluation (rule, tier, the reason chosen, the user) are written in the order-sign transaction (§9.5) and feed the CDS registry's override telemetry (§9.6)"
+  recordCdsGaps: "every CDS check that did not answer for this command (a KB dose check: 'dose check unavailable', §2.1 clause c; a local hard-stop check that could not run, for an emergency-listed or STAT order; a non-hard-stop service that failed open) is recorded on the order and shown with the §9.6 banner. For a medication order the verification task is flagged for the pharmacist's documented manual check (cdsGapsReviewed); for any other order with a hard-stop check gap, an owned review task goes to the ordering practitioner. Nothing when every check answered"
+  trackOpenOrder: "the order appears in the overdue 'not yet resulted' view of its ordering practitioner and unit, owned by the ordering practitioner, with its expected-by time (§9.5 order-to-result tracking; SI-03 clause b; CTRL-0003-3)"
+  emitChargeEvent: "the order-sign transaction's charge event (§9.5) is written to the outbox for the RCM satellite where the tenant charges at order signing (medicines may charge on dispense or administration instead, §9.10). It never blocks or delays the order (SI-12; CTRL-0012-3)"
+  createVerificationTask: "the verification status becomes pending and an owned pharmacist verification task enters the verification queue, owned by the pharmacy verification pool with an SLA, ranked by STAT, first dose, high-alert and time due, with the STAT ≤15-minute timer (§9.10; §9.5 order-sign 'verification task'; SI-03 clause b). A replacement of a verified order is ranked as STAT, to keep the gap in continuing therapy short (DN-052 item 10)"
+  createMarSchedule: "the medications module creates the order's MAR schedule in the order-sign transaction (§9.5 'MAR schedule'); each dose that falls due creates a medication-administration instance (DoseFallsDue). Until this order is verified, a dose can be given only through the MAR's verification override, and never while the order is returned (medication-administration.yaml; DN-052 item 5)"
+  createCoSignTask: "for a verbal or telephone order, a co-sign task with the co-sign due time goes to the source practitioner and is tracked in the HIM deficiency queue (§9.5 'co-signature timers within policy, tracked in the HIM deficiency queue'). Nothing for other orders"
+  createAntimicrobialTimeOutTask: "for an antimicrobial order, an owned time-out task goes to the prescriber, due within the stewardship window of 48 to 72 h set by governed configuration (§10.3 C; content [HUMAN]). Nothing for other orders"
+  createAntimicrobialApprovalTask: "for a restricted antimicrobial signed with priority STAT or ASAP and no recorded approver, an owned approval task goes to the stewardship approver role, due within the governed approval window (content [HUMAN]), escalated and orphan-alarmed like every task (SI-03); an approver who refuses discontinues the order. Nothing for other orders (DN-052 item 16)"
+  revokeReplacedOrder: "if this order replaces another, the same transaction issues Discontinue on the replaced order with the reason 'replaced' and this order's id. Its guard holds by replacedOrderDiscontinuable, so it never fails and never acts as a guard of Sign. Nothing for an order that replaces none"
+  recordVerification: "the verification is recorded on the order (the pharmacist, the time, interventions, the manual checks of cdsGapsReviewed, and under control set A the independently calculated dose and the attestation), the verification status becomes verified, and the verification task closes (R11 §9 'Pharmacist verification: verifier, time, interventions'; §10.3 A.1)"
+  publishMedicationVerified: "a MedicationVerified event (§8.5; RDS^O13) is journaled; the MAR's activeVerifiedOrder reads the order as active and verified from here on (open question ORD-Q1 on who publishes it)"
+  returnToPrescriber: "the verification status becomes returned (the MAR's orderAwaitingVerification no longer holds, so no verification override is possible), the verification task stays open and is marked returned, and an owned task with an SLA goes to the ordering practitioner with the pharmacist's reason or the mismatch, to confirm the order as written (Resubmit), replace it (DraftReplacement) or discontinue it (§10.3 A.1 'A mismatch returns the order to the prescriber'; SI-03 clause b)"
+  resubmitForVerification: "the verification status becomes pending again, the return task closes with the prescriber's response, and the verification task returns to the top of the queue. Independently calculated doses recorded before the resubmission stay on record and no longer count: the pharmacist records a fresh one (controlSetASatisfied)"
+  flagIfIdentityNotReverified: "if identityReverificationSatisfied does not hold for this command (the issuing session's context changed within the window and the issuer did not confirm a re-verification), the command still takes effect, is journaled as 'identity not re-verified', and an owned task goes to the ordering practitioner and the patient's nurse to confirm it was meant for this patient. Nothing otherwise (DN-052 item 2)"
+  suspendFulfilment: "the order is held: its verification status is unchanged (a returned order stays returned); fulfilling modules suspend its work: no dose of a held order is administrable (the MAR's activeVerifiedOrder and orderAwaitingVerification both need an unheld state), its doses are not flagged late, and a dose whose late-dose window passes while the order is held closes as not-done with the reason order-on-hold (medication-administration.yaml); pharmacy stops dispensing it; a verification task is paused; uncollected specimens wait. The hold appears in the ordering practitioner's open-order view"
+  resumeFulfilment: "the hold ends: the verification status is unchanged; fulfilling modules resume the order's work from the resume time; a paused verification task returns to the queue; an open hold review task closes"
+  createDraftOwnerTask: "an owned task with an SLA goes to the draft's owner to sign or discard it: the author, or for a cutover pre-build the prescriber it names, with the pharmacist who pre-built it informed (SI-03 clause b; §21 row 3.13)"
+  createHoldReviewTask: "an owned task with an SLA goes to the ordering practitioner to resume or discontinue the held order (SI-03 clause b)"
+  linkReplacingOrder: "the revoked order records the replacing order's id (R11 §7.2 replaces), and one OrderModified event (§8.5) is journaled for the pair; no OrderDiscontinued is published for a replacement"
+  closeOpenFulfilment: "the order has ended (revoked, replaced, completed or entered in error): fulfilling modules close its open work. The MAR receives OrderEnded for each of its scheduled and in-progress doses: it closes a scheduled dose as not-done with the reason order-ended and raises an owned stop task for a running infusion (medication-administration.yaml). Pharmacy stops dispensing, the lab cancels uncollected specimens, and the order leaves the open-order view. A dose already given offline against it is kept as a fact and flagged to the prescriber and pharmacist as an owned task (§9.10 mobile offline BCMA; SI-15; CTRL-0015-9). Nothing is left open for a completed order"
+  publishOrderDiscontinued: "an OrderDiscontinued event (§8.5) is journaled with the reason, the issuer and the time"
+  closeOrderTracking: "the order leaves the overdue 'not yet resulted' view; results still pending for a discharged patient stay in owned queues (SI-17, results routing)"
+  flagEnteredInError: "the order is shown as entered in error, never deleted (H6), its open work is closed (closeOpenFulfilment) and every module holding facts derived from it (MAR entries, specimens, results, charges through the outbox) is told to flag them; the recipients of earlier messages about the order are notified"
+transitions:
+  # ---- Sign (§8.4 'draft | Sign | ... | active (medication: pending-verification)'). Two alternatives
+  # split by the exact complements medicationOrder / notMedicationOrder; every other guard is the same.
+  - from: draft
+    on: Sign
+    guard: [medicationOrder, signerAuthenticatedHuman, ordererPrivileged, identityReverificationSatisfied, notOfflineWithoutFullCds, localHardStopsSatisfied, kbHardStopNotFired, interruptiveAlertsAnswered, coSignRuleSatisfied, verbalOrderPermitted, verbalOrderDocumented, notVerbalAntineoplastic, restrictedAntimicrobialApproved, antimicrobialStopOrReviewDateSet, indicationRecordedWhereRequired, datedWeightRecordedIfWeightBased, replacedOrderDiscontinuable]
+    effects: [revokeReplacedOrder, recordCdsOverrides, recordCdsGaps, createVerificationTask, createMarSchedule, createCoSignTask, createAntimicrobialTimeOutTask, createAntimicrobialApprovalTask, emitChargeEvent, trackOpenOrder, publishOrderSigned]
+    to: pending-verification
+    description: "§8.4 order 'draft | Sign | Privileges; identity re-verified if the context changed <60 s ago (SI-16); CDS checks; co-sign rules; verbal orders ...; restricted antimicrobials ... | active (medication: pending-verification)'; R11 §10.2 'Medication orders add a pending verification → verified sub-state'; SI-15 'no new prescribing without full CDS'. One atomic order-sign transaction (§9.5)"
+  - from: draft
+    on: Sign
+    guard: [notMedicationOrder, signerAuthenticatedHuman, ordererPrivileged, identityReverificationSatisfied, notOfflineWithoutFullCds, localHardStopsSatisfied, kbHardStopNotFired, interruptiveAlertsAnswered, coSignRuleSatisfied, verbalOrderPermitted, verbalOrderDocumented, notVerbalAntineoplastic, restrictedAntimicrobialApproved, antimicrobialStopOrReviewDateSet, indicationRecordedWhereRequired, datedWeightRecordedIfWeightBased, replacedOrderDiscontinuable]
+    effects: [revokeReplacedOrder, recordCdsOverrides, recordCdsGaps, createCoSignTask, emitChargeEvent, trackOpenOrder, publishOrderSigned]
+    to: active
+    description: "§8.4 order 'draft | Sign | ... | active'; R11 §10.2 'draft → active: signed (and co-signed if required)'. A non-medication order needs no pharmacist verification"
+  # ---- Discard (§8.4 'draft | Discard | — | revoked'). An unsigned draft never reached the patient.
+  - from: draft
+    on: Discard
+    guard: [actorPrivileged]
+    to: revoked
+    description: "§8.4 order 'draft | Discard | — | revoked'; R11 §10.2 'draft → revoked: discarded'. actorPrivileged is this build's addition (DN-052 item 9)"
+  # ---- SI-03 owner timer for drafts, including cutover pre-builds. Sent by the scheduler.
+  - from: draft
+    on: DraftReviewDue
+    guard: [draftReviewDue]
+    effects: [createDraftOwnerTask]
+    to: draft
+    description: "An unsigned draft gets an owner task with an SLA (SI-03 clause b; §21 row 3.13 pre-builds). Proposed edge (DN-052 item 17)"
+  # ---- Pharmacist verification (§8.4 'active: pending-verification | Pharmacist verifies | Control set
+  # A where it applies ... | active: verified'). Both Verify alternatives need notReturned: a returned
+  # order is verified only after the prescriber's Resubmit (or it is replaced or discontinued).
+  - from: pending-verification
+    on: Verify
+    guard: [notReturned, verifierIsPharmacist, verifierIndependentOfOrderer, identityReverificationSatisfied, notOfflineWithoutFullCds, localHardStopsSatisfied, kbHardStopNotFired, interruptiveAlertsAnswered, cdsGapsReviewed, controlSetASatisfied]
+    effects: [recordVerification, publishMedicationVerified]
+    to: active
+    description: "§8.4 order 'active: pending-verification | Pharmacist verifies | Control set A where it applies | active: verified'; §10.3 A.1 'Verification cannot complete until the pharmacist records an independently calculated dose and attests that it matches the order'; R11 §9 item 5 (checks re-run at verification)"
+  # Any recorded mismatch returns the order (§10.3 A.1), whether or not control set A applies. Never
+  # refused for a missing re-verification: a return restricts therapy (flagged instead).
+  - from: pending-verification
+    on: Verify
+    guard: [notReturned, verifierIsPharmacist, controlSetAMismatch]
+    effects: [returnToPrescriber, flagIfIdentityNotReverified]
+    to: pending-verification
+    description: "§10.3 A.1 'A mismatch returns the order to the prescriber'; §2.1 clause b 'a unit mismatch counts as a mismatch and returns the order for review'. Proposed edge: §8.4 and R11 draw no return. The order is not sent back to draft: a signed order changes only by replacement"
+  - from: pending-verification
+    on: ReturnToPrescriber
+    guard: [notReturned, verifierIsPharmacist, returnReasonEntered]
+    effects: [returnToPrescriber, flagIfIdentityNotReverified]
+    to: pending-verification
+    description: "Pharmacist returns the order to the prescriber with an intervention reason (§9.10 'interventions with outcome codes'). Proposed edge (this build's addition)"
+  # The prescriber's answer to a return: the order is confirmed as written and goes back to the queue,
+  # where the pharmacist must record a fresh calculation. A change is a replacement instead.
+  - from: pending-verification
+    on: Resubmit
+    guard: [verificationReturned, actorPrivileged, identityReverificationSatisfied, prescriberResponseRecorded]
+    effects: [resubmitForVerification]
+    to: pending-verification
+    description: "Prescriber confirms a returned order as written (§10.3 A.1: the return goes to the prescriber; the pharmacist cannot clear their own return). Proposed edge (DN-052 item 15)"
+  # ---- Hold and resume (§8.4 'active | Hold / resume | — | on-hold ↔ active'). A hold is never
+  # refused for re-verification, privilege configuration or licence (DN-052 items 2 and 14).
+  - from: active
+    on: Hold
+    guard: [mayHoldOrder, holdReasonEntered]
+    effects: [suspendFulfilment, flagIfIdentityNotReverified]
+    to: on-hold
+    description: "§8.4 order 'active | Hold | on-hold'; R11 §10.2 'active → on_hold: held (e.g., NPO, OR)'"
+  - from: pending-verification
+    on: Hold
+    guard: [mayHoldOrder, holdReasonEntered]
+    effects: [suspendFulfilment, flagIfIdentityNotReverified]
+    to: on-hold
+    description: "Hold of a medication order awaiting verification (for example NPO before theatre). Proposed edge: §8.4 draws the hold from 'active' (DN-052 item 19); the verification status (pending or returned) is kept"
+  # SI-03 owner timer for holds (the held-and-forgotten order). Sent by the scheduler.
+  - from: on-hold
+    on: HoldReviewDue
+    guard: [holdReviewDue]
+    effects: [createHoldReviewTask]
+    to: on-hold
+    description: "A held order gets a review task with an SLA (SI-03 clause b). Proposed edge (DN-052 item 17)"
+  # Resume restarts therapy, so it needs re-verification. It never skips verification: the two
+  # alternatives are split by the exact complements verifiedOrNotMedication /
+  # medicationAwaitingVerification, and the verification status is kept.
+  - from: on-hold
+    on: Resume
+    guard: [actorPrivileged, identityReverificationSatisfied, verifiedOrNotMedication]
+    effects: [resumeFulfilment]
+    to: active
+    description: "§8.4 order 'on-hold → active (resume)'; R11 §10.2 'on_hold → active: resumed'. A medication order returns to active only if it was verified before the hold"
+  - from: on-hold
+    on: Resume
+    guard: [actorPrivileged, identityReverificationSatisfied, medicationAwaitingVerification]
+    effects: [resumeFulfilment]
+    to: pending-verification
+    description: "Resume of a medication order that was held before verification: back to pending-verification with its status (pending or returned) kept, never to active. Proposed edge"
+  # ---- Completion (§8.4 'active | Fulfilled / result final | — | completed'). Only from active.
+  - from: active
+    on: Complete
+    guard: [fulfilmentComplete]
+    effects: [closeOpenFulfilment, closeOrderTracking]
+    to: completed
+    description: "§8.4 order 'active | Fulfilled / result final | completed'; R11 §10.2 'active → completed: fulfilled / result final'"
+  # ---- Discontinue (§8.4 'active | Discontinue | Reason required | revoked'). Never refused for
+  # re-verification, privilege configuration or licence. Two alternatives split by the exact
+  # complements reasonIsNotReplacement / reasonIsReplacement.
+  - from: active
+    on: Discontinue
+    guard: [mayDiscontinueOrder, reasonIsNotReplacement, discontinueReasonEntered]
+    effects: [closeOpenFulfilment, closeOrderTracking, publishOrderDiscontinued, flagIfIdentityNotReverified]
+    to: revoked
+    description: "§8.4 order 'active | Discontinue | Reason required | revoked'; R11 §10.2 'active → revoked: discontinued (reason)'. A verbal stop of an antineoplastic is allowed (§9.5 'except hold or stop')"
+  - from: [pending-verification, on-hold]
+    on: Discontinue
+    guard: [mayDiscontinueOrder, reasonIsNotReplacement, discontinueReasonEntered]
+    effects: [closeOpenFulfilment, closeOrderTracking, publishOrderDiscontinued, flagIfIdentityNotReverified]
+    to: revoked
+    description: "Discontinue of an order awaiting verification or held, without resuming it first. Proposed edges: §8.4 draws Discontinue from 'active' only (DN-052 item 19)"
+  # A modification (§8.4 'A modification is a new request that replaces the old one'): the old order is
+  # revoked with the reason 'replaced' by the Sign of its replacement, in that Sign's transaction. A new
+  # alternative on the drawn active → revoked edge, so the transition itself is proposed.
+  - from: [pending-verification, active, on-hold]
+    on: Discontinue
+    guard: [mayDiscontinueOrder, reasonIsReplacement, replacingOrderSignedTogether]
+    effects: [linkReplacingOrder, closeOpenFulfilment, closeOrderTracking]
+    to: revoked
+    proposed: true
+    description: "Replacement of an order by a signed modification (the sentence under the §8.4 order table; R11 §7.2 replaces). Proposed: this build's reading of how the old order ends (DN-052 item 10)"
+  # ---- Mark error (§8.4 'active | Mark error | — | entered-in-error'). privilegedAndAudited and a
+  # chosen reason are this build's additions (DN-052 item 9). Discontinue stays open whatever happens
+  # here, so a refused Mark error never leaves an order unstoppable.
+  - from: active
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, identityReverificationSatisfied, errorReasonEntered]
+    effects: [flagEnteredInError, closeOpenFulfilment, closeOrderTracking]
+    to: entered-in-error
+    description: "§8.4 order 'active | Mark error | entered-in-error'; R11 §10.2 'active → entered_in_error'. Entered-in-error replaces delete (H6)"
+  - from: [pending-verification, on-hold]
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, identityReverificationSatisfied, errorReasonEntered]
+    effects: [flagEnteredInError, closeOpenFulfilment, closeOrderTracking]
+    to: entered-in-error
+    description: "Mark error of an order awaiting verification or held. Proposed edges (DN-052 item 19)"
+  # From the terminal completed and revoked: an audited correction (WP-0.5 spec §1.2), for example an
+  # order placed on the wrong patient and found after it was fulfilled or discontinued.
+  - from: [completed, revoked]
+    on: MarkEnteredInError
+    guard: [privilegedAndAudited, identityReverificationSatisfied, errorReasonEntered]
+    effects: [flagEnteredInError]
+    to: entered-in-error
+    description: "Correction of a completed or revoked order. Proposed edges: §8.4 and R11 §10.2 draw entered-in-error from active only"
+# Edges §8.4 and R11 §10.2 do not draw, awaiting panel approval (§8.4; A.20 "Undrawn transitions").
+# pending-verification is read as "not drawn" for every edge except Verify → active (DN-052 item 19).
+proposed:
+  - "draft→draft"
+  - "pending-verification→pending-verification"
+  - "pending-verification→on-hold"
+  - "pending-verification→revoked"
+  - "pending-verification→entered-in-error"
+  - "on-hold→on-hold"
+  - "on-hold→pending-verification"
+  - "on-hold→revoked"
+  - "on-hold→entered-in-error"
+  - "completed→entered-in-error"
+  - "revoked→entered-in-error"
+invariants: [SI-02, SI-03, SI-05, SI-07, SI-12, SI-14, SI-15, SI-16]
+events: [OrderSigned, OrderModified, OrderDiscontinued, MedicationVerified]
+hazards: [HAZ-0002, HAZ-0003, HAZ-0005, HAZ-0007, HAZ-0012, HAZ-0014, HAZ-0015, HAZ-0016]
+sources:
+  - "BUILD-PROMPT §8.4 (order table and 'Every order reaches completed, revoked or entered-in-error (SI-03). A modification is a new request that replaces the old one.')"
+  - "BUILD-PROMPT §2.1 SI-02, SI-03, SI-05 (and the dose-arithmetic definition, clauses b and c), SI-07, SI-12, SI-14, SI-15, SI-16"
+  - "BUILD-PROMPT §9.5 (order types; verbal and telephone orders; checks at ordering; the order lifecycle; the atomic order-sign transaction; acceptance)"
+  - "BUILD-PROMPT §9.6 (services fail open with a banner, except hard stops, which fail closed); §9.7 (one order lifecycle; acceptance 1); §9.10 (pharmacist verification; mobile offline BCMA)"
+  - "BUILD-PROMPT §9.26 (privilege checks gate order entry; an expired licence blocks new orders)"
+  - "BUILD-PROMPT §10.3 A (extended Dose Engine fallback) and C (stewardship control set)"
+  - "BUILD-PROMPT §21 rows 3.1, 3.2 and 3.13 (pharmacist pre-build of orders 'pending prescriber signature'); Appendix B.3; Appendix A.20 'Undrawn transitions'"
+  - "R11 §7 (request types; common order attributes incl. priority, replaces and the verbal-order on-behalf-of with read-back and co-sign due-by; fulfilment as tasks), §9 (pharmacist verification; checks re-run at verification), §10.2 (order machine) and §15 item 3 (measured, stated or estimated weight)"
+  - "docs/specs/state-machines/patient-context.yaml at fcadc88 (contextChangedWithinWindow, reverifiedSinceLastChange; DN-026, DN-027, DN-028 on wp/0.7-design-system)"
+  - "docs/specs/state-machines/medication-administration.yaml (activeVerifiedOrder, orderAwaitingVerification; the verification override); docs/specs/state-machines/result.yaml (final, amended, corrected)"
+  - "docs/safety/hazard-log.yaml: CTRL-0002-3, CTRL-0002-6, CTRL-0003-3, CTRL-0005-3, CTRL-0005-7, CTRL-0005-9, CTRL-0005-10, CTRL-0012-3, CTRL-0012-4, CTRL-0014-3, CTRL-0015-3, CTRL-0015-4, CTRL-0015-9, CTRL-0016-1, CTRL-0016-7"

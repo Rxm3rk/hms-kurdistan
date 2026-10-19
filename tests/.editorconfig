@@ -1,0 +1,21 @@
+# Editor and ktlint settings for the cross-module test projects under tests/ (a copy of backend/.editorconfig;
+# keep the two identical). root = true keeps ktlint's configuration inside the repository.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+max_line_length = 140
+
+[*.{yml,yaml,toml,json}]
+indent_size = 2
+
+[*.bat]
+end_of_line = crlf
